@@ -25,7 +25,8 @@ import torch.cuda.amp as amp
 import torch.distributed as dist
 import torch.backends.cudnn as cudnn
 from torch.utils.data import DataLoader, Dataset, ConcatDataset
-sys.path.append("./stable_diffusion")
+proj_root = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(os.path.join(proj_root,"stable_diffusion"))
 
 from ldm.data.base import Txt2ImgIterableBaseDataset
 from ldm.util import instantiate_from_config
