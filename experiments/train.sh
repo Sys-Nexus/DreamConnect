@@ -1,7 +1,7 @@
 jobname=${1:-'fmri_instruct_diffusion'}
 mode=${2:-'single'}
 gpus=${3:-'1,'}
-
+master_port=${4:-'49989'}
 
 num_nodes=1
 if [[ ${mode} == 'single' ]]; then
