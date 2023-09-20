@@ -20,7 +20,7 @@ cmd_suffix=''
 current_date=$(date +"%Y-%m-%d")
 exp_name=${jobname}"_"${current_date}
 
-${run_cmd} main.py --name ${exp_name} \
+CUDA_VISIBLE_DEVICES=${gpus} ${run_cmd} main.py --name ${exp_name} \
           --base configs/${jobname}.yaml \
           --train \
           --gpus ${gpus} \
