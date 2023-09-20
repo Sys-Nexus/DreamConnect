@@ -8,6 +8,7 @@ if [[ ${mode} == 'single' ]]; then
   unset WORLD_SIZE
   unset NODE_RANK
   export MASTER_PORT=${master_port}
+  export RANK=0
   num_nodes=1
   run_cmd='python'
 fi
