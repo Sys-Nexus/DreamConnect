@@ -435,13 +435,13 @@ if __name__ == "__main__":
     else:
         rank = -1
         world_size = -1
-    if opt.amd:
-        os.environ["CUDA_VISIBLE_DEVICES"] = str(opt.local_rank)
-        torch.distributed.init_process_group(backend='gloo', init_method='env://', world_size=world_size, rank=rank)
-    else:
-        torch.cuda.set_device(opt.local_rank)
-        torch.distributed.init_process_group(backend='nccl', init_method='env://', world_size=world_size, rank=rank)
-    torch.distributed.barrier()
+    # if opt.amd:
+    #     os.environ["CUDA_VISIBLE_DEVICES"] = str(opt.local_rank)
+    #     torch.distributed.init_process_group(backend='gloo', init_method='env://', world_size=world_size, rank=rank)
+    # else:
+    #     torch.cuda.set_device(opt.local_rank)
+    #     torch.distributed.init_process_group(backend='nccl', init_method='env://', world_size=world_size, rank=rank)
+    # torch.distributed.barrier()
     
     seed = opt.seed + dist.get_rank()
     torch.manual_seed(seed)
