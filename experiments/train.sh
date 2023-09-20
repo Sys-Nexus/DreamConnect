@@ -10,6 +10,7 @@ if [[ ${mode} == 'single' ]]; then
   export MASTER_PORT=${master_port}
   export RANK=0
   export WORLD_SIZE=1
+  export MASTER_ADDR=${master_port}
   num_nodes=1
   run_cmd='python'
 fi
