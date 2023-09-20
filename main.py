@@ -28,7 +28,7 @@ from torch.utils.data import DataLoader, Dataset, ConcatDataset
 proj_root = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(proj_root,"stable_diffusion"))
 
-from ldm.data.base import Txt2ImgIterableBaseDataset
+# from ldm.data.base import Txt2ImgIterableBaseDataset
 from ldm.util import instantiate_from_config
 from ldm.modules.ema import LitEma
 from utils.logger import create_logger
