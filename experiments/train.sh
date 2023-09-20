@@ -12,7 +12,7 @@ if [[ ${mode} == 'single' ]]; then
   export WORLD_SIZE=1
   export MASTER_ADDR=${master_port}
   num_nodes=1
-  run_cmd='python'
+  run_cmd='torchrun'
 fi
 
 cmd_suffix=''
