@@ -134,7 +134,7 @@ class NSDDataset(Dataset):
         nsd_dict = {'cap': random.choice(caps), 'image': init_image, 'fmri': fmri_norm}
 
         image_vae = np.load(self.vae_paths[s])
-        nsd_dict = {'image_vae': image_vae}
+        nsd_dict['image_vae'] = image_vae
 
         # TODO
         try:
