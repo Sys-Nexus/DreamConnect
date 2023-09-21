@@ -13,5 +13,5 @@ class FMRI2VisualEmbedder(nn.Module):
     
     def forward(self, fmri):
         emb_vae = self.fmri2vae(fmri)
-        emb_vae = emb_vae.reshape(frmi.shape[0],4,64,64) # hard-coded to SD-v-1.5
+        emb_vae = emb_vae.reshape(fmri.shape[0],4,64,64) # hard-coded to SD-v-1.5
         return emb_vae
