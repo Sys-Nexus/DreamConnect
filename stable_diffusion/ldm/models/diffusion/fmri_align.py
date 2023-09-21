@@ -139,7 +139,7 @@ class FMRIAlign(nn.Module):
     def instantiate_fmri2visual_stage(self, config):
         model = instantiate_from_config(config)
         self.fmri2visual_model = model.train()
-        self.fmri2visual_model = self.fmri2visual_model.float()
+        # self.fmri2visual_model = self.fmri2visual_model.float()
         # self.fmri2visual_model = model.eval()
         # self.fmri2visual_model.train = disabled_train
         # for param in self.cond_stage_model.parameters():
