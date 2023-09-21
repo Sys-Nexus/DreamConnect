@@ -139,6 +139,7 @@ class FMRIAlign(nn.Module):
     def instantiate_fmri2visual_stage(self, config):
         model = instantiate_from_config(config)
         self.fmri2visual_model = model.train()
+        self.fmri2visual_model = self.fmri2visual_model.float()
         # self.fmri2visual_model = model.eval()
         # self.fmri2visual_model.train = disabled_train
         # for param in self.cond_stage_model.parameters():
@@ -271,7 +272,8 @@ class FMRIAlign(nn.Module):
         # x, c = self.get_input(batch, self.first_stage_key)
         fmri = batch['fmri'].cuda()
         gt_image_vae = batch['image_vae'].cuda()
-
+        
+        import pdb; pdb.set_trace();
         pred_image_vae = self.fmri2visual_model(fmri)
         pred_image_vae = pred_image_vae.flatten()
 
