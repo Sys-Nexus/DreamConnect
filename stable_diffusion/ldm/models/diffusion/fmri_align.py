@@ -138,8 +138,8 @@ class FMRIAlign(nn.Module):
 
     def instantiate_fmri2visual_stage(self, config):
         model = instantiate_from_config(config)
-        # self.fmri2visual_model = model.train()
-        self.fmri2visual_model = model.eval()
+        self.fmri2visual_model = model.train()
+        # self.fmri2visual_model = model.eval()
         # self.fmri2visual_model.train = disabled_train
         # for param in self.cond_stage_model.parameters():
         #     param.requires_grad = False
@@ -269,6 +269,8 @@ class FMRIAlign(nn.Module):
 
     def forward(self, batch, batch_idx, num_steps, *args, **kwargs):
         # x, c = self.get_input(batch, self.first_stage_key)
+        fmri = batch['fmri'].cuda()
+        image_vae = self.fmri2visual_model(fmri)
         import pdb; pdb.set_trace();
         t = torch.randint(0, self.num_timesteps, (x.shape[0],), device=x.device).long()
         if self.model.conditioning_key is not None:

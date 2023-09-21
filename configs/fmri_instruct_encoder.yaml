@@ -59,7 +59,7 @@ model:
     fmri2visual_stage_config:
       target: ldm.modules.encoders.fmri_modules.FMRI2VisualEmbedder
       params:
-        input_size: 567
+        input_size: 7604
         output_size: 4096
         hidden_size: 256  # Adjust this as needed
         dropout_prob: 0.5  # Adjust the dropout probability as needed
