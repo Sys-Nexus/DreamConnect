@@ -72,6 +72,8 @@ class FMRIAlign(nn.Module):
                  deepspeed="",
                  is_fmri_input=True,
                  *args, **kwargs):
+        super().__init__()
+
         self.deepspeed = deepspeed
         self.frmi_cond_stage_key = fmri_cond_stage_key
         self.num_timesteps_cond = default(num_timesteps_cond, 1)
@@ -84,7 +86,6 @@ class FMRIAlign(nn.Module):
             conditioning_key = None
         ckpt_path = kwargs.pop("ckpt_path", None)
         ignore_keys = kwargs.pop("ignore_keys", [])
-        super().__init__(conditioning_key=conditioning_key, *args, **kwargs)
         self.concat_mode = concat_mode
         self.cond_stage_trainable = cond_stage_trainable
         self.cond_stage_key = cond_stage_key
