@@ -270,8 +270,8 @@ class FMRIAlign(nn.Module):
 
     def forward(self, batch, batch_idx, num_steps, *args, **kwargs):
         # x, c = self.get_input(batch, self.first_stage_key)
-        fmri = batch['fmri'].cuda()
-        gt_image_vae = batch['image_vae'].cuda()
+        fmri = batch['fmri'].half().cuda()
+        gt_image_vae = batch['image_vae'].half().cuda()
         
         import pdb; pdb.set_trace();
         pred_image_vae = self.fmri2visual_model(fmri)
