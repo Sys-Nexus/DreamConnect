@@ -326,7 +326,7 @@ class FMRIAlign(nn.Module):
         fmri = batch['fmri'].half().cuda()
         # gt_image_vae = batch['image_vae'].half().cuda()
         gt_image = batch['image'].half().cuda()
-        # import pdb; pdb.set_trace();
+        import pdb; pdb.set_trace();
         gt_image = F.interpolate(gt_image, (256,256))
         gt_image_vae = self.encode_first_stage(gt_image).mode()
         pred_image_vae = self.fmri2visual_model(fmri)
