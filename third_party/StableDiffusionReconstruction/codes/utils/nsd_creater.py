@@ -131,7 +131,7 @@ class NSDDataset(Dataset):
         init_image = repeat(init_image, '1 ... -> b ...', b=self.batch_size)
 
         fmri_norm = (self.X[index]-self.X_mean)/self.X_std
-        nsd_dict = {'cap': random.choice(caps), 'image': init_image, 'fmri': fmri_norm}
+        nsd_dict = {'cap': random.choice(caps), 'image': init_image[0], 'fmri': fmri_norm}
 
         image_vae = np.load(self.vae_paths[s])
         nsd_dict['image_vae'] = image_vae
