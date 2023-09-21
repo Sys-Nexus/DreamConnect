@@ -15,6 +15,30 @@ from einops import repeat
 from torch.utils.data import Dataset
 
 
+
+def read_pkl(path, idx=0):
+    with open(path, 'rb') as f:
+        data = pickle.load(f)
+    coco_dict = data
+    caps = []
+    keys = []
+    for k,v in data.items():
+        caps.append(v[idx])
+        keys.append(k)
+    return caps, keys, coco_dict
+
+
+def read_edit_json(root):
+    meta_paths = sorted(glob.glob(os.path.join(root, '*.json')))
+    print(meta_paths[:20])
+    meta = []
+    for meta_path in meta_paths:
+        meta_i = json.load(open(meta_path, 'r'))
+        meta.extend(meta_i)
+    # import pdb; pdb.set_trace();
+    return meta
+
+
 def load_img_from_arr(img_arr,resolution):
     image = Image.fromarray(img_arr).convert("RGB")
     w, h = resolution, resolution
@@ -84,18 +108,37 @@ class NSDDataset(Dataset):
         # print('X shape: ', X.shape)
         # import pdb; pdb.set_trace()
 
+        vae_root = '/data/yashengsun/Proj/MMEdit/StableDiffusionReconstruction/nsdfeat_256/init_latent'
+        self.vae_paths = {s: os.path.join(vae_root, '{:06d}.npy'.format(s)) for s in self.idexes}
+
+        nsd_root = os.path.dirname(os.path.abspath(__file__))
+        nsd_coco_caption_path = os.path.join(nsd_root, 'misc/nsd_coco_caption.pkl')
+        self.caps, self.keys, self.cap_dict = read_pkl(nsd_coco_caption_path)
+        self.meta_info = read_edit_json(os.path.join(nsd_root, 'misc'))
+
     def __getitem__(self, index):
         s = self.idxes[index]
         # m_idx = self.mri_idxes[index]
-        prompt = []
-        prompts = self.nsda.read_image_coco_info([s], info_type='captions')
-        for p in prompts:
-            prompt.append(p['caption'])
+        # prompt = []
+        # prompts = self.nsda.read_image_coco_info([s], info_type='captions')
+        # for p in prompts:
+        #     prompt.append(p['caption'])
+        
         img = self.nsda.read_images(s)
-
         init_image = load_img_from_arr(img, self.resolution)
         init_image = repeat(init_image, '1 ... -> b ...', b=self.batch_size)
-        nsd_dict = {'cap': random.choice(prompt), 'image': init_image, 'fmri': (self.X[index]-self.X_mean)/self.X_std}
+
+        fmri_norm = (self.X[index]-self.X_mean)/self.X_std
+        nsd_dict = {'cap': random.choice(prompt), 'image': init_image, 'fmri': fmri_norm}
+
+        image_vae = np.load(self.image_vae_paths[s])
+        nsd_dict = {'image_vae': image_vae}
+
+        chosen_i = 0
+        instruction_text = self.meta_info[s]['edit'][chosen_i]
+        nsd_dict['fmri_edit'] = {'c_concat': fmri_norm, 'c_crossattn': instruction_text}
+        # nsd_dict['edited'] = None # TODO
+
         return nsd_dict
 
     def __len__(self):

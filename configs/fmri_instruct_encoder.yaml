@@ -4,7 +4,7 @@
 model:
   base_learning_rate: 1.0e-04
   weight_decay: 0.01
-  target: ldm.models.diffusion.fmri_ddpm_edit.LatentDiffusion
+  target: ldm.models.diffusion.fmri_align.FMRIAlign
   params:
     fp16: True
     deepspeed: 'deepspeed_1'
@@ -33,46 +33,29 @@ model:
         f_max: [ 1. ]
         f_min: [ 1. ]
 
-    unet_config:
-      target: ldm.modules.diffusionmodules.openaimodel.UNetModel
-      params:
-        image_size: 32 # unused
-        in_channels: 8
-        out_channels: 4
-        model_channels: 320
-        attention_resolutions: [ 4, 2, 1 ]
-        num_res_blocks: 2
-        channel_mult: [ 1, 2, 4, 4 ]
-        num_heads: 8
-        use_spatial_transformer: True
-        transformer_depth: 1
-        context_dim: 768
-        use_checkpoint: True
-        legacy: False
-        force_type_convert: True
 
-    first_stage_config:
-      target: ldm.models.autoencoder.AutoencoderKL
-      params:
-        embed_dim: 4
-        monitor: val/rec_loss
-        ddconfig:
-          double_z: true
-          z_channels: 4
-          resolution: 256
-          in_channels: 3
-          out_ch: 3
-          ch: 128
-          ch_mult:
-          - 1
-          - 2
-          - 4
-          - 4
-          num_res_blocks: 2
-          attn_resolutions: []
-          dropout: 0.0
-        lossconfig:
-          target: torch.nn.Identity
+    # first_stage_config:
+    #   target: ldm.models.autoencoder.AutoencoderKL
+    #   params:
+    #     embed_dim: 4
+    #     monitor: val/rec_loss
+    #     ddconfig:
+    #       double_z: true
+    #       z_channels: 4
+    #       resolution: 256
+    #       in_channels: 3
+    #       out_ch: 3
+    #       ch: 128
+    #       ch_mult:
+    #       - 1
+    #       - 2
+    #       - 4
+    #       - 4
+    #       num_res_blocks: 2
+    #       attn_resolutions: []
+    #       dropout: 0.0
+    #     lossconfig:
+    #       target: torch.nn.Identity
 
     fmri2visual_stage_config:
       target: ldm.modules.encoders.fmri_modules.FMRI2VisualEmbedder
@@ -81,9 +64,6 @@ model:
         output_size: 4096
         hidden_size: 256  # Adjust this as needed
         dropout_prob: 0.5  # Adjust the dropout probability as needed
-
-    cond_stage_config:
-      target: ldm.modules.encoders.modules.FrozenCLIPEmbedder
 
 data:
   target: main.DataModuleFromConfig
