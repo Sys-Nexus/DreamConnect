@@ -278,6 +278,6 @@ class FMRIAlign(nn.Module):
         loss = torch.nn.L1Loss(pred_image_vae, gt_image_vae)
         loss_dict = {'L1': loss.item()}
 
-        # loss, loss_dict = self.p_losses(x, c, t, *args, **kwargs)
+        import pdb; pdb.set_trace();
 
         return loss, loss_dict
