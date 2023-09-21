@@ -273,7 +273,7 @@ class FMRIAlign(nn.Module):
         fmri = batch['fmri'].half().cuda()
         gt_image_vae = batch['image_vae'].half().cuda()
         
-        # import pdb; pdb.set_trace();
+        import pdb; pdb.set_trace();
         pred_image_vae = self.fmri2visual_model(fmri)
         pred_image_vae = pred_image_vae.view(fmri.shape[0],-1)
 
