@@ -124,13 +124,14 @@ class NSDDataset(Dataset):
         # prompts = self.nsda.read_image_coco_info([s], info_type='captions')
         # for p in prompts:
         #     prompt.append(p['caption'])
-        
+        caps = self.cap_dict[s]
+
         img = self.nsda.read_images(s)
         init_image = load_img_from_arr(img, self.resolution)
         init_image = repeat(init_image, '1 ... -> b ...', b=self.batch_size)
 
         fmri_norm = (self.X[index]-self.X_mean)/self.X_std
-        nsd_dict = {'cap': random.choice(prompt), 'image': init_image, 'fmri': fmri_norm}
+        nsd_dict = {'cap': random.choice(caps), 'image': init_image, 'fmri': fmri_norm}
 
         image_vae = np.load(self.image_vae_paths[s])
         nsd_dict = {'image_vae': image_vae}
