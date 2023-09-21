@@ -136,8 +136,13 @@ class NSDDataset(Dataset):
         image_vae = np.load(self.vae_paths[s])
         nsd_dict = {'image_vae': image_vae}
 
-        chosen_i = 0
-        instruction_text = self.meta_info[s]['edit'][chosen_i]
+        # TODO
+        try:
+            chosen_i = 0
+            instruction_text = self.meta_info[s]['edit'][chosen_i]
+        except:
+            instruction_text = ''
+
         nsd_dict['fmri_edit'] = {'c_concat': fmri_norm, 'c_crossattn': instruction_text}
         # nsd_dict['edited'] = None # TODO
 
