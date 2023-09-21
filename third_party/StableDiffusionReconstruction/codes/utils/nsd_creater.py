@@ -109,7 +109,7 @@ class NSDDataset(Dataset):
         # import pdb; pdb.set_trace()
 
         vae_root = '/data/yashengsun/Proj/MMEdit/StableDiffusionReconstruction/nsdfeat_256/init_latent'
-        self.vae_paths = {s: os.path.join(vae_root, '{:06d}.npy'.format(s)) for s in self.idexes}
+        self.vae_paths = {s: os.path.join(vae_root, '{:06d}.npy'.format(s)) for s in self.idxes}
 
         nsd_root = os.path.dirname(os.path.abspath(__file__))
         nsd_coco_caption_path = os.path.join(nsd_root, 'misc/nsd_coco_caption.pkl')
