@@ -84,7 +84,7 @@ class FMRIAlign(nn.Module):
             conditioning_key = 'concat' if concat_mode else 'crossattn'
         if cond_stage_config == '__is_unconditional__':
             conditioning_key = None
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
         ckpt_path = kwargs.pop("ckpt_path", None)
         ignore_keys = kwargs.pop("ignore_keys", [])
         self.concat_mode = concat_mode
@@ -138,7 +138,7 @@ class FMRIAlign(nn.Module):
                 print(f"Missing Keys: {missing}")
             if len(unexpected) > 0:
                 print(f"Unexpected Keys: {unexpected}")
-            import pdb; pdb.set_trace()
+            # import pdb; pdb.set_trace()
         else:
             warnings.warn("The pre-trained stable diffusion model has not been loaded. "
                 "If you are in the training phase, please check your code. "
@@ -326,7 +326,7 @@ class FMRIAlign(nn.Module):
         fmri = batch['fmri'].half().cuda()
         # gt_image_vae = batch['image_vae'].half().cuda()
         gt_image = batch['image'].half().cuda()
-        import pdb; pdb.set_trace();
+        # import pdb; pdb.set_trace();
         gt_image = F.interpolate(gt_image, (256,256))
         gt_image_vae = self.encode_first_stage(gt_image).mode()
         pred_image_vae = self.fmri2visual_model(fmri)
