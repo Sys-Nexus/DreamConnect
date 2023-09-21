@@ -6,10 +6,10 @@ model:
   weight_decay: 0.01
   target: ldm.models.diffusion.fmri_align.FMRIAlign
   params:
-    fp16: True
-    # fp16: False
-    deepspeed: 'deepspeed_1'
-    # deepspeed: ''
+    # fp16: True
+    fp16: False
+    # deepspeed: 'deepspeed_1'
+    deepspeed: ''
     # ckpt_path: stable_diffusion/models/ldm/stable-diffusion-v1/v1-5-pruned-emaonly-adaption.ckpt
     ckpt_path: stable_diffusion/models/ldm/stable-diffusion-v1/v1-5-pruned-emaonly-adaption-task-humanalign.ckpt
     linear_start: 0.00085
@@ -26,14 +26,14 @@ model:
     monitor: val/loss_simple_ema
     scale_factor: 0.18215
 
-    # scheduler_config: # 10000 warmup steps
-    #   target: ldm.lr_scheduler.LambdaLinearScheduler
-    #   params:
-    #     warm_up_steps: [ 0 ]
-    #     cycle_lengths: [ 10000000000000 ] # incredibly large number to prevent corner cases
-    #     f_start: [ 1.e-6 ]
-    #     f_max: [ 1. ]
-    #     f_min: [ 1. ]
+    scheduler_config: # 10000 warmup steps
+      target: ldm.lr_scheduler.LambdaLinearScheduler
+      params:
+        warm_up_steps: [ 0 ]
+        cycle_lengths: [ 10000000000000 ] # incredibly large number to prevent corner cases
+        f_start: [ 1.e-6 ]
+        f_max: [ 1. ]
+        f_min: [ 1. ]
 
 
     first_stage_config:

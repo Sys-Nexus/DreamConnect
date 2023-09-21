@@ -19,6 +19,7 @@ import numpy as np
 from einops import rearrange, repeat
 from functools import partial
 from tqdm import tqdm
+from torch.optim.lr_scheduler import LambdaLR
 from torchvision.utils import make_grid
 import torch.nn.functional as F
 from ldm.util import log_txt_as_img, exists, default, ismap, isimage, mean_flat, count_params, instantiate_from_config
@@ -71,11 +72,16 @@ class FMRIAlign(nn.Module):
                  scale_by_std=False,
                  deepspeed="",
                  is_fmri_input=True,
+                 scheduler_config=None,
                  *args, **kwargs):
         super().__init__()
 
         self.deepspeed = deepspeed
         self.frmi_cond_stage_key = fmri_cond_stage_key
+        self.use_scheduler = scheduler_config is not None
+        if self.use_scheduler:
+            self.scheduler_config = scheduler_config
+
         self.num_timesteps_cond = default(num_timesteps_cond, 1)
         self.scale_by_std = scale_by_std
         assert self.num_timesteps_cond <= kwargs['timesteps']
@@ -280,6 +286,27 @@ class FMRIAlign(nn.Module):
             else:
                 return self.first_stage_model.decode(z)
 
+    def configure_optimizers(self):
+        lr = self.learning_rate
+        params = list(self.model.parameters())
+        if self.cond_stage_trainable:
+            print(f"{self.__class__.__name__}: Also optimizing conditioner params!")
+            params = params + list(self.cond_stage_model.parameters())
+
+        opt = torch.optim.AdamW(params, lr=lr)
+        if self.use_scheduler:
+            assert 'target' in self.scheduler_config
+            scheduler = instantiate_from_config(self.scheduler_config)
+
+            print("Setting up LambdaLR scheduler...")
+            scheduler = [
+                {
+                    'scheduler': LambdaLR(opt, lr_lambda=scheduler.schedule),
+                    'interval': 'step',
+                    'frequency': 1
+                }]
+            return [opt], scheduler
+        return opt
 
     @torch.no_grad()
     def encode_first_stage(self, x):
