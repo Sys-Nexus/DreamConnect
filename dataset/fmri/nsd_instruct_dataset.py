@@ -1,7 +1,7 @@
 import os
 
 import sys
-from third_party.StableDiffusionReconstruction.codes.utils.nsd_creater import create_nsd_dataset
+from third_party.StableDiffusionReconstruction.codes.utils.nsd_creater import create_nsd_dataset, NSDDataset
 
 import torchvision.transforms as transforms
 from einops import rearrange
@@ -40,41 +40,29 @@ def channel_last(img):
     return rearrange(img, 'c h w -> h w c')
 
 
-@registry.register_builder("nsd")
-class NSDBuilder(BaseDatasetBuilder):
-    # train_dataset_cls = LaionDataset
+## here we write a wrapper for NSDDataset, simply move create_nsd_dataset here
+class NSDInstructDataset(NSDDataset):
+    def __init__(self, nsd_root, resolution=320, use_stim='each', subject='subj01', split='train', batch_size=1):
+        # super().__init__()
+        nsd_expdesign = scipy.io.loadmat(os.path.join(nsd_root, 'nsddata/experiments/nsd/nsd_expdesign.mat'))
+        # Note that most of them are 1-base index!
+        # This is why I subtract 1
+        sharedix = nsd_expdesign['sharedix'] - 1
 
-    # DATASET_CONFIG_DICT = {"default": "configs/datasets/laion/defaults_2B_multi.yaml"}
-    # DATASET_CONFIG_DICT = {"default": "configs/datasets/fmri/bold5000.yaml"}
-    DATASET_CONFIG_DICT = {"default": "configs/datasets/fmri/nsd.yaml"}
+        if use_stim == 'ave':
+            stims = np.load(f'{os.path.dirname(nsd_root)}/mrifeat/{subject}/{subject}_stims_ave.npy')
+        else:  # Each
+            stims = np.load(f'{os.path.dirname(nsd_root)}/mrifeat/{subject}/{subject}_stims.npy')
+        # print('stims shape: ', stims.shape)
+        train_idxes, test_idxes = [], []
+        mri_train_idxes, mri_test_idxes = [], []
+        for idx, s in tqdm(enumerate(stims)):
+            if s in sharedix:
+                test_idxes.append(s)
+                mri_test_idxes.append(idx)
+            else:
+                train_idxes.append(s)
+                mri_train_idxes.append(idx)
 
-    def _download_ann(self):
-        pass
-
-    def _download_vis(self):
-        pass
-
-    def build(self):
-        self.build_processors()
-        # import pdb; pdb.set_trace()
-        datasets = dict()
-
-        img_transform_train = transforms.Compose([
-            normalize,
-            # random_crop(config.img_size - crop_pix, p=0.5),
-            transforms.Resize((224, 224)),
-            # channel_last
-        ])
-        img_transform_test = transforms.Compose([
-            normalize, transforms.Resize((224, 224)),
-            # channel_last
-        ])
-
-        ## here we hard-coded the condition
-        nsd_root = '/data/yashengsun/Proj/MMEdit/StableDiffusionReconstruction/nsd'
-        fmri_latents_dataset_train, fmri_latents_dataset_test = \
-            create_nsd_dataset(nsd_root)
-        datasets['train'] = fmri_latents_dataset_train
-        datasets['test'] = fmri_latents_dataset_test
-        # import pdb; pdb.set_trace()
-        return datasets
+        idxes = train_idxes if split == 'train' else test_idxes
+        super().__init__(nsd_root, idxes, batch_size=batch_size, resolution=resolution, split=split, subject=subject)
