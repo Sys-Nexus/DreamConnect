@@ -70,7 +70,7 @@ model:
 data:
   target: main.DataModuleFromConfig
   params:
-    batch_size: 256
+    batch_size: 64
     num_workers: 8
     train:
       target: dataset.fmri.nsd_instruct_dataset.NSDInstructDataset
