@@ -28,6 +28,6 @@ CUDA_VISIBLE_DEVICES=${gpus} ${run_cmd} main.py --name ${exp_name} \
           --base configs/${jobname}.yaml \
           --train \
           --gpus ${gpus} \
-          --resume False \
+          --resume '' \
           --num_nodes $num_nodes \
           --no-test True ${cmd_suffix}
