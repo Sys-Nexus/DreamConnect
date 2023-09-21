@@ -243,7 +243,9 @@ class DataModuleFromConfig():
                           num_workers=self.num_workers, worker_init_fn=init_fn, persistent_workers=True)
 
     def _val_dataloader(self, shuffle=False):
-        if isinstance(self.datasets['validation'], Txt2ImgIterableBaseDataset) or self.use_worker_init_fn:
+        is_iterable_dataset = False
+        # is_iterable_dataset = isinstance(self.datasets['validation'], Txt2ImgIterableBaseDataset)
+        if is_iterable_dataset or self.use_worker_init_fn:
             init_fn = worker_init_fn
         else:
             init_fn = None
