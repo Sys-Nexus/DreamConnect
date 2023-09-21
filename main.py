@@ -395,7 +395,7 @@ def train_one_epoch(config, model, model_ema, data_loader, val_data_loader, opti
                 model_ema.store(model.parameters())
                 model_ema.copy_to(model)
                 for val_idx, batch in enumerate(val_data_loader):
-                    batch_size = batch['edited'].shape[0]
+                    batch_size = batch['image'].shape[0]
 
                     loss, _ = model(batch, -1, 1)
 
