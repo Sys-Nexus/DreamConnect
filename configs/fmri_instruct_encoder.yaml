@@ -70,24 +70,22 @@ data:
     batch_size: 64
     num_workers: 4
     train:
-      - ds1:
-        target: dataset.fmri.nsd_instruct_dataset.NSDInstructDataset
-        params:
-          nsd_root: '/data/yashengsun/Proj/MMEdit/StableDiffusionReconstruction/nsd'
-          resolution: 320
-          use_stim: 'each'
-          subject: 'subj01'
-          split: 'train'
+      target: dataset.fmri.nsd_instruct_dataset.NSDInstructDataset
+      params:
+        nsd_root: '/data/yashengsun/Proj/MMEdit/StableDiffusionReconstruction/nsd'
+        resolution: 320
+        use_stim: 'each'
+        subject: 'subj01'
+        split: 'train'
 
     validation:
-      - ds1:
-        target: dataset.fmri.nsd_instruct_dataset.NSDInstructDataset
-        params:
-          nsd_root: '/data/yashengsun/Proj/MMEdit/StableDiffusionReconstruction/nsd'
-          resolution: 320
-          use_stim: 'each'
-          subject: 'subj01'
-          split: 'val'
+      target: dataset.fmri.nsd_instruct_dataset.NSDInstructDataset
+      params:
+        nsd_root: '/data/yashengsun/Proj/MMEdit/StableDiffusionReconstruction/nsd'
+        resolution: 320
+        use_stim: 'each'
+        subject: 'subj01'
+        split: 'val'
 
 
 trainer:
