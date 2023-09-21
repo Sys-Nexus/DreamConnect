@@ -270,16 +270,14 @@ class FMRIAlign(nn.Module):
     def forward(self, batch, batch_idx, num_steps, *args, **kwargs):
         # x, c = self.get_input(batch, self.first_stage_key)
         fmri = batch['fmri'].cuda()
-        image_vae = self.fmri2visual_model(fmri)
-        import pdb; pdb.set_trace();
-        t = torch.randint(0, self.num_timesteps, (x.shape[0],), device=x.device).long()
-        if self.model.conditioning_key is not None:
-            assert c is not None
-            if self.cond_stage_trainable:
-                c = self.get_learned_conditioning(c)
-            if self.shorten_cond_schedule:  # TODO: drop this option
-                tc = self.cond_ids[t]
-                c = self.q_sample(x_start=c, t=tc, noise=torch.randn_like(c.float()))
-        loss, loss_dict = self.p_losses(x, c, t, *args, **kwargs)
+        gt_image_vae = batch['image_vae'].cuda()
+
+        pred_image_vae = self.fmri2visual_model(fmri)
+        pred_image_vae = pred_image_vae.flatten()
+
+        loss = torch.nn.L1Loss(pred_image_vae, gt_image_vae)
+        loss_dict = {'L1': loss.item()}
+
+        # loss, loss_dict = self.p_losses(x, c, t, *args, **kwargs)
 
         return loss, loss_dict
