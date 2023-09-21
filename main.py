@@ -522,7 +522,8 @@ if __name__ == "__main__":
         model.learning_rate = base_lr
         print("++++ NOT USING LR SCALING ++++")
         print(f"Setting learning rate to {model.learning_rate:.2e}")
-
+    import pdb; pdb.set_trace();
+    
     if not opt.amd:
         model.cuda()
 
