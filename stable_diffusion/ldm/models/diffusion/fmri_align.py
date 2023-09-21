@@ -84,6 +84,7 @@ class FMRIAlign(nn.Module):
             conditioning_key = 'concat' if concat_mode else 'crossattn'
         if cond_stage_config == '__is_unconditional__':
             conditioning_key = None
+        import pdb; pdb.set_trace()
         ckpt_path = kwargs.pop("ckpt_path", None)
         ignore_keys = kwargs.pop("ignore_keys", [])
         self.concat_mode = concat_mode
