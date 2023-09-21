@@ -199,6 +199,8 @@ class DataModuleFromConfig():
 
     def prepare_data(self):
         for data_cfg in self.dataset_configs.values():
+            print(data_cfg)
+            import pdb; pdb.set_trace();
             instantiate_from_config(data_cfg)
 
     def setup(self, stage=None):
