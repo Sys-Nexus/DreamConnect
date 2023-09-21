@@ -20,7 +20,7 @@ from einops import rearrange, repeat
 from functools import partial
 from tqdm import tqdm
 from torchvision.utils import make_grid
-
+import torch.nn.functional as F
 from ldm.util import log_txt_as_img, exists, default, ismap, isimage, mean_flat, count_params, instantiate_from_config
 from ldm.modules.distributions.distributions import normal_kl, DiagonalGaussianDistribution
 from ldm.models.autoencoder import VQModelInterface, IdentityFirstStage, AutoencoderKL
@@ -115,11 +115,6 @@ class FMRIAlign(nn.Module):
 
         self.additional_loss_type = kwargs.pop("additional_loss_type", None)
 
-    def make_cond_schedule(self, ):
-        self.cond_ids = torch.full(size=(self.num_timesteps,), fill_value=self.num_timesteps - 1, dtype=torch.long)
-        ids = torch.round(torch.linspace(0, self.num_timesteps - 1, self.num_timesteps_cond)).long()
-        self.cond_ids[:self.num_timesteps_cond] = ids
-
     def register_schedule(self,
                           given_betas=None, beta_schedule="linear", timesteps=1000,
                           linear_start=1e-4, linear_end=2e-2, cosine_s=8e-3):
@@ -135,6 +130,46 @@ class FMRIAlign(nn.Module):
         self.first_stage_model.train = disabled_train
         for param in self.first_stage_model.parameters():
             param.requires_grad = False
+
+    @torch.no_grad()
+    def encode_first_stage(self, x):
+        if hasattr(self, "split_input_params"):
+            if self.split_input_params["patch_distributed_vq"]:
+                ks = self.split_input_params["ks"]  # eg. (128, 128)
+                stride = self.split_input_params["stride"]  # eg. (64, 64)
+                df = self.split_input_params["vqf"]
+                self.split_input_params['original_image_size'] = x.shape[-2:]
+                bs, nc, h, w = x.shape
+                if ks[0] > h or ks[1] > w:
+                    ks = (min(ks[0], h), min(ks[1], w))
+                    print("reducing Kernel")
+
+                if stride[0] > h or stride[1] > w:
+                    stride = (min(stride[0], h), min(stride[1], w))
+                    print("reducing stride")
+
+                fold, unfold, normalization, weighting = self.get_fold_unfold(x, ks, stride, df=df)
+                z = unfold(x)  # (bn, nc * prod(**ks), L)
+                # Reshape to img shape
+                z = z.view((z.shape[0], -1, ks[0], ks[1], z.shape[-1]))  # (bn, nc, ks[0], ks[1], L )
+
+                output_list = [self.first_stage_model.encode(z[:, :, :, :, i])
+                               for i in range(z.shape[-1])]
+
+                o = torch.stack(output_list, axis=-1)
+                o = o * weighting
+
+                # Reverse reshape to img shape
+                o = o.view((o.shape[0], -1, o.shape[-1]))  # (bn, nc * ks[0] * ks[1], L)
+                # stitch crops together
+                decoded = fold(o)
+                decoded = decoded / normalization
+                return decoded
+
+            else:
+                return self.first_stage_model.encode(x)
+        else:
+            return self.first_stage_model.encode(x)
 
     def instantiate_fmri2visual_stage(self, config):
         model = instantiate_from_config(config)
@@ -154,18 +189,6 @@ class FMRIAlign(nn.Module):
             raise NotImplementedError(f"encoder_posterior of type '{type(encoder_posterior)}' not yet implemented")
         return self.scale_factor * z
 
-    def get_learned_conditioning(self, c):
-        if self.cond_stage_forward is None:
-            if hasattr(self.cond_stage_model, 'encode') and callable(self.cond_stage_model.encode):
-                c = self.cond_stage_model.encode(c)
-                if isinstance(c, DiagonalGaussianDistribution):
-                    c = c.mode()
-            else:
-                c = self.cond_stage_model(c)
-        else:
-            assert hasattr(self.cond_stage_model, self.cond_stage_forward)
-            c = getattr(self.cond_stage_model, self.cond_stage_forward)(c)
-        return c
 
     @torch.no_grad()
     def decode_first_stage(self, z, predict_cids=False, force_not_quantize=False):
@@ -271,9 +294,11 @@ class FMRIAlign(nn.Module):
     def forward(self, batch, batch_idx, num_steps, *args, **kwargs):
         # x, c = self.get_input(batch, self.first_stage_key)
         fmri = batch['fmri'].half().cuda()
-        gt_image_vae = batch['image_vae'].half().cuda()
-        
-        # import pdb; pdb.set_trace();
+        # gt_image_vae = batch['image_vae'].half().cuda()
+        gt_image = batch['image'].half().cuda()
+        gt_image = F.interpolate(gt_image, (256,256))
+        gt_image_vae = self.encode_first_stage(gt_image).mode()
+        import pdb; pdb.set_trace();
         pred_image_vae = self.fmri2visual_model(fmri)
         pred_image_vae = pred_image_vae.view(fmri.shape[0],-1)
 
