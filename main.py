@@ -199,8 +199,6 @@ class DataModuleFromConfig():
 
     def prepare_data(self):
         for data_cfg in self.dataset_configs.values():
-            print(data_cfg)
-            import pdb; pdb.set_trace();
             instantiate_from_config(data_cfg)
 
     def setup(self, stage=None):
@@ -231,7 +229,8 @@ class DataModuleFromConfig():
                           num_workers=self.num_workers, worker_init_fn=init_fn, persistent_workers=True)
 
     def _train_dataloader(self):
-        is_iterable_dataset = isinstance(self.datasets['train'], Txt2ImgIterableBaseDataset)
+        # is_iterable_dataset = isinstance(self.datasets['train'], Txt2ImgIterableBaseDataset)
+        is_iterable_dataset = False
         if is_iterable_dataset or self.use_worker_init_fn:
             init_fn = worker_init_fn
         else:
