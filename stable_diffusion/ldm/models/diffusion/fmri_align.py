@@ -109,11 +109,40 @@ class FMRIAlign(nn.Module):
         self.bbox_tokenizer = None
 
         self.restarted_from_ckpt = False
-        # if ckpt_path is not None:
-        #     self.init_from_ckpt(ckpt_path, ignore_keys)
-        #     self.restarted_from_ckpt = True
+        if ckpt_path is not None:
+            self.init_from_ckpt(ckpt_path, ignore_keys)
+            self.restarted_from_ckpt = True
 
         self.additional_loss_type = kwargs.pop("additional_loss_type", None)
+
+
+    def init_from_ckpt(self, path, ignore_keys=list(), only_model=False):
+        if os.path.exists(path):
+            sd = torch.load(path, map_location="cpu")
+            if "state_dict" in list(sd.keys()):
+                sd = sd["state_dict"]
+            keys = list(sd.keys())
+
+            self_sd = self.state_dict()
+
+            for k in keys:
+                for ik in ignore_keys:
+                    if k.startswith(ik):
+                        print("Deleting key {} from state_dict.".format(k))
+                        del sd[k]
+            missing, unexpected = self.load_state_dict(sd, strict=False) if not only_model else self.model.load_state_dict(
+                sd, strict=False)
+            print(f"Restored from {path} with {len(missing)} missing and {len(unexpected)} unexpected keys")
+            if len(missing) > 0:
+                print(f"Missing Keys: {missing}")
+            if len(unexpected) > 0:
+                print(f"Unexpected Keys: {unexpected}")
+            import pdb; pdb.set_trace()
+        else:
+            warnings.warn("The pre-trained stable diffusion model has not been loaded. "
+                "If you are in the training phase, please check your code. "
+                "If you are in the testing phase, you can ignore this warning.")
+
 
     def register_schedule(self,
                           given_betas=None, beta_schedule="linear", timesteps=1000,
