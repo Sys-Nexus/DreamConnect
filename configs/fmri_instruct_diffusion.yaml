@@ -10,7 +10,7 @@ model:
     fp16: False
     deepspeed: 'deepspeed_1'
     # ckpt_path: stable_diffusion/models/ldm/stable-diffusion-v1/v1-5-pruned-emaonly-adaption.ckpt
-    ckpt_path: stable_diffusion/models/ldm/stable-diffusion-v1/v1-5-pruned-emaonly-adaption-task.ckpt
+    ckpt_path: stable_diffusion/models/ldm/stable-diffusion-v1/v1-5-pruned-emaonly-adaption-task-humanalign.ckpt
     linear_start: 0.00085
     linear_end: 0.0120
     num_timesteps_cond: 1
