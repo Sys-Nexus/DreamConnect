@@ -293,7 +293,7 @@ def train_one_epoch(config, model, model_ema, data_loader, val_data_loader, opti
     start = time.time()
     end = time.time()
     for idx, batch in enumerate(data_loader):
-        batch_size = batch['edited'].shape[0]
+        batch_size = batch['image'].shape[0]
         
         if config.model.params.deepspeed != '':
             loss, _ = model(batch, idx, accumul_steps)
