@@ -540,6 +540,7 @@ if __name__ == "__main__":
             model=model,
             model_parameters=param_groups,
             dist_init_required=False,
+            lr=model.learning_rate
         )
         for name, param in model.named_parameters():
             param.global_name = name
