@@ -98,11 +98,12 @@ class FMRIAlign(nn.Module):
             self.scale_factor = scale_factor
         else:
             self.register_buffer('scale_factor', torch.tensor(scale_factor))
-        self.instantiate_first_stage(first_stage_config)
-        # if cond_stage_config is not None:
-        self.instantiate_cond_stage(cond_stage_config)
-        # if fmri2visual_stage_config is not None:
-        self.instantiate_fmri2visual_stage(fmri2visual_stage_config)
+        if first_stage_config is not None:
+            self.instantiate_first_stage(first_stage_config)
+        if cond_stage_config is not None:
+            self.instantiate_cond_stage(cond_stage_config)
+        if fmri2visual_stage_config is not None:
+            self.instantiate_fmri2visual_stage(fmri2visual_stage_config)
         self.cond_stage_forward = cond_stage_forward
         self.clip_denoised = False
         self.bbox_tokenizer = None
