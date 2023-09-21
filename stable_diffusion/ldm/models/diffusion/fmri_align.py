@@ -330,7 +330,7 @@ class FMRIAlign(nn.Module):
         gt_image = F.interpolate(gt_image, (256,256))
         gt_image_vae = self.encode_first_stage(gt_image).mode()
         pred_image_vae = self.fmri2visual_model(fmri)
-        pred_image_vae = pred_image_vae.view(fmri.shape[0],-1)
+        # pred_image_vae = pred_image_vae.view(fmri.shape[0],-1)
 
         loss = torch.nn.L1Loss()(pred_image_vae, gt_image_vae)
         loss_dict = {'L1': loss.item()}
