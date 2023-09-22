@@ -120,10 +120,10 @@ class NSDDataset(Dataset):
     def __getitem__(self, index):
         s = self.idxes[index]
         # m_idx = self.mri_idxes[index]
-        prompt = []
-        prompts = self.nsda.read_image_coco_info([s], info_type='captions')
-        for p in prompts:
-            prompt.append(p['caption'])
+        # prompt = []
+        # prompts = self.nsda.read_image_coco_info([s], info_type='captions')
+        # for p in prompts:
+        #     prompt.append(p['caption'])
 
         caps = self.cap_dict[s]
 
@@ -133,7 +133,8 @@ class NSDDataset(Dataset):
 
         fmri_norm = (self.X[index]-self.X_mean)/self.X_std
         ## TODO: use random.choices()
-        nsd_dict = {'cap': caps[0], 'prompt': prompt[0],  'image': init_image[0], 'fmri': fmri_norm}
+        # nsd_dict = {'cap': caps[0], 'prompt': prompt[0],  'image': init_image[0], 'fmri': fmri_norm}
+        nsd_dict = {'cap': caps[0], 'image': init_image[0], 'fmri': fmri_norm}
 
         image_vae = np.load(self.vae_paths[s])
         nsd_dict['image_vae'] = image_vae
