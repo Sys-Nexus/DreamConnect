@@ -361,7 +361,7 @@ class FMRIAlign(nn.Module):
         pred_image_vae = self.fmri2visual_model(fmri)
         # pred_image_vae = pred_image_vae.view(fmri.shape[0],-1)
 
-        loss = torch.nn.L1Loss()(pred_image_vae, gt_image_vae)
+        loss = torch.nn.mse_loss()(pred_image_vae, gt_image_vae)
         loss_dict = {'L1': loss.item()}
 
         # import pdb; pdb.set_trace();
