@@ -51,7 +51,7 @@ def load_img_from_arr(img_arr,resolution):
 
 
 def create_nsd_dataset(nsd_root, batch_size=1, resolution=320, use_stim='each', subject='subj01'):
-    roi = ['early', 'ventral', 'midventral', 'midlateral', 'lateral', 'parietal']
+    # roi = ['early', 'ventral', 'midventral', 'midlateral', 'lateral', 'parietal']
     nsd_expdesign = scipy.io.loadmat(os.path.join(nsd_root, 'nsddata/experiments/nsd/nsd_expdesign.mat'))
     # Note that most of them are 1-base index!
     # This is why I subtract 1
@@ -72,8 +72,8 @@ def create_nsd_dataset(nsd_root, batch_size=1, resolution=320, use_stim='each', 
             train_idxes.append(s)
             mri_train_idxes.append(idx)
 
-    nsd_dataset_train = NSDDataset(nsd_root, train_idxes, batch_size=batch_size, resolution=resolution, split='train', subject=subject, roi=roi)
-    nsd_dataset_test = NSDDataset(nsd_root, test_idxes, batch_size=batch_size, resolution=resolution, split='test', subject=subject, roi=roi)
+    nsd_dataset_train = NSDDataset(nsd_root, train_idxes, batch_size=batch_size, resolution=resolution, split='train', subject=subject)
+    nsd_dataset_test = NSDDataset(nsd_root, test_idxes, batch_size=batch_size, resolution=resolution, split='test', subject=subject)
 
     # import pdb; pdb.set_trace()
     return nsd_dataset_train, nsd_dataset_test

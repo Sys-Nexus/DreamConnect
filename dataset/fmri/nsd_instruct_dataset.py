@@ -58,6 +58,7 @@ def channel_last(img):
 class NSDInstructDataset(NSDDataset):
     def __init__(self, nsd_root, resolution=320, use_stim='each', subject='subj01', split='train', batch_size=1):
         # super().__init__()
+        roi = ['early', 'ventral', 'midventral', 'midlateral', 'lateral', 'parietal']
         nsd_expdesign = scipy.io.loadmat(os.path.join(nsd_root, 'nsddata/experiments/nsd/nsd_expdesign.mat'))
         # Note that most of them are 1-base index!
         # This is why I subtract 1
@@ -79,4 +80,4 @@ class NSDInstructDataset(NSDDataset):
                 mri_train_idxes.append(idx)
 
         idxes = train_idxes if split == 'train' else test_idxes
-        super().__init__(nsd_root, idxes, batch_size=batch_size, resolution=resolution, split=split, subject=subject)
+        super().__init__(nsd_root, idxes, batch_size=batch_size, resolution=resolution, split=split, subject=subject, roi=roi)
