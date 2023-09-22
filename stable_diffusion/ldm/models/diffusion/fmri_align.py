@@ -305,7 +305,7 @@ class FMRIAlign(nn.Module):
                     'interval': 'step',
                     'frequency': 1
                 }]
-            return [opt], scheduler
+            return opt, scheduler
         return opt
 
     @torch.no_grad()
