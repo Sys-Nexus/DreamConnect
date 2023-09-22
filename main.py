@@ -531,7 +531,8 @@ if __name__ == "__main__":
         scaler = amp.GradScaler()
         param_groups = model.parameters()
     else:
-        scaler = None
+        # scaler = None
+        scaler = amp.GradScaler()
         param_groups = model.parameters()
 
     if config.model.params.deepspeed != '':
