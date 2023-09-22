@@ -65,7 +65,7 @@ model:
         input_size: 7604
         output_size: 4096
         hidden_size: 256  # Adjust this as needed
-        dropout_prob: 0.5  # Adjust the dropout probability as needed
+        dropout_prob: 0.1  # Adjust the dropout probability as needed
 
 data:
   target: main.DataModuleFromConfig
