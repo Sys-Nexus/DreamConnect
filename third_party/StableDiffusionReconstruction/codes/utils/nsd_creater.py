@@ -113,12 +113,15 @@ class NSDDataset(Dataset):
         X_te = np.hstack(X_te)
         self.X = X
         self.X_te = X_te
+
+        nsd_root = os.path.dirname(os.path.abspath(__file__))
+        stats_path = os.path.join(nsd_root, 'misc/stats.pkl')
         if split == 'train':
             self.X_mean, self.X_std = X.mean(axis=0,keepdims=True), X.std(axis=0,keepdims=True)
             stats = {'X_mean': self.X_mean, 'X_std': self.X_std}
-            stats_save_pickle(stats, 'misc/stats.pkl')
+            stats_save_pickle(stats, stats_path)
         else:
-            stats = stats_load_pickle('misc/stats.pkl')
+            stats = stats_load_pickle(stats_path)
             self.X_mean, self.X_std = stats['X_mean'], stats['X_std']
         # print('X shape: ', X.shape)
         # import pdb; pdb.set_trace()
@@ -126,7 +129,6 @@ class NSDDataset(Dataset):
         vae_root = '/data/yashengsun/Proj/MMEdit/StableDiffusionReconstruction/nsdfeat_256/init_latent'
         self.vae_paths = {s: os.path.join(vae_root, '{:06d}.npy'.format(s)) for s in self.idxes}
 
-        nsd_root = os.path.dirname(os.path.abspath(__file__))
         nsd_coco_caption_path = os.path.join(nsd_root, 'misc/nsd_coco_caption.pkl')
         self.caps, self.keys, self.cap_dict = read_pkl(nsd_coco_caption_path)
         self.meta_info = read_edit_json(os.path.join(nsd_root, 'misc'))
