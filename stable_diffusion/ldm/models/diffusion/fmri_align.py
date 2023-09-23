@@ -144,7 +144,7 @@ class FMRIAlign(nn.Module):
             #     print(f"Missing Keys: {missing}")
             # if len(unexpected) > 0:
             #     print(f"Unexpected Keys: {unexpected}")
-            import pdb; pdb.set_trace()
+            # import pdb; pdb.set_trace()
         else:
             warnings.warn("The pre-trained stable diffusion model has not been loaded. "
                 "If you are in the training phase, please check your code. "
@@ -360,8 +360,9 @@ class FMRIAlign(nn.Module):
         gt_image_vae = self.encode_first_stage(gt_image).mode()
         pred_image_vae = self.fmri2visual_model(fmri)
 
-        decoded_mode = self.decode_first_stage(self.encode_first_stage(gt_image).mode())
-        decoded_sample = self.decode_first_stage(self.encode_first_stage(gt_image).sample())
+        self.first_stage_model = self.first_stage_model.float()
+        decoded_mode = self.decode_first_stage(self.encode_first_stage(gt_image.float()).mode())
+        decoded_sample = self.decode_first_stage(self.encode_first_stage(gt_image.float()).sample())
         import torchvision
         torchvision.utils.save_image(decoded_mode*0.5+0.5, 'decoded_mode.jpg')
         torchvision.utils.save_image(decoded_sample*0.5+0.5, 'decoded_sample.jpg')
