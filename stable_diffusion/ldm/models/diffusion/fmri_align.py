@@ -359,12 +359,20 @@ class FMRIAlign(nn.Module):
         gt_image = F.interpolate(gt_image, (256,256))
         gt_image_vae = self.encode_first_stage(gt_image).mode()
         pred_image_vae = self.fmri2visual_model(fmri)
+
+        decoded_mode = self.decode_first_stage(self.encode_first_stage(gt_image).mode())
+        decoded_sample = self.decode_first_stage(self.encode_first_stage(gt_image).sample())
+        import torchvision
+        torchvision.utils.save_image(decoded_mode, 'decoded_mode.jpg')
+        torchvision.utils.save_image(decoded_sample, 'decoded_sample.jpg')
+        import pdb; pdb.set_trace();
+
         # pred_image_vae = pred_image_vae.view(fmri.shape[0],-1)
 
-        print(pred_image_vae[:,0].mean().item(),pred_image_vae[:,1].mean().item(),
-                pred_image_vae[:,2].mean().item(),pred_image_vae[:,3].mean().item())
-        print(pred_image_vae[:,0].std().item(),pred_image_vae[:,1].std().item(),
-                pred_image_vae[:,2].std().item(),pred_image_vae[:,3].std().item())
+        # print(pred_image_vae[:,0].mean().item(),pred_image_vae[:,1].mean().item(),
+        #         pred_image_vae[:,2].mean().item(),pred_image_vae[:,3].mean().item())
+        # print(pred_image_vae[:,0].std().item(),pred_image_vae[:,1].std().item(),
+        #         pred_image_vae[:,2].std().item(),pred_image_vae[:,3].std().item())
 
         import pdb; pdb.set_trace();
         loss = torch.nn.MSELoss()(pred_image_vae, gt_image_vae)
