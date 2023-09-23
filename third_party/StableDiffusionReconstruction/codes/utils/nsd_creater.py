@@ -108,8 +108,8 @@ class NSDDataset(Dataset):
             else:
                 cX = np.load(f'{mridir}/{subject}_{croi}_betas_tr.npy').astype("float32")
             cX_te = np.load(f'{mridir}/{subject}_{croi}_betas_ave_te.npy').astype("float32")
-            # print(split, target)
-            # import pdb; pdb.set_trace();
+            print(split, target)
+            import pdb; pdb.set_trace();
             X.append(cX)
             X_te.append(cX_te)
         X = np.hstack(X)
