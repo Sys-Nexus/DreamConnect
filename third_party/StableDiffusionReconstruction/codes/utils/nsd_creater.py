@@ -168,7 +168,7 @@ class NSDDataset(Dataset):
         return nsd_dict
 
     def __len__(self):
-        if self.split == 'train': return self.X.shape[0]
-        else: return self.X_te.shape[0]
-        # return 100
+        # if self.split == 'train': return self.X.shape[0]
+        # else: return self.X_te.shape[0]
+        return 128
         # return 1
