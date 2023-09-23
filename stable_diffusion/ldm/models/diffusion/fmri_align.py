@@ -372,13 +372,13 @@ class FMRIAlign(nn.Module):
 
         # pred_image_vae = pred_image_vae.view(fmri.shape[0],-1)
 
-        print(pred_image_vae[:,0].mean().item(),pred_image_vae[:,1].mean().item(),
-                pred_image_vae[:,2].mean().item(),pred_image_vae[:,3].mean().item())
-        print(pred_image_vae[:,0].std().item(),pred_image_vae[:,1].std().item(),
-                pred_image_vae[:,2].std().item(),pred_image_vae[:,3].std().item())
+        # print(pred_image_vae[:,0].mean().item(),pred_image_vae[:,1].mean().item(),
+        #         pred_image_vae[:,2].mean().item(),pred_image_vae[:,3].mean().item())
+        # print(pred_image_vae[:,0].std().item(),pred_image_vae[:,1].std().item(),
+        #         pred_image_vae[:,2].std().item(),pred_image_vae[:,3].std().item())
 
-        import pdb; pdb.set_trace();
-        loss = torch.nn.MSELoss()(pred_image_vae, gt_image_vae)
+        # import pdb; pdb.set_trace();
+        loss = torch.nn.L1Loss()(pred_image_vae, gt_image_vae)
         loss_dict = {'L1': loss.item()}
 
         return loss, loss_dict
