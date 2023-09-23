@@ -140,10 +140,10 @@ class FMRIAlign(nn.Module):
             missing, unexpected = self.load_state_dict(sd, strict=False) if not only_model else self.model.load_state_dict(
                 sd, strict=False)
             print(f"Restored from {path} with {len(missing)} missing and {len(unexpected)} unexpected keys")
-            if len(missing) > 0:
-                print(f"Missing Keys: {missing}")
-            if len(unexpected) > 0:
-                print(f"Unexpected Keys: {unexpected}")
+            # if len(missing) > 0:
+            #     print(f"Missing Keys: {missing}")
+            # if len(unexpected) > 0:
+            #     print(f"Unexpected Keys: {unexpected}")
             # import pdb; pdb.set_trace()
         else:
             warnings.warn("The pre-trained stable diffusion model has not been loaded. "
@@ -363,8 +363,8 @@ class FMRIAlign(nn.Module):
         decoded_mode = self.decode_first_stage(self.encode_first_stage(gt_image).mode())
         decoded_sample = self.decode_first_stage(self.encode_first_stage(gt_image).sample())
         import torchvision
-        torchvision.utils.save_image(decoded_mode, 'decoded_mode.jpg')
-        torchvision.utils.save_image(decoded_sample, 'decoded_sample.jpg')
+        torchvision.utils.save_image(decoded_mode*0.5+0.5, 'decoded_mode.jpg')
+        torchvision.utils.save_image(decoded_sample*0.5+0.5, 'decoded_sample.jpg')
         import pdb; pdb.set_trace();
 
         # pred_image_vae = pred_image_vae.view(fmri.shape[0],-1)
