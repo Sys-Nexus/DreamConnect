@@ -8,9 +8,9 @@ class FMRI2VisualEmbedder(nn.Module):
             nn.Linear(input_size, hidden_size),  # First fully connected layer
             nn.ReLU(),                           # ReLU activation function
             nn.Dropout(dropout_prob),            # Dropout layer
-            nn.Linear(hidden_size, hidden_size),  # First fully connected layer
-            nn.ReLU(),                           # ReLU activation function
-            nn.Dropout(dropout_prob),            # Dropout layer
+            # nn.Linear(hidden_size, hidden_size),  # First fully connected layer
+            # nn.ReLU(),                           # ReLU activation function
+            # nn.Dropout(dropout_prob),            # Dropout layer
             nn.Linear(hidden_size, output_size)  # Second fully connected layer
         )
     
