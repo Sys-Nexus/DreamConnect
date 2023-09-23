@@ -365,6 +365,7 @@ class FMRIAlign(nn.Module):
         import torchvision
         torchvision.utils.save_image(decoded_mode*0.5+0.5, 'decoded_mode.jpg')
         torchvision.utils.save_image(decoded_sample*0.5+0.5, 'decoded_sample.jpg')
+        torchvision.utils.save_image(gt_image*0.5+0.5, 'gt_image.jpg')
         import pdb; pdb.set_trace();
 
         # pred_image_vae = pred_image_vae.view(fmri.shape[0],-1)
