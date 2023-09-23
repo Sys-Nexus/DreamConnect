@@ -58,33 +58,33 @@ def load_img_from_arr(img_arr,resolution):
     return 2.*image - 1.
 
 
-def create_nsd_dataset(nsd_root, batch_size=1, resolution=320, use_stim='each', subject='subj01'):
-    # roi = ['early', 'ventral', 'midventral', 'midlateral', 'lateral', 'parietal']
-    nsd_expdesign = scipy.io.loadmat(os.path.join(nsd_root, 'nsddata/experiments/nsd/nsd_expdesign.mat'))
-    # Note that most of them are 1-base index!
-    # This is why I subtract 1
-    sharedix = nsd_expdesign['sharedix'] - 1
+# def create_nsd_dataset(nsd_root, batch_size=1, resolution=320, use_stim='each', subject='subj01'):
+#     # roi = ['early', 'ventral', 'midventral', 'midlateral', 'lateral', 'parietal']
+#     nsd_expdesign = scipy.io.loadmat(os.path.join(nsd_root, 'nsddata/experiments/nsd/nsd_expdesign.mat'))
+#     # Note that most of them are 1-base index!
+#     # This is why I subtract 1
+#     sharedix = nsd_expdesign['sharedix'] - 1
 
-    if use_stim == 'ave':
-        stims = np.load(f'{os.path.dirname(nsd_root)}/mrifeat/{subject}/{subject}_stims_ave.npy')
-    else:  # Each
-        stims = np.load(f'{os.path.dirname(nsd_root)}/mrifeat/{subject}/{subject}_stims.npy')
-    # print('stims shape: ', stims.shape)
-    train_idxes, test_idxes = [], []
-    mri_train_idxes, mri_test_idxes = [], []
-    for idx, s in tqdm(enumerate(stims)):
-        if s in sharedix:
-            test_idxes.append(s)
-            mri_test_idxes.append(idx)
-        else:
-            train_idxes.append(s)
-            mri_train_idxes.append(idx)
+#     if use_stim == 'ave':
+#         stims = np.load(f'{os.path.dirname(nsd_root)}/mrifeat/{subject}/{subject}_stims_ave.npy')
+#     else:  # Each
+#         stims = np.load(f'{os.path.dirname(nsd_root)}/mrifeat/{subject}/{subject}_stims.npy')
+#     # print('stims shape: ', stims.shape)
+#     train_idxes, test_idxes = [], []
+#     mri_train_idxes, mri_test_idxes = [], []
+#     for idx, s in tqdm(enumerate(stims)):
+#         if s in sharedix:
+#             test_idxes.append(s)
+#             mri_test_idxes.append(idx)
+#         else:
+#             train_idxes.append(s)
+#             mri_train_idxes.append(idx)
 
-    nsd_dataset_train = NSDDataset(nsd_root, train_idxes, batch_size=batch_size, resolution=resolution, split='train', subject=subject, target=target)
-    nsd_dataset_test = NSDDataset(nsd_root, test_idxes, batch_size=batch_size, resolution=resolution, split='test', subject=subject, target=target)
+#     nsd_dataset_train = NSDDataset(nsd_root, train_idxes, batch_size=batch_size, resolution=resolution, split='train', subject=subject, target=target)
+#     nsd_dataset_test = NSDDataset(nsd_root, test_idxes, batch_size=batch_size, resolution=resolution, split='test', subject=subject, target=target)
 
-    # import pdb; pdb.set_trace()
-    return nsd_dataset_train, nsd_dataset_test
+#     # import pdb; pdb.set_trace()
+#     return nsd_dataset_train, nsd_dataset_test
 
 
 class NSDDataset(Dataset):
