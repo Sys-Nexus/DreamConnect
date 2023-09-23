@@ -2,7 +2,7 @@ import os
 import scipy.io
 
 import sys
-from third_party.StableDiffusionReconstruction.codes.utils.nsd_creater import create_nsd_dataset, NSDDataset
+from third_party.StableDiffusionReconstruction.codes.utils.nsd_creater import NSDDataset
 import os.path
 
 from tqdm import tqdm
