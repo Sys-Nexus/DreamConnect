@@ -116,7 +116,7 @@ class NSDDataset(Dataset):
 
         nsd_root = os.path.dirname(os.path.abspath(__file__))
         stats_path = os.path.join(nsd_root, 'misc/stats.pkl')
-        if split == 'train' and not os.path.exist(stats_path):
+        if split == 'train' and not os.path.exists(stats_path):
             self.X_mean, self.X_std = X.mean(axis=0,keepdims=True), X.std(axis=0,keepdims=True)
             stats = {'X_mean': self.X_mean, 'X_std': self.X_std}
             stats_save_pickle(stats, stats_path)
