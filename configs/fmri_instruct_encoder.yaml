@@ -2,7 +2,7 @@
 # See more details in LICENSE.
 
 model:
-  base_learning_rate: 1.0e-04
+  base_learning_rate: 1.0e-05
   weight_decay: 0.01
   target: ldm.models.diffusion.fmri_align.FMRIAlign
   params:
