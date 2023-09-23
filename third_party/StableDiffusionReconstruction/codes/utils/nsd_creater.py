@@ -15,6 +15,14 @@ from nsd_access import NSDAccess
 from einops import repeat
 from torch.utils.data import Dataset
 
+def stats_save_pickle(data_dict, path):
+    with open(path, 'wb') as f:
+        pickle.dump(data_dict, f)
+
+def stats_load_pickle(path):
+    with open(path, 'rb') as f:
+        data = pickle.load(f)
+    return data
 
 
 def read_pkl(path, idx=0):
@@ -105,7 +113,13 @@ class NSDDataset(Dataset):
         X_te = np.hstack(X_te)
         self.X = X
         self.X_te = X_te
-        self.X_mean, self.X_std = X.mean(axis=0,keepdims=True), X.std(axis=0,keepdims=True)
+        if split == 'train':
+            self.X_mean, self.X_std = X.mean(axis=0,keepdims=True), X.std(axis=0,keepdims=True)
+            stats = {'X_mean': self.X_mean, 'X_std': self.X_std}
+            stats_save_pickle(stats, 'misc/stats.pkl')
+        else:
+            stats = stats_load_pickle('misc/stats.pkl')
+            self.X_mean, self.X_std = stats['X_mean'], stats['X_std']
         # print('X shape: ', X.shape)
         # import pdb; pdb.set_trace()
 
