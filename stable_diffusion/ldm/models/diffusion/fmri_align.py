@@ -144,7 +144,7 @@ class FMRIAlign(nn.Module):
             #     print(f"Missing Keys: {missing}")
             # if len(unexpected) > 0:
             #     print(f"Unexpected Keys: {unexpected}")
-            # import pdb; pdb.set_trace()
+            import pdb; pdb.set_trace()
         else:
             warnings.warn("The pre-trained stable diffusion model has not been loaded. "
                 "If you are in the training phase, please check your code. "
