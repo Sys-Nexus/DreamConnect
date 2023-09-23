@@ -80,8 +80,8 @@ def create_nsd_dataset(nsd_root, batch_size=1, resolution=320, use_stim='each', 
             train_idxes.append(s)
             mri_train_idxes.append(idx)
 
-    nsd_dataset_train = NSDDataset(nsd_root, train_idxes, batch_size=batch_size, resolution=resolution, split='train', subject=subject)
-    nsd_dataset_test = NSDDataset(nsd_root, test_idxes, batch_size=batch_size, resolution=resolution, split='test', subject=subject)
+    nsd_dataset_train = NSDDataset(nsd_root, train_idxes, batch_size=batch_size, resolution=resolution, split='train', subject=subject, target=target)
+    nsd_dataset_test = NSDDataset(nsd_root, test_idxes, batch_size=batch_size, resolution=resolution, split='test', subject=subject, target=target)
 
     # import pdb; pdb.set_trace()
     return nsd_dataset_train, nsd_dataset_test
@@ -89,7 +89,8 @@ def create_nsd_dataset(nsd_root, batch_size=1, resolution=320, use_stim='each', 
 
 class NSDDataset(Dataset):
     ## it seems that ventral area is sensitive to captions
-    def __init__(self, nsd_root, idxes, batch_size=1, resolution=320, split='train', subject='subj01', roi=['ventral'], target='c'):
+    def __init__(self, nsd_root, idxes, batch_size=1, resolution=320, split='train', subject='subj01', 
+                roi=['early', 'ventral', 'midventral', 'midlateral', 'lateral', 'parietal'], target='conv'):
         self.nsda = NSDAccess(nsd_root)
         self.idxes = idxes
         # self.mri_idxes = mri_idxes
@@ -107,8 +108,8 @@ class NSDDataset(Dataset):
             else:
                 cX = np.load(f'{mridir}/{subject}_{croi}_betas_tr.npy').astype("float32")
             cX_te = np.load(f'{mridir}/{subject}_{croi}_betas_ave_te.npy').astype("float32")
-            print(split, target)
-            import pdb; pdb.set_trace();
+            # print(split, target)
+            # import pdb; pdb.set_trace();
             X.append(cX)
             X_te.append(cX_te)
         X = np.hstack(X)
