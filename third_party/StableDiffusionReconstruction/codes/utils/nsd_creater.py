@@ -118,7 +118,7 @@ class NSDDataset(Dataset):
         self.X_te = X_te
 
         nsd_root = os.path.dirname(os.path.abspath(__file__))
-        stats_path = os.path.join(nsd_root, 'misc/stats.pkl')
+        stats_path = os.path.join(nsd_root, 'misc/stats_{}.pkl'.format('_'.join(roi)+'_'+target))
         if split == 'train' and not os.path.exists(stats_path):
             self.X_mean, self.X_std = X.mean(axis=0,keepdims=True), X.std(axis=0,keepdims=True)
             stats = {'X_mean': self.X_mean, 'X_std': self.X_std}
@@ -127,7 +127,7 @@ class NSDDataset(Dataset):
             stats = stats_load_pickle(stats_path)
             self.X_mean, self.X_std = stats['X_mean'], stats['X_std']
         # print('X shape: ', X.shape)
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
 
         vae_root = '/data/yashengsun/Proj/MMEdit/StableDiffusionReconstruction/nsdfeat_256/init_latent'
         self.vae_paths = {s: os.path.join(vae_root, '{:06d}.npy'.format(s)) for s in self.idxes}

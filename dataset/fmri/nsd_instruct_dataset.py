@@ -58,7 +58,8 @@ def channel_last(img):
 class NSDInstructDataset(NSDDataset):
     def __init__(self, nsd_root, resolution=320, use_stim='each', subject='subj01', split='train', batch_size=1):
         # super().__init__()
-        roi = ['early', 'ventral', 'midventral', 'midlateral', 'lateral', 'parietal']
+        # roi = ['early', 'ventral', 'midventral', 'midlateral', 'lateral', 'parietal']
+        roi = ['early',]
         target = 'conv'
         use_stim = 'ave'
         nsd_expdesign = scipy.io.loadmat(os.path.join(nsd_root, 'nsddata/experiments/nsd/nsd_expdesign.mat'))
