@@ -525,8 +525,6 @@ class UNetModel(nn.Module):
         context_dim=None,                 # custom transformer support
         n_embed=None,                     # custom support for prediction of discrete ids into codebook of first stage vq model
         legacy=True,
-        global_pool=False,
-        use_time_cond=False
     ):
         super().__init__()
         if use_spatial_transformer:
@@ -563,8 +561,6 @@ class UNetModel(nn.Module):
         self.num_head_channels = num_head_channels
         self.num_heads_upsample = num_heads_upsample
         self.predict_codebook_ids = n_embed is not None
-        self.use_time_cond = use_time_cond
-        self.global_pool = global_pool
 
         time_embed_dim = model_channels * 4
         self.time_embed = nn.Sequential(
@@ -575,13 +571,6 @@ class UNetModel(nn.Module):
 
         if self.num_classes is not None:
             self.label_emb = nn.Embedding(num_classes, time_embed_dim)
-
-        if use_time_cond:
-            self.time_embed_condtion = nn.Sequential(
-                nn.Conv1d(77, 77//2, 1, bias=True),
-                nn.Conv1d(77//2, 1, 1, bias=True),
-                nn.Linear(context_dim, time_embed_dim, bias=True)
-            ) if global_pool == False else nn.Linear(context_dim, time_embed_dim, bias=True)
 
         self.input_blocks = nn.ModuleList(
             [
@@ -812,11 +801,6 @@ class UNetModel(nn.Module):
         if self.num_classes is not None:
             assert y.shape == (x.shape[0],)
             emb = emb + self.label_emb(y)
-
-        if self.use_time_cond:
-            c = self.time_embed_condtion(context_1)
-            assert c.shape[1] == 1, f'found {c.shape}'
-            emb = emb + torch.squeeze(c, dim=1)
 
         h = x.type(self.dtype)
         for module in self.input_blocks:
