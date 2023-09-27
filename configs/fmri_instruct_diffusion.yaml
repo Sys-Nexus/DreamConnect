@@ -93,25 +93,22 @@ data:
     batch_size: 64
     num_workers: 4
     train:
-      - ds1:
-        target: dataset.fmri.edit_zip_dataset.IEIWDataset
-        params:
-          path: data/ieiw/
-          split: train
-          min_resize_res: 256
-          max_resize_res: 256
-          crop_res: 256
-          flip_prob: 0.5
+      target: dataset.fmri.nsd_instruct_dataset.NSDInstructDataset
+      params:
+        nsd_root: '/data/yashengsun/Proj/MMEdit/StableDiffusionReconstruction/nsd'
+        resolution: 320
+        use_stim: 'each'
+        subject: 'subj01'
+        split: 'train'
 
     validation:
-      target: dataset.pose.pose.COCODataset
+      target: dataset.fmri.nsd_instruct_dataset.NSDInstructDataset
       params:
-        root: data/coco/
-        image_set: val2017
-        is_train: False
-        max_prompt_num: 5
-        min_prompt_num: 1
-        radius: 10
+        nsd_root: '/data/yashengsun/Proj/MMEdit/StableDiffusionReconstruction/nsd'
+        resolution: 320
+        use_stim: 'each'
+        subject: 'subj01'
+        split: 'val'
 
 trainer:
   initial_scale: 13
