@@ -793,7 +793,7 @@ class UNetModel(nn.Module):
             if isinstance(m, (CrossAttention, FeedForward)):
                 m.apply(convert_some_linear_to_f32)   
 
-    def forward(self, x, timesteps=None, context=None, y=None,**kwargs):
+    def forward(self, x, timesteps=None, context=None, y=None, context_1=None,**kwargs):
         """
         Apply the model to an input batch.
         :param x: an [N x C x ...] Tensor of inputs.
