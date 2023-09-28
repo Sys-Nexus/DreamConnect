@@ -88,8 +88,11 @@ model:
     cond_stage_config:
       target: ldm.modules.encoders.modules.FrozenCLIPEmbedder
 
-    cond_stage_forward_fmri:
+    cond_stage_config_fmri:
       target: ldm.modules.encoders.modules.encoder.fmri.FmriEmbedder
+
+    # cond_stage_forward_fmri:
+    #   target: ldm.modules.encoders.modules.encoder.fmri.FmriEmbedder
 
 data:
   target: main.DataModuleFromConfig
