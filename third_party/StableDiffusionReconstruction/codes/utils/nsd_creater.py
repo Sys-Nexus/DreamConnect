@@ -44,7 +44,7 @@ def read_edit_json(root):
     for meta_path in meta_paths:
         meta_i = json.load(open(meta_path, 'r'))
         meta.extend(meta_i)
-    import pdb; pdb.set_trace();
+    # import pdb; pdb.set_trace();
     return meta
 
 
