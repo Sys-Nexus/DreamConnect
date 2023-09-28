@@ -655,7 +655,7 @@ class LatentDiffusion(DDPM):
             xc["c_crossattn"] = xc["c_crossattn"][:bs]
             xc["c_crossattn_1"] = xc["c_crossattn_1"][:bs]
             xc["c_concat"] = xc["c_concat"][:bs]
-        
+        x, xc["c_concat"], xc["c_crossattn_1"] = x.to(z.device), xc["c_concat"].to(z.device), xc["c_crossattn_1"].to(z.device)
         import pdb; pdb.set_trace();
         cond = {}
         random = torch.rand(x.size(0), device=z.device)
