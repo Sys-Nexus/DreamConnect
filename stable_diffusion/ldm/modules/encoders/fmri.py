@@ -25,7 +25,7 @@ def freeze(model):
 
 # @register('fmri', version)
 class FmriEmbedder(nn.Module):
-    def __init__(self, adaptor_fmri2image_path='checkpoints/fmri_700.pth'):
+    def __init__(self, adaptor_fmri2image_path=''):
         super(FmriEmbedder, self).__init__()
         num_voxels = 7604
         self.adaptor_fmri2image = nn.Sequential(*[nn.Linear(num_voxels, 1024),
@@ -33,8 +33,8 @@ class FmriEmbedder(nn.Module):
                                                   nn.Linear(1024, 768),
                                                   nn.ReLU(),
                                                   nn.Linear(768, 768)])
-
-        self.adaptor_fmri2image_path = adaptor_fmri2image_path
+        if os.path.exist(adaptor_fmri2image_path):
+            self.adaptor_fmri2image_path = adaptor_fmri2image_path
         self.init_fmri_weight()
         # self.adaptor_fmri2image.eval()
         # freeze(self.adaptor_fmri2image)
