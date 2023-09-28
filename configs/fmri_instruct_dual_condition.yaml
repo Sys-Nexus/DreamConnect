@@ -17,7 +17,7 @@ model:
     log_every_t: 200
     timesteps: 1000
     first_stage_key: edited
-    cond_stage_key: edited
+    cond_stage_key: fmri_edit
     fmri_cond_stage_key: fmri_edit
     image_size: 32
     channels: 4

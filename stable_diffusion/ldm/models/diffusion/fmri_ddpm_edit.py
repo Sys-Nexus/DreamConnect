@@ -646,7 +646,7 @@ class LatentDiffusion(DDPM):
         encoder_posterior = self.encode_first_stage(x)
         z = self.get_first_stage_encoding(encoder_posterior).detach()
         cond_key = cond_key or self.cond_stage_key
-        cond_key = self.fmri_cond_stage_key if self.is_fmri_input else cond_key
+        # cond_key = self.fmri_cond_stage_key if self.is_fmri_input else cond_key
         xc = super().get_input(batch, cond_key)
         if bs is not None:
             xc["c_crossattn"] = xc["c_crossattn"][:bs]
