@@ -838,7 +838,7 @@ class LatentDiffusion(DDPM):
             return self.first_stage_model.encode(x)
 
     def forward(self, batch, batch_idx, num_steps, *args, **kwargs):
-        import pdb; pdb.set_trace();
+        # import pdb; pdb.set_trace();
         x, c = self.get_input(batch, self.first_stage_key)
         t = torch.randint(0, self.num_timesteps, (x.shape[0],), device=x.device).long()
         if self.model.conditioning_key is not None:
