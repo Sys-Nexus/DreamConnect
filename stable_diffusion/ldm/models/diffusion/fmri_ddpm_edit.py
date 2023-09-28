@@ -652,8 +652,9 @@ class LatentDiffusion(DDPM):
             xc["c_crossattn"] = xc["c_crossattn"][:bs]
             xc["c_crossattn_1"] = xc["c_crossattn_1"][:bs]
             xc["c_concat"] = xc["c_concat"][:bs]
+        
+        import pdb; pdb.set_trace();
         cond = {}
-
         random = torch.rand(x.size(0), device=z.device)
         prompt_mask = rearrange(random < 0.075, "n -> n 1 1")
         fmri_prompt_mask = 1 - (random >= 0.075).float() * (random < 0.15).float()

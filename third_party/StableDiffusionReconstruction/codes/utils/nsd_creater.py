@@ -57,6 +57,16 @@ def load_img_from_arr(img_arr,resolution):
     image = torch.from_numpy(image)
     return 2.*image - 1.
 
+def load_img_from_string(img_path,resolution):
+    # image = Image.fromarray(img_arr).convert("RGB")
+    image = Image.open(img_path).convert("RGB")
+    w, h = resolution, resolution
+    image = image.resize((w, h), resample=PIL.Image.LANCZOS)
+    image = np.array(image).astype(np.float32) / 255.0
+    image = image[None].transpose(0, 3, 1, 2)
+    image = torch.from_numpy(image)
+    return 2.*image - 1.
+
 
 # def create_nsd_dataset(nsd_root, batch_size=1, resolution=320, use_stim='each', subject='subj01'):
 #     # roi = ['early', 'ventral', 'midventral', 'midlateral', 'lateral', 'parietal']
@@ -129,12 +139,17 @@ class NSDDataset(Dataset):
         # print('X shape: ', X.shape)
         # import pdb; pdb.set_trace()
 
-        vae_root = '/data/yashengsun/Proj/MMEdit/StableDiffusionReconstruction/nsdfeat_256/init_latent'
-        self.vae_paths = {s: os.path.join(vae_root, '{:06d}.npy'.format(s)) for s in self.idxes}
+        # vae_root = '/data/yashengsun/Proj/MMEdit/StableDiffusionReconstruction/nsdfeat_256/init_latent'
+        # self.vae_paths = {s: os.path.join(vae_root, '{:06d}.npy'.format(s)) for s in self.idxes}
 
         nsd_coco_caption_path = os.path.join(nsd_root, 'misc/nsd_coco_caption.pkl')
         self.caps, self.keys, self.cap_dict = read_pkl(nsd_coco_caption_path)
+
         self.meta_info = read_edit_json(os.path.join(nsd_root, 'misc'))
+        self.edited_root = '/data/yashengsun/Proj/Diffusion/InstructDiffusion/nsd_coco_output'
+
+        self.valid_do_nothing_ops = ['Keep everything untouched.', 
+                                     'Do not do anything.']
 
     def __getitem__(self, index):
         s = self.idxes[index]
@@ -155,18 +170,21 @@ class NSDDataset(Dataset):
         # nsd_dict = {'cap': caps[0], 'prompt': prompt[0],  'image': init_image[0], 'fmri': fmri_norm}
         nsd_dict = {'cap': caps[0], 'image': init_image[0], 'fmri': fmri_norm}
 
-        image_vae = np.load(self.vae_paths[s])
-        nsd_dict['image_vae'] = image_vae
+        # image_vae = np.load(self.vae_paths[s])
+        # nsd_dict['image_vae'] = image_vae
 
-        # TODO
+        # TODO: currently , only use the first edit instruction
         try:
             chosen_i = 0
-            instruction_text = self.meta_info[s]['edit'][chosen_i]
+            instruction_text = self.meta_info[index]['edit'][chosen_i]
+            nsd_dict['fmri_edit'] = {'c_concat': init_image, 'c_crossattn': instruction_text, 'c_crossattn_1': fmri_norm}
+            edited_path = os.path.join(self.edited_root, '{:06d}'.format(s), 'output_{:06d}_seed93151_id{}.jpg'.format(s,chosen_i))
+            nsd_dict['edited'] = load_img_from_string(edited_path) # TODO
         except:
-            instruction_text = ''
-
-        nsd_dict['fmri_edit'] = {'c_concat': fmri_norm, 'c_crossattn': instruction_text, 'c_crossattn_1': fmri_norm}
-        # nsd_dict['edited'] = None # TODO
+            ## If the triplet pairs do not exist, use do nothing operation
+            instruction_text = random.choice(valid_do_nothing_ops)
+            nsd_dict['fmri_edit'] = {'c_concat': init_image, 'c_crossattn': instruction_text, 'c_crossattn_1': fmri_norm}
+            nsd_dict['edited'] = init_image
 
         return nsd_dict
 
