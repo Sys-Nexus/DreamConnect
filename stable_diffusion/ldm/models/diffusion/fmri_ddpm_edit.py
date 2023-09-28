@@ -356,18 +356,20 @@ class LatentDiffusion(DDPM):
     def __init__(self,
                  first_stage_config,
                  cond_stage_config,
-                 fmri2visual_stage_config,
+                 fmri2visual_stage_config=None,
                  num_timesteps_cond=None,
                  cond_stage_key="image",
                  fmri_cond_stage_key="fmri_edit",
                  cond_stage_trainable=False,
+                 cond_stage_trainable_fmri=False,
                  concat_mode=True,
                  cond_stage_forward=None,
+                 cond_stage_forward_fmri=None,
                  conditioning_key=None,
                  scale_factor=1.0,
                  scale_by_std=False,
                  deepspeed="",
-                 is_fmri_input=True,
+                 is_fmri_input=False,
                  *args, **kwargs):
         self.deepspeed = deepspeed
         self.frmi_cond_stage_key = fmri_cond_stage_key
@@ -384,6 +386,7 @@ class LatentDiffusion(DDPM):
         super().__init__(conditioning_key=conditioning_key, *args, **kwargs)
         self.concat_mode = concat_mode
         self.cond_stage_trainable = cond_stage_trainable
+        self.cond_stage_trainable_fmri = cond_stage_trainable_fmri
         self.cond_stage_key = cond_stage_key
         self.is_fmri_input = is_fmri_input
         try:
@@ -400,6 +403,7 @@ class LatentDiffusion(DDPM):
         # if fmri2visual_stage_config is not None:
         self.instantiate_fmri2visual_stage(fmri2visual_stage_config)
         self.cond_stage_forward = cond_stage_forward
+        self.cond_stage_forward_fmri = cond_stage_forward_fmri
         self.clip_denoised = False
         self.bbox_tokenizer = None
 
@@ -475,6 +479,27 @@ class LatentDiffusion(DDPM):
             assert config != '__is_unconditional__'
             model = instantiate_from_config(config)
             self.cond_stage_model = model
+    
+    def instantiate_cond_stage_fmri(self, config):
+        if not self.cond_stage_trainable:
+            if config == "__is_first_stage__":
+                print("Using first stage also as cond stage.")
+                self.cond_stage_model_fmri = self.first_stage_model_fmri
+            elif config == "__is_unconditional__":
+                print(f"Training {self.__class__.__name__} as an unconditional model.")
+                self.cond_stage_model_fmri = None
+                # self.be_unconditional = True
+            else:
+                model = instantiate_from_config(config)
+                self.cond_stage_model_fmri = model.eval()
+                self.cond_stage_model_fmri.train = disabled_train
+                for param in self.cond_stage_model_fmri.parameters():
+                    param.requires_grad = False
+        else:
+            assert config != '__is_first_stage__'
+            assert config != '__is_unconditional__'
+            model = instantiate_from_config(config)
+            self.cond_stage_model_fmri = model
 
     def _get_denoise_row_from_list(self, samples, desc='', force_no_decoder_quantization=False):
         denoise_row = []
@@ -508,6 +533,19 @@ class LatentDiffusion(DDPM):
         else:
             assert hasattr(self.cond_stage_model, self.cond_stage_forward)
             c = getattr(self.cond_stage_model, self.cond_stage_forward)(c)
+        return c
+
+    def get_learned_conditioning_fmri(self, c):
+        if self.cond_stage_forward_fmri is None:
+            if hasattr(self.cond_stage_model_fmri, 'encode') and callable(self.cond_stage_model_fmri.encode):
+                c = self.cond_stage_model_fmri.encode(c)
+                if isinstance(c, DiagonalGaussianDistribution):
+                    c = c.mode()
+            else:
+                c = self.cond_stage_model_fmri(c)
+        else:
+            assert hasattr(self.cond_stage_model_fmri, self.cond_stage_forward_fmri)
+            c = getattr(self.cond_stage_model_fmri, self.cond_stage_forward_fmri)(c)
         return c
 
     def meshgrid(self, h, w):
@@ -612,15 +650,19 @@ class LatentDiffusion(DDPM):
         xc = super().get_input(batch, cond_key)
         if bs is not None:
             xc["c_crossattn"] = xc["c_crossattn"][:bs]
+            xc["c_crossattn_1"] = xc["c_crossattn_1"][:bs]
             xc["c_concat"] = xc["c_concat"][:bs]
         cond = {}
 
         random = torch.rand(x.size(0), device=z.device)
         prompt_mask = rearrange(random < 0.075, "n -> n 1 1")
-        input_mask = 1 - rearrange((random >= 0.075).float() * (random < 0.15).float(), "n -> n 1 1 1")
+        fmri_prompt_mask = 1 - (random >= 0.075).float() * (random < 0.15).float()
+        input_mask = 1 - rearrange((random >= 0.075*2).float() * (random < 0.15+0.075).float(), "n -> n 1 1 1")
         
         null_prompt = self.get_learned_conditioning([""])
+        fmri_null_prompt = self.get_learned_conditioning_fmri(torch.zeros_like(xc["c_crossattn_1"]))
         cond["c_crossattn"] = [torch.where(prompt_mask, null_prompt, self.get_learned_conditioning(xc["c_crossattn"]).detach())]
+        cond["c_crossattn_1"] = [torch.where(fmri_prompt_mask, fmri_null_prompt, self.get_learned_conditioning_fmri(xc["c_crossattn_1"]).detach())]
         if self.is_fmri_input is True:
             cond["c_concat"] = [input_mask * self.fmri2visual_model((xc["c_concat"])).detach()]
         else:
@@ -1200,9 +1242,9 @@ class DiffusionWrapper(nn.Module):
         super().__init__()
         self.diffusion_model = instantiate_from_config(diff_model_config)
         self.conditioning_key = conditioning_key
-        assert self.conditioning_key in [None, 'concat', 'crossattn', 'hybrid', 'adm']
+        assert self.conditioning_key in [None, 'concat', 'crossattn', 'hybrid', 'adm', 'fmri_hybrid']
 
-    def forward(self, x, t, c_concat: list = None, c_crossattn: list = None):
+    def forward(self, x, t, c_concat: list = None, c_crossattn: list = None,  c_crossattn_1: list = None):
         if self.conditioning_key is None:
             out = self.diffusion_model(x, t)
         elif self.conditioning_key == 'concat':
@@ -1214,7 +1256,13 @@ class DiffusionWrapper(nn.Module):
         elif self.conditioning_key == 'hybrid':
             xc = torch.cat([x] + c_concat, dim=1)
             cc = torch.cat(c_crossattn, 1)
-            out = self.diffusion_model(xc, t, context=cc)
+        elif self.conditioning_key == 'fmri_hybrid':
+            # xc = torch.cat([x] + c_concat, dim=1)
+            xc = torch.cat([x] + [x], dim=1)
+            cc = torch.cat(c_crossattn, 1)
+            if c_crossattn_1 is not None:
+                cc_1 = torch.cat(c_crossattn_1, 1)
+            out = self.diffusion_model(xc, t, context=cc, context_1=cc_1)
         elif self.conditioning_key == 'adm':
             cc = c_crossattn[0]
             out = self.diffusion_model(x, t, y=cc)
@@ -1224,25 +1272,3 @@ class DiffusionWrapper(nn.Module):
         return out
 
 
-class Layout2ImgDiffusion(LatentDiffusion):
-    # TODO: move all layout-specific hacks to this class
-    def __init__(self, cond_stage_key, *args, **kwargs):
-        assert cond_stage_key == 'coordinates_bbox', 'Layout2ImgDiffusion only for cond_stage_key="coordinates_bbox"'
-        super().__init__(cond_stage_key=cond_stage_key, *args, **kwargs)
-
-    def log_images(self, batch, N=8, *args, **kwargs):
-        logs = super().log_images(batch=batch, N=N, *args, **kwargs)
-
-        key = 'train' if self.training else 'validation'
-        dset = self.trainer.datamodule.datasets[key]
-        mapper = dset.conditional_builders[self.cond_stage_key]
-
-        bbox_imgs = []
-        map_fn = lambda catno: dset.get_textual_label(dset.get_category_id(catno))
-        for tknzd_bbox in batch[self.cond_stage_key][:N]:
-            bboximg = mapper.plot(tknzd_bbox.detach().cpu(), map_fn, (256, 256))
-            bbox_imgs.append(bboximg)
-
-        cond_img = torch.stack(bbox_imgs, dim=0)
-        logs['bbox_image'] = cond_img
-        return logs

@@ -22,7 +22,8 @@ model:
     image_size: 32
     channels: 4
     cond_stage_trainable: false   # Note: different from the one we trained before
-    conditioning_key: hybrid
+    # conditioning_key: hybrid
+    conditioning_key: fmri_hybrid
     monitor: val/loss_simple_ema
     scale_factor: 0.18215
 
@@ -76,16 +77,19 @@ model:
         lossconfig:
           target: torch.nn.Identity
 
-    fmri2visual_stage_config:
-      target: ldm.modules.encoders.fmri_modules.FMRI2VisualEmbedder
-      params:
-        input_size: 7604
-        output_size: 4096
-        hidden_size: 256  # Adjust this as needed
-        dropout_prob: 0.5  # Adjust the dropout probability as needed
+    # fmri2visual_stage_config:
+    #   target: ldm.modules.encoders.fmri_modules.FMRI2VisualEmbedder
+    #   params:
+    #     input_size: 7604
+    #     output_size: 4096
+    #     hidden_size: 256  # Adjust this as needed
+    #     dropout_prob: 0.5  # Adjust the dropout probability as needed
 
     cond_stage_config:
       target: ldm.modules.encoders.modules.FrozenCLIPEmbedder
+
+    cond_stage_forward_fmri:
+      target: ldm.modules.encoders.modules.encoder.fmri.FmriEmbedder
 
 data:
   target: main.DataModuleFromConfig

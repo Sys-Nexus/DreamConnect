@@ -44,7 +44,7 @@ def read_edit_json(root):
     for meta_path in meta_paths:
         meta_i = json.load(open(meta_path, 'r'))
         meta.extend(meta_i)
-    # import pdb; pdb.set_trace();
+    import pdb; pdb.set_trace();
     return meta
 
 
@@ -165,7 +165,7 @@ class NSDDataset(Dataset):
         except:
             instruction_text = ''
 
-        nsd_dict['fmri_edit'] = {'c_concat': fmri_norm, 'c_crossattn': instruction_text}
+        nsd_dict['fmri_edit'] = {'c_concat': fmri_norm, 'c_crossattn': instruction_text, 'c_crossattn_1': fmri_norm}
         # nsd_dict['edited'] = None # TODO
 
         return nsd_dict
