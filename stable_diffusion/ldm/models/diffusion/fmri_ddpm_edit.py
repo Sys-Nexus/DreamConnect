@@ -401,7 +401,7 @@ class LatentDiffusion(DDPM):
         self.instantiate_first_stage(first_stage_config)
         # if cond_stage_config is not None:
         self.instantiate_cond_stage(cond_stage_config)
-        if cond_stage_forward_fmri:
+        if cond_stage_config_fmri:
             self.instantiate_cond_stage_fmri(cond_stage_config_fmri)
         if fmri2visual_stage_config is not None:
             self.instantiate_fmri2visual_stage(fmri2visual_stage_config)
