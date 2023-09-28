@@ -71,7 +71,9 @@ def load_img_from_string(img_path,resolution):
 class NSDDataset(Dataset):
     ## it seems that ventral area is sensitive to captions
     def __init__(self, nsd_root, idxes, batch_size=1, resolution=320, split='train', subject='subj01', 
-                roi=['early', 'ventral', 'midventral', 'midlateral', 'lateral', 'parietal'], target='conv'):
+                # roi=['early', 'ventral', 'midventral', 'midlateral', 'lateral', 'parietal'], 
+                roi=['early'], 
+                target='conv'):
         self.nsda = NSDAccess(nsd_root)
         self.idxes = idxes
         # self.mri_idxes = mri_idxes
