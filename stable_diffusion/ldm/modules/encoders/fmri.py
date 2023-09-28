@@ -5,7 +5,6 @@ import torch
 import torch.nn as nn
 import numpy as np
 from functools import partial
-from core.models.common.get_model import register
 from einops import rearrange
 from torch.nn import functional as F
 
@@ -13,10 +12,6 @@ import sys
 file_path = os.path.abspath(__file__)
 proj_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(file_path))))
 # import pdb; pdb.set_trace()
-sys.path.append(os.path.join(proj_root, 'third_party/mind_vis'))
-sys.path.append(os.path.join(proj_root, 'third_party/mind_vis/code'))
-from third_party.mind_vis.code.sc_mbm.mae_for_fmri import fmri_encoder
-from third_party.mind_vis.code.config import Config_MBM_finetune
 
 version = '0'
 symbol = 'fmri'
@@ -50,33 +45,6 @@ class FmriEmbedder(nn.Module):
         self.adaptor_fmri2image.load_state_dict(adaptor_state_dict, strict=True)
         # import pdb; pdb.set_trace()
         print('load fmri adaptor weight from ', self.adaptor_fmri2image_path)
-
-    def init_fmri(self, fmri_finetuned_path=None):
-        def create_model_from_config(config, num_voxels, global_pool):
-            # import pdb; pdb.set_trace()
-            model = fmri_encoder(num_voxels=num_voxels, patch_size=config.patch_size, embed_dim=config.embed_dim,
-                                 depth=config.depth, num_heads=config.num_heads, mlp_ratio=config.mlp_ratio,
-                                 global_pool=global_pool)
-            return model
-
-        global_pool = True
-        # num_voxels = 1696
-        num_voxels = 7604
-
-        config = Config_MBM_finetune()
-
-        metafile = torch.load(config.pretrain_mbm_path, map_location='cpu')
-        model = create_model_from_config(metafile['config'], num_voxels, global_pool)
-        model.load_checkpoint(metafile['model'])
-
-        if fmri_finetuned_path is not None:
-            finetuned_state_dict = torch.load(fmri_finetuned_path)
-            fmri_finetuned_state_dict = {k.replace('fmri_model.', ''): v for k, v in finetuned_state_dict['model'].items() if k.startswith('fmri_model.')}
-            model.load_checkpoint(fmri_finetuned_state_dict)
-            import pdb; pdb.set_trace()
-
-        freeze(model)
-        return model
 
     @torch.no_grad()
     def forward(self, fmri_feat):
