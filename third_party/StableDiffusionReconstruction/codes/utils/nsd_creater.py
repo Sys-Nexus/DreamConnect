@@ -182,7 +182,7 @@ class NSDDataset(Dataset):
             nsd_dict['edited'] = load_img_from_string(edited_path) # TODO
         except:
             ## If the triplet pairs do not exist, use do nothing operation
-            instruction_text = random.choice(valid_do_nothing_ops)
+            instruction_text = random.choice(self.valid_do_nothing_ops)
             nsd_dict['fmri_edit'] = {'c_concat': init_image, 'c_crossattn': instruction_text, 'c_crossattn_1': fmri_norm}
             nsd_dict['edited'] = init_image
 
