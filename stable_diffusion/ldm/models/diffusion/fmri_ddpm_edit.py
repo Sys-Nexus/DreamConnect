@@ -1223,7 +1223,7 @@ class LatentDiffusion(DDPM):
                    steps=100, ddim_eta=1., return_keys=None,
                    quantize_denoised=True, inpaint=False):
 
-        N = min(x.shape[0], N)
+        N = min(batch['image'].shape[0], N)
 
         self.model.eval()
         use_ddim = False
