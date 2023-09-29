@@ -1216,7 +1216,7 @@ class LatentDiffusion(DDPM):
             Image.fromarray(grid).save(path)
 
     @torch.no_grad()
-    def log_images(self, batch, epoch_n, iter_n, model_wrap, model_wrap_cfg,
+    def log_images(self, batch, epoch_n, iter_n, batch_idx, model_wrap, model_wrap_cfg,
                    save_dir, split,
                    cfg_text=7.5, cfg_fmri=1.5,
                    N=2, n_row=4, sample=True, 
@@ -1267,7 +1267,7 @@ class LatentDiffusion(DDPM):
 
         for k in log.keys():
             root = os.path.join(save_dir, "images", split)
-            filename = "{}_iter-{:06}_ep-{:06}.png".format(k, iter_n, epoch_n)
+            filename = "{}_iter-{:06}_ep-{:06}_bidx-{:06d}.png".format(k, iter_n, epoch_n, batch_idx)
             path = os.path.join(root, filename)
             os.makedirs(os.path.dirname(path), exist_ok=True)
             torchvision.utils.save_image(log[k]*0.5+0.5, path)

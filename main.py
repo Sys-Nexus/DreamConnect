@@ -429,7 +429,7 @@ def train_one_epoch(config, model, model_ema, data_loader, val_data_loader, opti
             with torch.no_grad():
                 for val_idx, batch in enumerate(val_data_loader):
                     batch_size = batch['image'].shape[0]
-                    model.log_images(batch, epoch, idx, model_wrap, model_wrap_cfg, save_dir, 'val')
+                    model.log_images(batch, epoch, idx, batch_idx, model_wrap, model_wrap_cfg, save_dir, 'val')
 
                     if val_idx == 5:
                         break
