@@ -1217,10 +1217,13 @@ class LatentDiffusion(DDPM):
 
     @torch.no_grad()
     def log_images(self, batch, epoch_n, iter_n, model_wrap, model_wrap_cfg,
+                   save_dir, split,
                    cfg_text=7.5, cfg_fmri=1.5,
                    N=2, n_row=4, sample=True, 
                    steps=100, ddim_eta=1., return_keys=None,
                    quantize_denoised=True, inpaint=False):
+
+        N = min(x.shape[0], N)
 
         self.model.eval()
         use_ddim = False
@@ -1253,37 +1256,21 @@ class LatentDiffusion(DDPM):
             "fmri_cfg_scale": cfg_fmri,
         }
         z_pred = K.sampling.sample_euler_ancestral(model_wrap_cfg, z_pred, sigmas, extra_args=extra_args)
+        x_pred = self.decode_first_stage(z_pred)
 
-        import pdb; pdb.set_trace();
-        N = min(x.shape[0], N)
-        n_row = min(x.shape[0], n_row)
-        log["inputs"] = x
-        log["reals"] = xc["c_concat"]
-        log["reconstruction"] = xrec
-        if self.model.conditioning_key is not None:
-            if hasattr(self.cond_stage_model, "decode"):
-                xc = self.cond_stage_model.decode(c)
-                log["conditioning"] = xc
-            elif self.cond_stage_key in ["caption"]:
-                xc = log_txt_as_img((x.shape[2], x.shape[3]), batch["caption"])
-                log["conditioning"] = xc
-            elif self.cond_stage_key == 'class_label':
-                xc = log_txt_as_img((x.shape[2], x.shape[3]), batch["human_label"])
-                log['conditioning'] = xc
-            elif isimage(xc):
-                log["conditioning"] = xc
-            if ismap(xc):
-                log["original_conditioning"] = self.to_rgb(xc)
+        # import pdb; pdb.set_trace();
+        log["gt"] = x
+        log["concat"] = xc["c_concat"]
+        log["recon"] = xrec
+        log["samples"] = x_pred
+        log["instruction"] = log_txt_as_img((x.shape[2], x.shape[3]), xc["c_crossattn"])
 
-        # if sample:
-        #     # get denoise row
-        #     with self.ema_scope("Plotting"):
-        #         # samples, z_denoise_row = self.sample_log(cond=c,batch_size=N,ddim=use_ddim,
-        #         #                                          ddim_steps=ddim_steps,eta=ddim_eta)
-        #         # samples, z_denoise_row = self.sample(cond=c, batch_size=N, return_intermediates=True)
-        #         samples, z_denoise_row = self.sample(cond=c, batch_size=N, return_intermediates=False)
-        #     x_samples = self.decode_first_stage(samples)
-        #     log["samples"] = x_samples
+        for k in log.keys():
+            root = os.path.join(save_dir, "images", split)
+            filename = "{}_iter-{:06}_ep-{:06}.png".format(k, iter_n, epoch_n)
+            path = os.path.join(root, filename)
+            os.makedirs(os.path.dirname(path), exist_ok=True)
+            torchvision.utils.save_image(path, log[k]*0.5+0.5)
 
         self.model.train()
 

@@ -308,7 +308,8 @@ class DataModuleFromConfig():
                           num_workers=self.num_workers, worker_init_fn=init_fn, persistent_workers=True)
 
 
-def train_one_epoch(config, model, model_ema, data_loader, val_data_loader, optimizer, epoch, lr_scheduler, scaler, model_wrap, model_wrap_cfg):
+def train_one_epoch(config, model, model_ema, data_loader, val_data_loader, optimizer, epoch, 
+        lr_scheduler, scaler, model_wrap, model_wrap_cfg, save_dir, split):
     model.train()
     optimizer.zero_grad()
 
@@ -423,11 +424,12 @@ def train_one_epoch(config, model, model_ema, data_loader, val_data_loader, opti
 
         # print(epoch * num_steps + idx)
         # import pdb; pdb.set_trace();
+        save_dir = visdir
         if (epoch * num_steps + idx) % 1000 == 0:
             with torch.no_grad():
                 for val_idx, batch in enumerate(val_data_loader):
                     batch_size = batch['image'].shape[0]
-                    model.log_images(batch, epoch, idx, model_wrap, model_wrap_cfg)
+                    model.log_images(batch, epoch, idx, model_wrap, model_wrap_cfg, save_dir, 'val')
 
                     if val_idx == 5:
                         break
@@ -496,10 +498,12 @@ if __name__ == "__main__":
 
     ckptdir = os.path.join(logdir, "checkpoints")
     cfgdir = os.path.join(logdir, "configs")
+    visdir = os.path.join(logdir, "visualize")
 
     os.makedirs(logdir, exist_ok=True)
     os.makedirs(ckptdir, exist_ok=True)
     os.makedirs(cfgdir, exist_ok=True)
+    os.makedirs(visdir, exist_ok=True)
 
     # init and save configs
     # config: the configs in the config file
@@ -614,7 +618,7 @@ if __name__ == "__main__":
     for epoch in range(start_epoch, config.trainer.max_epochs):
         data_loader_train.sampler.set_epoch(epoch)
         train_one_epoch(config, model, model_ema, data_loader_train, data_loader_val, 
-                optimizer, epoch, lr_scheduler, scaler, model_wrap, model_wrap_cfg)
+                optimizer, epoch, lr_scheduler, scaler, model_wrap, model_wrap_cfg, visdir)
         if epoch % config.trainer.save_freq == 0:
             save_checkpoint(ckptdir, config, epoch, model_without_ddp, model_ema, 0., optimizer, lr_scheduler, scaler, logger)
 
