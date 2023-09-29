@@ -31,24 +31,6 @@ from ldm.models.diffusion.ddim import DDIMSampler
 from timm.models.layers import trunc_normal_
 
 
-class CFGDenoiser(nn.Module):
-    def __init__(self, model):
-        super().__init__()
-        self.inner_model = model
-
-    def forward(self, z, sigma, cond, uncond, text_cfg_scale, image_cfg_scale):
-        cfg_z = einops.repeat(z, "b ... -> (repeat b) ...", repeat=3)
-        cfg_sigma = einops.repeat(sigma, "b ... -> (repeat b) ...", repeat=3)
-        cfg_cond = {
-            "c_crossattn": [torch.cat([cond["c_crossattn"][0], uncond["c_crossattn"][0], cond["c_crossattn"][0]])],
-            "c_concat": [torch.cat([cond["c_concat"][0], cond["c_concat"][0], uncond["c_concat"][0]])],
-        }
-        out_cond, out_img_cond, out_txt_cond \
-            = self.inner_model(cfg_z, cfg_sigma, cond=cfg_cond).chunk(3)
-        return 0.5 * (out_img_cond + out_txt_cond) + \
-            text_cfg_scale * (out_cond - out_img_cond) + \
-                image_cfg_scale * (out_cond - out_txt_cond)
-
 
 __conditioning_keys__ = {'concat': 'c_concat',
                          'crossattn': 'c_crossattn',
