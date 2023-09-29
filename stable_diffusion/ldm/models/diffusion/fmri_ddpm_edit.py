@@ -646,6 +646,7 @@ class LatentDiffusion(DDPM):
         x = super().get_input(batch, k)
         if bs is not None:
             x = x[:bs]
+        x = x.half()
         encoder_posterior = self.encode_first_stage(x)
         z = self.get_first_stage_encoding(encoder_posterior).detach()
         cond_key = cond_key or self.cond_stage_key
@@ -656,6 +657,7 @@ class LatentDiffusion(DDPM):
             xc["c_crossattn_1"] = xc["c_crossattn_1"][:bs]
             xc["c_concat"] = xc["c_concat"][:bs]
         x, xc["c_concat"], xc["c_crossattn_1"] = x.to(z), xc["c_concat"].to(z), xc["c_crossattn_1"].to(z)
+        x, xc["c_concat"], xc["c_crossattn_1"] = x.half(), xc["c_concat"].half(), xc["c_crossattn_1"].half()
         import pdb; pdb.set_trace();
         cond = {}
         random = torch.rand(x.size(0), device=z.device)
