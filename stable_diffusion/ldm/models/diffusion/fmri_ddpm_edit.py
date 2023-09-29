@@ -435,16 +435,16 @@ class LatentDiffusion(DDPM):
         self.clip_denoised = False
         self.bbox_tokenizer = None
 
-        # k-diffusion wrapper
-        self.model_wrap = K.external.CompVisDenoiser(self.model)
-        self.model_wrap_cfg = CFGDenoiser(self.model_wrap)
-
         self.restarted_from_ckpt = False
         if ckpt_path is not None:
             self.init_from_ckpt(ckpt_path, ignore_keys)
             self.restarted_from_ckpt = True
 
         self.additional_loss_type = kwargs.pop("additional_loss_type", None)
+
+        # k-diffusion wrapper
+        self.model_wrap = K.external.CompVisDenoiser(self)
+        self.model_wrap_cfg = CFGDenoiser(self.model_wrap)
 
     def make_cond_schedule(self, ):
         self.cond_ids = torch.full(size=(self.num_timesteps,), fill_value=self.num_timesteps - 1, dtype=torch.long)
