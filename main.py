@@ -309,7 +309,7 @@ class DataModuleFromConfig():
 
 
 def train_one_epoch(config, model, model_ema, data_loader, val_data_loader, optimizer, epoch, 
-        lr_scheduler, scaler, model_wrap, model_wrap_cfg, save_dir, split):
+        lr_scheduler, scaler, model_wrap, model_wrap_cfg, save_dir):
     model.train()
     optimizer.zero_grad()
 
