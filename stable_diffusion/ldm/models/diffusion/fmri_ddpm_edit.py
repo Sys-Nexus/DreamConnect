@@ -1270,7 +1270,7 @@ class LatentDiffusion(DDPM):
             filename = "{}_iter-{:06}_ep-{:06}.png".format(k, iter_n, epoch_n)
             path = os.path.join(root, filename)
             os.makedirs(os.path.dirname(path), exist_ok=True)
-            torchvision.utils.save_image(path, log[k]*0.5+0.5)
+            torchvision.utils.save_image(log[k]*0.5+0.5, path)
 
         self.model.train()
 
