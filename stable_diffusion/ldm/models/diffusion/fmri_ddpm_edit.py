@@ -662,7 +662,7 @@ class LatentDiffusion(DDPM):
         cond = {}
         random = torch.rand(x.size(0), device=z.device)
         prompt_mask = rearrange(random < 0.075, "n -> n 1 1")
-        fmri_prompt_mask = 1 - (random >= 0.075).float() * (random < 0.15).float()
+        fmri_prompt_mask = (1 - (random >= 0.075).float() * (random < 0.15).float()).bool()
         input_mask = 1 - rearrange((random >= 0.075*2).float() * (random < 0.15+0.075).float(), "n -> n 1 1 1")
         
         null_prompt = self.get_learned_conditioning([""])
