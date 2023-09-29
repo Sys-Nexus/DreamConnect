@@ -34,6 +34,7 @@ from timm.models.layers import trunc_normal_
 
 __conditioning_keys__ = {'concat': 'c_concat',
                          'crossattn': 'c_crossattn',
+                         'crossattn_1': 'c_crossattn_1',
                          'adm': 'y'}
 
 
