@@ -20,6 +20,7 @@ from PIL import Image
 from timm.utils import AverageMeter
 
 import torch
+import torch.nn as nn
 import torchvision
 import torch.cuda.amp as amp
 import torch.distributed as dist
