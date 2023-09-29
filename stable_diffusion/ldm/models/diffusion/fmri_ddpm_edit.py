@@ -658,7 +658,7 @@ class LatentDiffusion(DDPM):
             xc["c_concat"] = xc["c_concat"][:bs]
         x, xc["c_concat"], xc["c_crossattn_1"] = x.to(z), xc["c_concat"].to(z), xc["c_crossattn_1"].to(z)
         x, xc["c_concat"], xc["c_crossattn_1"] = x.half(), xc["c_concat"].half(), xc["c_crossattn_1"].half()
-        import pdb; pdb.set_trace();
+        # import pdb; pdb.set_trace();
         cond = {}
         random = torch.rand(x.size(0), device=z.device)
         prompt_mask = rearrange(random < 0.075, "n -> n 1 1")
@@ -669,7 +669,7 @@ class LatentDiffusion(DDPM):
         null_prompt = self.get_learned_conditioning([""])
         fmri_null_prompt = self.get_learned_conditioning_fmri(torch.zeros_like(xc["c_crossattn_1"]))
         cond["c_crossattn"] = [torch.where(prompt_mask, null_prompt, self.get_learned_conditioning(xc["c_crossattn"]).detach())]
-        import pdb;pdb.set_trace()
+        # import pdb;pdb.set_trace()
         cond["c_crossattn_1"] = [torch.where(fmri_prompt_mask, fmri_null_prompt, self.get_learned_conditioning_fmri(xc["c_crossattn_1"]).detach())]
         if self.is_fmri_input is True:
             cond["c_concat"] = [input_mask * self.fmri2visual_model((xc["c_concat"])).detach()]
