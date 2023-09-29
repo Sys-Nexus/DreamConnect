@@ -1247,15 +1247,15 @@ class LatentDiffusion(DDPM):
             if ismap(xc):
                 log["original_conditioning"] = self.to_rgb(xc)
 
-        if sample:
-            # get denoise row
-            with self.ema_scope("Plotting"):
-                # samples, z_denoise_row = self.sample_log(cond=c,batch_size=N,ddim=use_ddim,
-                #                                          ddim_steps=ddim_steps,eta=ddim_eta)
-                # samples, z_denoise_row = self.sample(cond=c, batch_size=N, return_intermediates=True)
-                samples, z_denoise_row = self.sample(cond=c, batch_size=N, return_intermediates=False)
-            x_samples = self.decode_first_stage(samples)
-            log["samples"] = x_samples
+        # if sample:
+        #     # get denoise row
+        #     with self.ema_scope("Plotting"):
+        #         # samples, z_denoise_row = self.sample_log(cond=c,batch_size=N,ddim=use_ddim,
+        #         #                                          ddim_steps=ddim_steps,eta=ddim_eta)
+        #         # samples, z_denoise_row = self.sample(cond=c, batch_size=N, return_intermediates=True)
+        #         samples, z_denoise_row = self.sample(cond=c, batch_size=N, return_intermediates=False)
+        #     x_samples = self.decode_first_stage(samples)
+        #     log["samples"] = x_samples
 
         if return_keys:
             if np.intersect1d(list(log.keys()), return_keys).shape[0] == 0:
