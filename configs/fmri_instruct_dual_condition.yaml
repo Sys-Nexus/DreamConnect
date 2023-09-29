@@ -8,7 +8,8 @@ model:
   params:
     # fp16: True
     fp16: False
-    deepspeed: 'deepspeed_1'
+    # deepspeed: 'deepspeed_1'
+    deepspeed: ''
     # ckpt_path: stable_diffusion/models/ldm/stable-diffusion-v1/v1-5-pruned-emaonly-adaption.ckpt
     ckpt_path: stable_diffusion/models/ldm/stable-diffusion-v1/v1-5-pruned-emaonly-adaption-task-humanalign.ckpt
     linear_start: 0.00085
