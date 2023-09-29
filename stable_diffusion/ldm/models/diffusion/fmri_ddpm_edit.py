@@ -23,9 +23,6 @@ import torchvision
 from torchvision.utils import make_grid
 from PIL import Image
 
-import k_diffusion as K
-
-
 from ldm.util import log_txt_as_img, exists, default, ismap, isimage, mean_flat, count_params, instantiate_from_config
 from ldm.modules.distributions.distributions import normal_kl, DiagonalGaussianDistribution
 from ldm.models.autoencoder import VQModelInterface, IdentityFirstStage, AutoencoderKL
@@ -441,10 +438,6 @@ class LatentDiffusion(DDPM):
             self.restarted_from_ckpt = True
 
         self.additional_loss_type = kwargs.pop("additional_loss_type", None)
-
-        # k-diffusion wrapper
-        self.model_wrap = K.external.CompVisDenoiser(self)
-        self.model_wrap_cfg = CFGDenoiser(self.model_wrap)
 
     def make_cond_schedule(self, ):
         self.cond_ids = torch.full(size=(self.num_timesteps,), fill_value=self.num_timesteps - 1, dtype=torch.long)
@@ -1238,7 +1231,7 @@ class LatentDiffusion(DDPM):
             Image.fromarray(grid).save(path)
 
     @torch.no_grad()
-    def log_images(self, batch, epoch_n, iter_n, N=4, n_row=4, sample=True, 
+    def log_images(self, batch, epoch_n, iter_n, model_wrap, model_wrap_cfg, N=4, n_row=4, sample=True, 
                    ddim_steps=200, ddim_eta=1., return_keys=None,
                    quantize_denoised=True, inpaint=False):
 

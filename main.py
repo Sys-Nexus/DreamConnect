@@ -35,6 +35,9 @@ from utils.logger import create_logger
 from utils.utils import load_checkpoint, save_checkpoint, get_grad_norm, auto_resume_helper
 from utils.deepspeed import create_ds_config
 
+# for inference
+import k_diffusion as K
+
 
 def wandb_log(*args, **kwargs):
     if dist.get_rank() == 0:
@@ -277,7 +280,7 @@ class DataModuleFromConfig():
                           num_workers=self.num_workers, worker_init_fn=init_fn, persistent_workers=True)
 
 
-def train_one_epoch(config, model, model_ema, data_loader, val_data_loader, optimizer, epoch, lr_scheduler, scaler):
+def train_one_epoch(config, model, model_ema, data_loader, val_data_loader, optimizer, epoch, lr_scheduler, scaler, model_wrap, model_wrap_cfg):
     model.train()
     optimizer.zero_grad()
 
@@ -396,7 +399,7 @@ def train_one_epoch(config, model, model_ema, data_loader, val_data_loader, opti
             with torch.no_grad():
                 for val_idx, batch in enumerate(val_data_loader):
                     batch_size = batch['image'].shape[0]
-                    model.log_images(batch, epoch, idx)
+                    model.log_images(batch, epoch, idx, model_wrap, model_wrap_cfg)
 
                     if val_idx == 5:
                         break
@@ -576,9 +579,14 @@ if __name__ == "__main__":
     logger.info("Start training")
     start_time = time.time()
 
+    # k-diffusion wrapper
+    model_wrap = K.external.CompVisDenoiser(model)
+    model_wrap_cfg = CFGDenoiser(model_wrap)
+    
     for epoch in range(start_epoch, config.trainer.max_epochs):
         data_loader_train.sampler.set_epoch(epoch)
-        train_one_epoch(config, model, model_ema, data_loader_train, data_loader_val, optimizer, epoch, lr_scheduler, scaler)
+        train_one_epoch(config, model, model_ema, data_loader_train, data_loader_val, 
+                optimizer, epoch, lr_scheduler, scaler, model_wrap, model_wrap_cfg)
         if epoch % config.trainer.save_freq == 0:
             save_checkpoint(ckptdir, config, epoch, model_without_ddp, model_ema, 0., optimizer, lr_scheduler, scaler, logger)
 
