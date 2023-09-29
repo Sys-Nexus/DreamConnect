@@ -34,18 +34,19 @@ class CFGDenoiser(nn.Module):
         super().__init__()
         self.inner_model = model
 
-    def forward(self, z, sigma, cond, uncond, text_cfg_scale, image_cfg_scale):
+    def forward(self, z, sigma, cond, uncond, text_cfg_scale, fmri_cfg_scale):
         cfg_z = einops.repeat(z, "b ... -> (repeat b) ...", repeat=3)
         cfg_sigma = einops.repeat(sigma, "b ... -> (repeat b) ...", repeat=3)
         cfg_cond = {
             "c_crossattn": [torch.cat([cond["c_crossattn"][0], uncond["c_crossattn"][0], cond["c_crossattn"][0]])],
-            "c_concat": [torch.cat([cond["c_concat"][0], cond["c_concat"][0], uncond["c_concat"][0]])],
+            "c_crossattn_1": [torch.cat([cond["c_crossattn_1"][0], cond["c_crossattn_1"][0], uncond["c_crossattn_1"][0]])],
+            # "c_concat": [torch.cat([cond["c_concat"][0], cond["c_concat"][0], uncond["c_concat"][0]])],
         }
         out_cond, out_img_cond, out_txt_cond \
             = self.inner_model(cfg_z, cfg_sigma, cond=cfg_cond).chunk(3)
         return 0.5 * (out_img_cond + out_txt_cond) + \
             text_cfg_scale * (out_cond - out_img_cond) + \
-                image_cfg_scale * (out_cond - out_txt_cond)
+                fmri_cfg_scale * (out_cond - out_txt_cond)
 
 
 def load_model_from_config(config, ckpt, vae_ckpt=None, verbose=False):

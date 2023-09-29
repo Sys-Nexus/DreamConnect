@@ -1214,18 +1214,42 @@ class LatentDiffusion(DDPM):
             Image.fromarray(grid).save(path)
 
     @torch.no_grad()
-    def log_images(self, batch, epoch_n, iter_n, model_wrap, model_wrap_cfg, N=4, n_row=4, sample=True, 
-                   ddim_steps=200, ddim_eta=1., return_keys=None,
+    def log_images(self, batch, epoch_n, iter_n, model_wrap, model_wrap_cfg,
+                   cfg_text=7.5, cfg_fmri=1.5,
+                   N=2, n_row=4, sample=True, 
+                   steps=100, ddim_eta=1., return_keys=None,
                    quantize_denoised=True, inpaint=False):
 
         use_ddim = False
 
         log = dict()
-        z, c, x, xrec, xc = self.get_input(batch, self.first_stage_key,
+        z_gt, c, x, xrec, xc = self.get_input(batch, self.first_stage_key,
                                            return_first_stage_outputs=True,
                                            force_c_encode=True,
                                            return_original_cond=True,
                                            bs=N, uncond=0)
+        
+        sigmas = model_wrap.get_sigmas(steps)
+        z_pred = torch.randn_like(z_gt) * sigmas[0]
+    
+        cond = {}
+        cond["c_crossattn"] = self.get_learned_conditioning(xc["c_crossattn"])
+        cond["c_crossattn_1"] = self.get_learned_conditioning_fmri(xc["c_crossattn_1"])
+
+        uncond = {}
+        null_prompt = self.get_learned_conditioning([""]*2)
+        fmri_null_prompt = self.get_learned_conditioning_fmri(torch.zeros_like(xc["c_crossattn_1"]))
+        uncond["c_crossattn"] = [null_prompt]
+        uncond["c_crossattn_1"] = [fmri_null_prompt]
+
+        extra_args = {
+            "cond": cond,
+            "uncond": uncond,
+            "text_cfg_scale": cfg_text,
+            "fmri_cfg_scale": cfg_fmri,
+        }
+        z_pred = K.sampling.sample_euler_ancestral(model_wrap_cfg, z_pred, sigmas, extra_args=extra_args)
+
         import pdb; pdb.set_trace();
         N = min(x.shape[0], N)
         n_row = min(x.shape[0], n_row)

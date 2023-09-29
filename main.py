@@ -414,8 +414,8 @@ def train_one_epoch(config, model, model_ema, data_loader, val_data_loader, opti
                 step=epoch * num_steps + idx,
             )
 
-        print(epoch * num_steps + idx)
-        import pdb; pdb.set_trace();
+        # print(epoch * num_steps + idx)
+        # import pdb; pdb.set_trace();
         if (epoch * num_steps + idx) % 1000 == 0:
             with torch.no_grad():
                 for val_idx, batch in enumerate(val_data_loader):
