@@ -1221,6 +1221,7 @@ class LatentDiffusion(DDPM):
                    steps=100, ddim_eta=1., return_keys=None,
                    quantize_denoised=True, inpaint=False):
 
+        self.model.eval()
         use_ddim = False
 
         log = dict()
@@ -1281,6 +1282,8 @@ class LatentDiffusion(DDPM):
         #         samples, z_denoise_row = self.sample(cond=c, batch_size=N, return_intermediates=False)
         #     x_samples = self.decode_first_stage(samples)
         #     log["samples"] = x_samples
+
+        self.model.train()
 
         if return_keys:
             if np.intersect1d(list(log.keys()), return_keys).shape[0] == 0:
