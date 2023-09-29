@@ -38,7 +38,8 @@ from utils.deepspeed import create_ds_config
 
 # for inference
 import k_diffusion as K
-
+import einops
+from einops import rearrange
 
 
 class CFGDenoiser(nn.Module):
