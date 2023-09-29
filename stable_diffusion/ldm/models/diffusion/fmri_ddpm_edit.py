@@ -1239,6 +1239,7 @@ class LatentDiffusion(DDPM):
         cond["c_crossattn"] = self.get_learned_conditioning(xc["c_crossattn"])
         cond["c_crossattn_1"] = self.get_learned_conditioning_fmri(xc["c_crossattn_1"])
 
+        import pdb; pdb.set_trace();
         uncond = {}
         null_prompt = self.get_learned_conditioning([""]*2)
         fmri_null_prompt = self.get_learned_conditioning_fmri(torch.zeros_like(xc["c_crossattn_1"]))
