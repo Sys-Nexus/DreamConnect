@@ -19,6 +19,7 @@ import numpy as np
 from einops import rearrange, repeat
 from functools import partial
 from tqdm import tqdm
+import einops
 import torchvision
 from torchvision.utils import make_grid
 from PIL import Image
