@@ -92,9 +92,6 @@ model:
     cond_stage_config_fmri:
       target: ldm.modules.encoders.fmri.FmriEmbedder
 
-    # cond_stage_forward_fmri:
-    #   target: ldm.modules.encoders.fmri.FmriEmbedder
-
 data:
   target: main.DataModuleFromConfig
   params:

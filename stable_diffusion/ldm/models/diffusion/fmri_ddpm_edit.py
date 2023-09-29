@@ -19,7 +19,12 @@ import numpy as np
 from einops import rearrange, repeat
 from functools import partial
 from tqdm import tqdm
+import torchvision
 from torchvision.utils import make_grid
+from PIL import Image
+
+import k_diffusion as K
+
 
 from ldm.util import log_txt_as_img, exists, default, ismap, isimage, mean_flat, count_params, instantiate_from_config
 from ldm.modules.distributions.distributions import normal_kl, DiagonalGaussianDistribution
@@ -27,6 +32,25 @@ from ldm.models.autoencoder import VQModelInterface, IdentityFirstStage, Autoenc
 from ldm.modules.diffusionmodules.util import make_beta_schedule, extract_into_tensor, noise_like
 from ldm.models.diffusion.ddim import DDIMSampler
 from timm.models.layers import trunc_normal_
+
+
+class CFGDenoiser(nn.Module):
+    def __init__(self, model):
+        super().__init__()
+        self.inner_model = model
+
+    def forward(self, z, sigma, cond, uncond, text_cfg_scale, image_cfg_scale):
+        cfg_z = einops.repeat(z, "b ... -> (repeat b) ...", repeat=3)
+        cfg_sigma = einops.repeat(sigma, "b ... -> (repeat b) ...", repeat=3)
+        cfg_cond = {
+            "c_crossattn": [torch.cat([cond["c_crossattn"][0], uncond["c_crossattn"][0], cond["c_crossattn"][0]])],
+            "c_concat": [torch.cat([cond["c_concat"][0], cond["c_concat"][0], uncond["c_concat"][0]])],
+        }
+        out_cond, out_img_cond, out_txt_cond \
+            = self.inner_model(cfg_z, cfg_sigma, cond=cfg_cond).chunk(3)
+        return 0.5 * (out_img_cond + out_txt_cond) + \
+            text_cfg_scale * (out_cond - out_img_cond) + \
+                image_cfg_scale * (out_cond - out_txt_cond)
 
 
 __conditioning_keys__ = {'concat': 'c_concat',
@@ -390,6 +414,7 @@ class LatentDiffusion(DDPM):
         self.cond_stage_trainable_fmri = cond_stage_trainable_fmri
         self.cond_stage_key = cond_stage_key
         self.is_fmri_input = is_fmri_input
+
         try:
             self.num_downs = len(first_stage_config.params.ddconfig.ch_mult) - 1
         except:
@@ -409,6 +434,10 @@ class LatentDiffusion(DDPM):
         self.cond_stage_forward_fmri = cond_stage_forward_fmri
         self.clip_denoised = False
         self.bbox_tokenizer = None
+
+        # k-diffusion wrapper
+        self.model_wrap = K.external.CompVisDenoiser(self.model)
+        self.model_wrap_cfg = CFGDenoiser(self.model_wrap)
 
         self.restarted_from_ckpt = False
         if ckpt_path is not None:
@@ -642,7 +671,7 @@ class LatentDiffusion(DDPM):
 
     # @torch.no_grad()
     def get_input(self, batch, k, return_first_stage_outputs=False, force_c_encode=False,
-                  cond_key=None, return_original_cond=False, bs=None, uncond=0.05):
+                  cond_key=None, return_original_cond=False, bs=None, uncond=0.075):
         x = super().get_input(batch, k)
         if bs is not None:
             x = x[:bs]
@@ -661,10 +690,10 @@ class LatentDiffusion(DDPM):
         # import pdb; pdb.set_trace();
         cond = {}
         random = torch.rand(x.size(0), device=z.device)
-        prompt_mask = rearrange(random < 0.075, "n -> n 1 1")
-        fmri_prompt_mask = (1 - (random >= 0.075).float() * (random < 0.15).float()).bool()
+        prompt_mask = rearrange(random < uncond, "n -> n 1 1")
+        fmri_prompt_mask = (1 - (random >= uncond).float() * (random < uncond*2).float()).bool()
         fmri_prompt_mask = rearrange(fmri_prompt_mask, "n -> n 1 1")
-        input_mask = 1 - rearrange((random >= 0.075*2).float() * (random < 0.15+0.075).float(), "n -> n 1 1 1")
+        input_mask = 1 - rearrange((random >= uncond*2).float() * (random < uncond*3).float(), "n -> n 1 1 1")
         
         null_prompt = self.get_learned_conditioning([""])
         fmri_null_prompt = self.get_learned_conditioning_fmri(torch.zeros_like(xc["c_crossattn_1"]))
@@ -1105,62 +1134,6 @@ class LatentDiffusion(DDPM):
             return model_mean + nonzero_mask * (0.5 * model_log_variance).exp() * noise
 
     @torch.no_grad()
-    def progressive_denoising(self, cond, shape, verbose=True, callback=None, quantize_denoised=False,
-                              img_callback=None, mask=None, x0=None, temperature=1., noise_dropout=0.,
-                              score_corrector=None, corrector_kwargs=None, batch_size=None, x_T=None, start_T=None,
-                              log_every_t=None):
-        if not log_every_t:
-            log_every_t = self.log_every_t
-        timesteps = self.num_timesteps
-        if batch_size is not None:
-            b = batch_size if batch_size is not None else shape[0]
-            shape = [batch_size] + list(shape)
-        else:
-            b = batch_size = shape[0]
-        if x_T is None:
-            img = torch.randn(shape, device=x_T.device)
-        else:
-            img = x_T
-        intermediates = []
-        if cond is not None:
-            if isinstance(cond, dict):
-                cond = {key: cond[key][:batch_size] if not isinstance(cond[key], list) else
-                list(map(lambda x: x[:batch_size], cond[key])) for key in cond}
-            else:
-                cond = [c[:batch_size] for c in cond] if isinstance(cond, list) else cond[:batch_size]
-
-        if start_T is not None:
-            timesteps = min(timesteps, start_T)
-        iterator = tqdm(reversed(range(0, timesteps)), desc='Progressive Generation',
-                        total=timesteps) if verbose else reversed(
-            range(0, timesteps))
-        if type(temperature) == float:
-            temperature = [temperature] * timesteps
-
-        for i in iterator:
-            ts = torch.full((b,), i, device=cond.device, dtype=torch.long)
-            if self.shorten_cond_schedule:
-                assert self.model.conditioning_key != 'hybrid'
-                tc = self.cond_ids[ts].to(cond.device)
-                cond = self.q_sample(x_start=cond, t=tc, noise=torch.randn_like(cond))
-
-            img, x0_partial = self.p_sample(img, cond, ts,
-                                            clip_denoised=self.clip_denoised,
-                                            quantize_denoised=quantize_denoised, return_x0=True,
-                                            temperature=temperature[i], noise_dropout=noise_dropout,
-                                            score_corrector=score_corrector, corrector_kwargs=corrector_kwargs)
-            if mask is not None:
-                assert x0 is not None
-                img_orig = self.q_sample(x0, ts)
-                img = img_orig * mask + (1. - mask) * img
-
-            if i % log_every_t == 0 or i == timesteps - 1:
-                intermediates.append(x0_partial)
-            if callback: callback(i)
-            if img_callback: img_callback(img, i)
-        return img, intermediates
-
-    @torch.no_grad()
     def p_sample_loop(self, cond, shape, return_intermediates=False,
                       x_T=None, verbose=True, callback=None, timesteps=None, quantize_denoised=False,
                       mask=None, x0=None, img_callback=None, start_T=None,
@@ -1243,6 +1216,78 @@ class LatentDiffusion(DDPM):
                                                  return_intermediates=True,**kwargs)
 
         return samples, intermediates
+
+    @torch.no_grad()
+    def log_local(self, save_dir, split, images,
+                  global_step, current_epoch, batch_idx):
+        root = os.path.join(save_dir, "images", split)
+        for k in images:
+            grid = torchvision.utils.make_grid(images[k], nrow=4)
+            # if self.rescale:
+            #     grid = (grid + 1.0) / 2.0  # -1,1 -> 0,1; c,h,w
+            grid = grid.transpose(0, 1).transpose(1, 2).squeeze(-1)
+            grid = grid.numpy()
+            grid = (grid * 255).astype(np.uint8)
+            filename = "{}_gs-{:06}_e-{:06}_b-{:06}.png".format(
+                k,
+                global_step,
+                current_epoch,
+                batch_idx)
+            path = os.path.join(root, filename)
+            os.makedirs(os.path.split(path)[0], exist_ok=True)
+            Image.fromarray(grid).save(path)
+
+    @torch.no_grad()
+    def log_images(self, batch, N=4, n_row=4, sample=True, 
+                   ddim_steps=200, ddim_eta=1., return_keys=None,
+                   quantize_denoised=True, inpaint=False
+                   **kwargs):
+
+        use_ddim = False
+
+        log = dict()
+        z, c, x, xrec, xc = self.get_input(batch, self.first_stage_key,
+                                           return_first_stage_outputs=True,
+                                           force_c_encode=True,
+                                           return_original_cond=True,
+                                           bs=N, uncond=0)
+        import pdb; pdb.set_trace();
+        N = min(x.shape[0], N)
+        n_row = min(x.shape[0], n_row)
+        log["inputs"] = x
+        log["reals"] = xc["c_concat"]
+        log["reconstruction"] = xrec
+        if self.model.conditioning_key is not None:
+            if hasattr(self.cond_stage_model, "decode"):
+                xc = self.cond_stage_model.decode(c)
+                log["conditioning"] = xc
+            elif self.cond_stage_key in ["caption"]:
+                xc = log_txt_as_img((x.shape[2], x.shape[3]), batch["caption"])
+                log["conditioning"] = xc
+            elif self.cond_stage_key == 'class_label':
+                xc = log_txt_as_img((x.shape[2], x.shape[3]), batch["human_label"])
+                log['conditioning'] = xc
+            elif isimage(xc):
+                log["conditioning"] = xc
+            if ismap(xc):
+                log["original_conditioning"] = self.to_rgb(xc)
+
+        if sample:
+            # get denoise row
+            with self.ema_scope("Plotting"):
+                # samples, z_denoise_row = self.sample_log(cond=c,batch_size=N,ddim=use_ddim,
+                #                                          ddim_steps=ddim_steps,eta=ddim_eta)
+                # samples, z_denoise_row = self.sample(cond=c, batch_size=N, return_intermediates=True)
+                samples, z_denoise_row = self.sample(cond=c, batch_size=N, return_intermediates=False)
+            x_samples = self.decode_first_stage(samples)
+            log["samples"] = x_samples
+
+        if return_keys:
+            if np.intersect1d(list(log.keys()), return_keys).shape[0] == 0:
+                return log
+            else:
+                return {key: log[key] for key in return_keys}
+        return log
 
 
 class DiffusionWrapper(nn.Module):
