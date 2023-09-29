@@ -1238,10 +1238,9 @@ class LatentDiffusion(DDPM):
             Image.fromarray(grid).save(path)
 
     @torch.no_grad()
-    def log_images(self, batch, N=4, n_row=4, sample=True, 
+    def log_images(self, batch, epoch_n, iter_n, N=4, n_row=4, sample=True, 
                    ddim_steps=200, ddim_eta=1., return_keys=None,
-                   quantize_denoised=True, inpaint=False
-                   **kwargs):
+                   quantize_denoised=True, inpaint=False):
 
         use_ddim = False
 
