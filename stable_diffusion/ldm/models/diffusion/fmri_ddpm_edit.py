@@ -51,7 +51,7 @@ def uniform_on_device(r1, r2, shape, device):
 
 
 def freeze_params(model):
-    model = model.eval()
+    # model = model.eval()
     for param in model.parameters():
         param.requires_grad = False
 
