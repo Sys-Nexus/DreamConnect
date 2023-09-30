@@ -587,7 +587,7 @@ if __name__ == "__main__":
         main_params = [param for name, param in model.named_parameters() if 'diffusion_model.' in name]
         other_params = [param for name, param in model.named_parameters() if 'diffusion_model.' not in name]
         
-        param_groups = [{'params': other_params, 'lr':lr}, {'params': main_params, 'lr':config.model.params.unet_lr_ratio*lr}]
+        param_groups = [{'params': other_params, 'lr':model.learning_rate}, {'params': main_params, 'lr':config.model.params.unet_lr_ratio*model.learning_rate}]
         print('optimized main branch with {} learning rate of other components.'.format(config.model.params.unet_lr_ratio))
 
 
