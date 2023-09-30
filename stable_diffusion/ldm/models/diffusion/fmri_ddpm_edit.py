@@ -50,6 +50,12 @@ def uniform_on_device(r1, r2, shape, device):
     return (r1 - r2) * torch.rand(*shape, device=device) + r2
 
 
+def freeze_params(model):
+    model = model.eval()
+    for param in model.parameters():
+        param.requires_grad = False
+
+
 class DDPM(nn.Module):
     # classic DDPM with Gaussian diffusion, in image space
     def __init__(self,
@@ -367,6 +373,7 @@ class LatentDiffusion(DDPM):
                  num_timesteps_cond=None,
                  cond_stage_key="image",
                  fmri_cond_stage_key="fmri_edit",
+                 unet_stage_trainable=True,
                  cond_stage_trainable=False,
                  cond_stage_trainable_fmri=False,
                  concat_mode=True,
@@ -423,6 +430,12 @@ class LatentDiffusion(DDPM):
             self.restarted_from_ckpt = True
 
         self.additional_loss_type = kwargs.pop("additional_loss_type", None)
+
+        if not unet_stage_trainable:
+            freeze_params(self.model)
+            print('Unet Backbone is Freezed.')
+        else:
+            print('Unet Backbone is Trainable.')
 
     def make_cond_schedule(self, ):
         self.cond_ids = torch.full(size=(self.num_timesteps,), fill_value=self.num_timesteps - 1, dtype=torch.long)
@@ -484,14 +497,17 @@ class LatentDiffusion(DDPM):
                 self.cond_stage_model.train = disabled_train
                 for param in self.cond_stage_model.parameters():
                     param.requires_grad = False
+            print('Text Cond Stage is Freezed.')
         else:
             assert config != '__is_first_stage__'
             assert config != '__is_unconditional__'
             model = instantiate_from_config(config)
             self.cond_stage_model = model
-    
+            print('Text Cond Stage is Trainable.')
+
+
     def instantiate_cond_stage_fmri(self, config):
-        if not self.cond_stage_trainable:
+        if not self.cond_stage_trainable_fmri:
             if config == "__is_first_stage__":
                 print("Using first stage also as cond stage.")
                 self.cond_stage_model_fmri = self.first_stage_model_fmri
@@ -505,11 +521,13 @@ class LatentDiffusion(DDPM):
                 self.cond_stage_model_fmri.train = disabled_train
                 for param in self.cond_stage_model_fmri.parameters():
                     param.requires_grad = False
+            print('fMRI Cond Stage is Freezed.')
         else:
             assert config != '__is_first_stage__'
             assert config != '__is_unconditional__'
             model = instantiate_from_config(config)
             self.cond_stage_model_fmri = model
+            print('fMRI Cond Stage is Trainable.')
 
     def _get_denoise_row_from_list(self, samples, desc='', force_no_decoder_quantization=False):
         denoise_row = []

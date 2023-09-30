@@ -23,6 +23,8 @@ model:
     image_size: 32
     channels: 4
     cond_stage_trainable: false   # Note: different from the one we trained before
+    cond_stage_trainable_fmri: true   # Note: different from the one we trained before
+    unet_stage_trainable: false  # Note: different from the one we trained before
     # conditioning_key: hybrid
     conditioning_key: fmri_hybrid
     monitor: val/loss_simple_ema
@@ -113,7 +115,8 @@ data:
         resolution: 320
         use_stim: 'each'
         subject: 'subj01'
-        split: 'val'
+        # split: 'val'
+        split: 'train'
 
 trainer:
   initial_scale: 13
