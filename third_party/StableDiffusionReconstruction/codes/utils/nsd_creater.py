@@ -120,7 +120,7 @@ class NSDDataset(Dataset):
 
         nsd_coco_caption_path = os.path.join(nsd_root, 'misc/nsd_coco_caption.pkl')
         self.caps, self.keys, self.cap_dict = read_pkl(nsd_coco_caption_path)
-        import pdb; pdb.set_trace();
+        # import pdb; pdb.set_trace();
 
         self.meta_info = read_edit_json(os.path.join(nsd_root, 'misc'), self.keys)
         self.edited_root = '/data/yashengsun/Proj/Diffusion/InstructDiffusion/nsd_coco_output'

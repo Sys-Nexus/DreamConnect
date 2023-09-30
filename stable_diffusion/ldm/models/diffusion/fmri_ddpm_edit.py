@@ -31,7 +31,7 @@ from ldm.modules.diffusionmodules.util import make_beta_schedule, extract_into_t
 from ldm.models.diffusion.ddim import DDIMSampler
 from timm.models.layers import trunc_normal_
 import k_diffusion as K
-
+import torch.nn.functional as F
 
 
 __conditioning_keys__ = {'concat': 'c_concat',
