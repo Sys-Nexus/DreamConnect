@@ -649,10 +649,12 @@ class LatentDiffusion(DDPM):
 
     # @torch.no_grad()
     def get_input(self, batch, k, return_first_stage_outputs=False, force_c_encode=False,
-                  cond_key=None, return_original_cond=False, bs=None, uncond=0.075):
+                  cond_key=None, return_original_cond=False, bs=None, uncond=0.075, sz=256):
         x = super().get_input(batch, k)
         if bs is not None:
             x = x[:bs]
+        if sz is not None:
+            x = F.interpolate(x, (sz,sz))
         x = x.half()
         encoder_posterior = self.encode_first_stage(x)
         z = self.get_first_stage_encoding(encoder_posterior).detach()
@@ -663,6 +665,8 @@ class LatentDiffusion(DDPM):
             xc["c_crossattn"] = xc["c_crossattn"][:bs]
             xc["c_crossattn_1"] = xc["c_crossattn_1"][:bs]
             xc["c_concat"] = xc["c_concat"][:bs]
+        if sz is not None:
+            xc["c_concat"] = F.interpolate(xc["c_concat"], (sz,sz))
         x, xc["c_concat"], xc["c_crossattn_1"] = x.to(z), xc["c_concat"].to(z), xc["c_crossattn_1"].to(z)
         x, xc["c_concat"], xc["c_crossattn_1"] = x.half(), xc["c_concat"].half(), xc["c_crossattn_1"].half()
         # import pdb; pdb.set_trace();
@@ -1315,5 +1319,3 @@ class DiffusionWrapper(nn.Module):
             raise NotImplementedError()
 
         return out
-
-
