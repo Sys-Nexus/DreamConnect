@@ -37,7 +37,7 @@ def read_pkl(path, idx=0):
     return caps, keys, coco_dict
 
 
-def read_edit_json(root):
+def read_edit_json(root, map_keys):
     meta_paths = sorted(glob.glob(os.path.join(root, '*.json')))
     print(meta_paths[:20])
     meta = []
@@ -45,7 +45,10 @@ def read_edit_json(root):
         meta_i = json.load(open(meta_path, 'r'))
         meta.extend(meta_i)
     # import pdb; pdb.set_trace();
-    return meta
+    res_dict = {}
+    for i in range(len(meta)):
+        res_dict[map_keys[i]] = meta[i]
+    return res_dict
 
 
 def load_img_from_arr(img_arr,resolution):
@@ -118,8 +121,8 @@ class NSDDataset(Dataset):
         nsd_coco_caption_path = os.path.join(nsd_root, 'misc/nsd_coco_caption.pkl')
         self.caps, self.keys, self.cap_dict = read_pkl(nsd_coco_caption_path)
         import pdb; pdb.set_trace();
-        
-        self.meta_info = read_edit_json(os.path.join(nsd_root, 'misc'))
+
+        self.meta_info = read_edit_json(os.path.join(nsd_root, 'misc'), self.keys)
         self.edited_root = '/data/yashengsun/Proj/Diffusion/InstructDiffusion/nsd_coco_output'
 
         self.valid_do_nothing_ops = ['Keep everything untouched.', 
@@ -150,7 +153,7 @@ class NSDDataset(Dataset):
         # TODO: currently , only use the first edit instruction
         try:
             chosen_i = 0
-            instruction_text = self.meta_info[index]['edit'][chosen_i]
+            instruction_text = self.meta_info[s]['edit'][chosen_i]
             nsd_dict['fmri_edit'] = {'c_concat': init_image[0], 'c_crossattn': instruction_text, 'c_crossattn_1': fmri_norm}
             edited_path = os.path.join(self.edited_root, '{:06d}'.format(s), 'output_{:06d}_seed93151_id{}.jpg'.format(s,chosen_i))
             nsd_dict['edited'] = load_img_from_string(edited_path, self.resolution)[0] # TODO
