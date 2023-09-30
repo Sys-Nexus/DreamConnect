@@ -575,14 +575,13 @@ if __name__ == "__main__":
 
     if config.model.params.fp16 and config.model.params.deepspeed == '':
         scaler = amp.GradScaler()
-        # param_groups = model.parameters()
-        # param_groups = model.parameters()
-        param_groups = [param for name, param in model.named_parameters() if param.requires_grad is True]
-        import pdb; pdb.set_trace();
+        param_groups = model.parameters()
     else:
         # scaler = None
         scaler = amp.GradScaler()
-        param_groups = model.parameters()
+        # param_groups = model.parameters()
+        param_groups = [param for name, param in model.named_parameters() if param.requires_grad is True]
+        import pdb; pdb.set_trace();
 
     if config.model.params.deepspeed != '':
         model, optimizer, _, _ = deepspeed.initialize(
