@@ -74,6 +74,7 @@ def load_img_from_string(img_path,resolution):
 class NSDDataset(Dataset):
     ## it seems that ventral area is sensitive to captions
     def __init__(self, nsd_root, idxes, batch_size=1, resolution=320, split='train', subject='subj01', 
+                is_reconstruct_mode=False,
                 # roi=['early', 'ventral', 'midventral', 'midlateral', 'lateral', 'parietal'], 
                 roi=['early'], 
                 target='conv'):
@@ -83,6 +84,7 @@ class NSDDataset(Dataset):
         self.batch_size = batch_size
         self.resolution = resolution
         self.split = split
+        self.is_reconstruct_mode = is_reconstruct_mode
 
         mridir = f'{os.path.dirname(nsd_root)}/mrifeat/{subject}/'
 
@@ -151,17 +153,23 @@ class NSDDataset(Dataset):
         # nsd_dict['image_vae'] = image_vae
 
         # TODO: currently , only use the first edit instruction
-        try:
-            chosen_i = 0
-            instruction_text = self.meta_info[s]['edit'][chosen_i]
-            nsd_dict['fmri_edit'] = {'c_concat': init_image[0], 'c_crossattn': instruction_text, 'c_crossattn_1': fmri_norm}
-            edited_path = os.path.join(self.edited_root, '{:06d}'.format(s), 'output_{:06d}_seed93151_id{}.jpg'.format(s,chosen_i))
-            nsd_dict['edited'] = load_img_from_string(edited_path, self.resolution)[0] # TODO
-        except:
-            ## If the triplet pairs do not exist, use do nothing operation
+
+        if self.is_reconstruct_mode:
             instruction_text = random.choice(self.valid_do_nothing_ops)
             nsd_dict['fmri_edit'] = {'c_concat': init_image[0], 'c_crossattn': instruction_text, 'c_crossattn_1': fmri_norm}
             nsd_dict['edited'] = init_image[0]
+        else:
+            try:
+                chosen_i = 0
+                instruction_text = self.meta_info[s]['edit'][chosen_i]
+                nsd_dict['fmri_edit'] = {'c_concat': init_image[0], 'c_crossattn': instruction_text, 'c_crossattn_1': fmri_norm}
+                edited_path = os.path.join(self.edited_root, '{:06d}'.format(s), 'output_{:06d}_seed93151_id{}.jpg'.format(s,chosen_i))
+                nsd_dict['edited'] = load_img_from_string(edited_path, self.resolution)[0] # TODO
+            except:
+                ## If the triplet pairs do not exist, use do nothing operation
+                instruction_text = random.choice(self.valid_do_nothing_ops)
+                nsd_dict['fmri_edit'] = {'c_concat': init_image[0], 'c_crossattn': instruction_text, 'c_crossattn_1': fmri_norm}
+                nsd_dict['edited'] = init_image[0]
 
         return nsd_dict
 

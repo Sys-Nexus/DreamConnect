@@ -107,6 +107,7 @@ data:
         use_stim: 'each'
         subject: 'subj01'
         split: 'train'
+        is_reconstruct_mode: True
 
     validation:
       target: dataset.fmri.nsd_instruct_dataset.NSDInstructDataset
@@ -117,6 +118,7 @@ data:
         subject: 'subj01'
         # split: 'val'
         split: 'train'
+        is_reconstruct_mode: True
 
 trainer:
   initial_scale: 13
