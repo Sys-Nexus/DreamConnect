@@ -581,8 +581,15 @@ if __name__ == "__main__":
         scaler = amp.GradScaler()
         # param_groups = model.parameters()
         # param_groups = [param for name, param in model.named_parameters() if param.requires_grad is True]
-        param_groups = [param for name, param in model.named_parameters() if 'diffusion_model' not in name]
-        import pdb; pdb.set_trace();
+        # param_groups = [name for name, param in model.named_parameters() if param.requires_grad is True]
+        # param_groups = [param for name, param in model.named_parameters() if 'diffusion_model' not in name]
+        # import pdb; pdb.set_trace();
+        main_params = [param for name, param in self.model.named_parameters() if 'diffusion_model.' in name]
+        other_params = [param for name, param in self.model.named_parameters() if 'diffusion_model.' not in name]
+        
+        param_groups = [{'params': other_params, 'lr':lr}, {'params': main_params, 'lr':config.model.params.unet_lr_ratio*lr}]
+        print('optimized main branch with {} learning rate of other components.'.format(config.model.params.unet_lr_ratio))
+
 
     if config.model.params.deepspeed != '':
         model, optimizer, _, _ = deepspeed.initialize(

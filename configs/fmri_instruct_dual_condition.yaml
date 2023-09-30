@@ -24,12 +24,12 @@ model:
     channels: 4
     cond_stage_trainable: false   # Note: different from the one we trained before
     cond_stage_trainable_fmri: true   # Note: different from the one we trained before
-    unet_stage_trainable: false  # Note: different from the one we trained before
+    unet_stage_trainable: true  # Note: different from the one we trained before
     # conditioning_key: hybrid
     conditioning_key: fmri_hybrid
     monitor: val/loss_simple_ema
     scale_factor: 0.18215
-
+    unet_lr_ratio: 1e-9
     scheduler_config: # 10000 warmup steps
       target: ldm.lr_scheduler.LambdaLinearScheduler
       params:
