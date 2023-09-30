@@ -576,6 +576,8 @@ if __name__ == "__main__":
     if config.model.params.fp16 and config.model.params.deepspeed == '':
         scaler = amp.GradScaler()
         param_groups = model.parameters()
+        # param_groups = model.parameters()
+        param_groups = [param for name, param in model.named_parameters() if param.requires_grad is True]
     else:
         # scaler = None
         scaler = amp.GradScaler()
