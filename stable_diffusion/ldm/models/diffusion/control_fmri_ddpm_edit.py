@@ -29,7 +29,7 @@ from ldm.modules.distributions.distributions import normal_kl, DiagonalGaussianD
 from ldm.models.autoencoder import VQModelInterface, IdentityFirstStage, AutoencoderKL
 from ldm.modules.diffusionmodules.util import make_beta_schedule, extract_into_tensor, noise_like
 from ldm.models.diffusion.ddim import DDIMSampler
-from ldm.models.fmri_ddpm_edit import LatentDiffusion
+from ldm.models.diffusion.fmri_ddpm_edit import LatentDiffusion
 from timm.models.layers import trunc_normal_
 import k_diffusion as K
 import torch.nn.functional as F
@@ -333,5 +333,4 @@ class ControlLDM(LatentDiffusion):
         self.control_key = control_key
         self.only_mid_control = only_mid_control
         self.control_scales = [1.0] * 13
-    
     
