@@ -35,7 +35,15 @@ from timm.models.layers import trunc_normal_
 import k_diffusion as K
 import torch.nn.functional as F
 from ldm.modules.diffusionmodules.openaimodel import UNetModel
-
+from ldm.modules.diffusionmodules.util import (
+    checkpoint,
+    conv_nd,
+    linear,
+    avg_pool_nd,
+    zero_module,
+    normalization,
+    timestep_embedding,
+)
 
 class ControlledUnetModel(UNetModel):
     def forward(self, x, timesteps=None, context=None, control=None, only_mid_control=False, **kwargs):
