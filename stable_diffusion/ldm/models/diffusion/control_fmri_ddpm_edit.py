@@ -35,6 +35,7 @@ from timm.models.layers import trunc_normal_
 import k_diffusion as K
 import torch.nn.functional as F
 from ldm.modules.diffusionmodules.openaimodel import UNetModel
+from ldm.modules.diffusionmodules.openaimodel import *
 from ldm.modules.diffusionmodules.util import (
     checkpoint,
     conv_nd,
