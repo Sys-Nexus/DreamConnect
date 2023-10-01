@@ -85,7 +85,7 @@ model:
         force_type_convert: True
 
     control_stage_config:
-      target: ldm.modules.diffusionmodules.control_fmri_ddpm_edit.ControlNet
+      target: ldm.models.diffusion.control_fmri_ddpm_edit.ControlNet
       params:
         image_size: 32 # unused
         in_channels: 8
