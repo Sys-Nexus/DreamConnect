@@ -14,6 +14,7 @@ https://github.com/CompVis/taming-transformers
 import os
 import warnings
 import torch
+import torch as th
 import torch.nn as nn
 import numpy as np
 from einops import rearrange, repeat
