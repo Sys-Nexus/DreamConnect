@@ -6,6 +6,8 @@ model:
   weight_decay: 0.01
   target: ldm.models.diffusion.control_fmri_ddpm_edit.ControlLDM
   params:
+    only_mid_control: False
+    control_key: 'fmri'
     fp16: True
     # fp16: False
     deepspeed: 'deepspeed_1'
