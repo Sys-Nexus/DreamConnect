@@ -1,6 +1,7 @@
 # jobname=${1:-'fmri_instruct_diffusion'}
 # jobname=${1:-'fmri_instruct_encoder'}
-jobname=${1:-'fmri_instruct_dual_condition'}
+# jobname=${1:-'fmri_instruct_dual_condition'}
+jobname=${1:-'fmri_instruct_controlnet'}
 mode=${2:-'single'}
 gpus=${3:-'1,'}
 master_port=${4:-'27189'}
