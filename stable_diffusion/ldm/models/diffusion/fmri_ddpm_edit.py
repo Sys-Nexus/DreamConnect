@@ -998,7 +998,7 @@ class LatentDiffusion(DDPM):
             x_recon = fold(o) / normalization
 
         else:
-            import pdb; pdb.set_trace();
+            # import pdb; pdb.set_trace();
             x_recon = self.model(x_noisy, t, **cond)
 
         if isinstance(x_recon, tuple) and not return_ids:
