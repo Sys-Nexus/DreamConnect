@@ -706,7 +706,7 @@ class LatentDiffusion(DDPM):
         # cond["c_crossattn_1"] = [torch.where(fmri_prompt_mask, fmri_null_prompt, fmri_learned_prompt)]
 
         cond["c_crossattn_1"] = fmri_prompt_mask.float()*fmri_null_prompt + (1-fmri_prompt_mask.float())*fmri_learned_prompt
-        import pdb;pdb.set_trace()
+        # import pdb;pdb.set_trace()
         cond["c_crossattn"] = [torch.where(prompt_mask, null_prompt, self.get_learned_conditioning(xc["c_crossattn"]).detach())]
 
         if self.is_fmri_input is True:
@@ -1339,7 +1339,8 @@ class DiffusionWrapper(nn.Module):
             cc = torch.cat(c_crossattn, 1)
             # import pdb; pdb.set_trace();
             if c_crossattn_1 is not None:
-                cc_1 = torch.cat(c_crossattn_1, 1)
+                # cc_1 = torch.cat(c_crossattn_1, 1)
+                cc_1 = c_crossattn_1
             out = self.diffusion_model(xc, t, context=cc, context_1=cc_1)
         elif self.conditioning_key == 'fmri_controlnet':
             xc = torch.cat([x] + [x], dim=1)
