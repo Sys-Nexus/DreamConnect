@@ -347,7 +347,7 @@ class ControlLDM(LatentDiffusion):
     # add control net model logic
     def get_input(self, batch, k, return_first_stage_outputs=False, force_c_encode=False,
                   cond_key=None, return_original_cond=False, bs=None, uncond=0.075, sz=256):
-        x = super().super().get_input(batch, k)
+        x = DDPM.get_input(self, batch, k)
         if bs is not None:
             x = x[:bs]
         if sz is not None:
