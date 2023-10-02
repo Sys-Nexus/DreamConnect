@@ -1332,6 +1332,7 @@ class DiffusionWrapper(nn.Module):
             # xc = torch.cat([x] + c_concat, dim=1)
             xc = torch.cat([x] + [x], dim=1)
             cc = torch.cat(c_crossattn, 1)
+            import pdb; pdb.set_trace();
             if c_crossattn_1 is not None:
                 cc_1 = torch.cat(c_crossattn_1, 1)
             out = self.diffusion_model(xc, t, context=cc, context_1=cc_1)
