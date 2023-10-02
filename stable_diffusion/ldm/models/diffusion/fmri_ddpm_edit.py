@@ -703,9 +703,8 @@ class LatentDiffusion(DDPM):
         fmri_null_prompt = self.get_learned_conditioning_fmri(torch.zeros_like(xc["c_crossattn_1"]))
         fmri_learned_prompt = self.get_learned_conditioning_fmri(xc["c_crossattn_1"])        
 
-        # cond["c_crossattn_1"] = [torch.where(fmri_prompt_mask, fmri_null_prompt, fmri_learned_prompt)]
-
-        cond["c_crossattn_1"] = fmri_prompt_mask.float()*fmri_null_prompt + (1-fmri_prompt_mask.float())*fmri_learned_prompt
+        cond["c_crossattn_1"] = [torch.where(fmri_prompt_mask, fmri_null_prompt, fmri_learned_prompt)]
+        # cond["c_crossattn_1"] = fmri_prompt_mask.float()*fmri_null_prompt + (1-fmri_prompt_mask.float())*fmri_learned_prompt
         # import pdb;pdb.set_trace()
         cond["c_crossattn"] = [torch.where(prompt_mask, null_prompt, self.get_learned_conditioning(xc["c_crossattn"]).detach())]
 
@@ -1338,8 +1337,8 @@ class DiffusionWrapper(nn.Module):
             xc = torch.cat([x] + [x], dim=1)
             cc = torch.cat(c_crossattn, 1)#.requires_grad_(True)
             if c_crossattn_1 is not None:
-                # cc_1 = torch.cat(c_crossattn_1, 1)
-                cc_1 = c_crossattn_1
+                cc_1 = torch.cat(c_crossattn_1, 1)
+                # cc_1 = c_crossattn_1
             out = self.diffusion_model(xc, t, context=cc, context_1=cc_1)
             # import pdb; pdb.set_trace();
 
