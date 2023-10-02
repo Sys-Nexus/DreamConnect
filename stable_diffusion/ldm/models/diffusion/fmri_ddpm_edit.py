@@ -507,7 +507,7 @@ class LatentDiffusion(DDPM):
 
 
     def instantiate_cond_stage_fmri(self, config):
-        import pdb; pdb.set_trace();
+        # import pdb; pdb.set_trace();
         if not self.cond_stage_trainable_fmri:
             if config == "__is_first_stage__":
                 print("Using first stage also as cond stage.")
