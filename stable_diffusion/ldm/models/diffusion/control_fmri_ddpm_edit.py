@@ -30,7 +30,7 @@ from ldm.modules.distributions.distributions import normal_kl, DiagonalGaussianD
 from ldm.models.autoencoder import VQModelInterface, IdentityFirstStage, AutoencoderKL
 from ldm.modules.diffusionmodules.util import make_beta_schedule, extract_into_tensor, noise_like
 from ldm.models.diffusion.ddim import DDIMSampler
-from ldm.models.diffusion.fmri_ddpm_edit import LatentDiffusion
+from ldm.models.diffusion.fmri_ddpm_edit import LatentDiffusion, DDPM
 from timm.models.layers import trunc_normal_
 import k_diffusion as K
 import torch.nn.functional as F
