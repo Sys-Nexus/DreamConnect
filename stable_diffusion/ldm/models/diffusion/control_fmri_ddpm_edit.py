@@ -357,7 +357,7 @@ class ControlLDM(LatentDiffusion):
         z = self.get_first_stage_encoding(encoder_posterior).detach()
         cond_key = cond_key or self.cond_stage_key
         # cond_key = self.fmri_cond_stage_key if self.is_fmri_input else cond_key
-        xc = DDPM().get_input(self, batch, cond_key)
+        xc = DDPM.get_input(self, batch, cond_key)
         if bs is not None:
             xc["c_crossattn"] = xc["c_crossattn"][:bs]
             xc["c_crossattn_1"] = xc["c_crossattn_1"][:bs]
