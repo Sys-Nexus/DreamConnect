@@ -6,8 +6,8 @@ model:
   weight_decay: 0.01
   target: ldm.models.diffusion.fmri_ddpm_edit.LatentDiffusion
   params:
-    fp16: True
-    # fp16: False
+    # fp16: True
+    fp16: False
     deepspeed: 'deepspeed_1'
     # deepspeed: ''
     # ckpt_path: stable_diffusion/models/ldm/stable-diffusion-v1/v1-5-pruned-emaonly-adaption.ckpt
