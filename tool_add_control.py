@@ -44,8 +44,8 @@ target_dict = {}
 for k in scratch_dict.keys():
     is_control, name = get_node_name(k, 'control_')
     if is_control:
-        # copy_k = 'model.diffusion_' + name
-        copy_k = 'model.diffusion_model.diffusion_' + name
+        copy_k = 'model.diffusion_' + name
+        # copy_k = 'model.diffusion_model.diffusion_' + name
     else:
         copy_k = k
     if copy_k in pretrained_weights:
@@ -59,4 +59,4 @@ torch.save(model.state_dict(), output_path)
 print('Done.')
 
 
-# python tool_add_control.py 
+# python tool_add_control.py stable_diffusion/models/ldm/stable-diffusion-v1/v1-5-pruned-emaonly-adaption-task-humanalign.ckpt stable_diffusion/models/ldm/stable-diffusion-v1/v1-5-pruned-emaonly-adaption-task-humanalign_init.ckpt
