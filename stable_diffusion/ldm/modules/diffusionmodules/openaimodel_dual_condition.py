@@ -526,7 +526,7 @@ class UNetModel(nn.Module):
         n_embed=None,                     # custom support for prediction of discrete ids into codebook of first stage vq model
         legacy=True,
         global_pool=False,
-        use_time_cond=False
+        use_time_cond=True
     ):
         super().__init__()
         if use_spatial_transformer:
@@ -802,7 +802,7 @@ class UNetModel(nn.Module):
         :param y: an [N] Tensor of labels, if class-conditional.
         :return: an [N x C x ...] Tensor of outputs.
         """
-        import pdb; pdb.set_trace();
+        # import pdb; pdb.set_trace();
 
         assert (y is not None) == (
             self.num_classes is not None
