@@ -50,7 +50,7 @@ class FmriEmbedder(nn.Module):
 
     @torch.no_grad()
     def forward(self, fmri_feat):
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
         text_feat = self.adaptor_fmri2image(fmri_feat)
         # text_feat = F.normalize(text_feat, dim=-1, p=2)
         text_feat = text_feat / text_feat.norm(dim=-1, keepdim=True)
