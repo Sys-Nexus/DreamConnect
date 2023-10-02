@@ -566,18 +566,18 @@ class LatentDiffusion(DDPM):
             c = getattr(self.cond_stage_model, self.cond_stage_forward)(c)
         return c
 
-    def get_learned_conditioning_fmri(self, c):
+    def get_learned_conditioning_fmri(self, cc):
         if self.cond_stage_forward_fmri is None:
             if hasattr(self.cond_stage_model_fmri, 'encode') and callable(self.cond_stage_model_fmri.encode):
-                c = self.cond_stage_model_fmri.encode(c)
+                c = self.cond_stage_model_fmri.encode(cc)
                 if isinstance(c, DiagonalGaussianDistribution):
                     c = c.mode()
             else:
                 # import pdb; pdb.set_trace();
-                c = self.cond_stage_model_fmri(c)
+                c = self.cond_stage_model_fmri(cc)
         else:
             assert hasattr(self.cond_stage_model_fmri, self.cond_stage_forward_fmri)
-            c = getattr(self.cond_stage_model_fmri, self.cond_stage_forward_fmri)(c)
+            c = getattr(self.cond_stage_model_fmri, self.cond_stage_forward_fmri)(cc)
         return c
 
     def meshgrid(self, h, w):
