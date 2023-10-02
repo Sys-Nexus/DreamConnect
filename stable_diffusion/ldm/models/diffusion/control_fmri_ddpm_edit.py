@@ -443,6 +443,7 @@ class ControlLDM(LatentDiffusion):
             cond["only_mid_control"] = self.only_mid_control
             control_prompt = torch.cat(cond["c_crossattn_1"] , 1)
             ## TODO: hard code to set the hint to zero
+            import pdb; pdb.set_trace();
             fmri_control = self.control_model(x=x_noisy, hint=torch.zeros(size=(x_noisy.shape[0],3,256,256)).to(x_noisy), timesteps=t, context=control_prompt)
             fmri_control = [c * scale for c, scale in zip(fmri_control, self.control_scales)]
             cond["control"] = fmri_control
@@ -453,55 +454,3 @@ class ControlLDM(LatentDiffusion):
             return x_recon[0]
         else:
             return x_recon
-
-    # # add control net model logic
-    # def get_input(self, batch, k, return_first_stage_outputs=False, force_c_encode=False,
-    #               cond_key=None, return_original_cond=False, bs=None, uncond=0.075, sz=256):
-    #     x = DDPM.get_input(self, batch, k)
-    #     if bs is not None:
-    #         x = x[:bs]
-    #     if sz is not None:
-    #         x = F.interpolate(x, (sz,sz))
-    #     x = x.half()
-    #     encoder_posterior = self.encode_first_stage(x)
-    #     z = self.get_first_stage_encoding(encoder_posterior).detach()
-    #     cond_key = cond_key or self.cond_stage_key
-    #     # cond_key = self.fmri_cond_stage_key if self.is_fmri_input else cond_key
-    #     xc = DDPM.get_input(self, batch, cond_key)
-    #     if bs is not None:
-    #         xc["c_crossattn"] = xc["c_crossattn"][:bs]
-    #         xc["c_crossattn_1"] = xc["c_crossattn_1"][:bs]
-    #         xc["c_concat"] = xc["c_concat"][:bs]
-    #     if sz is not None:
-    #         xc["c_concat"] = F.interpolate(xc["c_concat"], (sz,sz))
-    #     x, xc["c_concat"], xc["c_crossattn_1"] = x.to(z), xc["c_concat"].to(z), xc["c_crossattn_1"].to(z)
-    #     x, xc["c_concat"], xc["c_crossattn_1"] = x.half(), xc["c_concat"].half(), xc["c_crossattn_1"].half()
-    #     # import pdb; pdb.set_trace();
-    #     cond = {}
-    #     random = torch.rand(x.size(0), device=z.device)
-    #     prompt_mask = rearrange(random < uncond, "n -> n 1 1")
-    #     fmri_prompt_mask = (1 - (random >= uncond).float() * (random < uncond*2).float()).bool()
-    #     fmri_prompt_mask = rearrange(fmri_prompt_mask, "n -> n 1 1")
-    #     input_mask = 1 - rearrange((random >= uncond*2).float() * (random < uncond*3).float(), "n -> n 1 1 1")
-        
-    #     null_prompt = self.get_learned_conditioning([""])
-    #     fmri_null_prompt = self.get_learned_conditioning_fmri(torch.zeros_like(xc["c_crossattn_1"]))
-    #     cond["c_crossattn"] = [torch.where(prompt_mask, null_prompt, self.get_learned_conditioning(xc["c_crossattn"]).detach())]
-    #     # import pdb;pdb.set_trace()
-    #     cond["c_crossattn_1"] = [torch.where(fmri_prompt_mask, fmri_null_prompt, self.get_learned_conditioning_fmri(xc["c_crossattn_1"]))]
-    #     # fmri_embed = self.get_learned_conditioning_fmri(xc["c_crossattn_1"])
-    #     # control_prompt = [torch.where(fmri_prompt_mask, fmri_null_prompt, fmri_embed)]
-    #     # cond["control_prompt"] = fmri_control
-
-    #     if self.is_fmri_input is True:
-    #         cond["c_concat"] = [input_mask * self.fmri2visual_model((xc["c_concat"])).detach()]
-    #     else:
-    #         cond["c_concat"] = [input_mask * self.encode_first_stage((xc["c_concat"])).mode().detach()]
-
-    #     out = [z, cond]
-    #     if return_first_stage_outputs:
-    #         xrec = self.decode_first_stage(z)
-    #         out.extend([x, xrec])
-    #     if return_original_cond:
-    #         out.append(xc)
-    #     return out
