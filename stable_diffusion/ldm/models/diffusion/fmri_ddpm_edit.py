@@ -1330,6 +1330,15 @@ class DiffusionWrapper(nn.Module):
             if c_crossattn_1 is not None:
                 cc_1 = torch.cat(c_crossattn_1, 1)
             out = self.diffusion_model(xc, t, context=cc, context_1=cc_1)
+        elif self.conditioning_key == 'fmri_controlnet':
+            xc = torch.cat([x] + [x], dim=1)
+            if c_crossattn_1 is not None:
+                control_prompt = torch.cat(c_crossattn_1, 1)
+                control = self.control_model(x=x_noisy, hint=torch.zeros_like(xc), timesteps=t, context=control_prompt)            
+                control = [c * scale for c, scale in zip(control, self.control_scales)]
+                out = self.diffusion_model(xc, t, context=cc, control=control, only_mid_control=self.only_mid_control)
+            else:
+                out = self.diffusion_model(xc, t, context=cc, control=None, only_mid_control=self.only_mid_control)
         elif self.conditioning_key == 'adm':
             cc = c_crossattn[0]
             out = self.diffusion_model(x, t, y=cc)
