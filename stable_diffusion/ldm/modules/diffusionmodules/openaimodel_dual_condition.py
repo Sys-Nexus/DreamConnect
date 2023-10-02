@@ -578,8 +578,8 @@ class UNetModel(nn.Module):
 
         if use_time_cond:
             self.time_embed_condtion = nn.Sequential(
-                nn.Conv1d(77, 77//2, 1, bias=True),
-                nn.Conv1d(77//2, 1, 1, bias=True),
+                # nn.Conv1d(1, 1, 1, bias=True),
+                nn.Conv1d(1, 1, 1, bias=True),
                 nn.Linear(context_dim, time_embed_dim, bias=True)
             ) if global_pool == False else nn.Linear(context_dim, time_embed_dim, bias=True)
 
