@@ -802,7 +802,7 @@ class UNetModel(nn.Module):
         :param y: an [N] Tensor of labels, if class-conditional.
         :return: an [N x C x ...] Tensor of outputs.
         """
-        # import pdb; pdb.set_trace();
+        import pdb; pdb.set_trace();
 
         assert (y is not None) == (
             self.num_classes is not None
