@@ -421,6 +421,8 @@ class LatentDiffusion(DDPM):
             self.instantiate_fmri2visual_stage(fmri2visual_stage_config)
         self.cond_stage_forward = cond_stage_forward
         self.cond_stage_forward_fmri = cond_stage_forward_fmri
+        import pdb; pdb.set_trace();
+        
         self.clip_denoised = False
         self.bbox_tokenizer = None
 
