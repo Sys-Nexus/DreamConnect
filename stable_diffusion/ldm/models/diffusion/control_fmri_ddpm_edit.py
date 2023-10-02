@@ -344,3 +344,5 @@ class ControlLDM(LatentDiffusion):
         self.only_mid_control = only_mid_control
         self.control_scales = [1.0] * 13
     
+    def apply_model(self, x_noisy, t, cond, return_ids=False):
+        pass

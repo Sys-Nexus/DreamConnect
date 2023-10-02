@@ -13,8 +13,6 @@ assert not os.path.exists(output_path), 'Output filename already exists.'
 assert os.path.exists(os.path.dirname(output_path)), 'Output path is not valid.'
 
 import torch
-# from share import *
-# from cldm.model import create_model
 from omegaconf import OmegaConf
 from ldm.util import instantiate_from_config
 
@@ -46,7 +44,8 @@ target_dict = {}
 for k in scratch_dict.keys():
     is_control, name = get_node_name(k, 'control_')
     if is_control:
-        copy_k = 'model.diffusion_' + name
+        # copy_k = 'model.diffusion_' + name
+        copy_k = 'model.diffusion_model.diffusion_' + name
     else:
         copy_k = k
     if copy_k in pretrained_weights:
@@ -58,3 +57,6 @@ for k in scratch_dict.keys():
 model.load_state_dict(target_dict, strict=True)
 torch.save(model.state_dict(), output_path)
 print('Done.')
+
+
+# python tool_add_control.py 
