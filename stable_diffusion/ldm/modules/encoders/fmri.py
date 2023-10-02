@@ -48,7 +48,7 @@ class FmriEmbedder(nn.Module):
         # import pdb; pdb.set_trace()
         print('load fmri adaptor weight from ', self.adaptor_fmri2image_path)
 
-    @torch.no_grad()
+    # @torch.no_grad()
     def forward(self, fmri_feat):
         # import pdb; pdb.set_trace()
         text_feat = self.adaptor_fmri2image(fmri_feat)

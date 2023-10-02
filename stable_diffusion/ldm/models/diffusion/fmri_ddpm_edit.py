@@ -573,7 +573,7 @@ class LatentDiffusion(DDPM):
                 if isinstance(c, DiagonalGaussianDistribution):
                     c = c.mode()
             else:
-                import pdb; pdb.set_trace();
+                # import pdb; pdb.set_trace();
                 c = self.cond_stage_model_fmri(c)
         else:
             assert hasattr(self.cond_stage_model_fmri, self.cond_stage_forward_fmri)
