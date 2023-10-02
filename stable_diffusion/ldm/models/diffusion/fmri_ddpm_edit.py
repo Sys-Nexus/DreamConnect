@@ -1336,7 +1336,7 @@ class DiffusionWrapper(nn.Module):
         elif self.conditioning_key == 'fmri_hybrid':
             # xc = torch.cat([x] + c_concat, dim=1)
             xc = torch.cat([x] + [x], dim=1)
-            cc = torch.cat(c_crossattn, 1)
+            cc = torch.cat(c_crossattn, 1).requires_grad_(True)
             if c_crossattn_1 is not None:
                 # cc_1 = torch.cat(c_crossattn_1, 1)
                 cc_1 = c_crossattn_1
