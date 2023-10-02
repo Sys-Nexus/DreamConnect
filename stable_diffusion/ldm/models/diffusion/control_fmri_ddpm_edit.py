@@ -345,14 +345,6 @@ class ControlLDM(LatentDiffusion):
         self.control_scales = [1.0] * 13
 
     def apply_model(self, x_noisy, t, cond, return_ids=False):
-        ## only add this
-        cond["only_mid_control"] = self.only_mid_control
-        control_prompt = torch.cat(cond["c_crossattn_1"] , 1)
-        fmri_control = self.control_model(x=x_noisy, hint=torch.zeros_like(x), timesteps=t, context=control_prompt)
-        fmri_control = [c * scale for c, scale in zip(fmri_control, self.control_scales)]
-        cond["control"] = fmri_control
-        ## only add above 
-        
         if isinstance(cond, dict):
             # hybrid case, cond is exptected to be a dict
             pass
@@ -447,6 +439,13 @@ class ControlLDM(LatentDiffusion):
             x_recon = fold(o) / normalization
 
         else:
+            ## only add this
+            cond["only_mid_control"] = self.only_mid_control
+            control_prompt = torch.cat(cond["c_crossattn_1"] , 1)
+            fmri_control = self.control_model(x=x_noisy, hint=torch.zeros_like(x), timesteps=t, context=control_prompt)
+            fmri_control = [c * scale for c, scale in zip(fmri_control, self.control_scales)]
+            cond["control"] = fmri_control
+            ## only add above 
             x_recon = self.model(x_noisy, t, **cond)
 
         if isinstance(x_recon, tuple) and not return_ids:
