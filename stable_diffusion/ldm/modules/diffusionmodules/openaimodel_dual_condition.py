@@ -805,7 +805,7 @@ class UNetModel(nn.Module):
         """
         # import pdb; pdb.set_trace();
         x = x.requires_grad_(True)
-        timesteps = timesteps.requires_grad_(True)
+        timesteps = timesteps.float().requires_grad_(True)
         assert (y is not None) == (
             self.num_classes is not None
         ), "must specify y if and only if the model is class-conditional"
