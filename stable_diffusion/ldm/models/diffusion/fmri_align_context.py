@@ -236,7 +236,7 @@ class FMRIAlign(nn.Module):
     def forward(self, batch, batch_idx, num_steps, *args, **kwargs):
         # x, c = self.get_input(batch, self.first_stage_key)
         fmri = batch['fmri'].cuda()
-        caps = batch['cap'].cuda()
+        caps = batch['cap']
         # gt_image = batch['image'].cuda()
         # import pdb; pdb.set_trace();
         fmri_embed = self.get_learned_conditioning_fmri(fmri)
