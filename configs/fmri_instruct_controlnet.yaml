@@ -89,7 +89,7 @@ model:
       target: ldm.models.diffusion.control_fmri_ddpm_edit.ControlNet
       params:
         image_size: 32 # unused
-        in_channels: 8
+        in_channels: 4
         hint_channels: 3 ## TODO: Figure out what is this, will map the hint channels to model channels
         model_channels: 320
         attention_resolutions: [ 4, 2, 1 ]
