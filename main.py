@@ -188,7 +188,12 @@ def get_parser(**parser_kwargs):
         default='no_filter',
         help="",
     )
-    
+    parser.add_argument(
+        "--vis",
+        type=int,
+        default=1,
+        help="",
+    )
     return parser
 
 
@@ -436,7 +441,8 @@ def train_one_epoch(config, model, model_ema, data_loader, val_data_loader, opti
             with torch.no_grad():
                 for val_idx, batch in enumerate(val_data_loader):
                     batch_size = batch['image'].shape[0]
-                    model.log_images(batch, epoch, idx, val_idx, model_wrap, model_wrap_cfg, save_dir, 'val')
+                    if args.vis:
+                        model.log_images(batch, epoch, idx, val_idx, model_wrap, model_wrap_cfg, save_dir, 'val')
 
                     if val_idx == 5:
                         break
@@ -652,9 +658,12 @@ if __name__ == "__main__":
     start_time = time.time()
 
     # k-diffusion wrapper
-    model_wrap = K.external.CompVisDenoiser(model)
-    model_wrap_cfg = CFGDenoiser(model_wrap)
-    
+    if args.vis:
+        model_wrap = K.external.CompVisDenoiser(model)
+        model_wrap_cfg = CFGDenoiser(model_wrap)
+    else:
+        model_wrap = None
+        model_wrap_cfg = None
     for epoch in range(start_epoch, config.trainer.max_epochs):
         data_loader_train.sampler.set_epoch(epoch)
         train_one_epoch(config, model, model_ema, data_loader_train, data_loader_val, 
