@@ -15,7 +15,7 @@ if [[ ${mode} == 'single' ]]; then
   export WORLD_SIZE=1
   export MASTER_ADDR=${master_port}
   num_nodes=1
-  run_cmd='torchrun'
+  run_cmd='torchrun -p '${master_port}
 fi
 
 export PATH=/usr/local/cuda-11.3/bin:$PATH
