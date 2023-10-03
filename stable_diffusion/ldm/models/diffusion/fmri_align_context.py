@@ -91,14 +91,16 @@ class FMRIAlign(nn.Module):
             conditioning_key = 'concat' if concat_mode else 'crossattn'
         if cond_stage_config == '__is_unconditional__':
             conditioning_key = None
-        self.instantiate_cond_stage(cond_stage_config)
-        self.instantiate_cond_stage_fmri(cond_stage_config_fmri)
         # import pdb; pdb.set_trace()
         ckpt_path = kwargs.pop("ckpt_path", None)
         ignore_keys = kwargs.pop("ignore_keys", [])
         self.concat_mode = concat_mode
         self.cond_stage_trainable = cond_stage_trainable
         self.cond_stage_trainable_fmri = cond_stage_trainable_fmri
+        
+        self.instantiate_cond_stage(cond_stage_config)
+        self.instantiate_cond_stage_fmri(cond_stage_config_fmri)
+        
         self.cond_stage_key = cond_stage_key
         self.is_fmri_input = is_fmri_input
         try:
