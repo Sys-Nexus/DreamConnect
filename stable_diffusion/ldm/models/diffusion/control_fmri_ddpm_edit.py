@@ -312,7 +312,7 @@ class ControlNet(nn.Module):
 
     def forward(self, x, hint, timesteps, context, **kwargs): # set hint to zeros, leaving for future usage
         t_emb = timestep_embedding(timesteps, self.model_channels, repeat_only=False)
-        emb = self.time_embed(t_emb)
+        emb = self.time_embed(t_emb.type(self.time_embed[0].weight.dtype))
 
         guided_hint = self.input_hint_block(hint, emb, context)
 
@@ -443,9 +443,12 @@ class ControlLDM(LatentDiffusion):
             cond["only_mid_control"] = self.only_mid_control
             control_prompt = torch.cat(cond["c_crossattn_1"] , 1)
             ## TODO: hard code to set the hint to zero
-            fmri_control = self.control_model(x=x_noisy.to(control_prompt.dtype), 
-                    hint=torch.zeros(size=(x_noisy.shape[0],3,256,256)).to(x_noisy).to(control_prompt.dtype),
-                    timesteps=t.to(control_prompt.dtype), context=control_prompt)
+            # fmri_control = self.control_model(x=x_noisy.to(control_prompt.dtype), 
+            #         hint=torch.zeros(size=(x_noisy.shape[0],3,256,256)).to(x_noisy).to(control_prompt.dtype),
+            #         timesteps=t.to(control_prompt.dtype), context=control_prompt)
+            fmri_control = self.control_model(x=x_noisy, 
+                                    hint=torch.zeros(size=(x_noisy.shape[0],3,256,256)),
+                                    timesteps=t, context=control_prompt)
             import pdb; pdb.set_trace();
             fmri_control = [c * scale for c, scale in zip(fmri_control, self.control_scales)]
             cond["control"] = fmri_control
