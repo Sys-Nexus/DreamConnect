@@ -263,7 +263,7 @@ class FMRIAlign(nn.Module):
         local_batch_size = fmri_embed.shape[0]
         self.labels = torch.arange(local_batch_size, device=fmri_embed.device)
 
-        loss = (F.cross_entropy(logits_per_image, self.labels) + \
+        loss = (F.cross_entropy(logits_per_fmri, self.labels) + \
             F.cross_entropy(logits_per_text, self.labels)) / 2
 
         # loss = torch.nn.L1Loss()(fmri_embed, pool_caps_embed)
