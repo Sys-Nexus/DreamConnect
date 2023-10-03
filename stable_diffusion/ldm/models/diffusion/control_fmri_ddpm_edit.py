@@ -51,7 +51,7 @@ class ControlledUnetModel(UNetModel):
         hs = []
         with torch.no_grad():
             t_emb = timestep_embedding(timesteps, self.model_channels, repeat_only=False)
-            emb = self.time_embed(t_emb)
+            emb = self.time_embed(t_emb.type(self.time_embed[0].weight.dtype))
             h = x.type(self.dtype)
             for module in self.input_blocks:
                 h = module(h, emb, context)
