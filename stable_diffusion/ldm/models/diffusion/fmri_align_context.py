@@ -246,8 +246,9 @@ class FMRIAlign(nn.Module):
         with torch.no_grad():
             caps_embed = self.get_learned_conditioning(caps)
         caps_embed = caps_embed.detach().requires_grad_(True)
-        import pdb; pdb.set_trace();
-        loss = torch.nn.L1Loss()(fmri_embed, caps_embed)
+        # import pdb; pdb.set_trace();
+        pool_caps_embed = torch.mean(caps_embed, dim=1, keepdims=True)
+        loss = torch.nn.L1Loss()(fmri_embed, pool_caps_embed)
         loss_dict = {'L1': loss.item()}
 
         return loss, loss_dict
