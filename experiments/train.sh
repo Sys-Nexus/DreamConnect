@@ -4,7 +4,7 @@
 jobname=${1:-'fmri_instruct_controlnet'}
 mode=${2:-'single'}
 gpus=${3:-'3,'}
-master_port=${4:-'27189'}
+master_port=${4:-'27198'}
 
 num_nodes=1
 if [[ ${mode} == 'single' ]]; then
