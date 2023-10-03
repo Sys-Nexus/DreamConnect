@@ -68,6 +68,7 @@ class FMRIAlign(nn.Module):
                  cond_stage_trainable_fmri=False,
                  concat_mode=True,
                  cond_stage_forward=None,
+                 cond_stage_forward_fmri=None,
                  conditioning_key=None,
                  scale_factor=1.0,
                  scale_by_std=False,
@@ -113,6 +114,8 @@ class FMRIAlign(nn.Module):
             self.register_buffer('scale_factor', torch.tensor(scale_factor))
         
         self.cond_stage_forward = cond_stage_forward
+        self.cond_stage_forward_fmri = cond_stage_forward_fmri
+
         self.clip_denoised = False
         self.bbox_tokenizer = None
 
