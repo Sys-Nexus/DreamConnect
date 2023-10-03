@@ -475,6 +475,7 @@ def filter_optimized_params(model, args):
         param_groups = [{'params': filtered_params, 'lr': model.learning_rate}]
     else:
         raise ValueError
+    print('we apply filter mode: ', args.filter_mode)
     return param_groups
 
 
@@ -614,7 +615,7 @@ if __name__ == "__main__":
 
         # other_params = [param for name, param in model.named_parameters() if param.requires_grad is True and ('diffusion_model.' not in name or 'time_embed_condtion' in name)]
         # param_groups = [{'params': other_params, 'lr': model.learning_rate}]
-        param_groups = filter_optimized_params(model, args)
+        param_groups = filter_optimized_params(model, opt)
         # param_groups = [{'params': other_params, 'lr':model.learning_rate}, {'params': main_params, 'lr':config.model.params.unet_lr_ratio*model.learning_rate}]
         print('optimized main branch with {} learning rate of other components.'.format(config.model.params.unet_lr_ratio))
 
