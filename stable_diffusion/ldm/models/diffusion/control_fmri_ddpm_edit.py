@@ -447,7 +447,7 @@ class ControlLDM(LatentDiffusion):
             #         hint=torch.zeros(size=(x_noisy.shape[0],3,256,256)).to(x_noisy).to(control_prompt.dtype),
             #         timesteps=t.to(control_prompt.dtype), context=control_prompt)
             fmri_control = self.control_model(x=x_noisy, 
-                                    hint=torch.zeros(size=(x_noisy.shape[0],3,256,256)),
+                                    hint=torch.zeros(size=(x_noisy.shape[0],3,256,256)).to(x_noisy),
                                     timesteps=t, context=control_prompt)
             import pdb; pdb.set_trace();
             fmri_control = [c * scale for c, scale in zip(fmri_control, self.control_scales)]
