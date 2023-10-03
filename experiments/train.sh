@@ -6,6 +6,7 @@ jobname=${1:-'fmri_instruct_encoder_context'}
 mode=${2:-'single'}
 gpus=${3:-'3,'}
 master_port=${4:-'27198'}
+vis=${5:-1}
 
 num_nodes=1
 if [[ ${mode} == 'single' ]]; then
@@ -42,4 +43,5 @@ CUDA_VISIBLE_DEVICES=${gpus} ${run_cmd} main.py --name ${exp_name} \
           --resume '' \
           --num_nodes $num_nodes \
           --filter_mode ${filter_mode} \
-          --no-test True ${cmd_suffix}
+          --no-test True ${cmd_suffix} \
+          --vis ${vis}
