@@ -441,7 +441,7 @@ def train_one_epoch(config, model, model_ema, data_loader, val_data_loader, opti
             with torch.no_grad():
                 for val_idx, batch in enumerate(val_data_loader):
                     batch_size = batch['image'].shape[0]
-                    if args.vis:
+                    if model_wrap is not None:
                         model.log_images(batch, epoch, idx, val_idx, model_wrap, model_wrap_cfg, save_dir, 'val')
 
                     if val_idx == 5:
@@ -658,7 +658,7 @@ if __name__ == "__main__":
     start_time = time.time()
 
     # k-diffusion wrapper
-    if args.vis:
+    if opt.vis:
         model_wrap = K.external.CompVisDenoiser(model)
         model_wrap_cfg = CFGDenoiser(model_wrap)
     else:
