@@ -618,7 +618,7 @@ if __name__ == "__main__":
         # param_groups = [{'params': other_params, 'lr': model.learning_rate}]
         param_groups = filter_optimized_params(model, opt)
         # param_groups = [{'params': other_params, 'lr':model.learning_rate}, {'params': main_params, 'lr':config.model.params.unet_lr_ratio*model.learning_rate}]
-        print('optimized main branch with {} learning rate of other components.'.format(config.model.params.unet_lr_ratio))
+        # print('optimized main branch with {} learning rate of other components.'.format(config.model.params.unet_lr_ratio))
 
 
     if config.model.params.deepspeed != '':
