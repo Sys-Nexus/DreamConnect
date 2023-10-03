@@ -588,8 +588,9 @@ if __name__ == "__main__":
 
         # param_groups = [param for name, param in model.named_parameters() if param.requires_grad is True]
         # main_params = [param for name, param in model.named_parameters() if 'diffusion_model.' in name]
-        other_params = [param for name, param in model.named_parameters() if 'diffusion_model.' not in name or 'time_embed_condtion' in name]
-        import pdb; pdb.set_trace();
+        other_params = [param for name, param in model.named_parameters() if param.requires_grad is True and ('diffusion_model.' not in name or 'time_embed_condtion' in name)]
+        # other_names = [name for name, param in model.named_parameters() if param.requires_grad is True and ('diffusion_model.' not in name or 'time_embed_condtion' in name)]
+        # import pdb; pdb.set_trace();
         param_groups = [{'params': other_params, 'lr':model.learning_rate}]
         # param_groups = [{'params': other_params, 'lr':model.learning_rate}, {'params': main_params, 'lr':config.model.params.unet_lr_ratio*model.learning_rate}]
         print('optimized main branch with {} learning rate of other components.'.format(config.model.params.unet_lr_ratio))
