@@ -96,7 +96,9 @@ model:
 
     cond_stage_config_fmri:
       target: ldm.modules.encoders.fmri.FmriEmbedder
-
+      params:
+        force_type_convert: true
+        
 data:
   target: main.DataModuleFromConfig
   params:
