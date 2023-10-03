@@ -146,7 +146,7 @@ class NSDDataset(Dataset):
         fmri_norm = (self.X[index]-self.X_mean)/self.X_std
         ## TODO: use random.choices()
         # nsd_dict = {'cap': caps[0], 'prompt': prompt[0],  'image': init_image[0], 'fmri': fmri_norm}
-        nsd_dict = {'cap': random.choices(caps), 'image': init_image[0], 'fmri': fmri_norm}
+        nsd_dict = {'cap': random.choices(caps)[0], 'image': init_image[0], 'fmri': fmri_norm}
 
         # image_vae = np.load(self.vae_paths[s])
         # nsd_dict['image_vae'] = image_vae
