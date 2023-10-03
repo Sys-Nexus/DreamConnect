@@ -25,11 +25,11 @@ def freeze(model):
 
 # @register('fmri', version)
 class FmriEmbedder(nn.Module):
-    def __init__(self, adaptor_fmri2image_path=''):
+    def __init__(self, adaptor_fmri2image_path='', force_type_convert=False):
         super(FmriEmbedder, self).__init__()
         # num_voxels = 7604 # use roi ventral region
         num_voxels = 5917 # use roi ventral region
-
+        self.force_type_convert = force_type_convert
         self.adaptor_fmri2image = nn.Sequential(*[nn.Linear(num_voxels, 1024),
                                                   nn.ReLU(),
                                                   nn.Linear(1024, 768),
@@ -50,6 +50,8 @@ class FmriEmbedder(nn.Module):
 
     # @torch.no_grad()
     def forward(self, fmri_feat):
+        if self.force_type_convert:
+            fmri_feat = fmri_feat.half()
         # import pdb; pdb.set_trace()
         text_feat = self.adaptor_fmri2image(fmri_feat)
         # text_feat = F.normalize(text_feat, dim=-1, p=2)
