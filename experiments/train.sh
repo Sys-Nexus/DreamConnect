@@ -18,6 +18,14 @@ if [[ ${mode} == 'single' ]]; then
   run_cmd='torchrun --master_port '${master_port}
 fi
 
+filter_mode='no_filter'
+if [[ ${mode} == 'fmri_instruct_controlnet' ]]; then
+  filter_mode='dual_control'
+fi
+if [[ ${mode} == 'fmri_instruct_dual_condition' ]]; then
+  filter_mode='dual_condition'
+fi
+
 export PATH=/usr/local/cuda-11.3/bin:$PATH
 export LD_LIBRARY_PATH=/usr/local/cuda-11.3/lib64:$LD_LIBRARY_PATH
 
@@ -32,4 +40,5 @@ CUDA_VISIBLE_DEVICES=${gpus} ${run_cmd} main.py --name ${exp_name} \
           --gpus ${gpus} \
           --resume '' \
           --num_nodes $num_nodes \
+          --filter_mode ${filter_mode} \
           --no-test True ${cmd_suffix}

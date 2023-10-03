@@ -182,6 +182,13 @@ def get_parser(**parser_kwargs):
         default=int(os.environ.get('LOCAL_RANK', 0)),
         help="local rank for DistributedDataParallel",
     )
+    parser.add_argument(
+        "--filter_mode",
+        type=str,
+        default='no_filter',
+        help="",
+    )
+    
     return parser
 
 
@@ -456,6 +463,20 @@ def train_one_epoch(config, model, model_ema, data_loader, val_data_loader, opti
     epoch_time = time.time() - start
     logger.info(f"EPOCH {epoch} training takes {datetime.timedelta(seconds=int(epoch_time))}")
 
+## this is to control which paramters are needed to be optimized
+def filter_optimized_params(model, args):
+    if args.filter_mode == 'no_filter':
+        param_groups = model.parameters()
+    elif args.filter_mode == 'dual_condition':
+        filtered_params = [param for name, param in model.named_parameters() if param.requires_grad is True and ('diffusion_model.' not in name or 'time_embed_condtion' in name)]
+        param_groups = [{'params': filtered_params, 'lr': model.learning_rate}]
+    elif args.filter_mode == 'dual_control':
+        filtered_params = [param for name, param in model.named_parameters() if param.requires_grad is True and ('control_model' in name or 'cond_stage_model_fmri' in name)]
+        param_groups = [{'params': filtered_params, 'lr': model.learning_rate}]
+    else:
+        raise ValueError
+    return param_groups
+
 
 if __name__ == "__main__":
 
@@ -588,10 +609,12 @@ if __name__ == "__main__":
 
         # param_groups = [param for name, param in model.named_parameters() if param.requires_grad is True]
         # main_params = [param for name, param in model.named_parameters() if 'diffusion_model.' in name]
-        other_params = [param for name, param in model.named_parameters() if param.requires_grad is True and ('diffusion_model.' not in name or 'time_embed_condtion' in name)]
         # other_names = [name for name, param in model.named_parameters() if param.requires_grad is True and ('diffusion_model.' not in name or 'time_embed_condtion' in name)]
         # import pdb; pdb.set_trace();
-        param_groups = [{'params': other_params, 'lr':model.learning_rate}]
+
+        # other_params = [param for name, param in model.named_parameters() if param.requires_grad is True and ('diffusion_model.' not in name or 'time_embed_condtion' in name)]
+        # param_groups = [{'params': other_params, 'lr': model.learning_rate}]
+        param_groups = filter_optimized_params(model, args)
         # param_groups = [{'params': other_params, 'lr':model.learning_rate}, {'params': main_params, 'lr':config.model.params.unet_lr_ratio*model.learning_rate}]
         print('optimized main branch with {} learning rate of other components.'.format(config.model.params.unet_lr_ratio))
 
