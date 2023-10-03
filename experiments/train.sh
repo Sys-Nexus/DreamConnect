@@ -3,7 +3,7 @@
 # jobname=${1:-'fmri_instruct_dual_condition'}
 jobname=${1:-'fmri_instruct_controlnet'}
 mode=${2:-'single'}
-gpus=${3:-'1,'}
+gpus=${3:-'3,'}
 master_port=${4:-'27189'}
 
 num_nodes=1
@@ -18,8 +18,8 @@ if [[ ${mode} == 'single' ]]; then
   run_cmd='torchrun'
 fi
 
-export PATH=/usr/local/cuda-11.3/bin:$PATH
-export LD_LIBRARY_PATH=/usr/local/cuda-11.3/lib64:$LD_LIBRARY_PATH
+# export PATH=/usr/local/cuda-11.3/bin:$PATH
+# export LD_LIBRARY_PATH=/usr/local/cuda-11.3/lib64:$LD_LIBRARY_PATH
 
 cmd_suffix=''
 
