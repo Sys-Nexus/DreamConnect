@@ -477,8 +477,8 @@ def filter_optimized_params(model, args):
         filtered_params = [param for name, param in model.named_parameters() if param.requires_grad is True and ('diffusion_model.' not in name or 'time_embed_condtion' in name)]
         param_groups = [{'params': filtered_params, 'lr': model.learning_rate}]
     elif args.filter_mode == 'dual_control':
-        # filtered_params = [param for name, param in model.named_parameters() if param.requires_grad is True and ('control_model' in name or 'cond_stage_model_fmri' in name)]
-        filtered_params = [param for name, param in model.named_parameters() if param.requires_grad is True and ('cond_stage_model_fmri' in name)]
+        filtered_params = [param for name, param in model.named_parameters() if param.requires_grad is True and ('control_model' in name or 'cond_stage_model_fmri' in name)]
+        # filtered_params = [param for name, param in model.named_parameters() if param.requires_grad is True and ('cond_stage_model_fmri' in name)]
         param_groups = [{'params': filtered_params, 'lr': model.learning_rate}]
     else:
         raise ValueError
