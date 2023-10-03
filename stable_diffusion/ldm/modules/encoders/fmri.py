@@ -40,6 +40,12 @@ class FmriEmbedder(nn.Module):
             self.init_fmri_weight()
         # self.adaptor_fmri2image.eval()
         # freeze(self.adaptor_fmri2image)
+        embed_dim = 768
+        self.image_projection = nn.Parameter(torch.empty(embed_dim, embed_dim))
+        self.text_projection = nn.Parameter(torch.empty(embed_dim, embed_dim))
+        nn.init.normal_(self.image_projection, std=embed_dim ** -0.5)
+        nn.init.normal_(self.text_projection, std=embed_dim ** -0.5)
+        self.logit_scale = nn.Parameter(torch.ones([]) * np.log(1 / 0.07))
 
     def init_fmri_weight(self):
         state_dict = torch.load(self.adaptor_fmri2image_path)
@@ -53,9 +59,9 @@ class FmriEmbedder(nn.Module):
         if self.force_type_convert:
             fmri_feat = fmri_feat.half()
         # import pdb; pdb.set_trace()
-        text_feat = self.adaptor_fmri2image(fmri_feat)
+        fmri_feat = self.adaptor_fmri2image(fmri_feat)
         # text_feat = F.normalize(text_feat, dim=-1, p=2)
-        text_feat = text_feat / text_feat.norm(dim=-1, keepdim=True)
+        # text_feat = text_feat / text_feat.norm(dim=-1, keepdim=True)
         # import pdb; pdb.set_trace()
-        return text_feat
+        return fmri_feat
 
