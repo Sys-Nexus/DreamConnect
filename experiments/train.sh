@@ -18,8 +18,8 @@ if [[ ${mode} == 'single' ]]; then
   run_cmd='torchrun --master_port '${master_port}
 fi
 
-# export PATH=/usr/local/cuda-11.3/bin:$PATH
-# export LD_LIBRARY_PATH=/usr/local/cuda-11.3/lib64:$LD_LIBRARY_PATH
+export PATH=/usr/local/cuda-11.3/bin:$PATH
+export LD_LIBRARY_PATH=/usr/local/cuda-11.3/lib64:$LD_LIBRARY_PATH
 
 cmd_suffix=''
 
