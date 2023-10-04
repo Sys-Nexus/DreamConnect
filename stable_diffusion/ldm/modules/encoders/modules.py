@@ -154,7 +154,7 @@ class FrozenCLIPEmbedder(AbstractEncoder):
                                         return_overflowing_tokens=False, padding="max_length", return_tensors="pt")
         tokens = batch_encoding["input_ids"].to(self.device)
         outputs = self.transformer(input_ids=tokens)
-
+        import pdb; pdb.set_trace();
         z = outputs.last_hidden_state
         return z
 
