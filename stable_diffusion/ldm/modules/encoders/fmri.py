@@ -37,8 +37,6 @@ class FmriEmbedder(nn.Module):
                                                   nn.Linear(768, 768)])
         self.adaptor_fmri2image_path = adaptor_fmri2image_path
         # import pdb; pdb.set_trace();
-        if os.path.exists(adaptor_fmri2image_path):
-            self.init_fmri_weight()
         # self.adaptor_fmri2image.eval()
         # freeze(self.adaptor_fmri2image)
         embed_dim = 768
@@ -48,13 +46,16 @@ class FmriEmbedder(nn.Module):
         nn.init.normal_(self.text_projection, std=embed_dim ** -0.5)
         self.logit_scale = nn.Parameter(torch.ones([]) * np.log(1 / 0.07))
 
+        if os.path.exists(adaptor_fmri2image_path):
+            self.init_fmri_weight()
+        
     def init_fmri_weight(self):
         # import pdb; pdb.set_trace();
         state_dict = torch.load(self.adaptor_fmri2image_path)
         adaptor_state_dict = {k.replace('cond_stage_model_fmri.adaptor_fmri2image.', ''): v for k, v in state_dict['module'].items() if k.startswith('cond_stage_model_fmri.adaptor_fmri2image.')}
         self.adaptor_fmri2image.load_state_dict(adaptor_state_dict, strict=True)
-        import pdb; pdb.set_trace()
         print('load fmri adaptor weight from ', self.adaptor_fmri2image_path)
+        import pdb; pdb.set_trace()
 
     # @torch.no_grad()
     def forward(self, fmri_feat):
