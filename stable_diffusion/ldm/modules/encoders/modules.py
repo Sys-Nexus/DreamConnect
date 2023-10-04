@@ -162,8 +162,8 @@ class FrozenCLIPEmbedder(AbstractEncoder):
         else:
             return z
 
-    def encode(self, text):
-        return self(text)
+    def encode(self, text, is_return_pool=False):
+        return self(text, is_return_pool=is_return_pool)
 
 
 class FrozenCLIPTextEmbedder(nn.Module):
