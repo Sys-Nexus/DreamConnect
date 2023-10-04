@@ -247,7 +247,7 @@ class FMRIAlign(nn.Module):
         with torch.no_grad():
             caps_embed = self.get_learned_conditioning(caps)
         caps_embed = caps_embed.detach().requires_grad_(True)
-        # import pdb; pdb.set_trace();
+        import pdb; pdb.set_trace();
         text_embed = torch.mean(caps_embed, dim=1) @ self.cond_stage_model_fmri.text_projection
         fmri_embed = fmri_embed.squeeze(1) @ self.cond_stage_model_fmri.image_projection
 
