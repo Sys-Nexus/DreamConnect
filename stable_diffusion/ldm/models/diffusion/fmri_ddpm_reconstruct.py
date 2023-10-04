@@ -554,9 +554,10 @@ class LatentDiffusion(DDPM):
         return self.scale_factor * z
 
     def get_learned_conditioning(self, c, is_return_pool=False):
+        import pdb; pdb.set_trace();
         if self.cond_stage_forward is None:
             if hasattr(self.cond_stage_model, 'encode') and callable(self.cond_stage_model.encode):
-                c = self.cond_stage_model.encode(c)
+                c = self.cond_stage_model.encode(c, is_return_pool=is_return_pool)
                 if isinstance(c, DiagonalGaussianDistribution):
                     c = c.mode()
             else:
@@ -706,7 +707,7 @@ class LatentDiffusion(DDPM):
 
         if force_c_encode is True:
             cond["c_crossattn_1"] = fmri_learned_prompt
-            cond["c_crossattn"] = self.get_learned_conditioning(xc["c_crossattn"]).detach()
+            cond["c_crossattn"] = self.get_learned_conditioning(xc["c_crossattn"],is_return_pool=True)[1].detach()
         else:
             cond["c_crossattn_1"] = [torch.where(fmri_prompt_mask.bool(), fmri_null_prompt, fmri_learned_prompt)]
             cond["c_crossattn"] = [torch.where(prompt_mask, null_prompt, self.get_learned_conditioning(xc["c_crossattn"], is_return_pool=True)[1].detach())]
