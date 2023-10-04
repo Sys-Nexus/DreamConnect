@@ -36,7 +36,7 @@ class FmriEmbedder(nn.Module):
                                                   nn.ReLU(),
                                                   nn.Linear(768, 768)])
         self.adaptor_fmri2image_path = adaptor_fmri2image_path
-        import pdb; pdb.set_trace();
+        # import pdb; pdb.set_trace();
         if os.path.exists(adaptor_fmri2image_path):
             self.init_fmri_weight()
         # self.adaptor_fmri2image.eval()
