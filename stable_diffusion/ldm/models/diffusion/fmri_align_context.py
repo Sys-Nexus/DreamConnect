@@ -231,7 +231,7 @@ class FMRIAlign(nn.Module):
                 if isinstance(c, DiagonalGaussianDistribution):
                     c = c.mode()
             else:
-                c = self.cond_stage_model(c)
+                c = self.cond_stage_model(c, is_return_pool=is_return_pool)
         else:
             assert hasattr(self.cond_stage_model, self.cond_stage_forward)
             c = getattr(self.cond_stage_model, self.cond_stage_forward)(c)
@@ -245,10 +245,12 @@ class FMRIAlign(nn.Module):
         # import pdb; pdb.set_trace();
         fmri_embed = self.get_learned_conditioning_fmri(fmri)
         with torch.no_grad():
-            caps_embed = self.get_learned_conditioning(caps)
+            caps_embed, caps_pool_output = self.get_learned_conditioning(caps, is_return_pool=True)
         caps_embed = caps_embed.detach().requires_grad_(True)
+        caps_pool_output = caps_pool_output.detach().requires_grad_(True)
         import pdb; pdb.set_trace();
-        text_embed = torch.mean(caps_embed, dim=1) @ self.cond_stage_model_fmri.text_projection
+        # text_embed = torch.mean(caps_embed, dim=1) @ self.cond_stage_model_fmri.text_projection
+        text_embed = caps_pool_output @ self.cond_stage_model_fmri.text_projection
         fmri_embed = fmri_embed.squeeze(1) @ self.cond_stage_model_fmri.image_projection
 
         # normalized features

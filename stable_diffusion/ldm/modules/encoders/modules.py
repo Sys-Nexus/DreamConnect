@@ -149,14 +149,18 @@ class FrozenCLIPEmbedder(AbstractEncoder):
         for param in self.parameters():
             param.requires_grad = False
 
-    def forward(self, text):
+    def forward(self, text, is_return_pool=False):
         batch_encoding = self.tokenizer(text, truncation=True, max_length=self.max_length, return_length=True,
                                         return_overflowing_tokens=False, padding="max_length", return_tensors="pt")
         tokens = batch_encoding["input_ids"].to(self.device)
         outputs = self.transformer(input_ids=tokens)
-        import pdb; pdb.set_trace();
+        # import pdb; pdb.set_trace();
         z = outputs.last_hidden_state
-        return z
+        pooler_output = outputs.pooler_output
+        if is_return_pool:
+            return z, pooler_output
+        else:
+            return z
 
     def encode(self, text):
         return self(text)

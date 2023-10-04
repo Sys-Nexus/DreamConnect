@@ -553,14 +553,14 @@ class LatentDiffusion(DDPM):
             raise NotImplementedError(f"encoder_posterior of type '{type(encoder_posterior)}' not yet implemented")
         return self.scale_factor * z
 
-    def get_learned_conditioning(self, c):
+    def get_learned_conditioning(self, c, is_return_pool=False):
         if self.cond_stage_forward is None:
             if hasattr(self.cond_stage_model, 'encode') and callable(self.cond_stage_model.encode):
                 c = self.cond_stage_model.encode(c)
                 if isinstance(c, DiagonalGaussianDistribution):
                     c = c.mode()
             else:
-                c = self.cond_stage_model(c)
+                c = self.cond_stage_model(c, is_return_pool=is_return_pool)
         else:
             assert hasattr(self.cond_stage_model, self.cond_stage_forward)
             c = getattr(self.cond_stage_model, self.cond_stage_forward)(c)
@@ -699,7 +699,7 @@ class LatentDiffusion(DDPM):
         fmri_prompt_mask = rearrange(fmri_prompt_mask, "n -> n 1 1")
         input_mask = 1 - rearrange((random >= uncond*2).float() * (random < uncond*3).float(), "n -> n 1 1 1")
         
-        null_prompt = self.get_learned_conditioning([""])
+        null_prompt = self.get_learned_conditioning([""], is_return_pool=True)[1]
         fmri_null_prompt = self.get_learned_conditioning_fmri(torch.zeros_like(xc["c_crossattn_1"]))
         fmri_learned_prompt = self.get_learned_conditioning_fmri(xc["c_crossattn_1"])        
 
@@ -708,7 +708,7 @@ class LatentDiffusion(DDPM):
             cond["c_crossattn"] = self.get_learned_conditioning(xc["c_crossattn"]).detach()
         else:
             cond["c_crossattn_1"] = [torch.where(fmri_prompt_mask.bool(), fmri_null_prompt, fmri_learned_prompt)]
-            cond["c_crossattn"] = [torch.where(prompt_mask, null_prompt, self.get_learned_conditioning(xc["c_crossattn"]).detach())]
+            cond["c_crossattn"] = [torch.where(prompt_mask, null_prompt, self.get_learned_conditioning(xc["c_crossattn"], is_return_pool=True)[1].detach())]
             # cond["c_crossattn_1"] = fmri_prompt_mask.float()*fmri_null_prompt + (1-fmri_prompt_mask.float())*fmri_learned_prompt
             # import pdb;pdb.set_trace()
 
@@ -1274,12 +1274,12 @@ class LatentDiffusion(DDPM):
         z_pred = torch.randn_like(z_gt) * sigmas[0]
     
         cond = {}
-        cond["c_crossattn"] = self.get_learned_conditioning(xc["c_crossattn"])
+        cond["c_crossattn"] = self.get_learned_conditioning(xc["c_crossattn"],  is_return_pool=True)
         cond["c_crossattn_1"] = self.get_learned_conditioning_fmri(xc["c_crossattn_1"])
 
         # import pdb; pdb.set_trace();
         uncond = {}
-        null_prompt = self.get_learned_conditioning([""]*N)
+        null_prompt = self.get_learned_conditioning([""]*N, is_return_pool=True)
         fmri_null_prompt = self.get_learned_conditioning_fmri(torch.zeros_like(xc["c_crossattn_1"]))
         uncond["c_crossattn"] = null_prompt
         uncond["c_crossattn_1"] = fmri_null_prompt
@@ -1352,7 +1352,8 @@ class DiffusionWrapper(nn.Module):
             if c_crossattn_1 is not None:
                 cc_1 = torch.cat(c_crossattn_1, 1)
                 # cc_1 = c_crossattn_1
-            out = self.diffusion_model(xc, t, context=cc_1)
+            # out = self.diffusion_model(xc, t, context=cc_1)
+            out = self.diffusion_model(xc, t, context=cc)
             # import pdb; pdb.set_trace();
         elif self.conditioning_key == 'fmri_controlnet':
             xc = torch.cat([x] + [x], dim=1)
