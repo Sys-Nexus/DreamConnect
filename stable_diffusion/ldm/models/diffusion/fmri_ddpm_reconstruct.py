@@ -1353,6 +1353,7 @@ class DiffusionWrapper(nn.Module):
                 cc_1 = torch.cat(c_crossattn_1, 1)
                 # cc_1 = c_crossattn_1
             # out = self.diffusion_model(xc, t, context=cc_1)
+            print('ccshape: ', cc.shape)
             out = self.diffusion_model(xc, t, context=cc)
             # import pdb; pdb.set_trace();
         elif self.conditioning_key == 'fmri_controlnet':
