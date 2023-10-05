@@ -675,7 +675,7 @@ class LatentDiffusion(DDPM):
 
     # @torch.no_grad()
     def get_input(self, batch, k, return_first_stage_outputs=False, force_c_encode=False,
-                  cond_key=None, return_original_cond=False, bs=None, uncond=0.075, sz=256):
+                  cond_key=None, return_original_cond=False, bs=None, uncond=0.075, sz=256, return_null_emb=False):
         x = super().get_input(batch, k)
         if bs is not None:
             x = x[:bs]
@@ -703,7 +703,7 @@ class LatentDiffusion(DDPM):
         fmri_prompt_mask = rearrange(fmri_prompt_mask, "n -> n 1 1")
         input_mask = 1 - rearrange((random >= uncond*2).float() * (random < uncond*3).float(), "n -> n 1 1 1")
         
-        null_prompt = self.get_learned_conditioning([""], is_return_pool=True).unsqueeze(1).repeat(x.size(0),1,1)
+        null_prompt = self.get_learned_conditioning([""]*x.size(0), is_return_pool=True)#.unsqueeze(1)#.repeat(x.size(0),1,1)
         fmri_null_prompt = self.get_learned_conditioning_fmri(torch.zeros_like(xc["c_crossattn_1"]))
         fmri_learned_prompt = self.get_learned_conditioning_fmri(xc["c_crossattn_1"])        
 
@@ -714,7 +714,7 @@ class LatentDiffusion(DDPM):
         else:
             # import pdb; pdb.set_trace();
             cond["c_crossattn_1"] = [torch.where(fmri_prompt_mask.bool(), fmri_null_prompt, fmri_learned_prompt)]
-            cond["c_crossattn"] = [torch.where(prompt_mask, null_prompt, self.get_learned_conditioning(xc["c_crossattn"], is_return_pool=True).detach().unsqueeze(1))]
+            cond["c_crossattn"] = [torch.where(prompt_mask, null_prompt, self.get_learned_conditioning(xc["c_crossattn"], is_return_pool=True).detach())]#.unsqueeze(1))]
             # cond["c_crossattn_1"] = fmri_prompt_mask.float()*fmri_null_prompt + (1-fmri_prompt_mask.float())*fmri_learned_prompt
             # import pdb;pdb.set_trace()
 
@@ -729,6 +729,9 @@ class LatentDiffusion(DDPM):
             out.extend([x, xrec])
         if return_original_cond:
             out.append(xc)
+        if return_null_emb:
+            out.append({"c_crossattn": null_prompt, "c_crossattn_1": fmri_null_prompt, "c_concat": torch.zeros_like(cond["c_concat"])})
+            # out.append(fmri_null_prompt)
         return out
 
     @torch.no_grad()
@@ -1270,29 +1273,29 @@ class LatentDiffusion(DDPM):
         use_ddim = False
 
         log = dict()
-        z_gt, c, x, xrec, xc = self.get_input(batch, self.first_stage_key,
+        z_gt, c, x, xrec, xc, un_c = self.get_input(batch, self.first_stage_key,
                                            return_first_stage_outputs=True,
                                            force_c_encode=True,
                                            return_original_cond=True,
-                                           bs=N, uncond=0)
+                                           bs=N, uncond=0, return_null_emb=True)
         
         sigmas = model_wrap.get_sigmas(steps)
         z_pred = torch.randn_like(z_gt) * sigmas[0]
     
-        cond = {}
-        cond["c_crossattn"] = self.get_learned_conditioning(xc["c_crossattn"],  is_return_pool=True)
-        cond["c_crossattn_1"] = self.get_learned_conditioning_fmri(xc["c_crossattn_1"])
+        # cond = {}
+        # cond["c_crossattn"] = self.get_learned_conditioning(xc["c_crossattn"],  is_return_pool=True)
+        # cond["c_crossattn_1"] = self.get_learned_conditioning_fmri(xc["c_crossattn_1"])
 
-        # import pdb; pdb.set_trace();
-        uncond = {}
-        null_prompt = self.get_learned_conditioning([""]*N, is_return_pool=True)
-        fmri_null_prompt = self.get_learned_conditioning_fmri(torch.zeros_like(xc["c_crossattn_1"]))
-        uncond["c_crossattn"] = null_prompt
-        uncond["c_crossattn_1"] = fmri_null_prompt
+        # # import pdb; pdb.set_trace();
+        # uncond = {}
+        # null_prompt = self.get_learned_conditioning([""]*N, is_return_pool=True)
+        # fmri_null_prompt = self.get_learned_conditioning_fmri(torch.zeros_like(xc["c_crossattn_1"]))
+        # uncond["c_crossattn"] = null_prompt
+        # uncond["c_crossattn_1"] = fmri_null_prompt
 
         extra_args = {
-            "cond": cond,
-            "uncond": uncond,
+            "cond": c,
+            "uncond": un_c,
             "text_cfg_scale": cfg_text,
             "fmri_cfg_scale": cfg_fmri,
         }
