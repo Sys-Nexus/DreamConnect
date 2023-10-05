@@ -154,11 +154,13 @@ class FrozenCLIPEmbedder(AbstractEncoder):
                                         return_overflowing_tokens=False, padding="max_length", return_tensors="pt")
         tokens = batch_encoding["input_ids"].to(self.device)
         outputs = self.transformer(input_ids=tokens)
-        import pdb; pdb.set_trace();
+        # import pdb; pdb.set_trace();
+        # print(len(text), len(outputs))
+        # print(text[0], outputs[0])
         z = outputs.last_hidden_state
         pooler_output = outputs.pooler_output
         if is_return_pool:
-            return z, torch.mean(z,keepdims=True,dim=1)# pooler_output.unsqueeze(1)
+            return z, z[torch.arange(z.shape[0]), tokens.argmax(dim=-1)] #torch.mean(z,keepdims=True,dim=1)# pooler_output.unsqueeze(1)
         else:
             return z
 
