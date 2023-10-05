@@ -23,11 +23,14 @@ if [[ ${mode} == 'single' ]]; then
 fi
 
 filter_mode='no_filter'
-if [[ ${mode} == 'fmri_instruct_controlnet' ]]; then
+if [[ ${jobname} == 'fmri_instruct_controlnet' ]]; then
   filter_mode='dual_control'
 fi
-if [[ ${mode} == 'fmri_instruct_dual_condition' ]]; then
+if [[ ${jobname} == 'fmri_instruct_dual_condition' ]]; then
   filter_mode='dual_condition'
+fi
+if [[ ${jobname} == 'fmri_instruct_encoder_context' ]]; then
+  vis=0
 fi
 
 export PATH=/usr/local/cuda-11.3/bin:$PATH

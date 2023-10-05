@@ -28,26 +28,27 @@ class FmriEmbedder(nn.Module):
     def __init__(self, adaptor_fmri2image_path='', force_type_convert=False):
         super(FmriEmbedder, self).__init__()
         # num_voxels = 7604 # use roi ventral region
-        num_voxels = 5917 # use roi ventral region
+        num_voxels = 5917 # use roi early region
         self.force_type_convert = force_type_convert
         self.adaptor_fmri2image = nn.Sequential(*[nn.Linear(num_voxels, 1024),
                                                   nn.ReLU(),
                                                   nn.Linear(1024, 768),
                                                   nn.ReLU(),
-                                                  nn.Linear(768, 768)])
+                                                  nn.Linear(768, 768*77)])
         self.adaptor_fmri2image_path = adaptor_fmri2image_path
         # import pdb; pdb.set_trace();
         # self.adaptor_fmri2image.eval()
         # freeze(self.adaptor_fmri2image)
-        embed_dim = 768
-        self.image_projection = nn.Parameter(torch.empty(embed_dim, embed_dim))
-        self.text_projection = nn.Parameter(torch.empty(embed_dim, embed_dim))
-        nn.init.normal_(self.image_projection, std=embed_dim ** -0.5)
-        nn.init.normal_(self.text_projection, std=embed_dim ** -0.5)
-        self.logit_scale = nn.Parameter(torch.ones([]) * np.log(1 / 0.07))
+ 
+        # embed_dim = 768
+        # self.image_projection = nn.Parameter(torch.empty(embed_dim, embed_dim))
+        # self.text_projection = nn.Parameter(torch.empty(embed_dim, embed_dim))
+        # nn.init.normal_(self.image_projection, std=embed_dim ** -0.5)
+        # nn.init.normal_(self.text_projection, std=embed_dim ** -0.5)
+        # self.logit_scale = nn.Parameter(torch.ones([]) * np.log(1 / 0.07))
 
-        if os.path.exists(adaptor_fmri2image_path):
-            self.init_fmri_weight()
+        # if os.path.exists(adaptor_fmri2image_path):
+        #     self.init_fmri_weight()
         
     def init_fmri_weight(self):
         # import pdb; pdb.set_trace();
@@ -67,4 +68,3 @@ class FmriEmbedder(nn.Module):
         # text_feat = text_feat / text_feat.norm(dim=-1, keepdim=True)
         # import pdb; pdb.set_trace()
         return fmri_feat
-
