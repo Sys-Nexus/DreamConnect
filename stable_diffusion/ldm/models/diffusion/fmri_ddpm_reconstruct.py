@@ -566,7 +566,7 @@ class LatentDiffusion(DDPM):
         else:
             assert hasattr(self.cond_stage_model, self.cond_stage_forward)
             c = getattr(self.cond_stage_model, self.cond_stage_forward)(c)
-        import pdb; pdb.set_trace();
+        # import pdb; pdb.set_trace();
         return c
 
     def get_learned_conditioning_fmri(self, cc):
