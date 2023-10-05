@@ -704,21 +704,21 @@ class LatentDiffusion(DDPM):
         fmri_prompt_mask = rearrange(fmri_prompt_mask, "n -> n 1 1")
         input_mask = 1 - rearrange((random >= uncond*2).float() * (random < uncond*3).float(), "n -> n 1 1 1")
         
-        # null_prompt = self.get_learned_conditioning([""]*x.size(0), is_return_pool=True)#.unsqueeze(1)#.repeat(x.size(0),1,1)
-        null_prompt = self.get_learned_conditioning([""]*x.size(0))#.unsqueeze(1)#.repeat(x.size(0),1,1)
+        null_prompt = self.get_learned_conditioning([""]*x.size(0), is_return_pool=True)#.unsqueeze(1)#.repeat(x.size(0),1,1)
+        # null_prompt = self.get_learned_conditioning([""]*x.size(0))#.unsqueeze(1)#.repeat(x.size(0),1,1)
         fmri_null_prompt = self.get_learned_conditioning_fmri(torch.zeros_like(xc["c_crossattn_1"]))
         fmri_learned_prompt = self.get_learned_conditioning_fmri(xc["c_crossattn_1"])        
 
         if force_c_encode is True:
             # import pdb; pdb.set_trace();
             cond["c_crossattn_1"] = [fmri_learned_prompt]
-            # cond["c_crossattn"] = [self.get_learned_conditioning(xc["c_crossattn"],is_return_pool=True).detach()]
-            cond["c_crossattn"] = [self.get_learned_conditioning(xc["c_crossattn"]).detach()]
+            cond["c_crossattn"] = [self.get_learned_conditioning(xc["c_crossattn"],is_return_pool=True).detach()]
+            # cond["c_crossattn"] = [self.get_learned_conditioning(xc["c_crossattn"]).detach()]
         else:
             # import pdb; pdb.set_trace();
             cond["c_crossattn_1"] = [torch.where(fmri_prompt_mask.bool(), fmri_null_prompt, fmri_learned_prompt)]
-            # cond["c_crossattn"] = [torch.where(prompt_mask, null_prompt, self.get_learned_conditioning(xc["c_crossattn"], is_return_pool=True).detach())]#.unsqueeze(1))]
-            cond["c_crossattn"] = [torch.where(prompt_mask, null_prompt, self.get_learned_conditioning(xc["c_crossattn"]).detach())]#.unsqueeze(1))]
+            cond["c_crossattn"] = [torch.where(prompt_mask, null_prompt, self.get_learned_conditioning(xc["c_crossattn"], is_return_pool=True).detach())]#.unsqueeze(1))]
+            # cond["c_crossattn"] = [torch.where(prompt_mask, null_prompt, self.get_learned_conditioning(xc["c_crossattn"]).detach())]#.unsqueeze(1))]
 
         if self.is_fmri_input is True:
             cond["c_concat"] = [input_mask * self.fmri2visual_model((xc["c_concat"])).detach()]
