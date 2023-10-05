@@ -245,7 +245,7 @@ class FMRIAlign(nn.Module):
         # import pdb; pdb.set_trace();
         fmri_embed = self.get_learned_conditioning_fmri(fmri)
         with torch.no_grad():
-            caps_embed, caps_pool_output = self.get_learned_conditioning(caps, is_return_pool=True)
+            caps_embed = self.get_learned_conditioning(caps)
         caps_embed = caps_embed.detach().requires_grad_(True)
         # caps_pool_output = caps_pool_output.detach().requires_grad_(True)
         import pdb; pdb.set_trace();
