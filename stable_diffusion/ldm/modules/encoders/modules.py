@@ -160,7 +160,7 @@ class FrozenCLIPEmbedder(AbstractEncoder):
         z = outputs.last_hidden_state
         pooler_output = outputs.pooler_output
         if is_return_pool:
-            return z, z #z[torch.arange(z.shape[0]), 0].unsqueeze(1)  # z[torch.arange(z.shape[0]), tokens.argmax(dim=-1)].unsqueeze(1) #torch.mean(z,keepdims=True,dim=1)# pooler_output.unsqueeze(1)
+            return z, z[torch.arange(z.shape[0]), tokens.argmax(dim=-1)-1].unsqueeze(1) #z[torch.arange(z.shape[0]), 0].unsqueeze(1)  # z[torch.arange(z.shape[0]), tokens.argmax(dim=-1)].unsqueeze(1) #torch.mean(z,keepdims=True,dim=1)# pooler_output.unsqueeze(1)
         else:
             return z
 
