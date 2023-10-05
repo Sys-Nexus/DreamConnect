@@ -708,6 +708,7 @@ class LatentDiffusion(DDPM):
 
         if force_c_encode is True:
             cond["c_crossattn_1"] = [fmri_learned_prompt]
+            import pdb; pdb.set_trace();
             cond["c_crossattn"] = [self.get_learned_conditioning(xc["c_crossattn"],is_return_pool=True)[1].detach()]
         else:
             cond["c_crossattn_1"] = [torch.where(fmri_prompt_mask.bool(), fmri_null_prompt, fmri_learned_prompt)]
