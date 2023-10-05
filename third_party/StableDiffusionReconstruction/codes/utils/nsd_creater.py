@@ -155,7 +155,8 @@ class NSDDataset(Dataset):
 
         if self.is_reconstruct_mode:
             instruction_text = random.choice(self.valid_do_nothing_ops)
-            nsd_dict['fmri_edit'] = {'c_concat': init_image[0], 'c_crossattn': instruction_text, 'c_crossattn_1': fmri_norm}
+            # nsd_dict['fmri_edit'] = {'c_concat': init_image[0], 'c_crossattn': instruction_text, 'c_crossattn_1': fmri_norm}
+            nsd_dict['fmri_edit'] = {'c_concat': init_image[0], 'c_crossattn': random.choices(caps)[0], 'c_crossattn_1': fmri_norm}
             nsd_dict['edited'] = init_image[0]
         else:
             try:
