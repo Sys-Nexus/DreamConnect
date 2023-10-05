@@ -1281,17 +1281,6 @@ class LatentDiffusion(DDPM):
         
         sigmas = model_wrap.get_sigmas(steps)
         z_pred = torch.randn_like(z_gt) * sigmas[0]
-    
-        # cond = {}
-        # cond["c_crossattn"] = self.get_learned_conditioning(xc["c_crossattn"],  is_return_pool=True)
-        # cond["c_crossattn_1"] = self.get_learned_conditioning_fmri(xc["c_crossattn_1"])
-
-        # # import pdb; pdb.set_trace();
-        # uncond = {}
-        # null_prompt = self.get_learned_conditioning([""]*N, is_return_pool=True)
-        # fmri_null_prompt = self.get_learned_conditioning_fmri(torch.zeros_like(xc["c_crossattn_1"]))
-        # uncond["c_crossattn"] = null_prompt
-        # uncond["c_crossattn_1"] = fmri_null_prompt
 
         extra_args = {
             "cond": c,
