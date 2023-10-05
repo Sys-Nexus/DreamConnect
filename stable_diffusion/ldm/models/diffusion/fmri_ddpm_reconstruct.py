@@ -730,7 +730,7 @@ class LatentDiffusion(DDPM):
         if return_original_cond:
             out.append(xc)
         if return_null_emb:
-            out.append({"c_crossattn": null_prompt, "c_crossattn_1": fmri_null_prompt, "c_concat": torch.zeros_like(cond["c_concat"])})
+            out.append({"c_crossattn": null_prompt, "c_crossattn_1": fmri_null_prompt, "c_concat": [torch.zeros_like(ii) for ii in cond["c_concat"]]})
             # out.append(fmri_null_prompt)
         return out
 
