@@ -247,26 +247,28 @@ class FMRIAlign(nn.Module):
         with torch.no_grad():
             caps_embed, caps_pool_output = self.get_learned_conditioning(caps, is_return_pool=True)
         caps_embed = caps_embed.detach().requires_grad_(True)
-        caps_pool_output = caps_pool_output.detach().requires_grad_(True)
+        # caps_pool_output = caps_pool_output.detach().requires_grad_(True)
         import pdb; pdb.set_trace();
         # text_embed = torch.mean(caps_embed, dim=1) @ self.cond_stage_model_fmri.text_projection
-        text_embed = caps_pool_output @ self.cond_stage_model_fmri.text_projection
-        fmri_embed = fmri_embed.squeeze(1) @ self.cond_stage_model_fmri.image_projection
+        loss = torch.nn.L1Loss()(fmri_embed, caps_embed)
+        if False: # maybe in future include some contrastive loss
+            text_embed = caps_pool_output @ self.cond_stage_model_fmri.text_projection
+            fmri_embed = fmri_embed.squeeze(1) @ self.cond_stage_model_fmri.image_projection
 
-        # normalized features
-        fmri_embed = F.normalize(fmri_embed, dim=-1, p=2)
-        text_embed = F.normalize(text_embed, dim=-1, p=2)
+            # normalized features
+            fmri_embed = F.normalize(fmri_embed, dim=-1, p=2)
+            text_embed = F.normalize(text_embed, dim=-1, p=2)
 
-        # cosine similarity as logits
-        logit_scale = self.cond_stage_model_fmri.logit_scale.exp()
-        logits_per_fmri = logit_scale * fmri_embed @ text_embed.t()
-        logits_per_text = logit_scale * text_embed @ fmri_embed.t()
+            # cosine similarity as logits
+            logit_scale = self.cond_stage_model_fmri.logit_scale.exp()
+            logits_per_fmri = logit_scale * fmri_embed @ text_embed.t()
+            logits_per_text = logit_scale * text_embed @ fmri_embed.t()
 
-        local_batch_size = fmri_embed.shape[0]
-        self.labels = torch.arange(local_batch_size, device=fmri_embed.device)
+            local_batch_size = fmri_embed.shape[0]
+            self.labels = torch.arange(local_batch_size, device=fmri_embed.device)
 
-        loss = (F.cross_entropy(logits_per_fmri, self.labels) + \
-            F.cross_entropy(logits_per_text, self.labels)) / 2
+            loss = (F.cross_entropy(logits_per_fmri, self.labels) + \
+                F.cross_entropy(logits_per_text, self.labels)) / 2
 
         # loss = torch.nn.L1Loss()(fmri_embed, pool_caps_embed)
         loss_dict = {'L1': loss.item()}
