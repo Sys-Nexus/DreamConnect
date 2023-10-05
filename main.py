@@ -55,7 +55,10 @@ class CFGDenoiser(nn.Module):
         #     "c_crossattn_1": [torch.cat([cond["c_crossattn_1"][0], cond["c_crossattn_1"][0], uncond["c_crossattn_1"][0]])],
         #     # "c_concat": [torch.cat([cond["c_concat"][0], cond["c_concat"][0], uncond["c_concat"][0]])],
         # }
-        import pdb; pdb.set_trace();
+        # import pdb; pdb.set_trace();
+        cond = {k: torch.cat(v,dim=1) for k,v in cond.items()}
+        uncond = {k: torch.cat(v,dim=1) for k,v in uncond.items()}
+        
         cfg_cond = {
             "c_crossattn": [torch.cat([cond["c_crossattn"], uncond["c_crossattn"], cond["c_crossattn"]])],
             "c_crossattn_1": [torch.cat([cond["c_crossattn_1"], cond["c_crossattn_1"], uncond["c_crossattn_1"]])],
