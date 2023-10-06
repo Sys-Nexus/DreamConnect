@@ -61,10 +61,12 @@ class NSDInstructDataset(NSDDataset):
         # roi = ['early', 'ventral', 'midventral', 'midlateral', 'lateral', 'parietal']
         # roi = ['early',]
         # target = 'conv'
+        # use_stim = 'ave'
+
         roi = ['ventral',]
         target = 'context'
+        use_stim = 'each'
         
-        use_stim = 'ave'
         nsd_expdesign = scipy.io.loadmat(os.path.join(nsd_root, 'nsddata/experiments/nsd/nsd_expdesign.mat'))
         # Note that most of them are 1-base index!
         # This is why I subtract 1
