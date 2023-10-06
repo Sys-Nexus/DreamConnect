@@ -6,9 +6,10 @@ model:
   weight_decay: 0.01
   target: ldm.models.diffusion.fmri_align_context.FMRIAlign
   params:
-    fp16: True
-    # fp16: False
-    deepspeed: 'deepspeed_1'
+    # fp16: True
+    # deepspeed: 'deepspeed_1'
+    fp16: False
+    deepspeed: 'deepspeedf32_1'
     # deepspeed: ''
     # ckpt_path: stable_diffusion/models/ldm/stable-diffusion-v1/v1-5-pruned-emaonly-adaption.ckpt
     ckpt_path: stable_diffusion/models/ldm/stable-diffusion-v1/v1-5-pruned-emaonly-adaption-task-humanalign.ckpt
