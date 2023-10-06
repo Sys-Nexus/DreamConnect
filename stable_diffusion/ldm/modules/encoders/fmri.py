@@ -64,6 +64,7 @@ class FmriEmbedder(nn.Module):
             fmri_feat = fmri_feat.half()
         # import pdb; pdb.set_trace()
         fmri_feat = self.adaptor_fmri2image(fmri_feat)
+        fmri_feat = fmri_feat.reshape(fmri_feat.shape[0], -1, 768)
         # text_feat = F.normalize(text_feat, dim=-1, p=2)
         # text_feat = text_feat / text_feat.norm(dim=-1, keepdim=True)
         # import pdb; pdb.set_trace()
