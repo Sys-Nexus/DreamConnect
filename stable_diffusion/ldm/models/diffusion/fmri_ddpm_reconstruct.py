@@ -417,10 +417,8 @@ class LatentDiffusion(DDPM):
         self.instantiate_cond_stage(cond_stage_config)
         if cond_stage_config_fmri:
             self.instantiate_cond_stage_fmri(cond_stage_config_fmri)
-        if fmri2visual_stage_config is not None:
-            self.instantiate_fmri2visual_stage(fmri2visual_stage_config)
+
         self.cond_stage_forward = cond_stage_forward
-        self.cond_stage_forward_fmri = cond_stage_forward_fmri
         # import pdb; pdb.set_trace();
 
         self.clip_denoised = False
@@ -430,6 +428,10 @@ class LatentDiffusion(DDPM):
         if ckpt_path is not None:
             self.init_from_ckpt(ckpt_path, ignore_keys)
             self.restarted_from_ckpt = True
+
+        self.cond_stage_forward_fmri = cond_stage_forward_fmri
+        if fmri2visual_stage_config is not None:
+            self.instantiate_fmri2visual_stage(fmri2visual_stage_config)
 
         self.additional_loss_type = kwargs.pop("additional_loss_type", None)
 
