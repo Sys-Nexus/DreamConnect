@@ -77,7 +77,7 @@ class NSDDataset(Dataset):
                 is_reconstruct_mode=False,
                 # roi=['early', 'ventral', 'midventral', 'midlateral', 'lateral', 'parietal'], 
                 roi=['early'], 
-                target='conv'):
+                target='context'):
         self.nsda = NSDAccess(nsd_root)
         self.idxes = idxes
         # self.mri_idxes = mri_idxes

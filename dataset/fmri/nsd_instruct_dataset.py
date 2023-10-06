@@ -59,8 +59,11 @@ class NSDInstructDataset(NSDDataset):
     def __init__(self, nsd_root, resolution=320, use_stim='each', subject='subj01', split='train', is_reconstruct_mode=False, batch_size=1):
         # super().__init__()
         # roi = ['early', 'ventral', 'midventral', 'midlateral', 'lateral', 'parietal']
-        roi = ['early',]
-        target = 'conv'
+        # roi = ['early',]
+        # target = 'conv'
+        roi = ['ventral',]
+        target = 'context'
+        
         use_stim = 'ave'
         nsd_expdesign = scipy.io.loadmat(os.path.join(nsd_root, 'nsddata/experiments/nsd/nsd_expdesign.mat'))
         # Note that most of them are 1-base index!
