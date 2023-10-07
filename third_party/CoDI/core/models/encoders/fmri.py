@@ -30,7 +30,7 @@ def freeze(model):
 
 # @register('fmri', version)
 class FmriEmbedder(nn.Module):
-    def __init__(self, adaptor_fmri2image_path='checkpoints/fmri_700.pth'):
+    def __init__(self, adaptor_fmri2image_path='checkpoints/fmri_700.pth', force_type_convert=False):
         super(FmriEmbedder, self).__init__()
         # self.fmri_model = self.init_fmri()
         # import pdb; pdb.set_trace()
