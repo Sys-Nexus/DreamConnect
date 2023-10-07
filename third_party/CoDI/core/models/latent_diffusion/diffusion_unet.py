@@ -537,7 +537,8 @@ class UNetModel2D(nn.Module):
                  use_checkpoint=True, 
                  use_video_architecture=False,
                  video_dim_scale_factor=4,
-                 init_connector=True):
+                 init_connector=True,
+                 force_type_convert=False):
 
         super().__init__()
         ResBlockPreset = partial(
