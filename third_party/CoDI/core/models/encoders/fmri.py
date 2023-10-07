@@ -9,14 +9,14 @@ from functools import partial
 from einops import rearrange
 from torch.nn import functional as F
 
-import sys
-file_path = os.path.abspath(__file__)
-proj_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(file_path))))
+# import sys
+# file_path = os.path.abspath(__file__)
+# proj_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(file_path))))
 # import pdb; pdb.set_trace()
-sys.path.append(os.path.join(proj_root, 'third_party/mind_vis'))
-sys.path.append(os.path.join(proj_root, 'third_party/mind_vis/code'))
-from third_party.mind_vis.code.sc_mbm.mae_for_fmri import fmri_encoder
-from third_party.mind_vis.code.config import Config_MBM_finetune
+# sys.path.append(os.path.join(proj_root, 'third_party/mind_vis'))
+# sys.path.append(os.path.join(proj_root, 'third_party/mind_vis/code'))
+# from third_party.mind_vis.code.sc_mbm.mae_for_fmri import fmri_encoder
+# from third_party.mind_vis.code.config import Config_MBM_finetune
 
 version = '0'
 symbol = 'fmri'
