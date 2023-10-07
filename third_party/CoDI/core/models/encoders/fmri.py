@@ -5,7 +5,7 @@ import torch
 import torch.nn as nn
 import numpy as np
 from functools import partial
-from core.models.common.get_model import register
+# from core.models.common.get_model import register
 from einops import rearrange
 from torch.nn import functional as F
 
@@ -28,7 +28,7 @@ def freeze(model):
         param.requires_grad = False
 
 
-@register('fmri', version)
+# @register('fmri', version)
 class FmriEmbedder(nn.Module):
     def __init__(self, adaptor_fmri2image_path='checkpoints/fmri_700.pth'):
         super(FmriEmbedder, self).__init__()
