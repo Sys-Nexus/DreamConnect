@@ -1322,6 +1322,7 @@ class LatentDiffusion(DDPM):
 class DiffusionWrapper(nn.Module):
     def __init__(self, diff_model_config, conditioning_key):
         super().__init__()
+        import pdb; pdb.set_trace();
         self.diffusion_model = instantiate_from_config(diff_model_config)
         self.conditioning_key = conditioning_key
         assert self.conditioning_key in [None, 'concat', 'crossattn', 'hybrid', 'adm', 'fmri_hybrid', 'fmri_controlnet', 'fmri_reconstruct']
