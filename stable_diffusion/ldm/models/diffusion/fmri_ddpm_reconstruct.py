@@ -443,8 +443,8 @@ class LatentDiffusion(DDPM):
         if pretrained_unet_path is not None and os.path.exists(pretrained_unet_path):
             # import pdb; pdb.set_trace();
             pretrained_state_dict = torch.load(pretrained_unet_path, map_location="cpu")
-            pretrained_state_dict = {k.replace('unet_image.',''):v for k,v in pretrained_state_dict.items() if 'unet_image.' in k}
-            missing, unexpected = self.load_state_dict(pretrained_state_dict, strict=False)
+            pretrained_state_dict = {k.replace('model.diffusion_model.unet_image.',''):v for k,v in pretrained_state_dict.items() if 'unet_image.' in k}
+            missing, unexpected = self.model.diffusion_model.load_state_dict(pretrained_state_dict, strict=False)
             print('unet missing {} params.'.format(len(missing)))
             print('unet missing: ', missing)
             print('unet unexpected {} params.'.format(len(unexpected)))
