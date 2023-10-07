@@ -10,6 +10,7 @@ https://github.com/CompVis/taming-transformers
 # See more details in LICENSE.
 
 # Modified by Zigang Geng (zigang@mail.ustc.edu.cn)
+## this scripts is for testing the reconstruction ability
 
 import os
 import warnings
@@ -424,9 +425,9 @@ class LatentDiffusion(DDPM):
         self.bbox_tokenizer = None
 
         self.restarted_from_ckpt = False
-        if ckpt_path is not None and os.path.exists(ckpt_path):
-            self.init_from_ckpt(ckpt_path, ignore_keys)
-            self.restarted_from_ckpt = True
+        # if ckpt_path is not None and os.path.exists(ckpt_path):
+        #     self.init_from_ckpt(ckpt_path, ignore_keys)
+        #     self.restarted_from_ckpt = True
 
         if pretrained_unet_path is not None and os.path.exists(pretrained_unet_path):
             import pdb; pdb.set_trace();
@@ -1310,7 +1311,7 @@ class LatentDiffusion(DDPM):
 class DiffusionWrapper(nn.Module):
     def __init__(self, diff_model_config, conditioning_key):
         super().__init__()
-        import pdb; pdb.set_trace();
+        # import pdb; pdb.set_trace();
         self.diffusion_model = instantiate_from_config(diff_model_config)
         self.conditioning_key = conditioning_key
         assert self.conditioning_key in [None, 'concat', 'crossattn', 'hybrid', 'adm', 'fmri_hybrid', 'fmri_controlnet', 'fmri_reconstruct']
