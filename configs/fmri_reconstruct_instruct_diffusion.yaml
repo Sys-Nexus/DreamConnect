@@ -100,7 +100,7 @@ model:
         force_type_convert: False
         # adaptor_fmri2image_path: 'logs/fmri_instruct_encoder_context_fmri_instruct_encoder_context_2023-10-03/checkpoints/ckpt_epoch_500/mp_rank_00_model_states.pt'
         # adaptor_fmri2image_path: 'logs/fmri_instruct_encoder_context_fmri_instruct_encoder_context_2023-10-05/checkpoints/ckpt_epoch_500/mp_rank_00_model_states.pt'
-        adaptor_fmri2image_path: ''
+        adaptor_fmri2image_path: '/data/yashengsun/Proj/lavis/output/BLIP2/Pretrain/20230901210/checkpoint_50.pth'
 
 data:
   target: main.DataModuleFromConfig
