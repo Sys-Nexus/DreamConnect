@@ -83,7 +83,12 @@ class TimestepEmbedSequential(nn.Sequential, TimestepBlock):
             else:
                 if is_video:
                     x = rearrange(x, 'b c t h w -> (b t) c h w ')
-                x = layer(x)
+                # x = layer(x)
+                if hasattr(layer, 'weight'):  
+                    x = layer(x.type(layer.weight.dtype))
+                else:  
+                    x = layer(x.type(emb.dtype))
+
                 if is_video:
                     x = rearrange(x, '(b t) c h w -> b c t h w', t=num_frames)
         return x
