@@ -6,11 +6,11 @@ model:
   weight_decay: 0.01
   target: ldm.models.diffusion.fmri_ddpm_reconstruct.LatentDiffusion
   params:
-    # fp16: True
-    # deepspeed: 'deepspeed_1'
+    fp16: True
+    deepspeed: 'deepspeed_1'
     ## codi bacbone not support fps16
-    fp16: False
-    deepspeed: 'deepspeedfp32_1'
+    # fp16: False
+    # deepspeed: 'deepspeedfp32_1'
     # deepspeed: ''
     # ckpt_path: stable_diffusion/models/ldm/stable-diffusion-v1/v1-5-pruned-emaonly-adaption.ckpt
     ckpt_path: stable_diffusion/models/ldm/stable-diffusion-v1/v1-5-pruned-emaonly-adaption-task-humanalign.ckpt
@@ -58,7 +58,7 @@ model:
         use_checkpoint: True
         use_video_architecture: True
         init_connector: False
-        # force_type_convert: True
+        force_type_convert: True
         # force_type_convert: False
 
     first_stage_config:
@@ -87,17 +87,11 @@ model:
     cond_stage_config:
       target: ldm.modules.encoders.modules.FrozenCLIPEmbedder
 
-    # cond_stage_config_fmri:
-    #   target: ldm.modules.encoders.fmri.FmriEmbedder
-    #   params:
-    #     force_type_convert: true
-    #     # adaptor_fmri2image_path: 'logs/fmri_instruct_encoder_context_fmri_instruct_encoder_context_2023-10-03/checkpoints/ckpt_epoch_500/mp_rank_00_model_states.pt'
-    #     adaptor_fmri2image_path: 'logs/fmri_instruct_encoder_context_fmri_instruct_encoder_context_2023-10-05/checkpoints/ckpt_epoch_500/mp_rank_00_model_states.pt'
     cond_stage_config_fmri:
       target: CoDI.core.models.encoders.fmri.FmriEmbedder
       params:
-        # force_type_convert: true
-        force_type_convert: False
+        force_type_convert: True
+        # force_type_convert: False
         # adaptor_fmri2image_path: 'logs/fmri_instruct_encoder_context_fmri_instruct_encoder_context_2023-10-03/checkpoints/ckpt_epoch_500/mp_rank_00_model_states.pt'
         # adaptor_fmri2image_path: 'logs/fmri_instruct_encoder_context_fmri_instruct_encoder_context_2023-10-05/checkpoints/ckpt_epoch_500/mp_rank_00_model_states.pt'
         adaptor_fmri2image_path: '/data/yashengsun/Proj/lavis/output/BLIP2/Pretrain/20230901210/checkpoint_50.pth'
