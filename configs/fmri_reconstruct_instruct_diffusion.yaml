@@ -6,10 +6,11 @@ model:
   weight_decay: 0.01
   target: ldm.models.diffusion.fmri_ddpm_reconstruct.LatentDiffusion
   params:
-    fp16: True
-    deepspeed: 'deepspeed_1'
-    # fp16: False
-    # deepspeed: 'deepspeedfp32_1'
+    # fp16: True
+    # deepspeed: 'deepspeed_1'
+    ## codi bacbone not support fps16
+    fp16: False
+    deepspeed: 'deepspeedfp32_1'
     # deepspeed: ''
     # ckpt_path: stable_diffusion/models/ldm/stable-diffusion-v1/v1-5-pruned-emaonly-adaption.ckpt
     ckpt_path: stable_diffusion/models/ldm/stable-diffusion-v1/v1-5-pruned-emaonly-adaption-task-humanalign.ckpt
