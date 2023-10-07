@@ -35,7 +35,7 @@ class FmriEmbedder(nn.Module):
         # self.fmri_model = self.init_fmri()
         # import pdb; pdb.set_trace()
         # self.fmri_model = self.init_fmri()
-
+        self.force_type_convert = force_type_convert
         num_voxels = 7604
         self.adaptor_fmri2image = nn.Sequential(*[nn.Linear(num_voxels, 1024),
                                                   nn.ReLU(),
@@ -94,6 +94,8 @@ class FmriEmbedder(nn.Module):
         # with torch.no_grad():
         #     fmri_feat = self.fmri_model.forward_encoder(fmri)
         # fmri_feat = fmri_feat.requires_grad_(True)
+        if self.force_type_convert:
+            fmri_feat = fmri_feat.half()
         fmri_feat = fmri
         text_feat = self.adaptor_fmri2image(fmri_feat)
         # text_feat = F.normalize(text_feat, dim=-1, p=2)
