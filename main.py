@@ -490,7 +490,7 @@ def filter_optimized_params(model, args):
     else:
         raise ValueError
     print('we apply filter mode: ', args.filter_mode)
-    import pdb; pdb.set_trace()
+    # import pdb; pdb.set_trace()
     return param_groups
 
 
