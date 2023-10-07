@@ -432,24 +432,24 @@ class LatentDiffusion(DDPM):
         ## from the pretrained human-align.ckpt to load kl-k8, which is a little stupid
         if ckpt_path is not None and os.path.exists(ckpt_path):
             kl_pretrained_state_dict = torch.load(ckpt_path, map_location='cpu')
-            kl_pretrained_state_dict = {k:v for k,v in kl_pretrained_state_dict.items() if 'first_stage_model' in k}
-            missing, unexpected = self.load_state_dict(kl_pretrained_state_dict, strict=False)
+            kl_pretrained_state_dict = {k.replace('first_stage_model.',''):v for k,v in kl_pretrained_state_dict['state_dict'].items() if 'first_stage_model.' in k}
+            missing, unexpected = self.first_stage_model.load_state_dict(kl_pretrained_state_dict, strict=False)
             print('kl missing {} params.'.format(len(missing)))
             print('kl missing: ', missing)
             print('kl unexpected {} params.'.format(len(unexpected)))
             print('kl unexpected: ', unexpected)
-            import pdb; pdb.set_trace();
-
+ 
         ## import the pretrained weight of CoDI unet
         if pretrained_unet_path is not None and os.path.exists(pretrained_unet_path):
             # import pdb; pdb.set_trace();
             pretrained_state_dict = torch.load(pretrained_unet_path, map_location="cpu")
-            pretrained_state_dict = {k.replace('unet_image.',''):v for k,v in pretrained_state_dict.items()}
+            pretrained_state_dict = {k.replace('unet_image.',''):v for k,v in pretrained_state_dict.items() if 'unet_image.' in k}
             missing, unexpected = self.load_state_dict(pretrained_state_dict, strict=False)
             print('unet missing {} params.'.format(len(missing)))
             print('unet missing: ', missing)
             print('unet unexpected {} params.'.format(len(unexpected)))
             print('unet unexpected: ', unexpected)
+            import pdb; pdb.set_trace();
 
         self.cond_stage_forward_fmri = cond_stage_forward_fmri
         if fmri2visual_stage_config is not None: ## fmri to vae
