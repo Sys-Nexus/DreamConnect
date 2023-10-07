@@ -95,7 +95,7 @@ class FmriEmbedder(nn.Module):
         #     fmri_feat = self.fmri_model.forward_encoder(fmri)
         # fmri_feat = fmri_feat.requires_grad_(True)
         if self.force_type_convert:
-            fmri_feat = fmri_feat.half()
+            fmri = fmri.half()
         fmri_feat = fmri
         text_feat = self.adaptor_fmri2image(fmri_feat)
         # text_feat = F.normalize(text_feat, dim=-1, p=2)
