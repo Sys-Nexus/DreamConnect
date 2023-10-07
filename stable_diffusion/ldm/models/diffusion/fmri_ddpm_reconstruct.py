@@ -384,6 +384,7 @@ class LatentDiffusion(DDPM):
                  scale_by_std=False,
                  deepspeed="",
                  is_fmri_input=False,
+                 pretrained_unet_path=None,
                  *args, **kwargs):
         self.deepspeed = deepspeed
         self.frmi_cond_stage_key = fmri_cond_stage_key
@@ -423,9 +424,12 @@ class LatentDiffusion(DDPM):
         self.bbox_tokenizer = None
 
         self.restarted_from_ckpt = False
-        if ckpt_path is not None:
+        if ckpt_path is not None and os.path.exists(ckpt_path):
             self.init_from_ckpt(ckpt_path, ignore_keys)
             self.restarted_from_ckpt = True
+
+        if pretrained_unet_path is not None and os.path.exists(pretrained_unet_path):
+            import pdb; pdb.set_trace();
 
         self.cond_stage_forward_fmri = cond_stage_forward_fmri
         if fmri2visual_stage_config is not None: ## fmri to vae
