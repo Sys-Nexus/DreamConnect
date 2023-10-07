@@ -446,10 +446,10 @@ class LatentDiffusion(DDPM):
             pretrained_state_dict = {k.replace('model.diffusion_model.unet_image.',''):v for k,v in pretrained_state_dict.items() if 'unet_image.' in k}
             missing, unexpected = self.model.diffusion_model.load_state_dict(pretrained_state_dict, strict=False)
             print('unet missing {} params.'.format(len(missing)))
-            print('unet missing: ', missing)
+            # print('unet missing: ', missing)
             print('unet unexpected {} params.'.format(len(unexpected)))
             print('unet unexpected: ', unexpected)
-            import pdb; pdb.set_trace();
+            # import pdb; pdb.set_trace();
 
         self.cond_stage_forward_fmri = cond_stage_forward_fmri
         if fmri2visual_stage_config is not None: ## fmri to vae
