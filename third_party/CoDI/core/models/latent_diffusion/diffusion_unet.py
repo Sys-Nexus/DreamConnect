@@ -539,11 +539,13 @@ class UNetModel2D(nn.Module):
                  num_noattn_blocks_connector=(1, 1, 1),
                  with_connector=[True, True, True, False],
                  num_heads=8,
+                 dims=2,
                  use_checkpoint=True, 
                  use_video_architecture=False,
                  video_dim_scale_factor=4,
                  init_connector=True,
-                 force_type_convert=False):
+                 force_type_convert=False,
+                 is_side_net=False):
 
         super().__init__()
         ResBlockPreset = partial(
@@ -555,7 +557,10 @@ class UNetModel2D(nn.Module):
         self.num_noattn_blocks = num_noattn_blocks
         self.channel_mult = channel_mult
         self.num_heads = num_heads
-
+        
+        # newly added for controlnet 
+        self.is_side_net = is_side_net
+        self.dims = dims
         ##################
         # Time embedding #
         ##################
@@ -707,63 +712,70 @@ class UNetModel2D(nn.Module):
         #################
         # output_blocks #
         #################
-        output_blocks = []
-        output_block_connecters_out = []
-        output_block_connecters_in = []
-        for level_idx, mult in list(enumerate(channel_mult))[::-1]:
-            for block_idx in range(self.num_noattn_blocks[level_idx] + 1):
-                extra_channel = input_block_channels.pop()
-                if use_video_architecture:
-                    layers = [nn.ModuleList([
-                        ResBlockPreset(
-                            current_channel + extra_channel,
-                            time_embed_dim,
-                            out_channels = model_channels * mult),
-                        SpatioTemporalAttention(
-                                dim = mult * model_channels,
-                                dim_head = mult * model_channels // video_dim_scale_factor,
-                                heads = 8
-                              )])]
-                else:
-                    layers = [
-                        ResBlockPreset(
-                            current_channel + extra_channel,
-                            time_embed_dim,
-                            out_channels = model_channels * mult) ]
-                
-                current_channel = model_channels * mult
-                dim_head = current_channel // num_heads
+        if self.is_side_net:
+            self.zero_convs = 
+            self.middle_block_out = 
+        else:
+            output_blocks = []
+            output_block_connecters_out = []
+            output_block_connecters_in = []
+            for level_idx, mult in list(enumerate(channel_mult))[::-1]:
+                for block_idx in range(self.num_noattn_blocks[level_idx] + 1):
+                    extra_channel = input_block_channels.pop()
+                    if use_video_architecture:
+                        layers = [nn.ModuleList([
+                            ResBlockPreset(
+                                current_channel + extra_channel,
+                                time_embed_dim,
+                                out_channels = model_channels * mult),
+                            SpatioTemporalAttention(
+                                    dim = mult * model_channels,
+                                    dim_head = mult * model_channels // video_dim_scale_factor,
+                                    heads = 8
+                                )])]
+                    else:
+                        layers = [
+                            ResBlockPreset(
+                                current_channel + extra_channel,
+                                time_embed_dim,
+                                out_channels = model_channels * mult) ]
+                    
+                    current_channel = model_channels * mult
+                    dim_head = current_channel // num_heads
 
-                if with_attn[level_idx]:
-                    layers += [
-                        SpatialTransformer(
-                            current_channel, num_heads, dim_head, 
-                            depth=1, context_dim=context_dim)]
-                if with_connector[level_idx] and init_connector:
-                    output_block_connecters_in.append(
-                        TimestepEmbedSequential(*[SpatialTransformer(
-                            current_channel, num_heads, dim_head, 
-                            depth=1, context_dim=connector_out_channels)])
-                    )
-                else:
-                    output_block_connecters_in.append(None)
+                    if with_attn[level_idx]:
+                        layers += [
+                            SpatialTransformer(
+                                current_channel, num_heads, dim_head, 
+                                depth=1, context_dim=context_dim)]
+                    if with_connector[level_idx] and init_connector:
+                        output_block_connecters_in.append(
+                            TimestepEmbedSequential(*[SpatialTransformer(
+                                current_channel, num_heads, dim_head, 
+                                depth=1, context_dim=connector_out_channels)])
+                        )
+                    else:
+                        output_block_connecters_in.append(None)
+        
+
+                    if level_idx!=0 and block_idx==self.num_noattn_blocks[level_idx]:
+                        layers += [
+                            Upsample(
+                                current_channel, use_conv=True, 
+                                dims=2, out_channels=current_channel)]
     
+                    output_blocks += [TimestepEmbedSequential(*layers)]
 
-                if level_idx!=0 and block_idx==self.num_noattn_blocks[level_idx]:
-                    layers += [
-                        Upsample(
-                            current_channel, use_conv=True, 
-                            dims=2, out_channels=current_channel)]
- 
-                output_blocks += [TimestepEmbedSequential(*layers)]
+            self.output_blocks = nn.ModuleList(output_blocks)
+            self.output_block_connecters_in = nn.ModuleList(output_block_connecters_in)
 
-        self.output_blocks = nn.ModuleList(output_blocks)
-        self.output_block_connecters_in = nn.ModuleList(output_block_connecters_in)
+            self.out = nn.Sequential(
+                normalization(current_channel),
+                nn.SiLU(),
+                zero_module(nn.Conv2d(model_channels, output_channels, 3, padding=1)),)
 
-        self.out = nn.Sequential(
-            normalization(current_channel),
-            nn.SiLU(),
-            zero_module(nn.Conv2d(model_channels, output_channels, 3, padding=1)),)
+    def make_zero_conv(self, channels):
+        return TimestepEmbedSequential(zero_module(conv_nd(self.dims, channels, channels, 1, padding=0)))
 
     def forward(self, x, timesteps=None, context=None):
         hs = []
