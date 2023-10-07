@@ -26,7 +26,7 @@ model:
     channels: 4
     cond_stage_trainable: false   # Note: different from the one we trained before
     cond_stage_trainable_fmri: true   # Note: different from the one we trained before
-    unet_stage_trainable: true  # Note: different from the one we trained before
+    unet_stage_trainable: false  # Note: different from the one we trained before
     # unet_stage_trainable: false  # Note: different from the one we trained before
     # conditioning_key: hybrid
     # conditioning_key: fmri_hybrid
