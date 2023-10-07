@@ -434,7 +434,7 @@ class LatentDiffusion(DDPM):
 
         if ckpt_path is not None and os.path.exists(ckpt_path):
             unet_pretrained_state_dict = torch.load(ckpt_path, map_location='cpu')
-            unet_pretrained_state_dict = {k.replace('model.diffusion_model.',''):v for k,v in unet_pretrained_state_dict.items() if 'model.diffusion_model.' in k}
+            unet_pretrained_state_dict = {k.replace('model.diffusion_model.',''):v for k,v in unet_pretrained_state_dict['state_dict'].items() if 'model.diffusion_model.' in k}
             missing, unexpected = self.model.diffusion_model.load_state_dict(unet_pretrained_state_dict, strict=False)
             # import pdb; pdb.set_trace()
             print('unet missing {} params.'.format(len(missing)))
