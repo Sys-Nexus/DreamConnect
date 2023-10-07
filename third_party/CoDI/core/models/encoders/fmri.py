@@ -46,7 +46,10 @@ class FmriEmbedder(nn.Module):
         # self.adaptor_fmri2image = nn.Sequential(*[nn.Linear(1024, 768), nn.ReLU(), nn.Linear(768, 768)])
         # self.adaptor_fmri2image = nn.Linear(1024, 768)
         self.adaptor_fmri2image_path = adaptor_fmri2image_path
-        self.init_fmri_weight()
+        if not os.path.exist(self.adaptor_fmri2image_path): 
+            print(self.adaptor_fmri2image_path, 'not exist.')
+        else:
+            self.init_fmri_weight()
         self.adaptor_fmri2image.eval()
         freeze(self.adaptor_fmri2image)
 
