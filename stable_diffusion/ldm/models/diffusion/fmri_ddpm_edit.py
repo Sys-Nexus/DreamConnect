@@ -436,7 +436,7 @@ class LatentDiffusion(DDPM):
             unet_pretrained_state_dict = torch.load(ckpt_path, map_location='cpu')
             unet_pretrained_state_dict = {k.replace('model.diffusion_model.',''):v for k,v in unet_pretrained_state_dict.items() if 'model.diffusion_model.' in k}
             missing, unexpected = self.model.diffusion_model.load_state_dict(unet_pretrained_state_dict, strict=False)
-            import pdb; pdb.set_trace()
+            # import pdb; pdb.set_trace()
             print('unet missing {} params.'.format(len(missing)))
             print('unet missing: ', missing)
             print('unet unexpected {} params.'.format(len(unexpected)))
@@ -445,6 +445,7 @@ class LatentDiffusion(DDPM):
         ## from the pretrained human-align.ckpt to load kl-k8, which is a little stupid
         if ckpt_path is not None and os.path.exists(ckpt_path):
             kl_pretrained_state_dict = torch.load(ckpt_path, map_location='cpu')
+            import pdb; pdb.set_trace()
             kl_pretrained_state_dict = {k.replace('first_stage_model.',''):v for k,v in kl_pretrained_state_dict['state_dict'].items() if 'first_stage_model.' in k}
             missing, unexpected = self.first_stage_model.load_state_dict(kl_pretrained_state_dict, strict=False)
             print('kl missing {} params.'.format(len(missing)))
