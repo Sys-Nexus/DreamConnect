@@ -429,15 +429,27 @@ class LatentDiffusion(DDPM):
         #     self.init_from_ckpt(ckpt_path, ignore_keys)
         #     self.restarted_from_ckpt = True
 
+        ## from the pretrained human-align.ckpt to load kl-k8, which is a little stupid
+        if ckpt_path is not None and os.path.exists(ckpt_path):
+            kl_pretrained_state_dict = torch.load(ckpt_path, map_location='cpu')
+            kl_pretrained_state_dict = {k:v for k,v in kl_pretrained_state_dict.items() if 'first_stage_model' in k}
+            missing, unexpected = self.load_state_dict(kl_pretrained_state_dict, strict=False)
+            print('kl missing {} params.'.format(len(missing)))
+            print('kl missing: ', missing)
+            print('kl unexpected {} params.'.format(len(unexpected)))
+            print('kl unexpected: ', unexpected)
+            import pdb; pdb.set_trace();
+
+        ## import the pretrained weight of CoDI unet
         if pretrained_unet_path is not None and os.path.exists(pretrained_unet_path):
             # import pdb; pdb.set_trace();
             pretrained_state_dict = torch.load(pretrained_unet_path, map_location="cpu")
             pretrained_state_dict = {k.replace('unet_image.',''):v for k,v in pretrained_state_dict.items()}
             missing, unexpected = self.load_state_dict(pretrained_state_dict, strict=False)
-            print('missing {} params.'.format(len(missing)))
-            print('missing: ', missing)
-            print('unexpected {} params.'.format(len(unexpected)))
-            print('unexpected: ', unexpected)
+            print('unet missing {} params.'.format(len(missing)))
+            print('unet missing: ', missing)
+            print('unet unexpected {} params.'.format(len(unexpected)))
+            print('unet unexpected: ', unexpected)
 
         self.cond_stage_forward_fmri = cond_stage_forward_fmri
         if fmri2visual_stage_config is not None: ## fmri to vae
