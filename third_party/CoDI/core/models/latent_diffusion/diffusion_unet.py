@@ -621,7 +621,8 @@ class UNetModel2D(nn.Module):
         input_block_channels = [current_channel]
         
         input_block_connecters_in = [None]
-        
+        self.zero_convs = nn.ModuleList([self.make_zero_conv(model_channels)])
+
         for level_idx, mult in enumerate(channel_mult):
             for _ in range(self.num_noattn_blocks[level_idx]):
                 if use_video_architecture:
@@ -659,6 +660,7 @@ class UNetModel2D(nn.Module):
                     )
                 else:
                     input_block_connecters_in.append(None)
+                self.zero_convs.append(self.make_zero_conv(ch))
 
             if level_idx != len(channel_mult) - 1:
                 input_blocks += [
@@ -668,6 +670,7 @@ class UNetModel2D(nn.Module):
                             dims=2, out_channels=current_channel,))]
                 input_block_channels.append(current_channel)
                 input_block_connecters_in.append(None)
+                self.zero_convs.append(self.make_zero_conv(ch))
 
         self.input_blocks = nn.ModuleList(input_blocks)
         self.input_block_connecters_in = nn.ModuleList(input_block_connecters_in)
@@ -713,7 +716,6 @@ class UNetModel2D(nn.Module):
         # output_blocks #
         #################
         if self.is_side_net:
-            self.zero_convs = 
             self.middle_block_out = self.make_zero_conv(current_channel)
         else:
             output_blocks = []
@@ -782,17 +784,27 @@ class UNetModel2D(nn.Module):
         t_emb = timestep_embedding(timesteps, self.model_channels, repeat_only=False)
         emb = self.time_embed(t_emb.type(self.time_embed[0].weight.dtype))
 
-        h = x
-        is_video = h.ndim == 5
-            
-        for module in self.input_blocks:
-            h = module(h, emb, context)
-            hs.append(h)
-        h = self.middle_block(h, emb, context)
-        for module in self.output_blocks:
-            h = th.cat([h, hs.pop()], dim=1)
-            h = module(h, emb, context)
-        return self.out(h)
+        if self.is_side_net:
+            outs = []
+            h = x.type(self.dtype)
+            for module, zero_conv in zip(self.input_blocks, self.zero_convs):
+                h = module(h, emb, context)
+                outs.append(zero_conv(h, emb, context))
+
+            h = self.middle_block(h, emb, context)
+            outs.append(self.middle_block_out(h, emb, context))
+            return outs
+        else:
+            h = x
+            for module in self.input_blocks:
+                h = module(h, emb, context)
+                hs.append(h)
+            h = self.middle_block(h, emb, context)
+            for module in self.output_blocks:
+                h = th.cat([h, hs.pop()], dim=1)
+                h = module(h, emb, context)
+            return self.out(h)
+    
     
     
 class FCBlock(TimestepBlock):
