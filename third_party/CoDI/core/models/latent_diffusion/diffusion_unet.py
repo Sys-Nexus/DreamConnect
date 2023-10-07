@@ -763,7 +763,7 @@ class UNetModel2D(nn.Module):
     def forward(self, x, timesteps=None, context=None):
         hs = []
         t_emb = timestep_embedding(timesteps, self.model_channels, repeat_only=False)
-        emb = self.time_embed(t_emb)
+        emb = self.time_embed(t_emb.type(self.time_embed[0].weight.dtype))
 
         h = x
         is_video = h.ndim == 5
