@@ -369,6 +369,7 @@ class LatentDiffusion(DDPM):
                  first_stage_config,
                  cond_stage_config,
                  cond_stage_config_fmri,
+                 pretrained_control_unet_path=None,
                  fmri2visual_stage_config=None,
                  num_timesteps_cond=None,
                  cond_stage_key="image",
@@ -427,11 +428,47 @@ class LatentDiffusion(DDPM):
         self.bbox_tokenizer = None
 
         self.restarted_from_ckpt = False
-        if ckpt_path is not None:
-            self.init_from_ckpt(ckpt_path, ignore_keys)
-            self.restarted_from_ckpt = True
+        # if ckpt_path is not None:
+        #     self.init_from_ckpt(ckpt_path, ignore_keys)
+        #     self.restarted_from_ckpt = True
+
+        if ckpt_path is not None and os.path.exists(ckpt_path):
+            unet_pretrained_state_dict = torch.load(ckpt_path, map_location='cpu')
+            unet_pretrained_state_dict = {k.replace('model.diffusion_model.',''):v for k,v in unet_pretrained_state_dict.items() if 'model.diffusion_model.' in k}
+            missing, unexpected = self.model.diffusion_model.load_state_dict(unet_pretrained_state_dict, strict=False)
+            import pdb; pdb.set_trace()
+            print('unet missing {} params.'.format(len(missing)))
+            print('unet missing: ', missing)
+            print('unet unexpected {} params.'.format(len(unexpected)))
+            print('unet unexpected: ', unexpected)
+
+        ## from the pretrained human-align.ckpt to load kl-k8, which is a little stupid
+        if ckpt_path is not None and os.path.exists(ckpt_path):
+            kl_pretrained_state_dict = torch.load(ckpt_path, map_location='cpu')
+            kl_pretrained_state_dict = {k.replace('first_stage_model.',''):v for k,v in kl_pretrained_state_dict['state_dict'].items() if 'first_stage_model.' in k}
+            missing, unexpected = self.first_stage_model.load_state_dict(kl_pretrained_state_dict, strict=False)
+            print('kl missing {} params.'.format(len(missing)))
+            print('kl missing: ', missing)
+            print('kl unexpected {} params.'.format(len(unexpected)))
+            print('kl unexpected: ', unexpected)
+ 
+        ## import the pretrained weight of CoDI unet
+        if pretrained_control_unet_path is not None and os.path.exists(pretrained_control_unet_path):
+            # import pdb; pdb.set_trace();
+            pretrained_state_dict = torch.load(pretrained_control_unet_path, map_location="cpu")
+            pretrained_state_dict = {k.replace('model.diffusion_model.unet_image.',''):v for k,v in pretrained_state_dict.items() if 'unet_image.' in k}
+            missing, unexpected = self.model.control_model.load_state_dict(pretrained_state_dict, strict=False)
+            print('unet missing {} params.'.format(len(missing)))
+            # print('unet missing: ', missing)
+            print('unet unexpected {} params.'.format(len(unexpected)))
+            print('unet unexpected: ', unexpected)
+            # import pdb; pdb.set_trace();
 
         self.additional_loss_type = kwargs.pop("additional_loss_type", None)
+
+        self.cond_stage_forward_fmri = cond_stage_forward_fmri
+        if cond_stage_config_fmri:
+            self.instantiate_cond_stage_fmri(cond_stage_config_fmri)
 
         if not unet_stage_trainable:
             freeze_params(self.model)

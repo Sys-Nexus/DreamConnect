@@ -66,8 +66,8 @@ model:
         lossconfig:
           target: torch.nn.Identity
 
-    pretrained_unet_path: /data/yashengsun/Proj/MMEdit/CoDI/checkpoints/CoDi_video_diffuser_8frames.pth
-    unet_config:
+    pretrained_control_unet_path: /data/yashengsun/Proj/MMEdit/CoDI/checkpoints/CoDi_video_diffuser_8frames.pth
+    control_stage_config:
       target: CoDI.core.models.latent_diffusion.diffusion_unet.UNetModel2D
       params: 
         input_channels: 4
@@ -82,14 +82,16 @@ model:
         use_video_architecture: True
         init_connector: False
         force_type_convert: True
-        is_side_net: False
+        is_side_net: True
 
-    control_stage_config:
-      target: ldm.models.diffusion.control_fmri_ddpm_edit.ControlNet
+    unet_config:
+      # target: ldm.modules.diffusionmodules.openaimodel_dual_condition.UNetModel
+      # inherit from target: ldm.modules.diffusionmodules.openaimodel.UNetModel
+      target: ldm.models.diffusion.control_fmri_ddpm_edit.ControlledUnetModel
       params:
         image_size: 32 # unused
         in_channels: 8
-        hint_channels: 3 ## TODO: Figure out what is this, will map the hint channels to model channels
+        out_channels: 4
         model_channels: 320
         attention_resolutions: [ 4, 2, 1 ]
         num_res_blocks: 2
@@ -106,11 +108,14 @@ model:
       target: ldm.modules.encoders.modules.FrozenCLIPEmbedder
 
     cond_stage_config_fmri:
-      target: ldm.modules.encoders.fmri.FmriEmbedder
+      target: CoDI.core.models.encoders.fmri.FmriEmbedder
       params:
-        force_type_convert: true
-        adaptor_fmri2image_path: 'logs/fmri_instruct_encoder_context_fmri_instruct_encoder_context_2023-10-03/checkpoints/ckpt_epoch_500/mp_rank_00_model_states.pt'
-        
+        force_type_convert: True
+        # force_type_convert: False
+        # adaptor_fmri2image_path: 'logs/fmri_instruct_encoder_context_fmri_instruct_encoder_context_2023-10-03/checkpoints/ckpt_epoch_500/mp_rank_00_model_states.pt'
+        # adaptor_fmri2image_path: 'logs/fmri_instruct_encoder_context_fmri_instruct_encoder_context_2023-10-05/checkpoints/ckpt_epoch_500/mp_rank_00_model_states.pt'
+        adaptor_fmri2image_path: '/data/yashengsun/Proj/lavis/output/BLIP2/Pretrain/20230901210/checkpoint_50.pth'
+
 data:
   target: main.DataModuleFromConfig
   params:
