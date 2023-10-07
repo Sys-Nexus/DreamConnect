@@ -57,7 +57,7 @@ model:
         context_dim: 768
         use_checkpoint: True
         use_video_architecture: True
-        # force_type_convert: True
+        force_type_convert: True
         # force_type_convert: False
 
     first_stage_config:
@@ -86,17 +86,11 @@ model:
     cond_stage_config:
       target: ldm.modules.encoders.modules.FrozenCLIPEmbedder
 
-    # cond_stage_config_fmri:
-    #   target: ldm.modules.encoders.fmri.FmriEmbedder
-    #   params:
-    #     force_type_convert: true
-    #     # adaptor_fmri2image_path: 'logs/fmri_instruct_encoder_context_fmri_instruct_encoder_context_2023-10-03/checkpoints/ckpt_epoch_500/mp_rank_00_model_states.pt'
-    #     adaptor_fmri2image_path: 'logs/fmri_instruct_encoder_context_fmri_instruct_encoder_context_2023-10-05/checkpoints/ckpt_epoch_500/mp_rank_00_model_states.pt'
     cond_stage_config_fmri:
       target: CoDI.core.models.encoders.fmri.FmriEmbedder
       params:
-        # force_type_convert: true
-        force_type_convert: False
+        force_type_convert: True
+        # force_type_convert: False
         # adaptor_fmri2image_path: 'logs/fmri_instruct_encoder_context_fmri_instruct_encoder_context_2023-10-03/checkpoints/ckpt_epoch_500/mp_rank_00_model_states.pt'
         # adaptor_fmri2image_path: 'logs/fmri_instruct_encoder_context_fmri_instruct_encoder_context_2023-10-05/checkpoints/ckpt_epoch_500/mp_rank_00_model_states.pt'
         adaptor_fmri2image_path: ''
