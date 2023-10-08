@@ -368,6 +368,9 @@ class LatentDiffusion(DDPM):
     def __init__(self,
                  first_stage_config,
                  cond_stage_config,
+                 control_stage_config,
+                 control_key,
+                 only_mid_control,
                  cond_stage_config_fmri,
                  pretrained_control_unet_path=None,
                  fmri2visual_stage_config=None,
@@ -386,6 +389,7 @@ class LatentDiffusion(DDPM):
                  deepspeed="",
                  is_fmri_input=False,
                  *args, **kwargs):
+
         self.deepspeed = deepspeed
         self.frmi_cond_stage_key = fmri_cond_stage_key
         self.num_timesteps_cond = default(num_timesteps_cond, 1)
@@ -403,7 +407,12 @@ class LatentDiffusion(DDPM):
         self.cond_stage_trainable = cond_stage_trainable
         self.cond_stage_trainable_fmri = cond_stage_trainable_fmri
         self.cond_stage_key = cond_stage_key
+
         self.is_fmri_input = is_fmri_input
+        self.control_model = instantiate_from_config(control_stage_config)
+        self.control_key = control_key
+        self.only_mid_control = only_mid_control
+        self.control_scales = [1.0] * 13
 
         try:
             self.num_downs = len(first_stage_config.params.ddconfig.ch_mult) - 1
@@ -432,16 +441,6 @@ class LatentDiffusion(DDPM):
         #     self.init_from_ckpt(ckpt_path, ignore_keys)
         #     self.restarted_from_ckpt = True
 
-        if ckpt_path is not None and os.path.exists(ckpt_path):
-            unet_pretrained_state_dict = torch.load(ckpt_path, map_location='cpu')
-            unet_pretrained_state_dict = {k.replace('model.diffusion_model.',''):v for k,v in unet_pretrained_state_dict['state_dict'].items() if 'model.diffusion_model.' in k}
-            missing, unexpected = self.model.diffusion_model.load_state_dict(unet_pretrained_state_dict, strict=False)
-            # import pdb; pdb.set_trace()
-            print('unet missing {} params.'.format(len(missing)))
-            print('unet missing: ', missing)
-            print('unet unexpected {} params.'.format(len(unexpected)))
-            print('unet unexpected: ', unexpected)
-
         ## from the pretrained human-align.ckpt to load kl-k8, which is a little stupid
         if ckpt_path is not None and os.path.exists(ckpt_path):
             kl_pretrained_state_dict = torch.load(ckpt_path, map_location='cpu')
@@ -452,18 +451,29 @@ class LatentDiffusion(DDPM):
             print('kl missing: ', missing)
             print('kl unexpected {} params.'.format(len(unexpected)))
             print('kl unexpected: ', unexpected)
+
+        ## from the pretrained human-align.ckpt to unet, instruction backbone
+        if ckpt_path is not None and os.path.exists(ckpt_path):
+            unet_pretrained_state_dict = torch.load(ckpt_path, map_location='cpu')
+            unet_pretrained_state_dict = {k.replace('model.diffusion_model.',''):v for k,v in unet_pretrained_state_dict['state_dict'].items() if 'model.diffusion_model.' in k}
+            missing, unexpected = self.model.diffusion_model.load_state_dict(unet_pretrained_state_dict, strict=False)
+            # import pdb; pdb.set_trace()
+            print('i-unet missing {} params.'.format(len(missing)))
+            print('i-unet missing: ', missing)
+            print('i-unet unexpected {} params.'.format(len(unexpected)))
+            print('i-unet unexpected: ', unexpected)
  
-        ## import the pretrained weight of CoDI unet
+        ## import the pretrained weight of CoDI unet as control side net
         if pretrained_control_unet_path is not None and os.path.exists(pretrained_control_unet_path):
             # import pdb; pdb.set_trace();
             pretrained_state_dict = torch.load(pretrained_control_unet_path, map_location="cpu")
             pretrained_state_dict = {k.replace('model.diffusion_model.unet_image.',''):v for k,v in pretrained_state_dict.items() if 'unet_image.' in k}
-            missing, unexpected = self.model.control_model.load_state_dict(pretrained_state_dict, strict=False)
-            print('unet missing {} params.'.format(len(missing)))
-            # print('unet missing: ', missing)
-            print('unet unexpected {} params.'.format(len(unexpected)))
-            print('unet unexpected: ', unexpected)
-            # import pdb; pdb.set_trace();
+            missing, unexpected = self.control_model.load_state_dict(pretrained_state_dict, strict=False)
+            print('s-unet missing {} params.'.format(len(missing)))
+            print('unet missing: ', missing)
+            print('s-unet unexpected {} params.'.format(len(unexpected)))
+            print('s-unet unexpected: ', unexpected)
+            import pdb; pdb.set_trace();
 
         self.additional_loss_type = kwargs.pop("additional_loss_type", None)
 
