@@ -441,7 +441,7 @@ class ControlLDM(LatentDiffusion):
             control_prompt = torch.cat(cond["c_crossattn_1"] , 1)
             ## TODO: hard code to set the hint to zero
             fmri_control = self.control_model(x=torch.cat([x_noisy]*2, dim=1), 
-                                    hint=torch.zeros(size=(x_noisy.shape[0],3,256,256)).to(x_noisy),
+                                    # hint=torch.zeros(size=(x_noisy.shape[0],3,256,256)).to(x_noisy),
                                     timesteps=t, context=control_prompt)
             # import pdb; pdb.set_trace();
             fmri_control = [c * scale for c, scale in zip(fmri_control, self.control_scales)]
