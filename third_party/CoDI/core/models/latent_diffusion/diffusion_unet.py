@@ -540,7 +540,8 @@ class UNetModel2D(nn.Module):
                  with_connector=[True, True, True, False],
                  num_heads=8,
                  dims=2,
-                 use_checkpoint=True, 
+                 use_checkpoint=True,
+                 use_fp16=False,
                  use_video_architecture=False,
                  video_dim_scale_factor=4,
                  init_connector=True,
@@ -561,6 +562,8 @@ class UNetModel2D(nn.Module):
         # newly added for controlnet 
         self.is_side_net = is_side_net
         self.dims = dims
+        self.dtype = th.float16 if use_fp16 else th.float32
+
         ##################
         # Time embedding #
         ##################

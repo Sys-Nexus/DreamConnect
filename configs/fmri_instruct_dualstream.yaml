@@ -84,6 +84,7 @@ model:
         init_connector: False
         force_type_convert: True
         is_side_net: True
+        use_fp16: True
 
     unet_config:
       # target: ldm.modules.diffusionmodules.openaimodel_dual_condition.UNetModel
