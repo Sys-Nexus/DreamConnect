@@ -470,7 +470,7 @@ class LatentDiffusion(DDPM):
             text_pretrained_state_dict = torch.load(ckpt_path, map_location='cpu')
             text_pretrained_state_dict = {k.replace('cond_stage_model.',''):v for k,v in text_pretrained_state_dict['state_dict'].items() if 'cond_stage_model.' in k}
             missing, unexpected = self.cond_stage_model.load_state_dict(text_pretrained_state_dict, strict=False)
-            import pdb; pdb.set_trace()
+            # import pdb; pdb.set_trace()
             print('text-emb missing {} params.'.format(len(missing)))
             print('text-emb missing: ', missing)
             print('text-emb unexpected {} params.'.format(len(unexpected)))
@@ -486,7 +486,7 @@ class LatentDiffusion(DDPM):
             print('unet missing: ', missing)
             print('s-unet unexpected {} params.'.format(len(unexpected)))
             # print('s-unet unexpected: ', unexpected)
-            import pdb; pdb.set_trace();
+            # import pdb; pdb.set_trace();
 
         ## init fmri pretrained
         self.cond_stage_forward_fmri = cond_stage_forward_fmri
@@ -495,12 +495,14 @@ class LatentDiffusion(DDPM):
 
         ########## Trainable Setting ##########
         if not unet_stage_trainable:
+            self.model.eval()
             freeze_params(self.model)
             print('Unet Backbone is Freezed.')
         else:
             print('Unet Backbone is Trainable.')
 
         if not control_unet_stage_trainable:
+            self.control_model.eval()
             freeze_params(self.control_model)
             print('Control Unet is Freezed.')
         else:
