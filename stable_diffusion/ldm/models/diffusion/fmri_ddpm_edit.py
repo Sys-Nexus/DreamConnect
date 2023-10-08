@@ -378,6 +378,7 @@ class LatentDiffusion(DDPM):
                  cond_stage_key="image",
                  fmri_cond_stage_key="fmri_edit",
                  unet_stage_trainable=True,
+                 control_unet_stage_trainable=False,
                  cond_stage_trainable=False,
                  cond_stage_trainable_fmri=False,
                  concat_mode=True,
@@ -441,6 +442,7 @@ class LatentDiffusion(DDPM):
         #     self.init_from_ckpt(ckpt_path, ignore_keys)
         #     self.restarted_from_ckpt = True
 
+        ########## Pre-trained Weight Setting ##########
         ## from the pretrained human-align.ckpt to load kl-k8, which is a little stupid
         if ckpt_path is not None and os.path.exists(ckpt_path):
             kl_pretrained_state_dict = torch.load(ckpt_path, map_location='cpu')
@@ -463,6 +465,17 @@ class LatentDiffusion(DDPM):
             print('i-unet unexpected {} params.'.format(len(unexpected)))
             print('i-unet unexpected: ', unexpected)
  
+         ## from the pretrained human-align.ckpt to SD text encoder backbone
+        if ckpt_path is not None and os.path.exists(ckpt_path):
+            text_pretrained_state_dict = torch.load(ckpt_path, map_location='cpu')
+            text_pretrained_state_dict = {k.replace('cond_stage_model.',''):v for k,v in unet_pretrained_state_dict['state_dict'].items() if 'cond_stage_model.' in k}
+            missing, unexpected = self.cond_stage_model.load_state_dict(text_pretrained_state_dict, strict=False)
+            import pdb; pdb.set_trace()
+            print('text-emb missing {} params.'.format(len(missing)))
+            print('text-emb missing: ', missing)
+            print('text-emb unexpected {} params.'.format(len(unexpected)))
+            print('text-emb unexpected: ', unexpected)
+
         ## import the pretrained weight of CoDI unet as control side net
         if pretrained_control_unet_path is not None and os.path.exists(pretrained_control_unet_path):
             # import pdb; pdb.set_trace();
@@ -472,20 +485,28 @@ class LatentDiffusion(DDPM):
             print('s-unet missing {} params.'.format(len(missing)))
             print('unet missing: ', missing)
             print('s-unet unexpected {} params.'.format(len(unexpected)))
-            print('s-unet unexpected: ', unexpected)
+            # print('s-unet unexpected: ', unexpected)
             import pdb; pdb.set_trace();
 
-        self.additional_loss_type = kwargs.pop("additional_loss_type", None)
-
+        ## init fmri pretrained
         self.cond_stage_forward_fmri = cond_stage_forward_fmri
         if cond_stage_config_fmri:
             self.instantiate_cond_stage_fmri(cond_stage_config_fmri)
 
+        ########## Trainable Setting ##########
         if not unet_stage_trainable:
             freeze_params(self.model)
             print('Unet Backbone is Freezed.')
         else:
             print('Unet Backbone is Trainable.')
+
+        if not control_unet_stage_trainable:
+            freeze_params(self.control_model)
+            print('Control Unet is Freezed.')
+        else:
+            print('Control Unet is Trainable')
+
+        self.additional_loss_type = kwargs.pop("additional_loss_type", None)
 
     def make_cond_schedule(self, ):
         self.cond_ids = torch.full(size=(self.num_timesteps,), fill_value=self.num_timesteps - 1, dtype=torch.long)
