@@ -39,7 +39,7 @@ def read_pkl(path, idx=0):
 
 def read_edit_json(root, map_keys):
     meta_paths = sorted(glob.glob(os.path.join(root, '*.json')))
-    print(meta_paths[:20])
+    # print(meta_paths[:20])
     meta = []
     for meta_path in meta_paths:
         meta_i = json.load(open(meta_path, 'r'))
