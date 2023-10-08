@@ -59,6 +59,7 @@ model:
         use_video_architecture: True
         init_connector: False
         force_type_convert: True
+        use_fp16: True
         # force_type_convert: False
 
     first_stage_config:
