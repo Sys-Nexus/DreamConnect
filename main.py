@@ -479,6 +479,12 @@ def train_one_epoch(config, model, model_ema, data_loader, val_data_loader, opti
 def filter_optimized_params(model, args):
     if args.filter_mode == 'no_filter':
         param_groups = model.parameters()
+    elif args.filter_mode == 'tune_sideconv':
+        filtered_params = [param for name, param in model.named_parameters() if param.requires_grad is True and ('control_model.zero_convs' in name or 'control_model.middle_block_out' in name)]
+        filtered_names = [name for name, param in model.named_parameters() if param.requires_grad is True and ('control_model.zero_convs' in name or 'control_model.middle_block_out' in name)]
+        print(filtered_names)
+        import pdb; pdb.set_trace();
+        param_groups = [{'params': filtered_params, 'lr': model.learning_rate}]
     elif args.filter_mode == 'dual_condition':
         filtered_params = [param for name, param in model.named_parameters() if param.requires_grad is True and ('diffusion_model.' not in name or 'time_embed_condtion' in name)]
         param_groups = [{'params': filtered_params, 'lr': model.learning_rate}]
@@ -616,6 +622,8 @@ if __name__ == "__main__":
     else:
         # scaler = None
         scaler = amp.GradScaler()
+        param_groups = filter_optimized_params(model, opt)
+
         # param_groups = model.parameters()
         # param_groups = [param for name, param in model.named_parameters() if param.requires_grad is True]
         # param_groups = [name for name, param in model.named_parameters() if param.requires_grad is True]
@@ -630,7 +638,6 @@ if __name__ == "__main__":
 
         # other_params = [param for name, param in model.named_parameters() if param.requires_grad is True and ('diffusion_model.' not in name or 'time_embed_condtion' in name)]
         # param_groups = [{'params': other_params, 'lr': model.learning_rate}]
-        param_groups = filter_optimized_params(model, opt)
         # param_groups = [{'params': other_params, 'lr':model.learning_rate}, {'params': main_params, 'lr':config.model.params.unet_lr_ratio*model.learning_rate}]
         # print('optimized main branch with {} learning rate of other components.'.format(config.model.params.unet_lr_ratio))
 

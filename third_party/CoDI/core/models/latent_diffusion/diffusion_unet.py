@@ -624,7 +624,8 @@ class UNetModel2D(nn.Module):
         input_block_channels = [current_channel]
         
         input_block_connecters_in = [None]
-        self.zero_convs = nn.ModuleList([self.make_zero_conv(model_channels)])
+        if self.is_side_net:
+            self.zero_convs = nn.ModuleList([self.make_zero_conv(model_channels)])
 
         for level_idx, mult in enumerate(channel_mult):
             for _ in range(self.num_noattn_blocks[level_idx]):
@@ -663,7 +664,9 @@ class UNetModel2D(nn.Module):
                     )
                 else:
                     input_block_connecters_in.append(None)
-                self.zero_convs.append(self.make_zero_conv(current_channel))
+                
+                if self.is_side_net:
+                    self.zero_convs.append(self.make_zero_conv(current_channel))
 
             if level_idx != len(channel_mult) - 1:
                 input_blocks += [
@@ -673,7 +676,9 @@ class UNetModel2D(nn.Module):
                             dims=2, out_channels=current_channel,))]
                 input_block_channels.append(current_channel)
                 input_block_connecters_in.append(None)
-                self.zero_convs.append(self.make_zero_conv(current_channel))
+                
+                if self.is_side_net:
+                    self.zero_convs.append(self.make_zero_conv(current_channel))
 
         self.input_blocks = nn.ModuleList(input_blocks)
         self.input_block_connecters_in = nn.ModuleList(input_block_connecters_in)
