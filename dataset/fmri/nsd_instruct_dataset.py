@@ -56,7 +56,7 @@ def channel_last(img):
 
 ## here we write a wrapper for NSDDataset, simply move create_nsd_dataset here
 class NSDInstructDataset(NSDDataset):
-    def __init__(self, nsd_root, resolution=320, use_stim='each', subject='subj01', split='train', is_reconstruct_mode=False, batch_size=1):
+    def __init__(self, nsd_root, resolution=320, use_stim='each', subject='subj01', split='train', is_reconstruct_mode=False, reconstruct_prob=0.1, batch_size=1):
         # super().__init__()
         # roi = ['early', 'ventral', 'midventral', 'midlateral', 'lateral', 'parietal']
         # roi = ['early',]
@@ -89,4 +89,5 @@ class NSDInstructDataset(NSDDataset):
 
         idxes = train_idxes if split == 'train' else test_idxes
         super().__init__(nsd_root, idxes, batch_size=batch_size, resolution=resolution, split=split, 
-                    subject=subject, roi=roi, target=target, is_reconstruct_mode=is_reconstruct_mode)
+                    subject=subject, roi=roi, target=target, is_reconstruct_mode=is_reconstruct_mode,
+                    reconstruct_prob=reconstruct_prob)

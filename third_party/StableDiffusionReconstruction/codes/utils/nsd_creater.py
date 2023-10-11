@@ -75,12 +75,13 @@ class NSDDataset(Dataset):
     ## it seems that ventral area is sensitive to captions
     def __init__(self, nsd_root, idxes, batch_size=1, resolution=320, split='train', subject='subj01', 
                 is_reconstruct_mode=False,
+                reconstruct_prob=0.1,
                 # roi=['early', 'ventral', 'midventral', 'midlateral', 'lateral', 'parietal'], 
                 roi=['early'], 
                 target='context'):
         self.nsda = NSDAccess(nsd_root)
         self.idxes = idxes
-        # self.mri_idxes = mri_idxes
+        self.reconstruct_prob=reconstruct_prob
         self.batch_size = batch_size
         self.resolution = resolution
         self.split = split
@@ -153,7 +154,7 @@ class NSDDataset(Dataset):
 
         # TODO: currently , only use the first edit instruction
 
-        if self.is_reconstruct_mode:
+        if self.is_reconstruct_mode or random.uniform(0,1.)<self.reconstruct_prob:
             instruction_text = random.choice(self.valid_do_nothing_ops)
             nsd_dict['fmri_edit'] = {'c_concat': init_image[0], 'c_crossattn': instruction_text, 'c_crossattn_1': fmri_norm}
             # nsd_dict['fmri_edit'] = {'c_concat': init_image[0], 'c_crossattn': random.choices(caps)[0], 'c_crossattn_1': fmri_norm}

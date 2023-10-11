@@ -1,15 +1,11 @@
-# jobname=${1:-'fmri_instruct_diffusion'}
-# jobname=${1:-'fmri_instruct_encoder'}
-# jobname=${1:-'fmri_instruct_dual_condition'}
-# jobname=${1:-'fmri_instruct_controlnet'}
-# jobname=${1:-'fmri_instruct_encoder_context'}
-# jobname=${1:-'fmri_reconstruct_instruct_diffusion'}
-# jobname=${1:-'fmri_instruct_dualstream'}
-jobname=${1:-'fmri_instruct_dualstream_tune_sideconv'}
-mode=${2:-'single'}
+# jobname=${1:-'fmri_reconstruct_codi'}
+jobname=${1:-'recon_tune_sideconv'}
+filter_mode=${2:-'tune_sideconv'} #no_filter
 gpus=${3:-'3,'}
 master_port=${4:-'27198'}
-vis=${5:-1}
+mode=${5:-'single'}
+vis=${6:-1}
+
 
 num_nodes=1
 if [[ ${mode} == 'single' ]]; then
@@ -21,21 +17,6 @@ if [[ ${mode} == 'single' ]]; then
   export MASTER_ADDR=${master_port}
   num_nodes=1
   run_cmd='torchrun --master_port '${master_port}
-fi
-
-filter_mode='no_filter'
-if [[ ${jobname} == 'fmri_instruct_controlnet' ]]; then
-  filter_mode='dual_control'
-fi
-if [[ ${jobname} == 'fmri_instruct_dual_condition' ]]; then
-  filter_mode='dual_condition'
-fi
-if [[ ${jobname} == 'fmri_instruct_dualstream_tune_sideconv' ]]; then
-  filter_mode='tune_sideconv'
-fi
-
-if [[ ${jobname} == 'fmri_instruct_encoder_context' ]]; then
-  vis=0
 fi
 
 export PATH=/usr/local/cuda-11.3/bin:$PATH
