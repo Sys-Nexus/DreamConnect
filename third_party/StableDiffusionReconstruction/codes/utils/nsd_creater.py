@@ -143,6 +143,8 @@ class NIPS23NSDDataset(Dataset):
                 nsd_dict['edited'] = init_image[0]
         return nsd_dict
 
+    def __len__(self):
+        return len(self.cocos)
 
 class NSDDataset(Dataset):
     ## it seems that ventral area is sensitive to captions
