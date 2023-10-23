@@ -63,7 +63,8 @@ class FrozenCLIP(AbstractEncoder):
                  max_length=77, 
                  encode_type='encode_text',
                  fp16=False, 
-                 data_dir='.'):
+                 data_dir='.',
+                 ckpt_path=None):
         super().__init__()
         # import  pdb; pdb.set_trace()
         self.tokenizer = CLIPTokenizer.from_pretrained(version)
