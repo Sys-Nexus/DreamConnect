@@ -25,7 +25,7 @@ def freeze(model):
 
 # @register('fmri', version)
 class FmriEmbedder(nn.Module):
-    def __init__(self, adaptor_fmri2image_path='', force_type_convert=False):
+    def __init__(self, adaptor_fmri2image_path='', force_type_convert=False, is_infer=True):
         super(FmriEmbedder, self).__init__()
         num_voxels = 7604 # use roi ventral region
         # num_voxels = 5917 # use roi early region
@@ -37,8 +37,9 @@ class FmriEmbedder(nn.Module):
                                                   nn.Linear(768, 768*77)])
         self.adaptor_fmri2image_path = adaptor_fmri2image_path
         # import pdb; pdb.set_trace();
-        self.adaptor_fmri2image.eval()
-        freeze(self.adaptor_fmri2image)
+        if is_infer:
+            self.adaptor_fmri2image.eval()
+            freeze(self.adaptor_fmri2image)
  
         # embed_dim = 768
         # self.image_projection = nn.Parameter(torch.empty(embed_dim, embed_dim))
