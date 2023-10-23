@@ -74,7 +74,7 @@ def load_img_from_string(img_path,resolution):
 
 
 class NIPS23NSDDataset(Dataset):
-    def __init__(self, url="nsd_data_dir/webdataset_avg_split/metadata_subj01.json", voxels_key='nsdgeneral.npy', ):
+    def __init__(self, url="nsd_data_dir/test_subj01_" + "{0..1}.tar", voxels_key='nsdgeneral.npy', ):
         super().__init__()
         dl = wds.WebDataset(url, resampled=False)\
                 .decode("torch")\
