@@ -373,6 +373,7 @@ class LatentDiffusion(DDPM):
                  only_mid_control,
                  cond_stage_config_fmri,
                  pretrained_control_unet_path=None,
+                 pretrained_control_unet_zeroconv_path=None,
                  fmri2visual_stage_config=None,
                  num_timesteps_cond=None,
                  cond_stage_key="image",

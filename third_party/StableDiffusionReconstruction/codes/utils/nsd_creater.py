@@ -71,6 +71,46 @@ def load_img_from_string(img_path,resolution):
     return 2.*image - 1.
 
 
+class NIPS23NSDDataset(Dataset):
+    def __init__(self, url="nsd_data_dir/webdataset_avg_split/metadata_subj01.json", voxels_key='nsdgeneral.npy', ):
+        super().__init__()
+        self.data = wds.WebDataset(url, resampled=False)\
+                .decode("torch")\
+                .rename(images="jpg;png", voxels=voxels_key, trial="trial.npy", coco="coco73k.npy", reps="num_uniques.npy")\
+                .to_tuple("voxels", "images", "coco")\
+                .batched(1, partial=False)
+        
+        nsd_root = os.path.dirname(os.path.abspath(__file__))
+        nsd_coco_caption_path = os.path.join(nsd_root, 'misc/nsd_coco_caption.pkl')
+        self.caps, self.keys, self.cap_dict = read_pkl(nsd_coco_caption_path)
+        self.edited_root = '/data/yashengsun/Proj/Diffusion/InstructDiffusion/nsd_coco_output'
+
+    def __getitem__(self, index):
+        voxel, img_input, coco = self.data[index]
+        s = coco.item()
+        caps = self.cap_dict[s]
+
+        if self.is_reconstruct_mode or random.uniform(0,1.)<self.reconstruct_prob:
+            instruction_text = random.choice(self.valid_do_nothing_ops)
+            nsd_dict['fmri_edit'] = {'c_concat': init_image[0], 'c_crossattn': instruction_text, 'c_crossattn_1': fmri_norm}
+            nsd_dict['edited'] = init_image[0]
+        else:
+            try:
+                chosen_i = 0
+                instruction_text = self.meta_info[s]['edit'][chosen_i]
+                nsd_dict['fmri_edit'] = {'c_concat': init_image[0], 'c_crossattn': instruction_text, 'c_crossattn_1': fmri_norm}
+                edited_path = os.path.join(self.edited_root, '{:06d}'.format(s), 'output_{:06d}_seed93151_id{}.jpg'.format(s,chosen_i))
+                nsd_dict['edited'] = load_img_from_string(edited_path, self.resolution)[0] # TODO
+            except:
+                ## If the triplet pairs do not exist, use do nothing operation
+                instruction_text = random.choice(self.valid_do_nothing_ops)
+                nsd_dict['fmri_edit'] = {'c_concat': init_image[0], 'c_crossattn': instruction_text, 'c_crossattn_1': fmri_norm}
+                nsd_dict['edited'] = init_image[0]
+        return nsd_dict
+
+    def __len__(self):
+        return len(self.data)
+
 class NSDDataset(Dataset):
     ## it seems that ventral area is sensitive to captions
     def __init__(self, nsd_root, idxes, batch_size=1, resolution=320, split='train', subject='subj01', 
@@ -179,3 +219,8 @@ class NSDDataset(Dataset):
         else: return self.X_te.shape[0]
         # return 128
         # return 1
+
+
+if __name__ == '__main__':
+    dataset = NIPS23NSDDataset()
+    import pdb; pdb.set_trace();

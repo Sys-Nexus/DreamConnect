@@ -66,7 +66,8 @@ model:
           dropout: 0.0
         lossconfig:
           target: torch.nn.Identity
-
+    
+    pretrained_control_unet_zeroconv_path: logs/fmri_instruct_dualstream_tune_sideconv_fmri_instruct_dualstream_tune_sideconv_2023-10-09/checkpoints/ckpt_epoch_75/state.pth
     pretrained_control_unet_path: /data/yashengsun/Proj/MMEdit/CoDI/checkpoints/CoDi_video_diffuser_8frames.pth
     control_stage_config:
       target: CoDI.core.models.latent_diffusion.diffusion_unet.UNetModel2D
@@ -113,9 +114,6 @@ model:
       target: CoDI.core.models.encoders.fmri.FmriEmbedder
       params:
         force_type_convert: True
-        # force_type_convert: False
-        # adaptor_fmri2image_path: 'logs/fmri_instruct_encoder_context_fmri_instruct_encoder_context_2023-10-03/checkpoints/ckpt_epoch_500/mp_rank_00_model_states.pt'
-        # adaptor_fmri2image_path: 'logs/fmri_instruct_encoder_context_fmri_instruct_encoder_context_2023-10-05/checkpoints/ckpt_epoch_500/mp_rank_00_model_states.pt'
         adaptor_fmri2image_path: '/data/yashengsun/Proj/lavis/output/BLIP2/Pretrain/20230901210/checkpoint_50.pth'
 
 data:

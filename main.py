@@ -489,7 +489,7 @@ def filter_optimized_params(model, args):
         filtered_params = [param for name, param in model.named_parameters() if param.requires_grad is True and ('control_model.zero_convs' in name or 'control_model.middle_block_out' in name or 'model.diffusion_model.out' in name)]
         filtered_names = [name for name, param in model.named_parameters() if param.requires_grad is True and ('control_model.zero_convs' in name or 'control_model.middle_block_out' in name or 'model.diffusion_model.out' in name)]
         print(filtered_names)
-        import pdb; pdb.set_trace();
+        # import pdb; pdb.set_trace();
         param_groups = [{'params': filtered_params, 'lr': model.learning_rate}]
     elif args.filter_mode == 'dual_condition':
         filtered_params = [param for name, param in model.named_parameters() if param.requires_grad is True and ('diffusion_model.' not in name or 'time_embed_condtion' in name)]
