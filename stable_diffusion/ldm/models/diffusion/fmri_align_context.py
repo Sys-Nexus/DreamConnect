@@ -100,6 +100,7 @@ class FMRIAlign(nn.Module):
         self.cond_stage_trainable = cond_stage_trainable
         self.cond_stage_trainable_fmri = cond_stage_trainable_fmri
         
+        import pdb; pdb.set_trace()
         self.instantiate_cond_stage(cond_stage_config)
         self.instantiate_cond_stage_fmri(cond_stage_config_fmri)
         
