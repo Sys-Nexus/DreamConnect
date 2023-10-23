@@ -12,7 +12,7 @@ filter_mode=${2:-'no_filter'}
 gpus=${3:-'3,'}
 master_port=${4:-'27198'}
 mode=${5:-'single'}
-vis=${6:-1}
+vis=${6:-0}
 
 
 num_nodes=1
