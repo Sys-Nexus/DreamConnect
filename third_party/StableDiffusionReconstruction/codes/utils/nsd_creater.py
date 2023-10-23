@@ -86,13 +86,13 @@ class NIPS23NSDDataset(Dataset):
             self.cocos, self.voxels = self.data_dict['cocos'], self.data_dict['voxels']
         else:
             self.voxels, self.cocos = [], []
+            dl = wds.WebDataset(url, resampled=False)\
+                    .decode("torch")\
+                    .rename(images="jpg;png", voxels=voxels_key, trial="trial.npy", coco="coco73k.npy", reps="num_uniques.npy")\
+                    .to_tuple("voxels", "images", "coco")\
+                    .batched(1, partial=False)
+            
             for idx, (voxel, img, coco) in enumerate(tqdm(dl)):
-                dl = wds.WebDataset(url, resampled=False)\
-                        .decode("torch")\
-                        .rename(images="jpg;png", voxels=voxels_key, trial="trial.npy", coco="coco73k.npy", reps="num_uniques.npy")\
-                        .to_tuple("voxels", "images", "coco")\
-                        .batched(1, partial=False)
-        
                 if split == 'test':
                     self.voxels.append(torch.mean(voxel,axis=1))
                 if split == 'train':
