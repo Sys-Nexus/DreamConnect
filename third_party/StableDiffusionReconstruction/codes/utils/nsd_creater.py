@@ -75,9 +75,13 @@ def load_img_from_string(img_path,resolution):
 
 class NIPS23NSDDataset(Dataset):
     def __init__(self, url="nsd_data_dir/test_subj01_" + "{0..1}.tar", voxels_key='nsdgeneral.npy', split='train', resolution=320,\
-            nsd_root='/data/yashengsun/Proj/MMEdit/StableDiffusionReconstruction/nsd'):
+            nsd_root='/data/yashengsun/Proj/MMEdit/StableDiffusionReconstruction/nsd',
+            is_reconstruct_mode=False,
+            reconstruct_prob=0.1,):
         super().__init__()
         self.nsda = NSDAccess(nsd_root)
+        self.is_reconstruct_mode = is_reconstruct_mode
+        self.reconstruct_prob = reconstruct_prob
 
         cached_path = 'datadict_{}_{}.pkl'.format(split, 'subj01')
         self.resolution = resolution
