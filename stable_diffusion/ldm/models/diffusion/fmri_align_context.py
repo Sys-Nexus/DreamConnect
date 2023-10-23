@@ -164,7 +164,8 @@ class FMRIAlign(nn.Module):
             else:
                 model = instantiate_from_config(config)
                 # import pdb; pdb.set_trace()
-                self.cond_stage_model = model.eval()
+                self.cond_stage_model = model
+                self.cond_stage_model.eval()
                 # self.cond_stage_model.train = disabled_train
                 for param in self.cond_stage_model.parameters():
                     param.requires_grad = False
