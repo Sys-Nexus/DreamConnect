@@ -163,7 +163,7 @@ class FMRIAlign(nn.Module):
                 # self.be_unconditional = True
             else:
                 model = instantiate_from_config(config)
-                # import pdb; pdb.set_trace()
+                import pdb; pdb.set_trace()
                 self.cond_stage_model = model
                 self.cond_stage_model.eval()
                 # self.cond_stage_model.train = disabled_train
@@ -244,7 +244,7 @@ class FMRIAlign(nn.Module):
         # x, c = self.get_input(batch, self.first_stage_key)
         fmri = batch['fmri'].cuda()
         caps = batch['cap']
-        import pdb; pdb.set_trace();
+        # import pdb; pdb.set_trace();
 
         if len(fmri.shape)>2:
             repeat_index = batch_idx % 3
