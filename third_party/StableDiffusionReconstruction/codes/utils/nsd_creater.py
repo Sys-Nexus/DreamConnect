@@ -14,6 +14,8 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from nsd_access import NSDAccess
 from einops import repeat
 from torch.utils.data import Dataset
+import webdataset as wds
+
 
 def stats_save_pickle(data_dict, path):
     with open(path, 'wb') as f:
