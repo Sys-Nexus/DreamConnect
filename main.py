@@ -43,6 +43,7 @@ from einops import rearrange
 
 third_party_proj_root = os.path.join(proj_root, 'third_party')
 sys.path.append(third_party_proj_root)
+sys.path.append('third_party/CoDI')
 
 class CFGDenoiser(nn.Module):
     def __init__(self, model):
