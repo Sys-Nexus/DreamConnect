@@ -123,6 +123,8 @@ class NIPS23NSDDataset(Dataset):
         init_image = repeat(init_image, '1 ... -> b ...', b=1)
         fmri_norm = self.voxels[index]
 
+        nsd_dict = {'cap': random.choices(caps)[0], 'image': init_image[0], 'fmri': fmri_norm}
+
         if self.is_reconstruct_mode or random.uniform(0,1.)<self.reconstruct_prob:
             instruction_text = random.choice(self.valid_do_nothing_ops)
             nsd_dict['fmri_edit'] = {'c_concat': init_image[0], 'c_crossattn': instruction_text, 'c_crossattn_1': fmri_norm}
