@@ -83,7 +83,7 @@ class NIPS23NSDDataset(Dataset):
                 .batched(1, partial=False)
         
         self.voxels, self.cocos = [], []
-        for (voxel, img, coco) in enumerate(tqdm(dl)):
+        for idx, (voxel, img, coco) in enumerate(tqdm(dl)):
             self.voxels.append(voxel)
             self.cocos.append(coco.item())
         import pdb; pdb.set_trace()
