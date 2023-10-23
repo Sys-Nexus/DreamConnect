@@ -76,12 +76,18 @@ def load_img_from_string(img_path,resolution):
 class NIPS23NSDDataset(wds.WebDataset):
     def __init__(self, url="nsd_data_dir/webdataset_avg_split/metadata_subj01.json", voxels_key='nsdgeneral.npy', ):
         super().__init__()
-        self.data = wds.WebDataset(url, resampled=False)\
+        dl = wds.WebDataset(url, resampled=False)\
                 .decode("torch")\
                 .rename(images="jpg;png", voxels=voxels_key, trial="trial.npy", coco="coco73k.npy", reps="num_uniques.npy")\
                 .to_tuple("voxels", "images", "coco")\
                 .batched(1, partial=False)
         
+        self.voxels, self.cocos = [], []
+        for (voxel, img, coco) in enumerate(tqdm(dl)):
+            self.voxels.append(voxel)
+            self.cocos.append(coco.item())
+        import pdb; pdb.set_trace()
+
         nsd_root = os.path.dirname(os.path.abspath(__file__))
         nsd_coco_caption_path = os.path.join(nsd_root, 'misc/nsd_coco_caption.pkl')
         self.caps, self.keys, self.cap_dict = read_pkl(nsd_coco_caption_path)
