@@ -112,6 +112,7 @@ class NIPS23NSDDataset(Dataset):
         nsd_coco_caption_path = os.path.join(nsd_root, 'misc/nsd_coco_caption.pkl')
         self.caps, self.keys, self.cap_dict = read_pkl(nsd_coco_caption_path)
         self.edited_root = '/data/yashengsun/Proj/Diffusion/InstructDiffusion/nsd_coco_output'
+        self.valid_do_nothing_ops = [' ']
 
     def __getitem__(self, index):
         s = self.cocos[index]
