@@ -1,0 +1,80 @@
+# File modified by authors of InstructDiffusion from original (https://github.com/CompVis/stable-diffusion).
+# See more details in LICENSE.
+
+model:
+  base_learning_rate: 1.0e-04
+  weight_decay: 0.01
+  target: ldm.models.diffusion.fmri_align_context.FMRIAlign
+  params:
+    # fp16: True
+    # deepspeed: 'deepspeed_1'
+    fp16: False
+    deepspeed: 'deepspeedf32_1'
+    # deepspeed: ''
+    # ckpt_path: stable_diffusion/models/ldm/stable-diffusion-v1/v1-5-pruned-emaonly-adaption.ckpt
+    ckpt_path: stable_diffusion/models/ldm/stable-diffusion-v1/v1-5-pruned-emaonly-adaption-task-humanalign.ckpt
+    # ckpt_path: stable_diffusion/models/ldm/stable-diffusion-v1/v1-5-pruned-emaonly.ckpt
+    linear_start: 0.00085
+    linear_end: 0.0120
+    num_timesteps_cond: 1
+    log_every_t: 2000
+    timesteps: 1000
+    first_stage_key: edited
+    cond_stage_key: edit
+    fmri_cond_stage_key: fmri_edit
+    image_size: 32
+    channels: 4
+    cond_stage_trainable: false   # Note: different from the one we trained before
+    cond_stage_trainable_fmri: true   # Note: different from the one we trained before
+    monitor: val/loss_simple_ema
+    scale_factor: 0.18215
+
+    scheduler_config: # 10000 warmup steps
+      target: ldm.lr_scheduler.LambdaLinearScheduler
+      params:
+        warm_up_steps: [ 0 ]
+        cycle_lengths: [ 10000000000000 ] # incredibly large number to prevent corner cases
+        f_start: [ 1.e-6 ]
+        f_max: [ 1. ]
+        f_min: [ 1. ]
+
+    cond_stage_config:
+      target: ldm.modules.encoders.modules.FrozenCLIPEmbedder
+
+    cond_stage_config_fmri:
+      target: ldm.modules.encoders.fmri.FmriEmbedder
+      params:
+        force_type_convert: true
+
+data:
+  target: main.DataModuleFromConfig
+  params:
+    batch_size: 320
+    num_workers: 8
+    train:
+      target: third_party.StableDiffusionReconstruction.codes.utils.nsd_creater.NIPS23NSDDataset
+      params:
+        nsd_root: '/data/yashengsun/Proj/MMEdit/StableDiffusionReconstruction/nsd'
+        resolution: 320
+        split: 'train'
+        is_reconstruct_mode: True
+        url: 'nsd_data_dir/webdataset_avg_split/train/train_subj01_{0..17}.tar'
+
+    validation:
+      target: third_party.StableDiffusionReconstruction.codes.utils.nsd_creater.NIPS23NSDDataset
+      params:
+        nsd_root: '/data/yashengsun/Proj/MMEdit/StableDiffusionReconstruction/nsd'
+        resolution: 320
+        split: 'train'
+        is_reconstruct_mode: True
+        url: 'nsd_data_dir/test_subj01_{0..1}.tar'
+
+
+
+trainer:
+  initial_scale: 13
+  max_epochs: 20000
+  save_freq: 500
+  accumulate_grad_batches: 1
+  clip_grad: 0.0
+  optimizer: adamw

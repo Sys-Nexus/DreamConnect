@@ -1,8 +1,13 @@
 # jobname=${1:-'fmri_reconstruct_codi'}
 # jobname=${1:-'instru_tune_sideconv'}
-jobname=${1:-'instru_tune_sideconv_sdunlock'} # lower learning rate compared to instru_tune_sideconv
+
+jobname=${1:-'fmri_instruct_encoder_context'} # lower learning rate compared to instru_tune_sideconv
+filter_mode=${2:-'no_filter'}
+
+# jobname=${1:-'instru_tune_sideconv_sdunlock'} # lower learning rate compared to instru_tune_sideconv
+# filter_mode=${2:-'tune_sideconv_sdunlock'} #no_filter
+
 # jobname=${1:-'recon_tune_sideconv'}
-filter_mode=${2:-'tune_sideconv_sdunlock'} #no_filter
 # filter_mode=${2:-'tune_sideconv'} #no_filter
 gpus=${3:-'3,'}
 master_port=${4:-'27198'}

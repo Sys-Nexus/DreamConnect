@@ -122,23 +122,25 @@ data:
     batch_size: 96
     num_workers: 4
     train:
-      # target: dataset.fmri.nsd_instruct_dataset.NSDInstructDataset
-      target: third_party.StableDiffusionReconstruction.codes.utils.nsd_creater.NIPS23NSDDataset
+      target: dataset.fmri.nsd_instruct_dataset.NSDInstructDataset
       params:
         nsd_root: '/data/yashengsun/Proj/MMEdit/StableDiffusionReconstruction/nsd'
         resolution: 320
+        use_stim: 'each'
+        subject: 'subj01'
         split: 'train'
-        is_reconstruct_mode: True
-        url: 'nsd_data_dir/webdataset_avg_split/train/train_subj01_{0..17}.tar'
+        is_reconstruct_mode: False
 
     validation:
-      target: third_party.StableDiffusionReconstruction.codes.utils.nsd_creater.NIPS23NSDDataset
+      target: dataset.fmri.nsd_instruct_dataset.NSDInstructDataset
       params:
         nsd_root: '/data/yashengsun/Proj/MMEdit/StableDiffusionReconstruction/nsd'
         resolution: 320
+        use_stim: 'each'
+        subject: 'subj01'
+        # split: 'val'
         split: 'train'
-        is_reconstruct_mode: True
-        url: 'nsd_data_dir/test_subj01_{0..1}.tar'
+        is_reconstruct_mode: False
 
 trainer:
   initial_scale: 13
