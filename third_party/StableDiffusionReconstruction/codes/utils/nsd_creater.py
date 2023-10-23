@@ -73,7 +73,7 @@ def load_img_from_string(img_path,resolution):
     return 2.*image - 1.
 
 
-class NIPS23NSDDataset(Dataset):
+class NIPS23NSDDataset(wds.WebDataset):
     def __init__(self, url="nsd_data_dir/webdataset_avg_split/metadata_subj01.json", voxels_key='nsdgeneral.npy', ):
         super().__init__()
         self.data = wds.WebDataset(url, resampled=False)\
@@ -88,7 +88,9 @@ class NIPS23NSDDataset(Dataset):
         self.edited_root = '/data/yashengsun/Proj/Diffusion/InstructDiffusion/nsd_coco_output'
 
     def __getitem__(self, index):
-        voxel, img_input, coco = self.data[index]
+        voxel, img_input, coco = super(NIPS23NSDDataset, self).__getitem__(index)
+
+        # voxel, img_input, coco = self.data[index]
         s = coco.item()
         caps = self.cap_dict[s]
 
@@ -110,8 +112,6 @@ class NIPS23NSDDataset(Dataset):
                 nsd_dict['edited'] = init_image[0]
         return nsd_dict
 
-    def __len__(self):
-        return len(self.data)
 
 class NSDDataset(Dataset):
     ## it seems that ventral area is sensitive to captions
