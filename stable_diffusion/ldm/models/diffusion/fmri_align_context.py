@@ -244,11 +244,12 @@ class FMRIAlign(nn.Module):
         # x, c = self.get_input(batch, self.first_stage_key)
         fmri = batch['fmri'].cuda()
         caps = batch['cap']
+        import pdb; pdb.set_trace();
+
         if len(fmri.shape)>2:
             repeat_index = batch_idx % 3
             fmri = fmri[:, repeat_index]
         # gt_image = batch['image'].cuda()
-        # import pdb; pdb.set_trace();
         fmri_embed = self.get_learned_conditioning_fmri(fmri)
         with torch.no_grad():
             caps_embed = self.get_learned_conditioning(caps)
