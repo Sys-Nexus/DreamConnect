@@ -74,19 +74,33 @@ def load_img_from_string(img_path,resolution):
 
 
 class NIPS23NSDDataset(Dataset):
-    def __init__(self, url="nsd_data_dir/test_subj01_" + "{0..1}.tar", voxels_key='nsdgeneral.npy', ):
+    def __init__(self, url="nsd_data_dir/test_subj01_" + "{0..1}.tar", voxels_key='nsdgeneral.npy', split='train', resolution=320):
         super().__init__()
-        dl = wds.WebDataset(url, resampled=False)\
-                .decode("torch")\
-                .rename(images="jpg;png", voxels=voxels_key, trial="trial.npy", coco="coco73k.npy", reps="num_uniques.npy")\
-                .to_tuple("voxels", "images", "coco")\
-                .batched(1, partial=False)
         
-        self.voxels, self.cocos = [], []
-        for idx, (voxel, img, coco) in enumerate(tqdm(dl)):
-            self.voxels.append(voxel)
-            self.cocos.append(coco.item())
-        import pdb; pdb.set_trace()
+        cached_path = 'datadict_{}_{}.pkl'.format(split, 'subj01')
+        self.resolution = resolution
+        # import pdb; pdb.set_trace()
+        if os.path.exists(cached_path):
+            with open(cached_path, 'rb') as f:
+                self.data_dict = pickle.load(f)
+            self.cocos, self.voxels = self.data_dict['cocos'], self.data_dict['voxels']
+        else:
+            self.voxels, self.cocos = [], []
+            for idx, (voxel, img, coco) in enumerate(tqdm(dl)):
+                dl = wds.WebDataset(url, resampled=False)\
+                        .decode("torch")\
+                        .rename(images="jpg;png", voxels=voxels_key, trial="trial.npy", coco="coco73k.npy", reps="num_uniques.npy")\
+                        .to_tuple("voxels", "images", "coco")\
+                        .batched(1, partial=False)
+        
+                if split == 'test':
+                    self.voxels.append(torch.mean(voxel,axis=1))
+                if split == 'train':
+                    self.voxels.append(voxel)
+                self.cocos.append(coco.item())
+                self.data_dict = {'voxels':self.voxels, 'cocos':self.cocos}
+            with open(cached_path, 'wb') as f:
+                pickle.dump(self.data_dict, f)
 
         nsd_root = os.path.dirname(os.path.abspath(__file__))
         nsd_coco_caption_path = os.path.join(nsd_root, 'misc/nsd_coco_caption.pkl')
@@ -94,11 +108,12 @@ class NIPS23NSDDataset(Dataset):
         self.edited_root = '/data/yashengsun/Proj/Diffusion/InstructDiffusion/nsd_coco_output'
 
     def __getitem__(self, index):
-        voxel, img_input, coco = super(NIPS23NSDDataset, self).__getitem__(index)
-
+        s = self.cocos[index]
         # voxel, img_input, coco = self.data[index]
-        s = coco.item()
         caps = self.cap_dict[s]
+        img = self.nsda.read_images(s)
+        init_image = load_img_from_arr(img, self.resolution)
+        init_image = repeat(init_image, '1 ... -> b ...', b=1)
 
         if self.is_reconstruct_mode or random.uniform(0,1.)<self.reconstruct_prob:
             instruction_text = random.choice(self.valid_do_nothing_ops)
