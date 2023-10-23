@@ -27,8 +27,9 @@ def freeze(model):
 class FmriEmbedder(nn.Module):
     def __init__(self, adaptor_fmri2image_path='', force_type_convert=False, is_infer=True):
         super(FmriEmbedder, self).__init__()
-        num_voxels = 7604 # use roi ventral region
+        # num_voxels = 7604 # use roi ventral region
         # num_voxels = 5917 # use roi early region
+        num_voxels = 15724
         self.force_type_convert = force_type_convert
         self.adaptor_fmri2image = nn.Sequential(*[nn.Linear(num_voxels, 1024),
                                                   nn.ReLU(),
