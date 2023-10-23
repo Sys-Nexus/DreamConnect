@@ -35,7 +35,8 @@ class FmriEmbedder(nn.Module):
                                                   nn.ReLU(),
                                                   nn.Linear(1024, 768),
                                                   nn.ReLU(),
-                                                  nn.Linear(768, 768*77)])
+                                                  nn.Linear(768, 768)])
+                                                #   nn.Linear(768, 768*77)])
         self.adaptor_fmri2image_path = adaptor_fmri2image_path
         # import pdb; pdb.set_trace();
         if is_infer:
