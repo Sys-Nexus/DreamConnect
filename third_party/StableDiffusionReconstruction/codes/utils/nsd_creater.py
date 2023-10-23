@@ -225,4 +225,6 @@ class NSDDataset(Dataset):
 
 if __name__ == '__main__':
     dataset = NIPS23NSDDataset()
-    import pdb; pdb.set_trace();
+    for in_dict in dataset:
+        print(in_dict.keys())
+        import pdb; pdb.set_trace();
