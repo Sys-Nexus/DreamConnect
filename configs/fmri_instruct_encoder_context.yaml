@@ -61,7 +61,7 @@ data:
         resolution: 320
         split: 'train'
         is_reconstruct_mode: True
-        url: 'nsd_data_dir/webdataset_avg_split/train/train_subj01_{0..17}.tar'
+        url: 'nsd_data_dir/train_subj01_{0..17}.tar'
 
     validation:
       target: third_party.StableDiffusionReconstruction.codes.utils.nsd_creater.NIPS23NSDDataset
