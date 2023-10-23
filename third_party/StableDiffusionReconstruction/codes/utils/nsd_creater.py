@@ -76,7 +76,8 @@ def load_img_from_string(img_path,resolution):
 class NIPS23NSDDataset(Dataset):
     def __init__(self, url="nsd_data_dir/test_subj01_" + "{0..1}.tar", voxels_key='nsdgeneral.npy', split='train', resolution=320):
         super().__init__()
-        
+        self.nsda = NSDAccess(nsd_root)
+
         cached_path = 'datadict_{}_{}.pkl'.format(split, 'subj01')
         self.resolution = resolution
         # import pdb; pdb.set_trace()
