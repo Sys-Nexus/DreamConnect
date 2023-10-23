@@ -121,6 +121,7 @@ class NIPS23NSDDataset(Dataset):
         img = self.nsda.read_images(s)
         init_image = load_img_from_arr(img, self.resolution)
         init_image = repeat(init_image, '1 ... -> b ...', b=1)
+        fmri_norm = self.voxels[index]
 
         if self.is_reconstruct_mode or random.uniform(0,1.)<self.reconstruct_prob:
             instruction_text = random.choice(self.valid_do_nothing_ops)
