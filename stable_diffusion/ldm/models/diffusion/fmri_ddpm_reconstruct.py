@@ -514,8 +514,9 @@ class LatentDiffusion(DDPM):
                     # model.encode_type = 'encode_vision'
                     model.encode_type = 'encode_text'
 
-                self.cond_stage_model = model.eval()
-                self.cond_stage_model.train = disabled_train
+                self.cond_stage_model = model
+                self.cond_stage_model.eval()
+                # self.cond_stage_model.train = disabled_train
                 for param in self.cond_stage_model.parameters():
                     param.requires_grad = False
             print('Text Cond Stage is Freezed.')
