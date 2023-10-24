@@ -505,6 +505,15 @@ class LatentDiffusion(DDPM):
                 # self.be_unconditional = True
             else:
                 model = instantiate_from_config(config)
+                # import pdb; pdb.set_trace()
+                ckpt_path = config['params']['ckpt_path']
+                if os.path.exists(ckpt_path):
+                    codi_clip_ckpt = torch.load(ckpt_path, map_location='cpu')
+                    codi_clip_ckpt = {k.replace('clip.',''):codi_clip_ckpt[k] for k in codi_clip_ckpt.keys() if k.startswith('clip.model.')}
+                    model.load_state_dict(codi_clip_ckpt, strict=True)
+                    # model.encode_type = 'encode_vision'
+                    model.encode_type = 'encode_text'
+
                 self.cond_stage_model = model.eval()
                 self.cond_stage_model.train = disabled_train
                 for param in self.cond_stage_model.parameters():
