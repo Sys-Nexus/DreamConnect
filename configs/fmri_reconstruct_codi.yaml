@@ -86,10 +86,10 @@ model:
           target: torch.nn.Identity
 
     cond_stage_config:
-      # target: ldm.modules.encoders.modules.FrozenCLIPEmbedder
-      target: third_party.CoDI.core.models.encoders.clip.FrozenCLIP
-      params: 
-        ckpt_path: '/data/yashengsun/Proj/MMEdit/CoDI/checkpoints/CoDi_encoders.pth'
+      target: ldm.modules.encoders.modules.FrozenCLIPEmbedder
+      # target: third_party.CoDI.core.models.encoders.clip.FrozenCLIP
+      # params: 
+      #   ckpt_path: '/data/yashengsun/Proj/MMEdit/CoDI/checkpoints/CoDi_encoders.pth'
 
     cond_stage_config_fmri:
       target: ldm.modules.encoders.fmri.FmriEmbedder
