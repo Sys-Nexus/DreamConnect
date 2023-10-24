@@ -59,7 +59,7 @@ class FmriEmbedder(nn.Module):
         adaptor_state_dict = {k.replace('cond_stage_model_fmri.adaptor_fmri2image.', ''): v for k, v in state_dict['module'].items() if k.startswith('cond_stage_model_fmri.adaptor_fmri2image.')}
         self.adaptor_fmri2image.load_state_dict(adaptor_state_dict, strict=True)
         print('load fmri adaptor weight from ', self.adaptor_fmri2image_path)
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
 
     # @torch.no_grad()
     def forward(self, fmri_feat):
