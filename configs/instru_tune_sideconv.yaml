@@ -146,6 +146,7 @@ data:
         split: 'test'
         is_reconstruct_mode: False
         url: 'nsd_data_dir/test_subj01_{0..1}.tar'
+        reconstruct_prob: 0.0
 
 trainer:
   initial_scale: 13
