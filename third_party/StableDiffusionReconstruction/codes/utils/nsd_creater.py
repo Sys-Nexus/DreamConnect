@@ -100,7 +100,8 @@ class NIPS23NSDDataset(Dataset):
             
             for idx, (voxel, img, coco) in enumerate(tqdm(dl)):
                 if split == 'test':
-                    self.voxels.append(torch.mean(voxel,axis=1))
+                    # self.voxels.append(torch.mean(voxel,axis=1))
+                    self.voxels.append(np.mean(voxel,axis=1))
                 if split == 'train':
                     self.voxels.append(voxel)
                 self.cocos.append(coco.item())
