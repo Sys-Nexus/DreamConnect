@@ -110,11 +110,19 @@ model:
     cond_stage_config:
       target: ldm.modules.encoders.modules.FrozenCLIPEmbedder
 
+    # cond_stage_config_fmri:
+    #   target: CoDI.core.models.encoders.fmri.FmriEmbedder
+    #   params:
+    #     force_type_convert: True
+    #     # adaptor_fmri2image_path: '/data/yashengsun/Proj/lavis/output/BLIP2/Pretrain/20230901210/checkpoint_50.pth'
+    #     adaptor_fmri2image_path: '/data/yashengsun/Proj/MMEdit/fMRIInstructDiffusion/logs/fmri_instruct_encoder_context_fmri_instruct_encoder_context_2023-10-23/checkpoints/ckpt_epoch_1500/mp_rank_00_model_states.pt'
+
     cond_stage_config_fmri:
-      target: CoDI.core.models.encoders.fmri.FmriEmbedder
+      target: ldm.modules.encoders.fmri.FmriEmbedder
       params:
-        force_type_convert: True
-        adaptor_fmri2image_path: '/data/yashengsun/Proj/lavis/output/BLIP2/Pretrain/20230901210/checkpoint_50.pth'
+        force_type_convert: true
+        is_infer: false
+        adaptor_fmri2image_path: '/data/yashengsun/Proj/MMEdit/fMRIInstructDiffusion/logs/fmri_instruct_encoder_context_fmri_instruct_encoder_context_2023-10-23/checkpoints/ckpt_epoch_1500/mp_rank_00_model_states.pt'
 
 data:
   target: main.DataModuleFromConfig
@@ -127,7 +135,7 @@ data:
         nsd_root: '/data/yashengsun/Proj/MMEdit/StableDiffusionReconstruction/nsd'
         resolution: 320
         split: 'train'
-        is_reconstruct_mode: True
+        is_reconstruct_mode: False
         url: 'nsd_data_dir/train_subj01_{0..17}.tar'
 
     validation:
@@ -135,8 +143,8 @@ data:
       params:
         nsd_root: '/data/yashengsun/Proj/MMEdit/StableDiffusionReconstruction/nsd'
         resolution: 320
-        split: 'train'
-        is_reconstruct_mode: True
+        split: 'test'
+        is_reconstruct_mode: False
         url: 'nsd_data_dir/test_subj01_{0..1}.tar'
 
 trainer:
