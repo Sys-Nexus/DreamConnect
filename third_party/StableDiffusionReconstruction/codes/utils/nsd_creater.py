@@ -248,7 +248,7 @@ class NSDDataset(Dataset):
                 instruction_text = random.choice(self.valid_do_nothing_ops)
                 nsd_dict['fmri_edit'] = {'c_concat': init_image[0], 'c_crossattn': instruction_text, 'c_crossattn_1': fmri_norm}
                 nsd_dict['edited'] = init_image[0]
-
+        print(nsd_dict['fmri_edit']['c_crossattn'])
         return nsd_dict
 
     def __len__(self):
@@ -259,6 +259,7 @@ class NSDDataset(Dataset):
 
 if __name__ == '__main__':
     dataset = NIPS23NSDDataset()
-    for in_dict in dataset:
-        print(in_dict.keys())
-        import pdb; pdb.set_trace();
+    for i, in_dict in enumerate(dataset):
+        # print(in_dict.keys())
+        # print(in_dict[''])
+        if i>20: import pdb; pdb.set_trace();
