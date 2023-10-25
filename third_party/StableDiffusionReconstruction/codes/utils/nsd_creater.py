@@ -108,7 +108,8 @@ class NIPS23NSDDataset(Dataset):
                 self.data_dict = {'voxels':self.voxels, 'cocos':self.cocos}
             with open(cached_path, 'wb') as f:
                 pickle.dump(self.data_dict, f)
-
+        
+        print(self.cocos)
         nsd_root = os.path.dirname(os.path.abspath(__file__))
         nsd_coco_caption_path = os.path.join(nsd_root, 'misc/nsd_coco_caption.pkl')
         self.caps, self.keys, self.cap_dict = read_pkl(nsd_coco_caption_path)
