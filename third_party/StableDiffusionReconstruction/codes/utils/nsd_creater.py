@@ -109,7 +109,7 @@ class NIPS23NSDDataset(Dataset):
             with open(cached_path, 'wb') as f:
                 pickle.dump(self.data_dict, f)
         
-        print(self.cocos)
+        # print(self.cocos)
         nsd_root = os.path.dirname(os.path.abspath(__file__))
         nsd_coco_caption_path = os.path.join(nsd_root, 'misc/nsd_coco_caption.pkl')
         self.caps, self.keys, self.cap_dict = read_pkl(nsd_coco_caption_path)
@@ -143,6 +143,7 @@ class NIPS23NSDDataset(Dataset):
                 instruction_text = random.choice(self.valid_do_nothing_ops)
                 nsd_dict['fmri_edit'] = {'c_concat': init_image[0], 'c_crossattn': instruction_text, 'c_crossattn_1': fmri_norm}
                 nsd_dict['edited'] = init_image[0]
+        print(nsd_dict['fmri_edit']['c_crossattn'])
         return nsd_dict
 
     def __len__(self):
@@ -248,7 +249,6 @@ class NSDDataset(Dataset):
                 instruction_text = random.choice(self.valid_do_nothing_ops)
                 nsd_dict['fmri_edit'] = {'c_concat': init_image[0], 'c_crossattn': instruction_text, 'c_crossattn_1': fmri_norm}
                 nsd_dict['edited'] = init_image[0]
-        print(nsd_dict['fmri_edit']['c_crossattn'])
         return nsd_dict
 
     def __len__(self):
