@@ -449,7 +449,7 @@ def train_one_epoch(config, model, model_ema, data_loader, val_data_loader, opti
                 for val_idx, batch in enumerate(val_data_loader):
                     batch_size = batch['image'].shape[0]
                     if model_wrap is not None:
-                        model.log_images(batch, epoch, idx, val_idx, model_wrap, model_wrap_cfg, save_dir, 'val')
+                        model.log_images(batch, epoch, idx, val_idx, model_wrap, model_wrap_cfg, save_dir, 'val', cfg_text=1.5)
 
                     if val_idx == 5:
                         break
@@ -472,6 +472,13 @@ def train_one_epoch(config, model, model_ema, data_loader, val_data_loader, opti
                     if val_idx == 50:
                         break
                 model_ema.restore(model.parameters())
+
+    epoch, idx = 999999, 999999
+    with torch.no_grad():
+        for val_idx, batch in enumerate(val_data_loader):
+            batch_size = batch['image'].shape[0]
+            if model_wrap is not None:
+                model.log_images(batch, epoch, idx, val_idx, model_wrap, model_wrap_cfg, save_dir, 'val', cfg_text=1.5)
 
     epoch_time = time.time() - start
     logger.info(f"EPOCH {epoch} training takes {datetime.timedelta(seconds=int(epoch_time))}")
