@@ -489,6 +489,11 @@ class LatentDiffusion(DDPM):
             # print('s-unet unexpected: ', unexpected)
             # import pdb; pdb.set_trace();
 
+        ## import the pretrained weight of adaptor from pretrained dual-stream network
+        if pretrained_control_unet_zeroconv_path is not None and os.path.exists(pretrained_control_unet_zeroconv_path):
+            pretrained_state_dict = torch.load(pretrained_control_unet_zeroconv_path, map_location="cpu")
+            import pdb; pdb.set_trace()
+
         ## init fmri pretrained
         self.cond_stage_forward_fmri = cond_stage_forward_fmri
         if cond_stage_config_fmri:
