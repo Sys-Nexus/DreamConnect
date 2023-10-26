@@ -711,6 +711,7 @@ if __name__ == "__main__":
             if epoch % config.trainer.save_freq == 0:
                 save_checkpoint(ckptdir, config, epoch, model_without_ddp, model_ema, 0., optimizer, lr_scheduler, scaler, logger)
     else:
+        epoch = 999999
         test_one_epoch(config, model, model_ema, data_loader_train, data_loader_val, 
                         optimizer, epoch, lr_scheduler, scaler, model_wrap, model_wrap_cfg, visdir)
 
