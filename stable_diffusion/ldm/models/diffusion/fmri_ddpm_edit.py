@@ -1334,7 +1334,7 @@ class LatentDiffusion(DDPM):
                    N=2, n_row=4, sample=True, 
                    steps=100, ddim_eta=1., return_keys=None,
                    quantize_denoised=True, inpaint=False):
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
         N = min(batch['image'].shape[0], N)
 
         self.model.eval()
