@@ -703,7 +703,7 @@ if __name__ == "__main__":
         model_wrap = None
         model_wrap_cfg = None
     
-    if args.isTrain:
+    if opt.isTrain:
         for epoch in range(start_epoch, config.trainer.max_epochs):
             data_loader_train.sampler.set_epoch(epoch)
             train_one_epoch(config, model, model_ema, data_loader_train, data_loader_val, 
