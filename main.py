@@ -201,6 +201,12 @@ def get_parser(**parser_kwargs):
         default=1,
         help="",
     )
+    parser.add_argument(
+        "--isTrain",
+        type=int,
+        default=1,
+        help="",
+    )
     return parser
 
 
@@ -326,6 +332,16 @@ class DataModuleFromConfig():
         return DataLoader(self.datasets["predict"], batch_size=self.batch_size,
                           num_workers=self.num_workers, worker_init_fn=init_fn, persistent_workers=True)
 
+def test_one_epoch(config, model, model_ema, data_loader, val_data_loader, optimizer, epoch, 
+        lr_scheduler, scaler, model_wrap, model_wrap_cfg, save_dir):
+    model.eval()
+    epoch, idx = 999999, 999999
+    with torch.no_grad():
+        for val_idx, batch in enumerate(val_data_loader):
+            batch_size = batch['image'].shape[0]
+            if model_wrap is not None:
+                model.log_images(batch, epoch, idx, val_idx, model_wrap, model_wrap_cfg, save_dir, 'val', cfg_text=1.5, cfg_fmri=2.5)
+    model.train()
 
 def train_one_epoch(config, model, model_ema, data_loader, val_data_loader, optimizer, epoch, 
         lr_scheduler, scaler, model_wrap, model_wrap_cfg, save_dir):
@@ -472,13 +488,6 @@ def train_one_epoch(config, model, model_ema, data_loader, val_data_loader, opti
                     if val_idx == 50:
                         break
                 model_ema.restore(model.parameters())
-
-    epoch, idx = 999999, 999999
-    with torch.no_grad():
-        for val_idx, batch in enumerate(val_data_loader):
-            batch_size = batch['image'].shape[0]
-            if model_wrap is not None:
-                model.log_images(batch, epoch, idx, val_idx, model_wrap, model_wrap_cfg, save_dir, 'val', cfg_text=1.5)
 
     epoch_time = time.time() - start
     logger.info(f"EPOCH {epoch} training takes {datetime.timedelta(seconds=int(epoch_time))}")
@@ -693,12 +702,17 @@ if __name__ == "__main__":
     else:
         model_wrap = None
         model_wrap_cfg = None
-    for epoch in range(start_epoch, config.trainer.max_epochs):
-        data_loader_train.sampler.set_epoch(epoch)
-        train_one_epoch(config, model, model_ema, data_loader_train, data_loader_val, 
-                optimizer, epoch, lr_scheduler, scaler, model_wrap, model_wrap_cfg, visdir)
-        if epoch % config.trainer.save_freq == 0:
-            save_checkpoint(ckptdir, config, epoch, model_without_ddp, model_ema, 0., optimizer, lr_scheduler, scaler, logger)
+    
+    if args.isTrain:
+        for epoch in range(start_epoch, config.trainer.max_epochs):
+            data_loader_train.sampler.set_epoch(epoch)
+            train_one_epoch(config, model, model_ema, data_loader_train, data_loader_val, 
+                    optimizer, epoch, lr_scheduler, scaler, model_wrap, model_wrap_cfg, visdir)
+            if epoch % config.trainer.save_freq == 0:
+                save_checkpoint(ckptdir, config, epoch, model_without_ddp, model_ema, 0., optimizer, lr_scheduler, scaler, logger)
+    else:
+        test_one_epoch(config, model, model_ema, data_loader_train, data_loader_val, 
+                        optimizer, epoch, lr_scheduler, scaler, model_wrap, model_wrap_cfg, visdir)
 
     total_time = time.time() - start_time
     total_time_str = str(datetime.timedelta(seconds=int(total_time)))
