@@ -2,7 +2,7 @@ jobname=${1:-'instru_tune_sideconv'}
 filter_mode=${2:-'tune_sideconv'} #no_filter
 
 gpus=${3:-'3,'}
-master_port=${4:-'27198'}
+master_port=${4:-'27498'}
 mode=${5:-'single'}
 vis=${6:-1}
 
