@@ -127,7 +127,7 @@ class NIPS23NSDDataset(Dataset):
         init_image = repeat(init_image, '1 ... -> b ...', b=1)
         fmri_norm = self.voxels[index][0]
 
-        nsd_dict = {'cap': random.choices(caps)[0], 'image': init_image[0], 'fmri': fmri_norm}
+        nsd_dict = {'cap': random.choices(caps)[0], 'image': init_image[0], 'fmri': fmri_norm, 's': s}
 
         if self.is_reconstruct_mode or random.uniform(0,1.)<self.reconstruct_prob:
             instruction_text = random.choice(self.valid_do_nothing_ops)
