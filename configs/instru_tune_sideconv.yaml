@@ -129,7 +129,7 @@ data:
   target: main.DataModuleFromConfig
   params:
     # batch_size: 96
-    batch_size: 2
+    batch_size: 1
     num_workers: 4
     train:
       target: third_party.StableDiffusionReconstruction.codes.utils.nsd_creater.NIPS23NSDDataset

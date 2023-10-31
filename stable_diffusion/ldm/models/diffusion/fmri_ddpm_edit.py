@@ -1334,8 +1334,9 @@ class LatentDiffusion(DDPM):
                    N=2, n_row=4, sample=True, 
                    steps=100, ddim_eta=1., return_keys=None,
                    quantize_denoised=True, inpaint=False):
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
         N = min(batch['image'].shape[0], N)
+        s = batch['s'][0]
 
         self.model.eval()
         use_ddim = False
@@ -1379,14 +1380,14 @@ class LatentDiffusion(DDPM):
 
         for k in log.keys():
             root = os.path.join(save_dir, "images", split)
-            filename = "{}_iter-{:06}_ep-{:06}_bidx-{:06d}.png".format(k, iter_n, epoch_n, batch_idx)
+            filename = "{}_iter-{:06}_ep-{:06}_bidx-{:06d}-{:06d}.png".format(k, iter_n, epoch_n, batch_idx, s)
             path = os.path.join(root, filename)
             os.makedirs(os.path.dirname(path), exist_ok=True)
             torchvision.utils.save_image(log[k]*0.5+0.5, path)
 
         cats = [log['gt'].detach().cpu(), log['instruction'].detach().cpu(), log['concat'].detach().cpu(), log['samples'].detach().cpu()]
         cats = torch.concat(cats, dim=-2)
-        filename = "all_iter-{:06}_ep-{:06}_bidx-{:06d}.png".format(iter_n, epoch_n, batch_idx)
+        filename = "all_iter-{:06}_ep-{:06}_bidx-{:06d}-{:06d}.png".format(iter_n, epoch_n, batch_idx, s)
         path = os.path.join(root, filename)
         torchvision.utils.save_image(cats*0.5+0.5, path)
 
