@@ -603,6 +603,8 @@ if __name__ == "__main__":
     model_ema = LitEma(model, decay_resume=config.model.params.get('ema_resume', 0.9999))
 
     # data
+    if not opt.isTrain:
+        config.data['params']['batch_size'] = 1
     data = instantiate_from_config(config.data)
     # NOTE according to https://pytorch-lightning.readthedocs.io/en/latest/datamodules.html
     # calling these ourselves should not be necessary but it is.
