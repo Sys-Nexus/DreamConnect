@@ -50,7 +50,7 @@ class fMRIVersatileEdit(LatentDiffusion):
         super().__init__(*args, **kwargs)
         cfgm_name = 'vd_noema'
         sampler = DDIMSampler_VD
-        pth = 'versatile_diffusion/pretrained/vd-four-flow-v1-0-fp16-deprecated.pth'
+        pth = 'third_party/versatile_diffusion/pretrained/vd-four-flow-v1-0-fp16-deprecated.pth'
         cfgm = model_cfg_bank()(cfgm_name)
         net = get_model()(cfgm)
         sd = torch.load(pth, map_location='cpu')
