@@ -121,7 +121,7 @@ class fMRIVersatileEdit(LatentDiffusion):
         uim = self.net.clip_encode_vision(dummy)
         uim = uim.half()
         
-        cim = self.net.clip_encode_vision(zim)
+        cim = self.net.clip_encode_vision(zin)
         cap = batch['cap'][0]
         ctx = self.net.clip_encode_text(cap)
 
