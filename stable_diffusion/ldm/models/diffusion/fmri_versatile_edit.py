@@ -89,6 +89,8 @@ class fMRIVersatileEdit(LatentDiffusion):
         self.t_enc = t_enc
         self.ddim_steps = ddim_steps
         self.ddim_eta = ddim_eta
+        self.scale = scale
+        self.mixing = mixing
 
     @torch.no_grad()    
     def log_images(self, batch, epoch_n, iter_n, batch_idx, model_wrap, model_wrap_cfg,
@@ -102,10 +104,10 @@ class fMRIVersatileEdit(LatentDiffusion):
         # zim = Image.open('results/vdvae/subj{:02d}/{}.png'.format(sub,im_id))
    
         # zim = regularize_image(zim)
-        import pdb; pdb.set_trace();
-        zim = ...
-        zin = zim*2 - 1
-        zin = zin.unsqueeze(0).cuda(0).half()
+        # import pdb; pdb.set_trace();
+        zim = batch['image']
+        # zin = zim*2 - 1
+        zin = zim.half().cuda()
 
         init_latent = self.net.autokl_encode(zin)
         
@@ -119,20 +121,21 @@ class fMRIVersatileEdit(LatentDiffusion):
         uim = self.net.clip_encode_vision(dummy)
         uim = uim.half()
         
-        cim = self.net.clip_encode_vision(zin)
-        ctx = self.net.clip_encode_text()
+        cim = self.net.clip_encode_vision(zim)
+        cap = batch['cap'][0]
+        ctx = self.net.clip_encode_text(cap)
 
-        z_enc = self.sampler.stochastic_encode(init_latent, torch.tensor([self.t_enc]).to(self.device))
+        z_enc = self.sampler.stochastic_encode(init_latent, torch.tensor([self.t_enc]).cuda())
         z = self.sampler.decode_dc(
             x_latent=z_enc,
             first_conditioning=[uim, cim],
             second_conditioning=[utx, ctx],
-            t_start=t_enc,
-            unconditional_guidance_scale=scale,
+            t_start=self.t_enc,
+            unconditional_guidance_scale=self.scale,
             xtype='image', 
             first_ctype='vision',
             second_ctype='prompt',
-            mixed_ratio=(1-mixing), )
+            mixed_ratio=(1-self.mixing), )
         
         x = self.net.autokl_decode(z)
         x = torch.clamp((x+1.0)/2.0, min=0.0, max=1.0)
