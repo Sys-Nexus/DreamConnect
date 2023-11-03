@@ -141,5 +141,5 @@ class fMRIVersatileEdit(LatentDiffusion):
         x = torch.clamp((x+1.0)/2.0, min=0.0, max=1.0)
         import torchvision
         torchvision.utils.save_image(x, 'x.jpg')
-        torchvision.utils.save_image(batch['image'], 'gt.jpg')
+        torchvision.utils.save_image((1.+batch['image'])*0.5, 'gt.jpg')
         import pdb; pdb.set_trace();
