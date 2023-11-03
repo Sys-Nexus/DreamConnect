@@ -117,7 +117,7 @@ class fMRIVersatileEdit(LatentDiffusion):
         utx = self.net.clip_encode_text(dummy)
         utx = utx.half()
         
-        dummy = torch.zeros((1,3,224,224))
+        dummy = torch.zeros((1,3,224,224)).cuda().half()
         uim = self.net.clip_encode_vision(dummy)
         uim = uim.half()
         
