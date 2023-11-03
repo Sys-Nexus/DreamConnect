@@ -479,7 +479,7 @@ class LatentDiffusion(DDPM):
             print('text-emb unexpected: ', unexpected)
 
         ## import the pretrained weight of CoDI unet as control side net
-        if pretrained_control_unet_path is not None and os.path.exists(pretrained_control_unet_path):
+        if pretrained_control_unet_path is not None and self.control_model is not None and os.path.exists(pretrained_control_unet_path):
             # import pdb; pdb.set_trace();
             pretrained_state_dict = torch.load(pretrained_control_unet_path, map_location="cpu")
             pretrained_state_dict = {k.replace('model.diffusion_model.unet_image.',''):v for k,v in pretrained_state_dict.items() if 'unet_image.' in k}
