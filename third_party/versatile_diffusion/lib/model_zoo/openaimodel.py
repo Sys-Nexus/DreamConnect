@@ -1651,6 +1651,7 @@ class UNetModelDualContext(nn.Module):
         disable_self_attentions=None,
         num_attention_blocks=None, ):
         super().__init__()
+        import pdb; pdb.set_trace();
         if use_spatial_transformer:
             assert context_dim is not None, 'Fool!! You forgot to include the dimension of your cross-attention conditioning...'
 

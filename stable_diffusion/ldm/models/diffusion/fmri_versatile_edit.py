@@ -95,7 +95,7 @@ class fMRIVersatileEdit(LatentDiffusion):
         self.scale = scale
         self.mixing = mixing
 
-    @torch.no_grad()    
+    @torch.no_grad()
     def log_images(self, batch, epoch_n, iter_n, batch_idx, model_wrap, model_wrap_cfg,
                    save_dir, split,
                    cfg_text=7.5, cfg_fmri=1.5,
