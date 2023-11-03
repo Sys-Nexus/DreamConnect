@@ -411,7 +411,8 @@ class LatentDiffusion(DDPM):
         self.cond_stage_key = cond_stage_key
 
         self.is_fmri_input = is_fmri_input
-        self.control_model = instantiate_from_config(control_stage_config)
+        if control_stage_config is not None:
+            self.control_model = instantiate_from_config(control_stage_config)
         self.control_key = control_key
         self.only_mid_control = only_mid_control
         self.control_scales = [1.0] * 13
