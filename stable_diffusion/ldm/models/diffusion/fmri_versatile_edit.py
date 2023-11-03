@@ -78,8 +78,8 @@ class fMRIVersatileEdit(LatentDiffusion):
         ctype = 'prompt'
         net.autokl.half()
 
-        sampler.model.model.diffusion_model.device='cuda:1'
-        sampler.model.model.diffusion_model.half().cuda(1)
+        # sampler.model.model.diffusion_model.device='cuda:1'
+        sampler.model.model.diffusion_model.half()
         
         self.sampler = sampler
         self.net = net
