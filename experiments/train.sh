@@ -1,6 +1,7 @@
 # jobname=${1:-'fmri_reconstruct_codi'}
 
-jobname=${1:-'instru_tune_sideconv'}
+# jobname=${1:-'instru_tune_sideconv'}
+jobname=${1:-'versatile_tune_sideconv'}
 filter_mode=${2:-'tune_sideconv'} #no_filter
 
 # jobname=${1:-'fmri_reconstruct_codi'} # lower learning rate compared to instru_tune_sideconv
