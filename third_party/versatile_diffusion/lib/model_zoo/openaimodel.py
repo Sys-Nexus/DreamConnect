@@ -2529,6 +2529,7 @@ class UNetModelVD(nn.Module):
         hs = []
         t_emb = timestep_embedding(timesteps, self.model_channels, repeat_only=False)
         x=x.to(self.device).half()
+        import pdb; pdb.set_trace()
         emb = self.time_embed(t_emb.to(self.device).half())
 
         if xtype == 'text':
