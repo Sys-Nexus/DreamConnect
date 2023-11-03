@@ -27,7 +27,8 @@ clip_frozen_encode_text:
   type: clip_frozen
   args:
     encode_type : encode_text
-
+    fp16: true
+    
 clip_frozen_encode_vision:
   super_cfg: clip
   type: clip_frozen

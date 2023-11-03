@@ -65,7 +65,7 @@ class FrozenCLIP(AbstractEncoder):
         self.max_length = max_length  # TODO: typical value?
         self.encode_type = encode_type
         self.fp16 = fp16
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
         self.freeze()
 
     def get_device(self):
