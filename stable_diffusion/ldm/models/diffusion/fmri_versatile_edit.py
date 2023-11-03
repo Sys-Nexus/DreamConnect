@@ -116,7 +116,7 @@ class fMRIVersatileEdit(LatentDiffusion):
         utx = self.net.clip_encode_text(dummy)
         utx = utx.half()
 
-        import pdb; pdb.set_trace();
+        # import pdb; pdb.set_trace();
         dummy = torch.zeros((1,3,224,224)).half().cuda()
         uim = self.net.clip_encode_vision(dummy)
         uim = uim.half()
@@ -137,6 +137,6 @@ class fMRIVersatileEdit(LatentDiffusion):
             second_ctype='prompt',
             mixed_ratio=(1-self.mixing), )
         
-        x = self.net.autokl_decode(z)
+        x = self.net.autokl_decode(z.half())
         x = torch.clamp((x+1.0)/2.0, min=0.0, max=1.0)
         import pdb; pdb.set_trace();
