@@ -491,7 +491,7 @@ class LatentDiffusion(DDPM):
             # import pdb; pdb.set_trace();
 
         ## import the pretrained weight of adaptor from pretrained dual-stream network
-        if pretrained_control_unet_zeroconv_path is not None and os.path.exists(pretrained_control_unet_zeroconv_path):
+        if pretrained_control_unet_zeroconv_path is not None and control_stage_config is not None and os.path.exists(pretrained_control_unet_zeroconv_path):
             pretrained_state_dict = torch.load(pretrained_control_unet_zeroconv_path, map_location="cpu")
             pretrained_state_dict = {k.replace('control_model.',''):v for k,v in pretrained_state_dict['module'].items() if ('control_model.zero_convs' in k or 'control_model.middle_block_out' in k)}
             missing, unexpected = self.control_model.load_state_dict(pretrained_state_dict, strict=False)
