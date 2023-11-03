@@ -23,6 +23,10 @@ from skimage.transform import resize, downscale_local_mean
 
 from ldm.models.diffusion.fmri_ddpm_edit import LatentDiffusion
 
+def freeze_params(model):
+    # model = model.eval()
+    for param in model.parameters():
+        param.requires_grad = False
 
 def regularize_image(x):
         BICUBIC = PIL.Image.Resampling.BICUBIC
@@ -82,6 +86,7 @@ class fMRIVersatileEdit(LatentDiffusion):
         
         self.sampler = sampler
         self.net = net
+        freeze_params(self.net)
         self.net.eval()
 
         self.t_enc = t_enc

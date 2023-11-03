@@ -504,6 +504,10 @@ def filter_optimized_params(model, args):
         filtered_names = [name for name, param in model.named_parameters() if param.requires_grad is True and ('control_model.zero_convs' in name or 'control_model.middle_block_out' in name)]
         # print(filtered_names)
         param_groups = [{'params': filtered_params, 'lr': model.learning_rate}]
+    elif args.filter_mode == 'tune_instruct':
+        filtered_params = [param for name, param in model.named_parameters() if param.requires_grad is True]
+        filtered_names = [name for name, param in model.named_parameters() if param.requires_grad is True]
+        param_groups = [{'params': filtered_params, 'lr': model.learning_rate}]
     elif args.filter_mode == 'tune_sideconv_sdunlock':
         filtered_params = [param for name, param in model.named_parameters() if param.requires_grad is True and ('control_model.zero_convs' in name or 'control_model.middle_block_out' in name or 'model.diffusion_model.out' in name)]
         filtered_names = [name for name, param in model.named_parameters() if param.requires_grad is True and ('control_model.zero_convs' in name or 'control_model.middle_block_out' in name or 'model.diffusion_model.out' in name)]
