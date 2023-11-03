@@ -1,5 +1,4 @@
 import sys
-sys.path.append('third_party/versatile_diffusion')
 import os
 import os.path as osp
 import PIL
@@ -22,7 +21,7 @@ from lib.cfg_helper import get_command_line_args, cfg_initiates, load_cfg_yaml
 import matplotlib.pyplot as plt
 from skimage.transform import resize, downscale_local_mean
 
-from ldm.models.diffusion.fmri_versatile_edit import LatentDiffusion
+from ldm.models.diffusion.fmri_ddpm_edit import LatentDiffusion
 
 
 def regularize_image(x):
