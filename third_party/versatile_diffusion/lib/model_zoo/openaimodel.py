@@ -2528,9 +2528,12 @@ class UNetModelVD(nn.Module):
     def forward_dc(self, x, timesteps, c0, c1, xtype, c0_type, c1_type, mixed_ratio):
         hs = []
         t_emb = timestep_embedding(timesteps, self.model_channels, repeat_only=False)
-        x=x.to(self.device).half()
-        import pdb; pdb.set_trace()
-        emb = self.time_embed(t_emb.to(self.device).half())
+        # x=x.to(self.device).half()
+        # import pdb; pdb.set_trace()
+        # emb = self.time_embed(t_emb.to(self.device).half())
+        
+        x=x.half()
+        emb = self.time_embed(t_emb.half())
 
         if xtype == 'text':
             x = x[:, :, None, None]
