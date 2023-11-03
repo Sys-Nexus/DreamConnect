@@ -57,7 +57,8 @@ class FrozenCLIP(AbstractEncoder):
                  version="openai/clip-vit-large-patch14", 
                  max_length=77, 
                  encode_type='encode_text',
-                 fp16=False, ):
+                #  fp16=False, ):
+                 fp16=True, ):
         super().__init__()
         self.tokenizer = CLIPTokenizer.from_pretrained(version)
         self.processor = CLIPProcessor.from_pretrained(version)
