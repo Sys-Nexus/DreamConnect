@@ -95,13 +95,6 @@ model:
     cond_stage_config:
       target: ldm.modules.encoders.modules.FrozenCLIPEmbedder
 
-    # cond_stage_config_fmri:
-    #   target: ldm.modules.encoders.fmri.FmriEmbedder
-    #   params:
-    #     force_type_convert: true
-    #     is_infer: false
-    #     adaptor_fmri2image_path: '/data/yashengsun/Proj/MMEdit/fMRIInstructDiffusion/logs/fmri_instruct_encoder_context_fmri_instruct_encoder_context_2023-10-23/checkpoints/ckpt_epoch_1500/mp_rank_00_model_states.pt'
-
 data:
   target: main.DataModuleFromConfig
   params:
