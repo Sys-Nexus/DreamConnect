@@ -2482,7 +2482,8 @@ class UNetModelVD(nn.Module):
         del self.unet_text.time_embed
 
         self.model_channels = self.unet_image.model_channels
-        
+        import pdb; pdb.set_trace()
+
     def forward(self, x, timesteps, context, xtype='image', ctype='prompt'):
         hs = []
         t_emb = timestep_embedding(timesteps, self.model_channels, repeat_only=False)
