@@ -86,13 +86,13 @@ optimus_gpt2_tokenizer:
   args:
     do_lower_case: false 
     max_len: 1024
-    vocab_file: versatile_diffusion/lib/model_zoo/optimus_models/vocab/gpt2-vocab.json
-    merges_file: versatile_diffusion/lib/model_zoo/optimus_models/vocab/gpt2-merges.txt
+    vocab_file: third_party/versatile_diffusion/lib/model_zoo/optimus_models/vocab/gpt2-vocab.json
+    merges_file: third_party/versatile_diffusion/lib/model_zoo/optimus_models/vocab/gpt2-merges.txt
 
 optimus_vae:
   super_cfg: optimus
   type: optimus_vae
-  pth: versatile_diffusion/pretrained/optimus-vae.pth
+  pth: third_party/versatile_diffusion/pretrained/optimus-vae.pth
   args:
     encoder: MODEL(optimus_bert_encoder)
     decoder: MODEL(optimus_gpt2_decoder)
