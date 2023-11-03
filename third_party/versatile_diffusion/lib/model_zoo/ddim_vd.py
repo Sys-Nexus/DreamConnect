@@ -281,7 +281,7 @@ class DDIMSampler_VD(DDIMSampler):
         sqrt_one_minus_at = torch.full(extended_shape, sqrt_one_minus_alphas[index], device=device, dtype=x.dtype)
 
         # current prediction for x_0
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
         pred_x0 = (x - sqrt_one_minus_at * e_t) / a_t.sqrt()
         dir_xt = (1. - a_prev - sigma_t**2).sqrt() * e_t
         noise = sigma_t * noise_like(x, repeat_noise) * temperature

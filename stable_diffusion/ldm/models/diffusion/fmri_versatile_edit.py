@@ -106,8 +106,8 @@ class fMRIVersatileEdit(LatentDiffusion):
         # zin = zim*2 - 1
         zin = zim.half().cuda()
 
-        self.sampler.model.model.diffusion_model.device = zim.device
-        self.net.device = zim.device
+        self.sampler.model.model.diffusion_model.device = zin.device
+        self.net.device = zin.device
 
         init_latent = self.net.autokl_encode(zin)
         self.sampler.make_schedule(ddim_num_steps=self.ddim_steps, ddim_eta=self.ddim_eta, verbose=False)
