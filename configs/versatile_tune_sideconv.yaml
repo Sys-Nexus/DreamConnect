@@ -72,6 +72,11 @@ model:
     pretrained_control_unet_zeroconv_path: logs/instru_tune_sideconv_instru_tune_sideconv_2023-10-25/checkpoints/ckpt_epoch_190/mp_rank_00_model_states.pt
     pretrained_control_unet_path: /data/yashengsun/Proj/MMEdit/CoDI/checkpoints/CoDi_video_diffuser_8frames.pth
 
+    cond_stage_config_fmri:
+      target: ldm.modules.encoders.fmri.FmriEmbedder
+      params:
+        force_type_convert: true
+
     unet_config:
       # target: ldm.modules.diffusionmodules.openaimodel_dual_condition.UNetModel
       # inherit from target: ldm.modules.diffusionmodules.openaimodel.UNetModel
