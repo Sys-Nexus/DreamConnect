@@ -78,7 +78,6 @@ class fMRIVersatileEdit(LatentDiffusion):
         ctype = 'prompt'
         net.autokl.half()
 
-        # sampler.model.model.diffusion_model.device='cuda:1'
         sampler.model.model.diffusion_model.half()
         
         self.sampler = sampler
@@ -109,7 +108,7 @@ class fMRIVersatileEdit(LatentDiffusion):
         zin = zim.half().cuda()
 
         init_latent = self.net.autokl_encode(zin)
-        
+        self.sampler.model.model.diffusion_model.device = zim.device
         self.sampler.make_schedule(ddim_num_steps=self.ddim_steps, ddim_eta=self.ddim_eta, verbose=False)
 
         dummy = ''
