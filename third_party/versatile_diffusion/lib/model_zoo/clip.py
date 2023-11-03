@@ -110,7 +110,7 @@ class FrozenCLIP(AbstractEncoder):
         batch_encoding = self.tokenizer(text, truncation=True, max_length=self.max_length, return_length=True,
                                         return_overflowing_tokens=False, padding="max_length", return_tensors="pt")
         tokens = batch_encoding["input_ids"].to(self.get_device())
-        #tokens = tokens.half() if self.fp16 else tokens ## Furkan added
+        tokens = tokens.half() if self.fp16 else tokens ## Furkan added
         outputs = self.model.text_model(input_ids=tokens)
         z = self.model.text_projection(outputs.last_hidden_state)
         z_pooled = self.model.text_projection(outputs.pooler_output)

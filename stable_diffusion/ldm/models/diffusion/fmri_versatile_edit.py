@@ -139,4 +139,7 @@ class fMRIVersatileEdit(LatentDiffusion):
         
         x = self.net.autokl_decode(z.half())
         x = torch.clamp((x+1.0)/2.0, min=0.0, max=1.0)
+        import torchvision
+        torchvision.utils.save_image(x, 'x.jpg')
+        torchvision.utils.save_image(batch['image'], 'gt.jpg')
         import pdb; pdb.set_trace();
