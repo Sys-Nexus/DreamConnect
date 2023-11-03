@@ -104,7 +104,6 @@ class fMRIVersatileEdit(LatentDiffusion):
         # zim = Image.open('results/vdvae/subj{:02d}/{}.png'.format(sub,im_id))
    
         # zim = regularize_image(zim)
-        # import pdb; pdb.set_trace();
         zim = batch['image']
         # zin = zim*2 - 1
         zin = zim.half().cuda()
@@ -116,8 +115,9 @@ class fMRIVersatileEdit(LatentDiffusion):
         dummy = ''
         utx = self.net.clip_encode_text(dummy)
         utx = utx.half()
-        
-        dummy = torch.zeros((1,3,224,224)).cuda().half()
+
+        import pdb; pdb.set_trace();
+        dummy = torch.zeros((1,3,224,224)).half().cuda()
         uim = self.net.clip_encode_vision(dummy)
         uim = uim.half()
         
