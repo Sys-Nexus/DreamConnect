@@ -6,6 +6,7 @@ from PIL import Image
 from pathlib import Path
 import numpy as np
 import numpy.random as npr
+from einops import rearrange, repeat
 
 import torch
 import torch.nn as nn
