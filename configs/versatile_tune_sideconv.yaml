@@ -92,7 +92,7 @@ model:
     unet_config:
       # target: ldm.modules.diffusionmodules.openaimodel_dual_condition.UNetModel
       # inherit from target: ldm.modules.diffusionmodules.openaimodel.UNetModel
-      target: ldm.models.diffusion.control_fmri_ddpm_edit.ControlledUnetModel
+      target: ldm.models.diffusion.fmri_codi_edit.ControlledUnetModel
       params:
         image_size: 32 # unused
         in_channels: 8
