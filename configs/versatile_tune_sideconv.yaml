@@ -75,27 +75,33 @@ model:
       target: ldm.models.diffusion.fmri_versatile_edit.VersatileControlNet
       params:
         unet_image_cfg:
-          input_channels: 4
-          model_channels: 320
-          output_channels: 4
-          num_noattn_blocks: [ 2, 2, 2, 2 ]
-          channel_mult: [ 1, 2, 4, 4 ]
-          with_attn: [true, true, true, false]
-          num_heads: 8
-          context_dim: 768
-          use_checkpoint: True
-
+          openai_unet_2d:
+            type: openai_unet_2d
+            args:
+              input_channels: 4
+              model_channels: 320
+              output_channels: 4
+              num_noattn_blocks: [ 2, 2, 2, 2 ]
+              channel_mult: [ 1, 2, 4, 4 ]
+              with_attn: [true, true, true, false]
+              num_heads: 8
+              context_dim: 768
+              use_checkpoint: True
+              
         unet_text_cfg:
-          input_channels: 768
-          model_channels: 320
-          output_channels: 768
-          num_noattn_blocks: [ 2, 2, 2, 2 ]
-          channel_mult: [ 1, 2, 4, 4 ]
-          second_dim: [ 4, 4, 4, 4 ]
-          with_attn: [true, true, true, false]
-          num_heads: 8
-          context_dim: 768
-          use_checkpoint: True
+          openai_unet_0dmd:
+            type: openai_unet_0dmd
+            args:
+              input_channels: 768
+              model_channels: 320
+              output_channels: 768
+              num_noattn_blocks: [ 2, 2, 2, 2 ]
+              channel_mult: [ 1, 2, 4, 4 ]
+              second_dim: [ 4, 4, 4, 4 ]
+              with_attn: [true, true, true, false]
+              num_heads: 8
+              context_dim: 768
+              use_checkpoint: True
 
     # cond_stage_config_fmri:
     #   target: ldm.modules.encoders.fmri.FmriEmbedder
