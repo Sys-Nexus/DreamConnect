@@ -36,7 +36,7 @@ from ldm.models.diffusion.fmri_ddpm_edit import LatentDiffusion, DDPM
 class VersatileControlNet(UNetModelVD):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        del self.unet_text
+        # del self.unet_text
 
         self.dims = 2
         self.zero_convs = nn.ModuleList([self.make_zero_conv(self.model_channels)])
@@ -61,10 +61,9 @@ class VersatileControlNet(UNetModelVD):
         if xtype == 'text':
             x = x[:, :, None, None]
         h = x
-        # for i_module, t_module, zero_conv in zip(self.unet_image.input_blocks, self.unet_text.input_blocks, self.zero_convs):
-        for i_module, zero_conv in zip(self.unet_image.input_blocks, self.zero_convs):
-            # h = self.mixed_run_dc(i_module, t_module, h, emb, c0, c1, xtype, c0_type, c1_type, mixed_ratio)
-            t_module = None
+        for i_module, t_module, zero_conv in zip(self.unet_image.input_blocks, self.unet_text.input_blocks, self.zero_convs):
+        # for i_module, zero_conv in zip(self.unet_image.input_blocks, self.zero_convs):
+            # t_module = None
             h = self.mixed_run_dc(i_module, t_module, h, emb, c0, c1, xtype, c0_type, c1_type, mixed_ratio)
             outs.append(zero_conv(h, emb))
 
@@ -264,7 +263,7 @@ class ControlLDM(LatentDiffusion):
             # fmri_control = self.control_model(x=torch.cat([x_noisy], dim=1), 
             #                                     timesteps=t, context=control_prompt)
 
-            import pdb; pdb.set_trace();
+            # import pdb; pdb.set_trace();
             c0 = self.vd_clip.clip_encode_vision(cond['image'])
             c1 = self.vd_clip.clip_encode_text(cond['text'])
 
