@@ -15,6 +15,7 @@ from .diffusion_utils import \
 from .attention import SpatialTransformer
 
 from lib.model_zoo.common.get_model import get_model, register
+from ldm.util import instantiate_from_config
 
 version = '0'
 symbol = 'openai'
@@ -2475,8 +2476,11 @@ class UNetModelVD(nn.Module):
                  unet_text_cfg, ):
 
         super().__init__()
-        self.unet_image = get_model()(unet_image_cfg)
-        self.unet_text = get_model()(unet_text_cfg)
+        # self.unet_image = get_model()(unet_image_cfg)
+        # self.unet_text = get_model()(unet_text_cfg)
+        self.unet_image = instantiate_from_config(unet_image_cfg)
+        self.unet_text = instantiate_from_config(unet_text_cfg)
+        
         self.time_embed = self.unet_image.time_embed
         del self.unet_image.time_embed
         del self.unet_text.time_embed
