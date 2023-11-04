@@ -269,7 +269,6 @@ class ControlLDM(LatentDiffusion):
             # import pdb; pdb.set_trace();
             c0 = self.vd_clip.clip_encode_vision(cond['image'])
             c1 = self.vd_clip.clip_encode_text(cond['text'])
-
             control_res = self.control_model.forward_dc(x=torch.cat([x_noisy], dim=1), timesteps=t,
                                                         c0=c0, c1=c1,
                                                         xtype='image', c0_type='vision', 

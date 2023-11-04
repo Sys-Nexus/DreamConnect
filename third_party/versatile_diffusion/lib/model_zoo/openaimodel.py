@@ -2564,6 +2564,7 @@ class UNetModelVD(nn.Module):
 
     def mixed_run_dc(self, inet, tnet, x, emb, c0, c1, xtype, c0_type, c1_type, mixed_ratio):
         h = x
+        import pdb; pdb.set_trace()
         for ilayer, tlayer in zip(inet, tnet):
             if isinstance(ilayer, TimestepBlock) and xtype=='image':
                 h = ilayer(h, emb)
