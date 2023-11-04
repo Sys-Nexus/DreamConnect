@@ -2480,7 +2480,7 @@ class UNetModelVD(nn.Module):
         # self.unet_text = get_model()(unet_text_cfg)
         self.unet_image = instantiate_from_config(unet_image_cfg)
         self.unet_text = instantiate_from_config(unet_text_cfg)
-        
+
         self.time_embed = self.unet_image.time_embed
         del self.unet_image.time_embed
         del self.unet_text.time_embed
@@ -2489,7 +2489,7 @@ class UNetModelVD(nn.Module):
         self.channel_mult = self.unet_image.channel_mult
         self.num_noattn_blocks = self.unet_image.num_noattn_blocks
 
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
 
     def forward(self, x, timesteps, context, xtype='image', ctype='prompt'):
         hs = []

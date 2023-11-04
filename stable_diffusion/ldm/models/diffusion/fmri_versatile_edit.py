@@ -42,7 +42,7 @@ class VersatileControlNet(UNetModelVD):
             for _ in range(self.num_noattn_blocks[level_idx]):
                 ch = mult * self.model_channels
                 self.zero_convs.append(self.make_zero_conv(ch))
-            if level_idx != len(channel_mult) - 1:
+            if level_idx != len(self.channel_mult) - 1:
                 self.zero_convs.append(self.make_zero_conv(ch))
         self.middle_block_out = self.make_zero_conv(ch)
 
