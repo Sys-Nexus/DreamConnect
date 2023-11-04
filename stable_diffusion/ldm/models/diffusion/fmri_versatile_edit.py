@@ -61,11 +61,14 @@ class VersatileControlNet(UNetModelVD):
         if xtype == 'text':
             x = x[:, :, None, None]
         h = x
+        cnt = 0
         for i_module, t_module, zero_conv in zip(self.unet_image.input_blocks, self.unet_text.input_blocks, self.zero_convs):
         # for i_module, zero_conv in zip(self.unet_image.input_blocks, self.zero_convs):
             # t_module = None
+            cnt += 1
             h = self.mixed_run_dc(i_module, t_module, h, emb, c0, c1, xtype, c0_type, c1_type, mixed_ratio)
             outs.append(zero_conv(h, emb))
+            print('cnt: ', cnt)
 
         h = self.mixed_run_dc(self.unet_image.middle_block, self.unet_text.middle_block, 
                                 h, emb, c0, c1, xtype, c0_type, c1_type, mixed_ratio)
