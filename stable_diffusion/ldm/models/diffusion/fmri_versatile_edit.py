@@ -8,6 +8,7 @@ import numpy as np
 import numpy.random as npr
 
 import torch
+import torch.nn as nn
 import torchvision.transforms as tvtrans
 from lib.cfg_helper import model_cfg_bank
 from lib.model_zoo import get_model
