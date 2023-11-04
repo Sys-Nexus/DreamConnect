@@ -20,6 +20,7 @@ from .autoencoder import AutoencoderKL
 from .ema import LitEma
 
 from .sd import highlight_print, DDPM, SD_T2I
+from .clip import FrozenCLIP
 
 @register('vd_basic', version)
 class VD_Basic(SD_T2I):
@@ -205,6 +206,36 @@ class VD_DualContext(SD_T2I):
         if self.cond_stage_trainable:
             c = self.get_learned_conditioning(c)
         return self.p_losses(x, c, t, noise, cond_type=cond_type)
+
+@register('vdclip', version)
+class VDCLIP(nn.Module):
+    def __init__(self,
+                #  clip_cfg,
+                 *args,
+                 **kwargs):
+        super().__init__(*args, **kwargs)
+        # self.clip = get_model()(clip_cfg)
+        self.clip = FrozenCLIP()
+
+    @torch.no_grad()
+    def clip_encode_text(self, text, encode_type='encode_text'):
+        swap_type = self.clip.encode_type
+        self.clip.encode_type = encode_type
+        embedding = self.clip.encode(text)
+        self.clip.encode_type = swap_type
+        return embedding
+
+    @torch.no_grad()
+    def clip_encode_vision(self, vision, encode_type='encode_vision'):
+        swap_type = self.clip.encode_type
+        self.clip.encode_type = encode_type
+        if isinstance(vision, torch.Tensor):
+            vision = ((vision+1)/2).to('cpu').numpy()
+            vision = np.transpose(vision, (0, 2, 3, 1))
+            vision = [vi for vi in vision]
+        embedding = self.clip.encode(vision)
+        self.clip.encode_type = swap_type
+        return embedding
 
 @register('vd', version)
 class VD(DDPM):

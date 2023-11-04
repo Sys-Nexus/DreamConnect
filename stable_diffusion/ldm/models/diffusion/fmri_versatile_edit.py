@@ -18,10 +18,55 @@ from torch.utils.data import DataLoader, Dataset
 from lib.model_zoo.vd import VD
 from lib.cfg_holder import cfg_unique_holder as cfguh
 from lib.cfg_helper import get_command_line_args, cfg_initiates, load_cfg_yaml
+from lib.model_zoo.openaimodel import UNetModelVD
+from lib.model_zoo.diffusion_utils import checkpoint, conv_nd, linear, avg_pool_nd, \
+                                          zero_module, normalization, timestep_embedding
+from lib.model_zoo.openaimodel import TimestepEmbedSequential
+from lib.model_zoo.vd import VDCLIP
+
 import matplotlib.pyplot as plt
 from skimage.transform import resize, downscale_local_mean
 
-from ldm.models.diffusion.fmri_ddpm_edit import LatentDiffusion
+from ldm.models.diffusion.fmri_ddpm_edit import LatentDiffusion, DDPM
+
+
+class VersatileControlNet(UNetModelVD):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        del self.unet_text
+
+        self.dims = 2
+        self.zero_convs = nn.ModuleList([self.make_zero_conv(self.model_channels)])
+        for level_idx, mult in enumerate(self.channel_mult):
+            for _ in range(self.num_noattn_blocks[level_idx]):
+                ch = mult * self.model_channels
+                self.zero_convs.append(self.make_zero_conv(ch))
+            if level_idx != len(channel_mult) - 1:
+                self.zero_convs.append(self.make_zero_conv(ch))
+        self.middle_block_out = self.make_zero_conv(ch)
+
+    def make_zero_conv(self, channels):
+        return TimestepEmbedSequential(zero_module(conv_nd(self.dims, channels, channels, 1, padding=0)))
+
+    def forward_dc(self, x, timesteps, c0, c1, xtype, c0_type, c1_type, mixed_ratio):
+        outs = []
+        t_emb = timestep_embedding(timesteps, self.model_channels, repeat_only=False)
+        
+        x=x.half()
+        emb = self.time_embed(t_emb.half())
+
+        if xtype == 'text':
+            x = x[:, :, None, None]
+        h = x
+        for i_module, t_module, zero_conv in zip(self.unet_image.input_blocks, self.unet_text.input_blocks, self.zero_convs):
+            h = self.mixed_run_dc(i_module, t_module, h, emb, c0, c1, xtype, c0_type, c1_type, mixed_ratio)
+            outs.append(zero_conv(h, emb))
+
+        h = self.mixed_run_dc(self.unet_image.middle_block, self.unet_text.middle_block, 
+                                h, emb, c0, c1, xtype, c0_type, c1_type, mixed_ratio)
+        outs.append(self.middle_block_out(h, emb))
+        return outs
+
 
 def freeze_params(model):
     # model = model.eval()
@@ -49,6 +94,189 @@ def regularize_image(x):
         return x
 
 
+
+class ControlLDM(LatentDiffusion):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.vd_clip = VDCLIP()
+
+    def get_input(self, batch, k, return_first_stage_outputs=False, force_c_encode=False,
+                  cond_key=None, return_original_cond=False, bs=None, uncond=0.075, sz=256):
+        # x = super().get_input(batch, k)
+        x = DDPM.get_input(self, batch, k)
+        if bs is not None:
+            x = x[:bs]
+        if sz is not None:
+            x = F.interpolate(x, (sz,sz))
+        # x = x.half()
+        encoder_posterior = self.encode_first_stage(x)
+        z = self.get_first_stage_encoding(encoder_posterior).detach()
+        cond_key = cond_key or self.cond_stage_key
+        # cond_key = self.fmri_cond_stage_key if self.is_fmri_input else cond_key
+        # xc = super().get_input(batch, cond_key)
+        xc = DDPM.get_input(self, batch, cond_key)
+        if bs is not None:
+            xc["c_crossattn"] = xc["c_crossattn"][:bs]
+            xc["c_crossattn_1"] = xc["c_crossattn_1"][:bs]
+            xc["c_concat"] = xc["c_concat"][:bs]
+        if sz is not None:
+            xc["c_concat"] = F.interpolate(xc["c_concat"], (sz,sz))
+        x, xc["c_concat"], xc["c_crossattn_1"] = x.to(z), xc["c_concat"].to(z), xc["c_crossattn_1"].to(z)
+        # x, xc["c_concat"], xc["c_crossattn_1"] = x.half(), xc["c_concat"].half(), xc["c_crossattn_1"].half()
+        # import pdb; pdb.set_trace();
+        cond = {}
+        random = torch.rand(x.size(0), device=z.device)
+        prompt_mask = rearrange(random < uncond, "n -> n 1 1")
+        fmri_prompt_mask = (random >= uncond).float() * (random < uncond*2).float()
+        fmri_prompt_mask = rearrange(fmri_prompt_mask, "n -> n 1 1")
+        input_mask = 1 - rearrange((random >= uncond*2).float() * (random < uncond*3).float(), "n -> n 1 1 1")
+        
+        null_prompt = self.get_learned_conditioning([""])
+        # fmri_null_prompt = self.get_learned_conditioning_fmri(torch.zeros_like(xc["c_crossattn_1"]))
+        # fmri_learned_prompt = self.get_learned_conditioning_fmri(xc["c_crossattn_1"])        
+
+        # cond["c_crossattn_1"] = [torch.where(fmri_prompt_mask.bool(), fmri_null_prompt, fmri_learned_prompt)]
+        # import pdb;pdb.set_trace()
+        cond["c_crossattn"] = [torch.where(prompt_mask, null_prompt, self.get_learned_conditioning(xc["c_crossattn"]).detach())]
+
+        if self.is_fmri_input is True:
+            cond["c_concat"] = [input_mask * self.fmri2visual_model((xc["c_concat"])).detach()]
+        else:
+            cond["c_concat"] = [input_mask * self.encode_first_stage((xc["c_concat"])).mode().detach()]
+
+        cond["image"] = x
+        cond["text"] = batch['cap']
+        out = [z, cond]
+        if return_first_stage_outputs:
+            xrec = self.decode_first_stage(z)
+            out.extend([x, xrec])
+        if return_original_cond:
+            out.append(xc)
+        return out
+
+    def apply_model(self, x_noisy, t, cond, return_ids=False):
+        
+        if isinstance(cond, dict):
+            # hybrid case, cond is exptected to be a dict
+            pass
+        else:
+            if not isinstance(cond, list):
+                cond = [cond]
+            key = 'c_concat' if self.model.conditioning_key == 'concat' else 'c_crossattn'
+            cond = {key: cond}
+        
+        if hasattr(self, "split_input_params"):
+            assert len(cond) == 1  # todo can only deal with one conditioning atm
+            assert not return_ids
+            ks = self.split_input_params["ks"]  # eg. (128, 128)
+            stride = self.split_input_params["stride"]  # eg. (64, 64)
+
+            h, w = x_noisy.shape[-2:]
+
+            fold, unfold, normalization, weighting = self.get_fold_unfold(x_noisy, ks, stride)
+
+            z = unfold(x_noisy)  # (bn, nc * prod(**ks), L)
+            # Reshape to img shape
+            z = z.view((z.shape[0], -1, ks[0], ks[1], z.shape[-1]))  # (bn, nc, ks[0], ks[1], L )
+            z_list = [z[:, :, :, :, i] for i in range(z.shape[-1])]
+
+            if self.cond_stage_key in ["image", "LR_image", "segmentation",
+                                       'bbox_img'] and self.model.conditioning_key:  # todo check for completeness
+                c_key = next(iter(cond.keys()))  # get key
+                c = next(iter(cond.values()))  # get value
+                assert (len(c) == 1)  # todo extend to list with more than one elem
+                c = c[0]  # get element
+
+                c = unfold(c)
+                c = c.view((c.shape[0], -1, ks[0], ks[1], c.shape[-1]))  # (bn, nc, ks[0], ks[1], L )
+
+                cond_list = [{c_key: [c[:, :, :, :, i]]} for i in range(c.shape[-1])]
+
+            elif self.cond_stage_key == 'coordinates_bbox':
+                assert 'original_image_size' in self.split_input_params, 'BoudingBoxRescaling is missing original_image_size'
+
+                # assuming padding of unfold is always 0 and its dilation is always 1
+                n_patches_per_row = int((w - ks[0]) / stride[0] + 1)
+                full_img_h, full_img_w = self.split_input_params['original_image_size']
+                # as we are operating on latents, we need the factor from the original image size to the
+                # spatial latent size to properly rescale the crops for regenerating the bbox annotations
+                num_downs = self.first_stage_model.encoder.num_resolutions - 1
+                rescale_latent = 2 ** (num_downs)
+
+                # get top left postions of patches as conforming for the bbbox tokenizer, therefore we
+                # need to rescale the tl patch coordinates to be in between (0,1)
+                tl_patch_coordinates = [(rescale_latent * stride[0] * (patch_nr % n_patches_per_row) / full_img_w,
+                                         rescale_latent * stride[1] * (patch_nr // n_patches_per_row) / full_img_h)
+                                        for patch_nr in range(z.shape[-1])]
+
+                # patch_limits are tl_coord, width and height coordinates as (x_tl, y_tl, h, w)
+                patch_limits = [(x_tl, y_tl,
+                                 rescale_latent * ks[0] / full_img_w,
+                                 rescale_latent * ks[1] / full_img_h) for x_tl, y_tl in tl_patch_coordinates]
+                # patch_values = [(np.arange(x_tl,min(x_tl+ks, 1.)),np.arange(y_tl,min(y_tl+ks, 1.))) for x_tl, y_tl in tl_patch_coordinates]
+
+                # tokenize crop coordinates for the bounding boxes of the respective patches
+                patch_limits_tknzd = [torch.LongTensor(self.bbox_tokenizer._crop_encoder(bbox))[None]
+                                      for bbox in patch_limits]  # list of length l with tensors of shape (1, 2)
+                print(patch_limits_tknzd[0].shape)
+                # cut tknzd crop position from conditioning
+                assert isinstance(cond, dict), 'cond must be dict to be fed into model'
+                cut_cond = cond['c_crossattn'][0][..., :-2]
+                print(cut_cond.shape)
+
+                adapted_cond = torch.stack([torch.cat([cut_cond, p], dim=1) for p in patch_limits_tknzd])
+                adapted_cond = rearrange(adapted_cond, 'l b n -> (l b) n')
+                print(adapted_cond.shape)
+                adapted_cond = self.get_learned_conditioning(adapted_cond)
+                print(adapted_cond.shape)
+                adapted_cond = rearrange(adapted_cond, '(l b) n d -> l b n d', l=z.shape[-1])
+                print(adapted_cond.shape)
+
+                cond_list = [{'c_crossattn': [e]} for e in adapted_cond]
+
+            else:
+                cond_list = [cond for i in range(z.shape[-1])]  # Todo make this more efficient
+
+            # apply model by loop over crops
+            output_list = [self.model(z_list[i], t, **cond_list[i]) for i in range(z.shape[-1])]
+            assert not isinstance(output_list[0],
+                                  tuple)  # todo cant deal with multiple model outputs check this never happens
+
+            o = torch.stack(output_list, axis=-1)
+            o = o * weighting
+            # Reverse reshape to img shape
+            o = o.view((o.shape[0], -1, o.shape[-1]))  # (bn, nc * ks[0] * ks[1], L)
+            # stitch crops together
+            x_recon = fold(o) / normalization
+
+        else:
+            ## only add this
+            cond["only_mid_control"] = self.only_mid_control
+            # control_prompt = torch.cat(cond["c_crossattn_1"] , 1)
+            ## TODO: hard code to set the hint to zero
+            # fmri_control = self.control_model(x=torch.cat([x_noisy], dim=1), 
+            #                                     timesteps=t, context=control_prompt)
+
+            import pdb; pdb.set_trace();
+            c0 = self.vd_clip.clip_encode_vision(cond['image'])
+            c1 = self.vd_clip.clip_encode_text(cond['text'])
+
+            control_res = self.control_model.forward_dc(x=torch.cat([x_noisy], dim=1), 
+                                                        c0=c0, c1=c1,
+                                                        xtype='image', c0_type='vision', 
+                                                        c1_type='prompt', mixed_ratio=0.6)
+            fmri_control = [c * scale for c, scale in zip(fmri_control, self.control_scales)]
+            cond["control"] = fmri_control
+            ## only add above 
+            x_recon = self.model(x_noisy, t, **cond)
+
+        if isinstance(x_recon, tuple) and not return_ids:
+            return x_recon[0]
+        else:
+            return x_recon
+
+
 class fMRIVersatileEdit(LatentDiffusion):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -58,7 +286,7 @@ class fMRIVersatileEdit(LatentDiffusion):
         cfgm = model_cfg_bank()(cfgm_name)
         net = get_model()(cfgm)
         sd = torch.load(pth, map_location='cpu')
-        net.load_state_dict(sd, strict=False)    
+        net.load_state_dict(sd, strict=False)
 
         # Might require editing the GPU assignments due to Memory issues
         net.clip.cuda(0)

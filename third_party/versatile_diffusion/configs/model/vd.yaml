@@ -55,6 +55,11 @@ vd:
     scale_factor: 0.18215
     use_ema: true
 
+# vd_clip:
+#   args:
+#     clip_cfg: MODEL(clip_frozen)
+
+
 vd_noema:
   super_cfg: vd
   args:
