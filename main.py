@@ -81,6 +81,7 @@ class CFGDenoiser(nn.Module):
             # "c_crossattn_1": [torch.cat([cond["c_crossattn_1"], cond["c_crossattn_1"], uncond["c_crossattn_1"]])],
             # "c_concat": [torch.cat([cond["c_concat"][0], cond["c_concat"][0], uncond["c_concat"][0]])],
         }
+        cfg_cond['c_crossattn_1'] = {}
         cfg_cond["c_crossattn_1"]["image_emb"] = [torch.cat([cond["c_crossattn_1"]["image_emb"],
                                                             uncond["c_crossattn_1"]["image_emb"],
                                                             cond["c_crossattn_1"]["image_emb"]])]
