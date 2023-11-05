@@ -31,6 +31,7 @@ import matplotlib.pyplot as plt
 from skimage.transform import resize, downscale_local_mean
 
 from ldm.models.diffusion.fmri_ddpm_edit import LatentDiffusion, DDPM
+import k_diffusion as K
 
 
 class VersatileControlNet(UNetModelVD):
@@ -122,8 +123,7 @@ class ControlLDM(LatentDiffusion):
         encoder_posterior = self.encode_first_stage(x)
         z = self.get_first_stage_encoding(encoder_posterior).detach()
         cond_key = cond_key or self.cond_stage_key
-        # cond_key = self.fmri_cond_stage_key if self.is_fmri_input else cond_key
-        # xc = super().get_input(batch, cond_key)
+
         xc = DDPM.get_input(self, batch, cond_key)
         cap = batch['cap']
         if bs is not None:
@@ -145,8 +145,7 @@ class ControlLDM(LatentDiffusion):
         
         null_prompt = self.get_learned_conditioning([""])
         # fmri_null_prompt = self.get_learned_conditioning_fmri(torch.zeros_like(xc["c_crossattn_1"]))
-        # fmri_learned_prompt = self.get_learned_conditioning_fmri(xc["c_crossattn_1"])        
-
+        # fmri_learned_prompt = self.get_learned_conditioning_fmri(xc["c_crossattn_1"])
         # cond["c_crossattn_1"] = [torch.where(fmri_prompt_mask.bool(), fmri_null_prompt, fmri_learned_prompt)]
 
         null_x = torch.zeros_like(x)
