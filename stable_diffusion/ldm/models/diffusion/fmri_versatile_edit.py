@@ -147,9 +147,18 @@ class ControlLDM(LatentDiffusion):
 
         # cond["c_crossattn_1"] = [torch.where(fmri_prompt_mask.bool(), fmri_null_prompt, fmri_learned_prompt)]
 
-        import pdb;pdb.set_trace()
-        cond["c_crossattn_1"]["image"] = x
-        cond["c_crossattn_1"]["text"] = batch['cap']
+        null_x = torch.zeros_like(x)
+        null_cap = ['' for _ in range(len(batch['cap']))]
+        fmri_null_x = self.vd_clip.clip_encode_vision(null_x)
+        fmri_null_cap = self.vd_clip.clip_encode_text(null_cap)
+
+        fmri_x = self.vd_clip.clip_encode_vision(x)
+        fmri_cap = self.vd_clip.clip_encode_text(batch['cap'])
+
+        # import pdb;pdb.set_trace()
+        cond["c_crossattn_1"] = {}
+        cond["c_crossattn_1"]["image_emb"] = [torch.where(fmri_prompt_mask.bool(), fmri_null_x, fmri_x)]
+        cond["c_crossattn_1"]["text_emb"] = [torch.where(fmri_prompt_mask.bool(), fmri_null_cap, fmri_cap)]
 
         cond["c_crossattn"] = [torch.where(prompt_mask, null_prompt, self.get_learned_conditioning(xc["c_crossattn"]).detach())]
 
