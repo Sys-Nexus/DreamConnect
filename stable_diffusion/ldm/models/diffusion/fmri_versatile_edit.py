@@ -362,9 +362,9 @@ class ControlLDM(LatentDiffusion):
 
             # c0 = self.vd_clip.clip_encode_vision(cond['c_crossattn_1']['image'])
             # c1 = self.vd_clip.clip_encode_text(cond['c_crossattn_1']['text'])
-            c0 = cond["c_crossattn_1"]["image_emb"]
-            c1 = cond["c_crossattn_1"]["text_emb"]
-            import pdb; pdb.set_trace();
+            c0 = torch.cat(cond["c_crossattn_1"]["image_emb"], 1)
+            c1 = torch.cat(cond["c_crossattn_1"]["text_emb"], 1)
+            # import pdb; pdb.set_trace();
 
             control_res = self.control_model.forward_dc(x=torch.cat([x_noisy], dim=1), timesteps=t,
                                                         c0=c0, c1=c1,
