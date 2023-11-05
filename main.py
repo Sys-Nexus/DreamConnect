@@ -70,12 +70,12 @@ class CFGDenoiser(nn.Module):
         cfg_z = einops.repeat(z, "b ... -> (repeat b) ...", repeat=3)
         cfg_sigma = einops.repeat(sigma, "b ... -> (repeat b) ...", repeat=3)
         
-        # import pdb; pdb.set_trace();
         # cond = {k: torch.cat(v,dim=1) for k,v in cond.items()}
         # uncond = {k: torch.cat(v,dim=1) for k,v in uncond.items()}
         cond = concat_dict(cond)
         uncond = concat_dict(uncond)
-        
+        import pdb; pdb.set_trace();
+
         cfg_cond = {
             "c_crossattn": [torch.cat([cond["c_crossattn"], uncond["c_crossattn"], cond["c_crossattn"]])],
             "c_crossattn_1": [torch.cat([cond["c_crossattn_1"], cond["c_crossattn_1"], uncond["c_crossattn_1"]])],
