@@ -166,6 +166,88 @@ class ControlLDM(LatentDiffusion):
             out.append(xc)
         return out
 
+    @torch.no_grad()
+    def log_images(self, batch, epoch_n, iter_n, batch_idx, model_wrap, model_wrap_cfg,
+                   save_dir, split,
+                   cfg_text=7.5, cfg_fmri=1.5,
+                   N=2, n_row=4, sample=True, 
+                   steps=100, ddim_eta=1., return_keys=None,
+                   quantize_denoised=True, inpaint=False):
+        # import pdb; pdb.set_trace()
+        N = min(batch['image'].shape[0], N)
+        s = batch['s'][0]
+
+        self.model.eval()
+        use_ddim = False
+
+        log = dict()
+        z_gt, c, x, xrec, xc = self.get_input(batch, self.first_stage_key,
+                                           return_first_stage_outputs=True,
+                                           force_c_encode=True,
+                                           return_original_cond=True,
+                                           bs=N, uncond=0)
+        
+        sigmas = model_wrap.get_sigmas(steps)
+        z_pred = torch.randn_like(z_gt) * sigmas[0]
+
+        # c0 = self.vd_clip.clip_encode_vision(cond['c_crossattn_1']['image'])
+        # c1 = self.vd_clip.clip_encode_text(cond['c_crossattn_1']['text'])
+
+        cond = {}
+        cond["c_crossattn"] = [self.get_learned_conditioning(xc["c_crossattn"])]
+        # cond["c_crossattn_1"] = [self.get_learned_conditioning_fmri(xc["c_crossattn_1"])]
+        # import pdb; pdb.set_trace();
+        cond["c_crossattn_1"] = {}
+        cond["c_crossattn_1"]["image_emb"] = self.vd_clip.clip_encode_vision(x)
+        cond["c_crossattn_1"]["text_emb"] = self.vd_clip.clip_encode_text(batch['cap'])
+
+        uncond = {}
+        null_prompt = self.get_learned_conditioning([""]*N)
+        # fmri_null_prompt = self.get_learned_conditioning_fmri(torch.zeros_like(xc["c_crossattn_1"]))
+        uncond["c_crossattn"] = [null_prompt]
+        # uncond["c_crossattn_1"] = [fmri_null_prompt]
+        uncond["c_crossattn_1"] = {}
+        uncond["c_crossattn_1"]["image_emb"] = self.vd_clip.clip_encode_vision(torch.zeros_like(x))
+        uncond["c_crossattn_1"]["text_emb"] = self.vd_clip.clip_encode_text(['' for i in range(len(batch['cap']))])
+
+        extra_args = {
+            "cond": cond,
+            "uncond": uncond,
+            "text_cfg_scale": cfg_text,
+            "fmri_cfg_scale": cfg_fmri,
+        }
+        z_pred = K.sampling.sample_euler_ancestral(model_wrap_cfg, z_pred, sigmas, extra_args=extra_args)
+        x_pred = self.decode_first_stage(z_pred)
+
+        # import pdb; pdb.set_trace();
+        log["gt"] = x
+        log["concat"] = xc["c_concat"]
+        log["recon"] = xrec
+        log["samples"] = x_pred
+        log["instruction"] = log_txt_as_img((x.shape[2], x.shape[3]), xc["c_crossattn"])
+
+        for k in log.keys():
+            root = os.path.join(save_dir, "images", split)
+            filename = "{}_iter-{:06}_ep-{:06}_bidx-{:06d}-{:06d}.png".format(k, iter_n, epoch_n, batch_idx, s)
+            path = os.path.join(root, filename)
+            os.makedirs(os.path.dirname(path), exist_ok=True)
+            torchvision.utils.save_image(log[k]*0.5+0.5, path)
+
+        cats = [log['gt'].detach().cpu(), log['instruction'].detach().cpu(), log['concat'].detach().cpu(), log['samples'].detach().cpu()]
+        cats = torch.concat(cats, dim=-2)
+        filename = "all_iter-{:06}_ep-{:06}_bidx-{:06d}-{:06d}.png".format(iter_n, epoch_n, batch_idx, s)
+        path = os.path.join(root, filename)
+        torchvision.utils.save_image(cats*0.5+0.5, path)
+
+        self.model.train()
+
+        if return_keys:
+            if np.intersect1d(list(log.keys()), return_keys).shape[0] == 0:
+                return log
+            else:
+                return {key: log[key] for key in return_keys}
+        return log
+
     def apply_model(self, x_noisy, t, cond, return_ids=False):
         
         if isinstance(cond, dict):
@@ -270,8 +352,8 @@ class ControlLDM(LatentDiffusion):
             #                                     timesteps=t, context=control_prompt)
 
             # import pdb; pdb.set_trace();
-            c0 = self.vd_clip.clip_encode_vision(cond['c_crossattn_1']['image'])
-            c1 = self.vd_clip.clip_encode_text(cond['c_crossattn_1']['text'])
+            # c0 = self.vd_clip.clip_encode_vision(cond['c_crossattn_1']['image'])
+            # c1 = self.vd_clip.clip_encode_text(cond['c_crossattn_1']['text'])
             control_res = self.control_model.forward_dc(x=torch.cat([x_noisy], dim=1), timesteps=t,
                                                         c0=c0, c1=c1,
                                                         xtype='image', c0_type='vision', 
