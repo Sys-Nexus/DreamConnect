@@ -104,7 +104,18 @@ class ControlLDM(LatentDiffusion):
     def __init__(self, clip_cfg, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.vd_clip = VDCLIP(clip_cfg)
-        import pdb; pdb.set_trace();
+
+        pretrained_control_unet_path = kwargs['pretrained_control_unet_path']
+        if pretrained_control_unet_path is not None and os.path.exists(pretrained_control_unet_path):
+            # import pdb; pdb.set_trace()
+            pretrained_state_dict = torch.load(pretrained_control_unet_path, map_location="cpu")
+            pretrained_state_dict = {k:v for k,v in pretrained_state_dict.items() if 'clip.' in k}
+            missing, unexpected = self.vd_clip.load_state_dict(pretrained_state_dict, strict=False)
+
+            print('clip missing {} params.'.format(len(missing)))
+            print('clip missing: ', missing)
+            print('clip unexpected {} params.'.format(len(unexpected)))
+            # import pdb; pdb.set_trace();
 
     def get_input(self, batch, k, return_first_stage_outputs=False, force_c_encode=False,
                   cond_key=None, return_original_cond=False, bs=None, uncond=0.075, sz=256):
