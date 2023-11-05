@@ -2475,7 +2475,7 @@ class UNetModelVD(nn.Module):
                  unet_text_cfg, ):
 
         super().__init__()
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
         self.unet_image = get_model()(unet_image_cfg)
         self.unet_text = get_model()(unet_text_cfg)
         # from ldm.util import instantiate_from_config
