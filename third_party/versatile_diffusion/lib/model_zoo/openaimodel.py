@@ -2478,9 +2478,6 @@ class UNetModelVD(nn.Module):
         # import pdb; pdb.set_trace()
         self.unet_image = get_model()(unet_image_cfg)
         self.unet_text = get_model()(unet_text_cfg)
-        # from ldm.util import instantiate_from_config
-        # self.unet_image = instantiate_from_config(unet_image_cfg)
-        # self.unet_text = instantiate_from_config(unet_text_cfg)
 
         self.time_embed = self.unet_image.time_embed
         del self.unet_image.time_embed
@@ -2565,7 +2562,7 @@ class UNetModelVD(nn.Module):
 
     def mixed_run_dc(self, inet, tnet, x, emb, c0, c1, xtype, c0_type, c1_type, mixed_ratio):
         h = x
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
         for ilayer, tlayer in zip(inet, tnet):
             if isinstance(ilayer, TimestepBlock) and xtype=='image':
                 h = ilayer(h, emb)
