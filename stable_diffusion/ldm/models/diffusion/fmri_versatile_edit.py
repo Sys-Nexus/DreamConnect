@@ -106,9 +106,9 @@ def regularize_image(x):
 
 class ControlLDM(LatentDiffusion):
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, clip_cfg, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.vd_clip = VDCLIP()
+        self.vd_clip = VDCLIP(clip_cfg)
 
     def get_input(self, batch, k, return_first_stage_outputs=False, force_c_encode=False,
                   cond_key=None, return_original_cond=False, bs=None, uncond=0.075, sz=256):

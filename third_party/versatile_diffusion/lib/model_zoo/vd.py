@@ -210,12 +210,12 @@ class VD_DualContext(SD_T2I):
 @register('vdclip', version)
 class VDCLIP(nn.Module):
     def __init__(self,
-                #  clip_cfg,
+                 clip_cfg,
                  *args,
                  **kwargs):
         super().__init__(*args, **kwargs)
-        # self.clip = get_model()(clip_cfg)
-        self.clip = FrozenCLIP()
+        self.clip = get_model()(clip_cfg)
+        # self.clip = FrozenCLIP()
 
     @torch.no_grad()
     def clip_encode_text(self, text, encode_type='encode_text'):
@@ -252,6 +252,7 @@ class VD(DDPM):
 
         self.autokl = get_model()(autokl_cfg)
         self.optimus = get_model()(optimus_cfg)
+        import pdb; pdb.set_trace()
         self.clip = get_model()(clip_cfg)
 
         self.concat_mode = 'crossattn'
