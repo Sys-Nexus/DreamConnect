@@ -32,6 +32,7 @@ from skimage.transform import resize, downscale_local_mean
 
 from ldm.util import log_txt_as_img
 from ldm.models.diffusion.fmri_ddpm_edit import LatentDiffusion, DDPM
+import torchvision
 import k_diffusion as K
 
 
