@@ -47,6 +47,20 @@ sys.path.append('third_party/CoDI')
 sys.path.append('third_party/versatile_diffusion')
 
 
+def concat_dict(c_dict):
+    res_dict = {}
+    for k, v in c_dict.items():
+        if isinstance(v, list):
+            res_dict[k] = torch.cat(v,dim=1)
+        elif isinstance(v, dict):
+            sub_res_dict = v
+            for sub_k, sub_v in sub_res_dict.items():
+                sub_res_dict[sub_k] = sub_v
+            res_dict[k] = sub_res_dict
+        else: 
+            raise ValueError
+    return res_dict
+
 class CFGDenoiser(nn.Module):
     def __init__(self, model):
         super().__init__()
@@ -55,14 +69,12 @@ class CFGDenoiser(nn.Module):
     def forward(self, z, sigma, cond, uncond, text_cfg_scale, fmri_cfg_scale):
         cfg_z = einops.repeat(z, "b ... -> (repeat b) ...", repeat=3)
         cfg_sigma = einops.repeat(sigma, "b ... -> (repeat b) ...", repeat=3)
-        # cfg_cond = {
-        #     "c_crossattn": [torch.cat([cond["c_crossattn"][0], uncond["c_crossattn"][0], cond["c_crossattn"][0]])],
-        #     "c_crossattn_1": [torch.cat([cond["c_crossattn_1"][0], cond["c_crossattn_1"][0], uncond["c_crossattn_1"][0]])],
-        #     # "c_concat": [torch.cat([cond["c_concat"][0], cond["c_concat"][0], uncond["c_concat"][0]])],
-        # }
+        
         # import pdb; pdb.set_trace();
-        cond = {k: torch.cat(v,dim=1) for k,v in cond.items()}
-        uncond = {k: torch.cat(v,dim=1) for k,v in uncond.items()}
+        # cond = {k: torch.cat(v,dim=1) for k,v in cond.items()}
+        # uncond = {k: torch.cat(v,dim=1) for k,v in uncond.items()}
+        cond = concat_dict(cond)
+        uncond = concat_dict(uncond)
         
         cfg_cond = {
             "c_crossattn": [torch.cat([cond["c_crossattn"], uncond["c_crossattn"], cond["c_crossattn"]])],
