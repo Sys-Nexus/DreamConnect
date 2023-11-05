@@ -252,7 +252,7 @@ class VD(DDPM):
 
         self.autokl = get_model()(autokl_cfg)
         self.optimus = get_model()(optimus_cfg)
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
         self.clip = get_model()(clip_cfg)
 
         self.concat_mode = 'crossattn'
