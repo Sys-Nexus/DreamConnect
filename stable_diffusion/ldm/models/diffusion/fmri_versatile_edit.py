@@ -129,6 +129,7 @@ class ControlLDM(LatentDiffusion):
             xc["c_crossattn"] = xc["c_crossattn"][:bs]
             xc["c_crossattn_1"] = xc["c_crossattn_1"][:bs]
             xc["c_concat"] = xc["c_concat"][:bs]
+            cap = batch['cap'][:bs]
         if sz is not None:
             xc["c_concat"] = F.interpolate(xc["c_concat"], (sz,sz))
         x, xc["c_concat"], xc["c_crossattn_1"] = x.to(z), xc["c_concat"].to(z), xc["c_crossattn_1"].to(z)
@@ -148,12 +149,12 @@ class ControlLDM(LatentDiffusion):
         # cond["c_crossattn_1"] = [torch.where(fmri_prompt_mask.bool(), fmri_null_prompt, fmri_learned_prompt)]
 
         null_x = torch.zeros_like(x)
-        null_cap = ['' for _ in range(len(batch['cap']))]
+        null_cap = ['' for _ in range(len(cap))]
         fmri_null_x = self.vd_clip.clip_encode_vision(null_x)
         fmri_null_cap = self.vd_clip.clip_encode_text(null_cap)
 
         fmri_x = self.vd_clip.clip_encode_vision(x)
-        fmri_cap = self.vd_clip.clip_encode_text(batch['cap'])
+        fmri_cap = self.vd_clip.clip_encode_text(cap)
 
         import pdb;pdb.set_trace()
         cond["c_crossattn_1"] = {}
