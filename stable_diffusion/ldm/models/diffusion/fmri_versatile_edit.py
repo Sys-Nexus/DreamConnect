@@ -274,7 +274,7 @@ class ControlLDM(LatentDiffusion):
                                                         c0=c0, c1=c1,
                                                         xtype='image', c0_type='vision', 
                                                         c1_type='prompt', mixed_ratio=0.6)
-            fmri_control = [c * scale for c, scale in zip(fmri_control, self.control_scales)]
+            fmri_control = [c * scale for c, scale in zip(control_res, self.control_scales)]
             cond["control"] = fmri_control
             ## only add above 
             x_recon = self.model(x_noisy, t, **cond)
