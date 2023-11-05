@@ -74,7 +74,7 @@ class CFGDenoiser(nn.Module):
         # uncond = {k: torch.cat(v,dim=1) for k,v in uncond.items()}
         cond = concat_dict(cond)
         uncond = concat_dict(uncond)
-        import pdb; pdb.set_trace();
+        # import pdb; pdb.set_trace();
 
         cfg_cond = {
             "c_crossattn": [torch.cat([cond["c_crossattn"], uncond["c_crossattn"], cond["c_crossattn"]])],
@@ -88,7 +88,8 @@ class CFGDenoiser(nn.Module):
         cfg_cond["c_crossattn_1"]["text_emb"] = [torch.cat([cond["c_crossattn_1"]["text_emb"],
                                                             cond["c_crossattn_1"]["text_emb"],
                                                             uncond["c_crossattn_1"]["text_emb"]])]
-
+        import pdb; pdb.set_trace()
+        
         out_cond, out_img_cond, out_txt_cond \
             = self.inner_model(cfg_z, cfg_sigma, cond=cfg_cond).chunk(3)
         return 0.5 * (out_img_cond + out_txt_cond) + \

@@ -200,9 +200,6 @@ class ControlLDM(LatentDiffusion):
         sigmas = model_wrap.get_sigmas(steps)
         z_pred = torch.randn_like(z_gt) * sigmas[0]
 
-        # c0 = self.vd_clip.clip_encode_vision(cond['c_crossattn_1']['image'])
-        # c1 = self.vd_clip.clip_encode_text(cond['c_crossattn_1']['text'])
-
         cond = {}
         cond["c_crossattn"] = [self.get_learned_conditioning(xc["c_crossattn"])]
         # cond["c_crossattn_1"] = [self.get_learned_conditioning_fmri(xc["c_crossattn_1"])]
