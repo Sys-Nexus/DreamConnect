@@ -146,7 +146,11 @@ class ControlLDM(LatentDiffusion):
         # fmri_learned_prompt = self.get_learned_conditioning_fmri(xc["c_crossattn_1"])        
 
         # cond["c_crossattn_1"] = [torch.where(fmri_prompt_mask.bool(), fmri_null_prompt, fmri_learned_prompt)]
-        # import pdb;pdb.set_trace()
+
+        import pdb;pdb.set_trace()
+        cond["c_crossattn_1"]["image"] = x
+        cond["c_crossattn_1"]["text"] = batch['cap']
+
         cond["c_crossattn"] = [torch.where(prompt_mask, null_prompt, self.get_learned_conditioning(xc["c_crossattn"]).detach())]
 
         if self.is_fmri_input is True:
@@ -154,8 +158,6 @@ class ControlLDM(LatentDiffusion):
         else:
             cond["c_concat"] = [input_mask * self.encode_first_stage((xc["c_concat"])).mode().detach()]
 
-        cond["image"] = x
-        cond["text"] = batch['cap']
         out = [z, cond]
         if return_first_stage_outputs:
             xrec = self.decode_first_stage(z)
@@ -268,14 +270,14 @@ class ControlLDM(LatentDiffusion):
             #                                     timesteps=t, context=control_prompt)
 
             # import pdb; pdb.set_trace();
-            c0 = self.vd_clip.clip_encode_vision(cond['image'])
-            c1 = self.vd_clip.clip_encode_text(cond['text'])
+            c0 = self.vd_clip.clip_encode_vision(cond['c_crossattn_1']['image'])
+            c1 = self.vd_clip.clip_encode_text(cond['c_crossattn_1']['text'])
             control_res = self.control_model.forward_dc(x=torch.cat([x_noisy], dim=1), timesteps=t,
                                                         c0=c0, c1=c1,
                                                         xtype='image', c0_type='vision', 
                                                         c1_type='prompt', mixed_ratio=0.6)
-            cond.pop('image')
-            cond.pop('text')
+            cond.pop('c_crossattn_1')
+
             fmri_control = [c * scale for c, scale in zip(control_res, self.control_scales)]
             cond["control"] = fmri_control
             ## only add above 
@@ -286,7 +288,7 @@ class ControlLDM(LatentDiffusion):
         else:
             return x_recon
 
-
+######## for testing the versatile diffusion
 class fMRIVersatileEdit(LatentDiffusion):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
