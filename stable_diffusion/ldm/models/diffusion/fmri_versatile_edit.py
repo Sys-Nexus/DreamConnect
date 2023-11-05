@@ -196,7 +196,7 @@ class ControlLDM(LatentDiffusion):
                                            force_c_encode=True,
                                            return_original_cond=True,
                                            bs=N, uncond=0)
-        
+        cap = batch['cap'][:N]
         sigmas = model_wrap.get_sigmas(steps)
         z_pred = torch.randn_like(z_gt) * sigmas[0]
 
@@ -206,7 +206,7 @@ class ControlLDM(LatentDiffusion):
         # import pdb; pdb.set_trace();
         cond["c_crossattn_1"] = {}
         cond["c_crossattn_1"]["image_emb"] = self.vd_clip.clip_encode_vision(x)
-        cond["c_crossattn_1"]["text_emb"] = self.vd_clip.clip_encode_text(batch['cap'])
+        cond["c_crossattn_1"]["text_emb"] = self.vd_clip.clip_encode_text(cap)
 
         uncond = {}
         null_prompt = self.get_learned_conditioning([""]*N)
@@ -215,7 +215,7 @@ class ControlLDM(LatentDiffusion):
         # uncond["c_crossattn_1"] = [fmri_null_prompt]
         uncond["c_crossattn_1"] = {}
         uncond["c_crossattn_1"]["image_emb"] = self.vd_clip.clip_encode_vision(torch.zeros_like(x))
-        uncond["c_crossattn_1"]["text_emb"] = self.vd_clip.clip_encode_text(['' for i in range(len(batch['cap']))])
+        uncond["c_crossattn_1"]["text_emb"] = self.vd_clip.clip_encode_text(['' for i in range(len(cap))])
 
         extra_args = {
             "cond": cond,
