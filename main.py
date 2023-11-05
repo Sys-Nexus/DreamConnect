@@ -78,9 +78,16 @@ class CFGDenoiser(nn.Module):
 
         cfg_cond = {
             "c_crossattn": [torch.cat([cond["c_crossattn"], uncond["c_crossattn"], cond["c_crossattn"]])],
-            "c_crossattn_1": [torch.cat([cond["c_crossattn_1"], cond["c_crossattn_1"], uncond["c_crossattn_1"]])],
+            # "c_crossattn_1": [torch.cat([cond["c_crossattn_1"], cond["c_crossattn_1"], uncond["c_crossattn_1"]])],
             # "c_concat": [torch.cat([cond["c_concat"][0], cond["c_concat"][0], uncond["c_concat"][0]])],
         }
+        cfg_cond["c_crossattn_1"]["image_emb"] = [torch.cat(cond["c_crossattn_1"]["image_emb"],
+                                                            uncond["c_crossattn_1"]["image_emb"],
+                                                            cond["c_crossattn_1"]["image_emb"])]
+        cfg_cond["c_crossattn_1"]["text_emb"] = [torch.cat(cond["c_crossattn_1"]["text_emb"],
+                                                            cond["c_crossattn_1"]["text_emb"],
+                                                            uncond["c_crossattn_1"]["text_emb"])]
+
         out_cond, out_img_cond, out_txt_cond \
             = self.inner_model(cfg_z, cfg_sigma, cond=cfg_cond).chunk(3)
         return 0.5 * (out_img_cond + out_txt_cond) + \
