@@ -76,8 +76,11 @@ model:
       target: ldm.models.diffusion.fmri_versatile_edit.VersatileControlNet
       params:
         unet_image_cfg:
-          target: third_party.versatile_diffusion.lib.model_zoo.openaimodel.UNetModel2D
-          params:
+          # target: third_party.versatile_diffusion.lib.model_zoo.openaimodel.UNetModel2D
+          type: openai_unet_2d
+          name: openai_unet_2d
+          args:
+          # params:
             input_channels: 4
             model_channels: 320
             output_channels: 4
@@ -89,8 +92,11 @@ model:
             use_checkpoint: True
               
         unet_text_cfg:
-          target: third_party.versatile_diffusion.lib.model_zoo.openaimodel.UNetModel0D_MultiDim
-          params:
+          # target: third_party.versatile_diffusion.lib.model_zoo.openaimodel.UNetModel0D_MultiDim
+          type: openai_unet_0dmd
+          name: openai_unet_0dmd
+          # params:
+          args:
             input_channels: 768
             model_channels: 320
             output_channels: 768
