@@ -479,16 +479,15 @@ class LatentDiffusion(DDPM):
             print('text-emb unexpected: ', unexpected)
 
         ## import the pretrained weight of CoDI unet as control side net
+        import pdb; pdb.set_trace();
         if pretrained_control_unet_path is not None and control_stage_config is not None and os.path.exists(pretrained_control_unet_path):
-            # import pdb; pdb.set_trace();
             pretrained_state_dict = torch.load(pretrained_control_unet_path, map_location="cpu")
             pretrained_state_dict = {k.replace('model.diffusion_model.unet_image.',''):v for k,v in pretrained_state_dict.items() if 'unet_image.' in k}
             missing, unexpected = self.control_model.load_state_dict(pretrained_state_dict, strict=False)
-            print('s-unet missing {} params.'.format(len(missing)))
-            print('unet missing: ', missing)
-            print('s-unet unexpected {} params.'.format(len(unexpected)))
+            print('side-unet missing {} params.'.format(len(missing)))
+            print('side-unet missing: ', missing)
+            print('side-unet unexpected {} params.'.format(len(unexpected)))
             # print('s-unet unexpected: ', unexpected)
-            # import pdb; pdb.set_trace();
 
         ## import the pretrained weight of adaptor from pretrained dual-stream network
         if pretrained_control_unet_zeroconv_path is not None and control_stage_config is not None and os.path.exists(pretrained_control_unet_zeroconv_path):
