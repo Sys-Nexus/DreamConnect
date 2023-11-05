@@ -125,6 +125,7 @@ class ControlLDM(LatentDiffusion):
         # cond_key = self.fmri_cond_stage_key if self.is_fmri_input else cond_key
         # xc = super().get_input(batch, cond_key)
         xc = DDPM.get_input(self, batch, cond_key)
+        cap = batch['cap']
         if bs is not None:
             xc["c_crossattn"] = xc["c_crossattn"][:bs]
             xc["c_crossattn_1"] = xc["c_crossattn_1"][:bs]
@@ -156,7 +157,7 @@ class ControlLDM(LatentDiffusion):
         fmri_x = self.vd_clip.clip_encode_vision(x)
         fmri_cap = self.vd_clip.clip_encode_text(cap)
 
-        import pdb;pdb.set_trace()
+        # import pdb;pdb.set_trace()
         cond["c_crossattn_1"] = {}
         cond["c_crossattn_1"]["image_emb"] = [torch.where(fmri_prompt_mask.bool(), fmri_null_x, fmri_x)]
         cond["c_crossattn_1"]["text_emb"] = [torch.where(fmri_prompt_mask.bool(), fmri_null_cap, fmri_cap)]
