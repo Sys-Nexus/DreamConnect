@@ -155,7 +155,7 @@ class ControlLDM(LatentDiffusion):
         fmri_x = self.vd_clip.clip_encode_vision(x)
         fmri_cap = self.vd_clip.clip_encode_text(batch['cap'])
 
-        # import pdb;pdb.set_trace()
+        import pdb;pdb.set_trace()
         cond["c_crossattn_1"] = {}
         cond["c_crossattn_1"]["image_emb"] = [torch.where(fmri_prompt_mask.bool(), fmri_null_x, fmri_x)]
         cond["c_crossattn_1"]["text_emb"] = [torch.where(fmri_prompt_mask.bool(), fmri_null_cap, fmri_cap)]
