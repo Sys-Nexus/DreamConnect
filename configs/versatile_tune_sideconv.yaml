@@ -143,9 +143,12 @@ model:
     cond_stage_config:
       target: ldm.modules.encoders.modules.FrozenCLIPEmbedder
 
+    fmri_lowlevel_path: train_logs/autoencoder_subj01_4x_locont_no_reconst/epoch120.pth
     fmri_lowlevel_config:
-      target: 
-      
+      target: ldm.modules.encoders.fmri_nips23.Voxel2StableDiffusionModel
+      params: 
+        in_dim: 15724
+
 data:
   target: main.DataModuleFromConfig
   params:

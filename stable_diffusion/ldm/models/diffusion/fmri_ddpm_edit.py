@@ -368,6 +368,7 @@ class LatentDiffusion(DDPM):
     def __init__(self,
                  first_stage_config,
                  cond_stage_config,
+                 fmri_lowlevel_path=None,
                  fmri_lowlevel_config=None,
                  control_stage_config=None,
                  control_key='fmri',
@@ -434,7 +435,8 @@ class LatentDiffusion(DDPM):
         if fmri2visual_stage_config is not None:
             self.instantiate_fmri2visual_stage(fmri2visual_stage_config)
         if fmri_lowlevel_config is not None:
-            
+            self.fmri_lowlevel_path = fmri_lowlevel_path
+            self.instantiate_fmri2lowlevel(fmri_lowlevel_config)
         self.cond_stage_forward = cond_stage_forward
         self.cond_stage_forward_fmri = cond_stage_forward_fmri
         # import pdb; pdb.set_trace();
@@ -559,6 +561,18 @@ class LatentDiffusion(DDPM):
         self.shorten_cond_schedule = self.num_timesteps_cond > 1
         if self.shorten_cond_schedule:
             self.make_cond_schedule()
+
+    def instantiate_fmri2lowlevel(self, fmri_lowlevel_config):
+        model = instantiate_from_config(fmri_lowlevel_config)
+        self.fmri2lowlevel = model.eval()
+        for param in self.fmri2lowlevel.parameters():
+            param.requires_grad = False
+        
+        import pdb; pdb.set_trace()
+        if os.path.exist_ok(self.fmri_lowlevel_path):
+            pretrained_state_dict = torch.load(self.fmri_lowlevel_path, map_location='cpu')
+            self.fmri2lowlevel.load_state_dict(pretrained_state_dict)
+
 
     def instantiate_first_stage(self, config):
         model = instantiate_from_config(config)
