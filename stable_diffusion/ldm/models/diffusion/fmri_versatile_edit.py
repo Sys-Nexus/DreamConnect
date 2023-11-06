@@ -236,16 +236,17 @@ class ControlLDM(LatentDiffusion):
         x_pred = self.decode_first_stage(z_pred)
 
         if True:
-            import pdb; pdb.set_trace();
+            # import pdb; pdb.set_trace();
             sigmas = model_wrap.get_sigmas(steps)
-            new_steps = int(0.75*steps)
+            strength = 0.75
+            new_steps = int(strength*steps)
             sigmas_clamp = sigmas[-new_steps:]
-            noisy_steps = torch.ones(size=(c['c_concat'][0].shape[0],)).to(sigmas.device).long()*int(0.25*steps)
+            noisy_steps = torch.ones(size=(c['c_concat'][0].shape[0],)).to(sigmas.device).long()*int(trength*steps)
             z_concat_noised = self.q_sample(c['c_concat'][0], noisy_steps)
             z_pred_w_spatial = z_concat_noised * sigmas_clamp[0]
             z_pred_w_spatial = K.sampling.sample_euler_ancestral(model_wrap_cfg, z_pred_w_spatial, sigmas_clamp, extra_args=extra_args)
             x_pred_w_spatial = self.decode_first_stage(z_pred_w_spatial)
-            torchvision.utils.save_image(torch.cat([x_pred, x_pred_w_spatial],dim=2), 'output_concat.jpg')
+            torchvision.utils.save_image(torch.cat([x_pred, x_pred_w_spatial],dim=2)*0.5+0.5, 'output_concat_3.jpg')
             import pdb; pdb.set_trace();
 
         # import pdb; pdb.set_trace();
