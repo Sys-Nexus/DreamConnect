@@ -115,3 +115,4 @@ if __name__ == '__main__':
     voxel2lowlevel = Voxel2StableDiffusionModel().cuda()
     input_feat = torch.ones(size=(1, 15724)).cuda()
     output_feat = voxel2lowlevel(input_feat)
+    print(output_feat.shape)
