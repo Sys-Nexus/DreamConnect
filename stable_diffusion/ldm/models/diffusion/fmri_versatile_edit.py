@@ -405,13 +405,13 @@ class fMRIVersatileEdit(LatentDiffusion):
         if True:
             pretrained_control_unet_path = 'third_party/versatile_diffusion/pretrained/vd-four-flow-v1-0-fp16-deprecated.pth'
             pretrained_state_dict = torch.load(pretrained_control_unet_path, map_location="cpu")
-            import pdb; pdb.set_trace();
-            pretrained_state_dict = {k:v for k,v in pretrained_state_dict.items() if 'clip.' in k}
-            missing, unexpected = self.vd_clip.load_state_dict(pretrained_state_dict, strict=False)
+            # import pdb; pdb.set_trace();
+            pretrained_state_dict = {k.replace('autokl.',''):v for k,v in pretrained_state_dict.items() if 'autokl.' in k}
+            missing, unexpected = net.autokl.load_state_dict(pretrained_state_dict, strict=False)
 
-            print('clip missing {} params.'.format(len(missing)))
-            print('clip missing: ', missing)
-            print('clip unexpected {} params.'.format(len(unexpected)))
+            print('autokl missing {} params.'.format(len(missing)))
+            print('autokl missing: ', missing)
+            print('autokl unexpected {} params.'.format(len(unexpected)))
 
         #net.model.cuda(1)
         sampler = sampler(net)
