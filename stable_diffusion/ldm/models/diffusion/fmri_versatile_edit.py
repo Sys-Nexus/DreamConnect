@@ -204,6 +204,7 @@ class ControlLDM(LatentDiffusion):
                                            bs=N, uncond=0)
         cap = batch['cap'][:N]
         sigmas = model_wrap.get_sigmas(steps)
+        import pdb; pdb.set_trace()
         z_pred = torch.randn_like(z_gt) * sigmas[0]
 
         cond = {}
