@@ -203,9 +203,6 @@ class ControlLDM(LatentDiffusion):
                                            return_original_cond=True,
                                            bs=N, uncond=0)
         cap = batch['cap'][:N]
-        sigmas = model_wrap.get_sigmas(steps)
-        import pdb; pdb.set_trace()
-        z_pred = torch.randn_like(z_gt) * sigmas[0]
 
         cond = {}
         cond["c_crossattn"] = [self.get_learned_conditioning(xc["c_crossattn"])]
@@ -230,8 +227,24 @@ class ControlLDM(LatentDiffusion):
             "text_cfg_scale": cfg_text,
             "fmri_cfg_scale": cfg_fmri,
         }
+
+        import pdb; pdb.set_trace()
+
+        sigmas = model_wrap.get_sigmas(steps)
+        z_pred = torch.randn_like(z_gt) * sigmas[0]
         z_pred = K.sampling.sample_euler_ancestral(model_wrap_cfg, z_pred, sigmas, extra_args=extra_args)
         x_pred = self.decode_first_stage(z_pred)
+
+        if True:
+            import pdb; pdb.set_trace();
+            sigmas = model_wrap.get_sigmas(steps)
+            sigmas_clamp = ...
+            z_concat_noised = ...
+            z_pred_w_spatial = z_concat_noised * sigmas_clamp[0]
+            z_pred_w_spatial = K.sampling.sample_euler_ancestral(model_wrap_cfg, z_pred_w_spatial, sigmas_clamp, extra_args=extra_args)
+            x_pred_w_spatial = self.decode_first_stage(z_pred_w_spatial)
+            torchvision.utils.save_image(torch.cat([x_pred, x_pred_w_spatial],dim=1), 'output_concat.jpg')
+            import pdb; pdb.set_trace();
 
         # import pdb; pdb.set_trace();
         log["gt"] = x
