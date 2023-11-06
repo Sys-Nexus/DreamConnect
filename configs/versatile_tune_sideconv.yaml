@@ -143,6 +143,9 @@ model:
     cond_stage_config:
       target: ldm.modules.encoders.modules.FrozenCLIPEmbedder
 
+    fmri_lowlevel_config:
+      target: 
+      
 data:
   target: main.DataModuleFromConfig
   params:

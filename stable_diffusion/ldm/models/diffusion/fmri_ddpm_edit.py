@@ -368,6 +368,7 @@ class LatentDiffusion(DDPM):
     def __init__(self,
                  first_stage_config,
                  cond_stage_config,
+                 fmri_lowlevel_config=None,
                  control_stage_config=None,
                  control_key='fmri',
                  only_mid_control=False,
@@ -432,6 +433,8 @@ class LatentDiffusion(DDPM):
             self.instantiate_cond_stage_fmri(cond_stage_config_fmri)
         if fmri2visual_stage_config is not None:
             self.instantiate_fmri2visual_stage(fmri2visual_stage_config)
+        if fmri_lowlevel_config is not None:
+            
         self.cond_stage_forward = cond_stage_forward
         self.cond_stage_forward_fmri = cond_stage_forward_fmri
         # import pdb; pdb.set_trace();
