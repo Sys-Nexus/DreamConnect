@@ -255,10 +255,10 @@ class ControlLDM(LatentDiffusion):
             x_pred = F.interpolate(x_pred_lowlevel, (256,256))
 
             x_lowlevel = self.decode_first_stage(init_ae)
-            x_lowlevel = F.interpolate(init_ae, (256, 256))
+            x_lowlevel = F.interpolate(x_lowlevel, (256, 256))
 
             # print(x_lowlevel.device, x_pred.device, init_ae.device)
-            import pdb; pdb.set_trace();
+            # import pdb; pdb.set_trace();
             # z_concat_noised = self.q_sample(c['c_concat'][0], noisy_steps)
             # z_pred_w_spatial = z_concat_noised * sigmas_clamp[0]
             # z_pred_w_spatial = K.sampling.sample_euler_ancestral(model_wrap_cfg, z_pred_w_spatial, sigmas_clamp, extra_args=extra_args)
