@@ -237,18 +237,28 @@ class ControlLDM(LatentDiffusion):
             x_pred = self.decode_first_stage(z_pred)
 
         if True:
-            import pdb; pdb.set_trace();
-            voxel = batch['fmri_raw'][:N]
-            init_ae = self.fmri2lowlevel(voxel)
+            # import pdb; pdb.set_trace();
             sigmas = model_wrap.get_sigmas(steps)
             strength = 0.75
             new_steps = int(strength*steps)
             sigmas_clamp = sigmas[-new_steps:]
             noisy_steps = torch.ones(size=(c['c_concat'][0].shape[0],)).to(sigmas.device).long()*int(trength*steps)
+
+            voxel = batch['fmri'][:N].to(x)
+            self.fmri2lowlevel = self.fmri2lowlevel.float()
+            init_ae = self.fmri2lowlevel(voxel)
+
+            z_lowlevel_noised = self.q_sample(init_ae, noisy_steps)
+            z_pred_lowlevel = z_lowlevel_noised * sigmas_clamp[0]
+            z_pred_lowlevel = K.sampling.sample_euler_ancestral(model_wrap_cfg, z_pred_lowlevel, sigmas_clamp, extra_args=extra_args)
+            x_pred_lowlevel = self.decode_first_stage(z_pred_lowlevel)
+
             z_concat_noised = self.q_sample(c['c_concat'][0], noisy_steps)
             z_pred_w_spatial = z_concat_noised * sigmas_clamp[0]
             z_pred_w_spatial = K.sampling.sample_euler_ancestral(model_wrap_cfg, z_pred_w_spatial, sigmas_clamp, extra_args=extra_args)
             x_pred_w_spatial = self.decode_first_stage(z_pred_w_spatial)
+            torchvision.utils.save_image(torch.cat([x_pred_lowlevel, x_pred_w_spatial])*0.5+0.5, 'concat_output.jpg')
+            
             # torchvision.utils.save_image(torch.cat([x_pred, x_pred_w_spatial],dim=2)*0.5+0.5, 'output_concat_3.jpg')
             # import pdb; pdb.set_trace();
 
