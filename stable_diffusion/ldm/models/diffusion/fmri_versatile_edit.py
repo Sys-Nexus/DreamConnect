@@ -252,14 +252,17 @@ class ControlLDM(LatentDiffusion):
             z_pred_lowlevel = z_lowlevel_noised * sigmas_clamp[0]
             z_pred_lowlevel = K.sampling.sample_euler_ancestral(model_wrap_cfg, z_pred_lowlevel, sigmas_clamp, extra_args=extra_args)
             x_pred_lowlevel = self.decode_first_stage(z_pred_lowlevel)
+            x_pred = F.interpolate(x_pred_lowlevel, (256,256))
 
-            z_concat_noised = self.q_sample(c['c_concat'][0], noisy_steps)
-            z_pred_w_spatial = z_concat_noised * sigmas_clamp[0]
-            z_pred_w_spatial = K.sampling.sample_euler_ancestral(model_wrap_cfg, z_pred_w_spatial, sigmas_clamp, extra_args=extra_args)
-            x_pred_w_spatial = self.decode_first_stage(z_pred_w_spatial)
+            x_lowlevel = self.decode_first_stage(init_ae)
+            x_lowlevel = F.interpolate(init_ae, (256, 256))
 
-            x_pred_lowlevel_resize = F.interpolate(x_pred_lowlevel, (256,256))
-            torchvision.utils.save_image(torch.cat([x_pred_lowlevel_resize, x_pred_w_spatial])*0.5+0.5, 'concat_output.jpg')
+            # z_concat_noised = self.q_sample(c['c_concat'][0], noisy_steps)
+            # z_pred_w_spatial = z_concat_noised * sigmas_clamp[0]
+            # z_pred_w_spatial = K.sampling.sample_euler_ancestral(model_wrap_cfg, z_pred_w_spatial, sigmas_clamp, extra_args=extra_args)
+            # x_pred_w_spatial = self.decode_first_stage(z_pred_w_spatial)
+            # x_pred_lowlevel_resize = F.interpolate(x_pred_lowlevel, (256,256))
+            # torchvision.utils.save_image(torch.cat([x_pred_lowlevel_resize, x_pred_w_spatial])*0.5+0.5, 'concat_output.jpg')
             
             # torchvision.utils.save_image(torch.cat([x_pred, x_pred_w_spatial],dim=2)*0.5+0.5, 'output_concat_3.jpg')
             # import pdb; pdb.set_trace();
@@ -278,7 +281,7 @@ class ControlLDM(LatentDiffusion):
             os.makedirs(os.path.dirname(path), exist_ok=True)
             torchvision.utils.save_image(log[k]*0.5+0.5, path)
 
-        cats = [log['gt'].detach().cpu(), log['instruction'].detach().cpu(), log['concat'].detach().cpu(), log['samples'].detach().cpu()]
+        cats = [x_lowlevel, log['gt'].detach().cpu(), log['instruction'].detach().cpu(), log['concat'].detach().cpu(), log['samples'].detach().cpu()]
         cats = torch.concat(cats, dim=-2)
         filename = "all_iter-{:06}_ep-{:06}_bidx-{:06d}-{:06d}.png".format(iter_n, epoch_n, batch_idx, s)
         path = os.path.join(root, filename)
