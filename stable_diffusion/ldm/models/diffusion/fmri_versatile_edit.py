@@ -257,7 +257,9 @@ class ControlLDM(LatentDiffusion):
             z_pred_w_spatial = z_concat_noised * sigmas_clamp[0]
             z_pred_w_spatial = K.sampling.sample_euler_ancestral(model_wrap_cfg, z_pred_w_spatial, sigmas_clamp, extra_args=extra_args)
             x_pred_w_spatial = self.decode_first_stage(z_pred_w_spatial)
-            torchvision.utils.save_image(torch.cat([x_pred_lowlevel, x_pred_w_spatial])*0.5+0.5, 'concat_output.jpg')
+
+            x_pred_lowlevel_resize = F.interpolate(x_pred_lowlevel, (256,256))
+            torchvision.utils.save_image(torch.cat([x_pred_lowlevel_resize, x_pred_w_spatial])*0.5+0.5, 'concat_output.jpg')
             
             # torchvision.utils.save_image(torch.cat([x_pred, x_pred_w_spatial],dim=2)*0.5+0.5, 'output_concat_3.jpg')
             # import pdb; pdb.set_trace();
