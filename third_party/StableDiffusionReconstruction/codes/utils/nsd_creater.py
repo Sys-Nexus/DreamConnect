@@ -138,7 +138,7 @@ class NIPS23NSDDataset(Dataset):
                 chosen_pool = []
                 for chosen_i in [0,1]:
                     edited_path = os.path.join(self.edited_root, '{:06d}'.format(s), 'output_{:06d}_seed93151_id{}.jpg'.format(s,chosen_i))
-                    if os.path.exist(edited_path):
+                    if os.path.exists(edited_path):
                         chosen_pool.append(chosen_i)
                 chosen_i = random.choice(chosen_pool)
                 instruction_text = self.meta_info[s]['edit'][chosen_i]
