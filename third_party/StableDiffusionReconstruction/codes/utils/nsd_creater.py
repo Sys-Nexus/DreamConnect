@@ -140,9 +140,9 @@ class NIPS23NSDDataset(Dataset):
                 edited_path = os.path.join(self.edited_root, '{:06d}'.format(s), 'output_{:06d}_seed93151_id{}.jpg'.format(s,chosen_i))
                 if os.path.exists(edited_path):
                     chosen_pool.append(chosen_i)
-            chosen_i = random.choice(chosen_pool)
-            
+
             if len(chosen_pool) and s in self.meta_info:
+                chosen_i = random.choice(chosen_pool)
                 instruction_text = self.meta_info[s]['edit'][chosen_i]
                 nsd_dict['fmri_edit'] = {'c_concat': init_image[0], 'c_crossattn': instruction_text, 'c_crossattn_1': fmri_norm}
                 edited_path = os.path.join(self.edited_root, '{:06d}'.format(s), 'output_{:06d}_seed93151_id{}.jpg'.format(s,chosen_i))
