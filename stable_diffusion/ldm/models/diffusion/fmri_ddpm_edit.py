@@ -537,22 +537,6 @@ class LatentDiffusion(DDPM):
         ids = torch.round(torch.linspace(0, self.num_timesteps - 1, self.num_timesteps_cond)).long()
         self.cond_ids[:self.num_timesteps_cond] = ids
 
-    # @rank_zero_only
-    # @torch.no_grad()
-    # def on_train_batch_start(self, batch, batch_idx, dataloader_idx):
-    #     # only for very first batch
-    #     if self.scale_by_std and self.current_epoch == 0 and self.global_step == 0 and batch_idx == 0 and not self.restarted_from_ckpt:
-    #         assert self.scale_factor == 1., 'rather not use custom rescaling and std-rescaling simultaneously'
-    #         # set rescale weight to 1./std of encodings
-    #         print("### USING STD-RESCALING ###")
-    #         x = super().get_input(batch, self.first_stage_key)
-    #         encoder_posterior = self.encode_first_stage(x)
-    #         z = self.get_first_stage_encoding(encoder_posterior).detach()
-    #         del self.scale_factor
-    #         self.register_buffer('scale_factor', 1. / z.flatten().std())
-    #         print(f"setting self.scale_factor to {self.scale_factor}")
-    #         print("### USING STD-RESCALING ###")
-
     def register_schedule(self,
                           given_betas=None, beta_schedule="linear", timesteps=1000,
                           linear_start=1e-4, linear_end=2e-2, cosine_s=8e-3):
@@ -568,11 +552,13 @@ class LatentDiffusion(DDPM):
         for param in self.fmri2lowlevel.parameters():
             param.requires_grad = False
         
-        import pdb; pdb.set_trace()
-        if os.path.exist_ok(self.fmri_lowlevel_path):
-            pretrained_state_dict = torch.load(self.fmri_lowlevel_path, map_location='cpu')
-            self.fmri2lowlevel.load_state_dict(pretrained_state_dict)
-
+        # import pdb; pdb.set_trace()
+        if os.path.exists(self.fmri_lowlevel_path):
+            pretrained_state_dict = torch.load(self.fmri_lowlevel_path, map_location='cpu')['model_state_dict']
+            missing, unexpected = self.fmri2lowlevel.load_state_dict(pretrained_state_dict, strict=False)
+            self.fmri2lowlevel.eval()
+            print('fmri_lowlevel missing: ', len(missing))
+            print('fmri_lowlevel unexpected: ', len(unexpected))           
 
     def instantiate_first_stage(self, config):
         model = instantiate_from_config(config)
