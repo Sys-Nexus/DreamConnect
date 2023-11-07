@@ -257,7 +257,8 @@ class ControlLDM(LatentDiffusion):
             x_lowlevel = self.decode_first_stage(init_ae)
             x_lowlevel = F.interpolate(init_ae, (256, 256))
 
-            import pdb; pdb.set_trace();
+            # print(x_lowlevel.device, x_pred.device, init_ae.device)
+            # import pdb; pdb.set_trace();
             # z_concat_noised = self.q_sample(c['c_concat'][0], noisy_steps)
             # z_pred_w_spatial = z_concat_noised * sigmas_clamp[0]
             # z_pred_w_spatial = K.sampling.sample_euler_ancestral(model_wrap_cfg, z_pred_w_spatial, sigmas_clamp, extra_args=extra_args)
@@ -282,7 +283,7 @@ class ControlLDM(LatentDiffusion):
             os.makedirs(os.path.dirname(path), exist_ok=True)
             torchvision.utils.save_image(log[k]*0.5+0.5, path)
 
-        cats = [x_lowlevel, log['gt'].detach().cpu(), log['instruction'].detach().cpu(), log['concat'].detach().cpu(), log['samples'].detach().cpu()]
+        cats = [x_lowlevel.detach().cpu(), log['gt'].detach().cpu(), log['instruction'].detach().cpu(), log['concat'].detach().cpu(), log['samples'].detach().cpu()]
         cats = torch.concat(cats, dim=-2)
         filename = "all_iter-{:06}_ep-{:06}_bidx-{:06d}-{:06d}.png".format(iter_n, epoch_n, batch_idx, s)
         path = os.path.join(root, filename)
