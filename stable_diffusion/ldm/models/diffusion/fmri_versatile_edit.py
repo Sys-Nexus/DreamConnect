@@ -79,6 +79,7 @@ class VersatileControlNet(UNetModelVD):
         x=x.half()
         emb = self.time_embed(t_emb.half())
         guided_hint = self.input_hint_block(hint, emb)
+        print(guided_hint.shape)
 
         if xtype == 'text':
             x = x[:, :, None, None]
