@@ -40,6 +40,7 @@ class VersatileControlNet(UNetModelVD):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         dims = self.dims = 2
+        model_channels = self.model_channels
         self.zero_convs = nn.ModuleList([self.make_zero_conv(self.model_channels)])
         for level_idx, mult in enumerate(self.channel_mult):
             for _ in range(self.num_noattn_blocks[level_idx]):
