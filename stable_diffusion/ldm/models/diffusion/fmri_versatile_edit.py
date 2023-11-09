@@ -270,7 +270,7 @@ class ControlLDM(LatentDiffusion):
         uncond["c_crossattn_1"] = {}
         uncond["c_crossattn_1"]["image_emb"] = self.vd_clip.clip_encode_vision(torch.zeros_like(x))
         uncond["c_crossattn_1"]["text_emb"] = self.vd_clip.clip_encode_text(['' for i in range(len(cap))])
-        uncond["c_crossattn_1"]["fmri_vae"] = torch.zeros_like(lowlevel_vae)
+        uncond["c_crossattn_1"]["fmri_vae"] = self.fmri2lowlevel(torch.zeros_like(voxel)).half()
 
         extra_args = {
             "cond": cond,
