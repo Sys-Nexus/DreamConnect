@@ -160,7 +160,7 @@ class ControlLDM(LatentDiffusion):
             voxel = batch['fmri'].to(z).mean(dim=1)
             print(voxel.shape)
             self.fmri2lowlevel = self.fmri2lowlevel.float()
-            lowlevel_vae = self.fmri2lowlevel(voxel)
+            lowlevel_vae = self.fmri2lowlevel(voxel).half()
 
         cond_key = cond_key or self.cond_stage_key
 
@@ -246,7 +246,7 @@ class ControlLDM(LatentDiffusion):
         voxel = batch['fmri'][:N].to(z_gt)
         with torch.no_grad():
             self.fmri2lowlevel = self.fmri2lowlevel.float()
-            lowlevel_vae = self.fmri2lowlevel(voxel)
+            lowlevel_vae = self.fmri2lowlevel(voxel).half()
 
 
         cond = {}
@@ -292,7 +292,7 @@ class ControlLDM(LatentDiffusion):
 
             voxel = batch['fmri'][:N].to(x)
             self.fmri2lowlevel = self.fmri2lowlevel.float()
-            init_ae = self.fmri2lowlevel(voxel)
+            init_ae = self.fmri2lowlevel(voxel).half()
 
             z_lowlevel_noised = self.q_sample(init_ae, noisy_steps)
             z_pred_lowlevel = z_lowlevel_noised * sigmas_clamp[0]
