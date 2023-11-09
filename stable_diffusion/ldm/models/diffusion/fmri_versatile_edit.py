@@ -160,8 +160,9 @@ class ControlLDM(LatentDiffusion):
         
         with torch.no_grad():
             # import pdb; pdb.set_trace()
-            voxel = batch['fmri'].to(z).mean(dim=1)
-            print(voxel.shape)
+            voxel = batch['fmri'].to(z)
+            if voxel.shape[2] == 3: voxel = voxel.mean(dim=1)
+            # print(voxel.shape)
             self.fmri2lowlevel = self.fmri2lowlevel.float()
             lowlevel_vae = self.fmri2lowlevel(voxel).half()
 
