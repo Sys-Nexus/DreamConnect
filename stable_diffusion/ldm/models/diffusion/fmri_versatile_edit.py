@@ -166,6 +166,7 @@ class ControlLDM(LatentDiffusion):
 
         xc = DDPM.get_input(self, batch, cond_key)
         cap = batch['cap']
+        fmri_vae = lowlevel_vae
         if bs is not None:
             xc["c_crossattn"] = xc["c_crossattn"][:bs]
             xc["c_crossattn_1"] = xc["c_crossattn_1"][:bs]
