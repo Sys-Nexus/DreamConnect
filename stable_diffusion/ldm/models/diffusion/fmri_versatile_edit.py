@@ -79,7 +79,6 @@ class VersatileControlNet(UNetModelVD):
         x=x.half()
         emb = self.time_embed(t_emb.half())
         guided_hint = self.input_hint_block(hint, emb)
-        print(guided_hint.shape)
 
         if xtype == 'text':
             x = x[:, :, None, None]
@@ -87,6 +86,7 @@ class VersatileControlNet(UNetModelVD):
         for i_module, t_module, zero_conv in zip(self.unet_image.input_blocks, self.unet_text.input_blocks, self.zero_convs):
             if guided_hint is not None:
                 h = self.mixed_run_dc(i_module, t_module, h, emb, c0, c1, xtype, c0_type, c1_type, mixed_ratio)
+                print(guided_hint.shape, h.shape)
                 h += guided_hint
                 guided_hint = None
             else:
