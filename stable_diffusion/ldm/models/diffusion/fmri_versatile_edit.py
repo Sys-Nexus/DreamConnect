@@ -295,9 +295,9 @@ class ControlLDM(LatentDiffusion):
             sigmas_clamp = sigmas[-new_steps:]
             noisy_steps = torch.ones(size=(c['c_concat'][0].shape[0],)).to(sigmas.device).long()*int(strength*steps)
 
-            # voxel = batch['fmri'][:N].to(x)
-            # self.fmri2lowlevel = self.fmri2lowlevel.float()
-            # init_ae = self.fmri2lowlevel(voxel).half()
+            voxel = batch['fmri'][:N].to(x)
+            self.fmri2lowlevel = self.fmri2lowlevel.float()
+            init_ae = self.fmri2lowlevel(voxel).half()
 
             # z_lowlevel_noised = self.q_sample(init_ae, noisy_steps)
             # z_pred_lowlevel = z_lowlevel_noised * sigmas_clamp[0]
