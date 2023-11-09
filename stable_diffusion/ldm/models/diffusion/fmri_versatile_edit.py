@@ -48,7 +48,8 @@ class VersatileControlNet(UNetModelVD):
             if level_idx != len(self.channel_mult) - 1:
                 self.zero_convs.append(self.make_zero_conv(ch))
         self.middle_block_out = self.make_zero_conv(ch)
-
+        
+        hint_channels = 4
         self.input_hint_block = TimestepEmbedSequential(
             conv_nd(dims, hint_channels, 16, 3, padding=1),
             nn.SiLU(),
