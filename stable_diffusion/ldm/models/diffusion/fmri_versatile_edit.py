@@ -49,21 +49,45 @@ class VersatileControlNet(UNetModelVD):
                 self.zero_convs.append(self.make_zero_conv(ch))
         self.middle_block_out = self.make_zero_conv(ch)
 
+        self.input_hint_block = TimestepEmbedSequential(
+            conv_nd(dims, hint_channels, 16, 3, padding=1),
+            nn.SiLU(),
+            conv_nd(dims, 16, 16, 3, padding=1),
+            nn.SiLU(),
+            conv_nd(dims, 16, 32, 3, padding=1, stride=2),
+            nn.SiLU(),
+            conv_nd(dims, 32, 32, 3, padding=1),
+            nn.SiLU(),
+            conv_nd(dims, 32, 96, 3, padding=1, stride=2),
+            nn.SiLU(),
+            conv_nd(dims, 96, 96, 3, padding=1),
+            nn.SiLU(),
+            conv_nd(dims, 96, 256, 3, padding=1, stride=2),
+            nn.SiLU(),
+            zero_module(conv_nd(dims, 256, model_channels, 3, padding=1))
+        )
+
     def make_zero_conv(self, channels):
         return TimestepEmbedSequential(zero_module(conv_nd(self.dims, channels, channels, 1, padding=0)))
 
-    def forward_dc(self, x, timesteps, c0, c1, xtype, c0_type, c1_type, mixed_ratio):
+    def forward_dc(self, x, hint, timesteps, c0, c1, xtype, c0_type, c1_type, mixed_ratio):
         outs = []
         t_emb = timestep_embedding(timesteps, self.model_channels, repeat_only=False)
         
         x=x.half()
         emb = self.time_embed(t_emb.half())
+        guided_hint = self.input_hint_block(hint, emb)
 
         if xtype == 'text':
             x = x[:, :, None, None]
         h = x
         for i_module, t_module, zero_conv in zip(self.unet_image.input_blocks, self.unet_text.input_blocks, self.zero_convs):
-            h = self.mixed_run_dc(i_module, t_module, h, emb, c0, c1, xtype, c0_type, c1_type, mixed_ratio)
+            if guided_hint is not None:
+                h = self.mixed_run_dc(i_module, t_module, h, emb, c0, c1, xtype, c0_type, c1_type, mixed_ratio)
+                h += guided_hint
+                guided_hint = None
+            else:
+                h = self.mixed_run_dc(i_module, t_module, h, emb, c0, c1, xtype, c0_type, c1_type, mixed_ratio)
             outs.append(zero_conv(h, emb))
 
         h = self.mixed_run_dc(self.unet_image.middle_block, self.unet_text.middle_block, 
@@ -125,7 +149,12 @@ class ControlLDM(LatentDiffusion):
             x = x[:bs]
         if sz is not None:
             x = F.interpolate(x, (sz,sz))
-        # x = x.half()
+        
+        with torch.no_grad():
+            voxel = batch['fmri'].to(x)
+            self.fmri2lowlevel = self.fmri2lowlevel.float()
+            lowlevel_vae = self.fmri2lowlevel(voxel)
+
         encoder_posterior = self.encode_first_stage(x)
         z = self.get_first_stage_encoding(encoder_posterior).detach()
         cond_key = cond_key or self.cond_stage_key
@@ -137,6 +166,8 @@ class ControlLDM(LatentDiffusion):
             xc["c_crossattn_1"] = xc["c_crossattn_1"][:bs]
             xc["c_concat"] = xc["c_concat"][:bs]
             cap = batch['cap'][:bs]
+            fmri_vae = lowlevel_vae[:bs]
+
         if sz is not None:
             xc["c_concat"] = F.interpolate(xc["c_concat"], (sz,sz))
         x, xc["c_concat"], xc["c_crossattn_1"] = x.to(z), xc["c_concat"].to(z), xc["c_crossattn_1"].to(z)
@@ -166,6 +197,7 @@ class ControlLDM(LatentDiffusion):
         cond["c_crossattn_1"] = {}
         cond["c_crossattn_1"]["image_emb"] = [torch.where(fmri_prompt_mask.bool(), fmri_null_x, fmri_x)]
         cond["c_crossattn_1"]["text_emb"] = [torch.where(fmri_prompt_mask.bool(), fmri_null_cap, fmri_cap)]
+        cond["c_crossattn_1"]["fmri_vae"] = fmri_vae
 
         cond["c_crossattn"] = [torch.where(prompt_mask, null_prompt, self.get_learned_conditioning(xc["c_crossattn"]).detach())]
 
@@ -192,6 +224,11 @@ class ControlLDM(LatentDiffusion):
         # import pdb; pdb.set_trace()
         N = min(batch['image'].shape[0], N)
         s = batch['s'][0]
+        voxel = batch['fmri'][:N].to(x)
+
+        with torch.no_grad():
+            self.fmri2lowlevel = self.fmri2lowlevel.float()
+            lowlevel_vae = self.fmri2lowlevel(voxel)
 
         self.model.eval()
         use_ddim = False
@@ -203,6 +240,7 @@ class ControlLDM(LatentDiffusion):
                                            return_original_cond=True,
                                            bs=N, uncond=0)
         cap = batch['cap'][:N]
+        # fmri = batch['fmri'][:N]
 
         cond = {}
         cond["c_crossattn"] = [self.get_learned_conditioning(xc["c_crossattn"])]
@@ -211,6 +249,7 @@ class ControlLDM(LatentDiffusion):
         cond["c_crossattn_1"] = {}
         cond["c_crossattn_1"]["image_emb"] = self.vd_clip.clip_encode_vision(x)
         cond["c_crossattn_1"]["text_emb"] = self.vd_clip.clip_encode_text(cap)
+        cond["c_crossattn_1"]["fmri_vae"] = lowlevel_vae
 
         uncond = {}
         null_prompt = self.get_learned_conditioning([""]*N)
@@ -405,9 +444,12 @@ class ControlLDM(LatentDiffusion):
             # c1 = self.vd_clip.clip_encode_text(cond['c_crossattn_1']['text'])
             c0 = torch.cat(cond["c_crossattn_1"]["image_emb"], 1)
             c1 = torch.cat(cond["c_crossattn_1"]["text_emb"], 1)
+            fmri_vae = cond["c_crossattn_1"]["fmri_vae"]
             # import pdb; pdb.set_trace();
 
-            control_res = self.control_model.forward_dc(x=torch.cat([x_noisy], dim=1), timesteps=t,
+            control_res = self.control_model.forward_dc(x=torch.cat([x_noisy], dim=1), 
+                                                        hint=fmri_vae,
+                                                        timesteps=t,
                                                         c0=c0, c1=c1,
                                                         xtype='image', c0_type='vision', 
                                                         c1_type='prompt', mixed_ratio=0.6)

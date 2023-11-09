@@ -83,13 +83,15 @@ class CFGDenoiser(nn.Module):
         }
         cfg_cond['c_crossattn_1'] = {}
         cfg_cond["c_crossattn_1"]["image_emb"] = [torch.cat([cond["c_crossattn_1"]["image_emb"],
-                                                            uncond["c_crossattn_1"]["image_emb"],
-                                                            cond["c_crossattn_1"]["image_emb"]])]
+                                                            cond["c_crossattn_1"]["image_emb"],
+                                                            uncond["c_crossattn_1"]["image_emb"]])]
         cfg_cond["c_crossattn_1"]["text_emb"] = [torch.cat([cond["c_crossattn_1"]["text_emb"],
                                                             cond["c_crossattn_1"]["text_emb"],
                                                             uncond["c_crossattn_1"]["text_emb"]])]
+        cfg_cond["c_crossattn_1"]["fmri_vae"] = [torch.cat([cond["c_crossattn_1"]["fmri_vae"],
+                                                            cond["c_crossattn_1"]["fmri_vae"],
+                                                            uncond["c_crossattn_1"]["fmri_vae"]])]
         # import pdb; pdb.set_trace()
-
         out_cond, out_img_cond, out_txt_cond \
             = self.inner_model(cfg_z, cfg_sigma, cond=cfg_cond).chunk(3)
         return 0.5 * (out_img_cond + out_txt_cond) + \
