@@ -152,14 +152,15 @@ class ControlLDM(LatentDiffusion):
         if sz is not None:
             x = F.interpolate(x, (sz,sz))
         
+        encoder_posterior = self.encode_first_stage(x)
+        z = self.get_first_stage_encoding(encoder_posterior).detach()
+        
         with torch.no_grad():
-            import pdb; pdb.set_trace()
-            voxel = batch['fmri'].to(x)
+            # import pdb; pdb.set_trace()
+            voxel = batch['fmri'].to(z)
             self.fmri2lowlevel = self.fmri2lowlevel.float()
             lowlevel_vae = self.fmri2lowlevel(voxel)
 
-        encoder_posterior = self.encode_first_stage(x)
-        z = self.get_first_stage_encoding(encoder_posterior).detach()
         cond_key = cond_key or self.cond_stage_key
 
         xc = DDPM.get_input(self, batch, cond_key)
@@ -227,11 +228,6 @@ class ControlLDM(LatentDiffusion):
         # import pdb; pdb.set_trace()
         N = min(batch['image'].shape[0], N)
         s = batch['s'][0]
-        voxel = batch['fmri'][:N].to(x)
-
-        with torch.no_grad():
-            self.fmri2lowlevel = self.fmri2lowlevel.float()
-            lowlevel_vae = self.fmri2lowlevel(voxel)
 
         self.model.eval()
         use_ddim = False
@@ -244,6 +240,12 @@ class ControlLDM(LatentDiffusion):
                                            bs=N, uncond=0)
         cap = batch['cap'][:N]
         # fmri = batch['fmri'][:N]
+
+        voxel = batch['fmri'][:N].to(z_gt)
+        with torch.no_grad():
+            self.fmri2lowlevel = self.fmri2lowlevel.float()
+            lowlevel_vae = self.fmri2lowlevel(voxel)
+
 
         cond = {}
         cond["c_crossattn"] = [self.get_learned_conditioning(xc["c_crossattn"])]
