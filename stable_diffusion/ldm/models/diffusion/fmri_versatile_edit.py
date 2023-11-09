@@ -456,7 +456,7 @@ class ControlLDM(LatentDiffusion):
             # c1 = self.vd_clip.clip_encode_text(cond['c_crossattn_1']['text'])
             c0 = torch.cat(cond["c_crossattn_1"]["image_emb"], 1)
             c1 = torch.cat(cond["c_crossattn_1"]["text_emb"], 1)
-            fmri_vae = cond["c_crossattn_1"]["fmri_vae"]
+            fmri_vae = torch.cat(cond["c_crossattn_1"]["fmri_vae"],1)
             # import pdb; pdb.set_trace();
 
             control_res = self.control_model.forward_dc(x=torch.cat([x_noisy], dim=1), 
