@@ -153,6 +153,7 @@ class ControlLDM(LatentDiffusion):
             x = F.interpolate(x, (sz,sz))
         
         with torch.no_grad():
+            import pdb; pdb.set_trace()
             voxel = batch['fmri'].to(x)
             self.fmri2lowlevel = self.fmri2lowlevel.float()
             lowlevel_vae = self.fmri2lowlevel(voxel)
