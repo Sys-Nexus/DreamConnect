@@ -54,6 +54,7 @@ class ControlledUnetModel(UNetModel):
             h += control.pop(0)
 
         for i, module in enumerate(self.output_blocks):
+            print(i, control[0].shape)
             if only_mid_control or control is None:
                 h = torch.cat([h, hs.pop()], dim=1)
             else:
