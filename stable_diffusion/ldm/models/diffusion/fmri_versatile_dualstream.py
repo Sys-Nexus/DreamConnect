@@ -51,6 +51,7 @@ class VersatileNetAdaptor(UNetModelVD):
         for level_idx, mult in list(enumerate(channel_mult))[::-1]:
             for block_idx in range(self.num_noattn_blocks[level_idx] + 1):
                 ch = mult * model_channels
+                print('ch: ', ch)
                 self.zero_convs.append(self.make_zero_conv(ch))
 
 
