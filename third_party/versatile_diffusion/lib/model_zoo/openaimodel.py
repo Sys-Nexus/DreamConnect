@@ -1972,6 +1972,7 @@ class UNetModel2D(nn.Module):
         self.num_noattn_blocks = num_noattn_blocks
         self.channel_mult = channel_mult
         self.num_heads = num_heads
+        self.second_dim = second_dim
 
         ##################
         # Time embedding #
