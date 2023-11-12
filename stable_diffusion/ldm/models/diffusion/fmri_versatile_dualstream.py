@@ -78,6 +78,7 @@ class VersatileNetAdaptor(UNetModelVD):
         for i_module, t_module, zero_conv in zip(self.unet_image.output_blocks, self.unet_text.output_blocks, self.zero_convs):
             h = th.cat([h, hs.pop()], dim=1)
             h = self.mixed_run_dc(i_module, t_module, h, emb, c0, c1, xtype, c0_type, c1_type, mixed_ratio)
+            print(h.shape)
             outs.append(zero_conv(h, emb))
 
         if xtype == 'image':
