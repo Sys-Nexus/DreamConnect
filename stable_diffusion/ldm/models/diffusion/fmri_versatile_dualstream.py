@@ -40,6 +40,7 @@ from ldm.modules.diffusionmodules.openaimodel import UNetModel
 
 class ControlledUnetModel(UNetModel):
     def forward(self, x, timesteps=None, context=None, control=None, only_mid_control=False, **kwargs):
+        unmatched_layers = [3, 6, 9]
         hs = []
         with torch.no_grad():
             t_emb = timestep_embedding(timesteps, self.model_channels, repeat_only=False)
@@ -59,8 +60,8 @@ class ControlledUnetModel(UNetModel):
         import pdb; pdb.set_trace()
 
         for i, module in enumerate(self.output_blocks):
-            print(i, control[0].shape, hs[-1].shape)
-            if only_mid_control or control is None:
+            # print(i, control[0].shape, hs[-1].shape)
+            if only_mid_control or control is None or i in unmatched_layers:
                 h = torch.cat([h, hs.pop()], dim=1)
             else:
                 h = torch.cat([h, hs.pop() + control.pop(0)], dim=1)
