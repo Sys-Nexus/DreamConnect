@@ -45,12 +45,14 @@ class VersatileNetAdaptor(UNetModelVD):
         second_dim = self.second_dim
 
         self.zero_convs = nn.ModuleList([self.make_zero_conv(self.model_channels)])
-        for level_idx, (mult, sdim) in list(enumerate(zip(channel_mult, second_dim)))[::-1]:
+
+        ch = channel_mult[-1] * model_channels
+        self.middle_block_out = self.make_zero_conv(ch)
+        for level_idx, mult in list(enumerate(channel_mult))[::-1]:
             for block_idx in range(self.num_noattn_blocks[level_idx] + 1):
-                ch = mult * self.model_channels
+                ch = mult * model_channels
                 self.zero_convs.append(self.make_zero_conv(ch))
 
-        self.middle_block_out = self.make_zero_conv(ch)
 
     def make_zero_conv(self, channels):
         return TimestepEmbedSequential(zero_module(conv_nd(self.dims, channels, channels, 1, padding=0)))
