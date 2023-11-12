@@ -1131,7 +1131,8 @@ class LatentDiffusion(DDPM):
 
         loss_dict = {}
         prefix = 'train' if self.training else 'val'
-
+        
+        import pdb; pdb.set_trace();
         if self.parameterization == "x0":
             target = x_start
         elif self.parameterization == "eps":
