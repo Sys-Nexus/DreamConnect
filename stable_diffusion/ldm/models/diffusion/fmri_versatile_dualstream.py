@@ -56,7 +56,7 @@ class VersatileNetAdaptor(UNetModelVD):
     def make_zero_conv(self, channels):
         return TimestepEmbedSequential(zero_module(conv_nd(self.dims, channels, channels, 1, padding=0)))
 
-    def forward_dc(self, x, hint, timesteps, c0, c1, xtype, c0_type, c1_type, mixed_ratio):
+    def forward_dc(self, x, timesteps, c0, c1, xtype, c0_type, c1_type, mixed_ratio):
         hs, outs = [], []
         t_emb = timestep_embedding(timesteps, self.model_channels, repeat_only=False)
         
