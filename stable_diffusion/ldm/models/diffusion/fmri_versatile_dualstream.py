@@ -50,6 +50,12 @@ class ControlledUnetModel(UNetModel):
                 hs.append(h)
             h = self.middle_block(h, emb, context)
 
+        for control_i in control:
+            print(control_i.shape)
+        for h_i in hs:
+            print(h_i.shape)
+        import pdb; pdb.set_trace()
+
         if control is not None:
             h += control.pop(0)
 
