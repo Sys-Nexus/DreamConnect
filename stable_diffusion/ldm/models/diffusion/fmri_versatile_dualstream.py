@@ -54,12 +54,12 @@ class ControlledUnetModel(UNetModel):
         if control is not None:
             h += control.pop(0)
 
-        for control_i, h_i in zip(control[::-1], hs):
-            print(control_i.shape, h_i.shape)
+        # for control_i, h_i in zip(control[::-1], hs):
+        #     print(control_i.shape, h_i.shape)
         # import pdb; pdb.set_trace()
 
         for i, module in enumerate(self.output_blocks):
-            print(i, hs[-1].shape, control[0].shape)
+            # print(i, hs[-1].shape, control[0].shape)
             if i in unmatched_layers:
                 control.pop(0)
 
