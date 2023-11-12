@@ -279,8 +279,8 @@ class DualLDM(LatentDiffusion):
             c1 = torch.cat(cond["c_crossattn_1"]["text_emb"], 1)
             fmri_vae = torch.cat(cond["c_crossattn_1"]["fmri_vae"],1)
 
-            control_res = self.control_model.forward_dc(x=torch.cat([x_noisy], dim=1), 
-                                                        hint=fmri_vae,
+            x_recon_gen, control_res = self.control_model.forward_dc(x=torch.cat([x_noisy_gen], dim=1), 
+                                                        # hint=fmri_vae,
                                                         timesteps=t,
                                                         c0=c0, c1=c1,
                                                         xtype='image', c0_type='vision', 
@@ -290,10 +290,12 @@ class DualLDM(LatentDiffusion):
             fmri_control = [c * scale for c, scale in zip(control_res, self.control_scales)]
             cond["control"] = fmri_control
             ## only add above 
-            x_recon = self.model(x_noisy_gen, x_noisy_edit, t, **cond)
+            x_recon_edit = self.model(x_noisy_edit, t, **cond)
 
-        if isinstance(x_recon, tuple) and not return_ids:
-            return x_recon[0]
-        else:
-            return x_recon
+        # if isinstance(x_recon, tuple) and not return_ids:
+        #     return x_recon[0]
+        # else:
+        #     return x_recon
 
+        # return x_recon_gen, x_recon_edit
+        return x_recon_edit

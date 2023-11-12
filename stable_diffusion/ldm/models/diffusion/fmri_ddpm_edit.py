@@ -1118,10 +1118,16 @@ class LatentDiffusion(DDPM):
         kl_prior = normal_kl(mean1=qt_mean, logvar1=qt_log_variance, mean2=0.0, logvar2=0.0)
         return mean_flat(kl_prior) / np.log(2.0)
 
-    def p_losses(self, x_start, cond, t, noise=None):
-        noise = default(noise, lambda: torch.randn_like(x_start))
-        x_noisy = self.q_sample(x_start=x_start, t=t, noise=noise)
-        model_output = self.apply_model(x_noisy, t, cond)
+    ### TODO: what we should give to noise_edit
+    def p_losses(self, x_start, cond, t, noise=None, noise_edit=None):
+        import pdb; pdb.set_trace();
+        noise_gen = default(noise, lambda: torch.randn_like(x_start))
+        x_noisy_gen = self.q_sample(x_start=x_start, t=t, noise=noise_gen)
+
+        noise_edit = default(noise_edit, lambda: torch.randn_like(x_start))
+        x_noisy_edit = self.q_sample(x_start=x_start, t=t, noise=noise_edit)
+
+        model_output = self.apply_model(x_noisy_gen, x_noisy_edit, t, cond)
 
         loss_dict = {}
         prefix = 'train' if self.training else 'val'
@@ -1170,36 +1176,36 @@ class LatentDiffusion(DDPM):
 
         return loss, loss_dict
 
-    def p_mean_variance(self, x, c, t, clip_denoised: bool, return_codebook_ids=False, quantize_denoised=False,
-                        return_x0=False, score_corrector=None, corrector_kwargs=None):
-        t_in = t
-        model_out = self.apply_model(x, t_in, c, return_ids=return_codebook_ids)
+    # def p_mean_variance(self, x, c, t, clip_denoised: bool, return_codebook_ids=False, quantize_denoised=False,
+    #                     return_x0=False, score_corrector=None, corrector_kwargs=None):
+    #     t_in = t
+    #     model_out = self.apply_model(x, t_in, c, return_ids=return_codebook_ids)
 
-        if score_corrector is not None:
-            assert self.parameterization == "eps"
-            model_out = score_corrector.modify_score(self, model_out, x, t, c, **corrector_kwargs)
+    #     if score_corrector is not None:
+    #         assert self.parameterization == "eps"
+    #         model_out = score_corrector.modify_score(self, model_out, x, t, c, **corrector_kwargs)
 
-        if return_codebook_ids:
-            model_out, logits = model_out
+    #     if return_codebook_ids:
+    #         model_out, logits = model_out
 
-        if self.parameterization == "eps":
-            x_recon = self.predict_start_from_noise(x, t=t, noise=model_out)
-        elif self.parameterization == "x0":
-            x_recon = model_out
-        else:
-            raise NotImplementedError()
+    #     if self.parameterization == "eps":
+    #         x_recon = self.predict_start_from_noise(x, t=t, noise=model_out)
+    #     elif self.parameterization == "x0":
+    #         x_recon = model_out
+    #     else:
+    #         raise NotImplementedError()
 
-        if clip_denoised:
-            x_recon.clamp_(-1., 1.)
-        if quantize_denoised:
-            x_recon, _, [_, _, indices] = self.first_stage_model.quantize(x_recon)
-        model_mean, posterior_variance, posterior_log_variance = self.q_posterior(x_start=x_recon, x_t=x, t=t)
-        if return_codebook_ids:
-            return model_mean, posterior_variance, posterior_log_variance, logits
-        elif return_x0:
-            return model_mean, posterior_variance, posterior_log_variance, x_recon
-        else:
-            return model_mean, posterior_variance, posterior_log_variance
+    #     if clip_denoised:
+    #         x_recon.clamp_(-1., 1.)
+    #     if quantize_denoised:
+    #         x_recon, _, [_, _, indices] = self.first_stage_model.quantize(x_recon)
+    #     model_mean, posterior_variance, posterior_log_variance = self.q_posterior(x_start=x_recon, x_t=x, t=t)
+    #     if return_codebook_ids:
+    #         return model_mean, posterior_variance, posterior_log_variance, logits
+    #     elif return_x0:
+    #         return model_mean, posterior_variance, posterior_log_variance, x_recon
+    #     else:
+    #         return model_mean, posterior_variance, posterior_log_variance
 
     @torch.no_grad()
     def p_sample(self, x, c, t, clip_denoised=False, repeat_noise=False,
