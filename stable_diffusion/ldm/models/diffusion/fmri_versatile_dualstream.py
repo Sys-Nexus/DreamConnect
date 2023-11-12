@@ -63,7 +63,7 @@ class ControlledUnetModel(UNetModel):
             if i in unmatched_layers:
                 control.pop(0)
 
-            if only_mid_control or control is None:
+            if only_mid_control or control is None or i in unmatched_layers:
                 h = torch.cat([h, hs.pop()], dim=1)
             else:
                 h = torch.cat([h, hs.pop() + control.pop(0)], dim=1)
