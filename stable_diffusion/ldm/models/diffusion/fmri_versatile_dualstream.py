@@ -9,6 +9,7 @@ import numpy.random as npr
 from einops import rearrange, repeat
 
 import torch
+import torch as th
 import torch.nn as nn
 import torch.nn.functional as F
 import torchvision.transforms as tvtrans
