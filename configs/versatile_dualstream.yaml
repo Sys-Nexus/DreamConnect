@@ -121,7 +121,7 @@ model:
     #     force_type_convert: true
 
     unet_config:
-      target: ldm.modules.diffusionmodules.openaimodel import UNetModel
+      target: ldm.modules.diffusionmodules.openaimodel.UNetModel
 
       # target: ldm.modules.diffusionmodules.openaimodel_dual_condition.UNetModel
       # inherit from target: ldm.modules.diffusionmodules.openaimodel.UNetModel
