@@ -44,7 +44,7 @@ class VersatileNetAdaptor(UNetModelVD):
         model_channels = self.model_channels
         channel_mult = self.channel_mult
 
-        self.zero_convs = nn.ModuleList([self.make_zero_conv(self.model_channels)])
+        self.zero_convs = nn.ModuleList([])
 
         ch = channel_mult[-1] * model_channels
         self.middle_block_out = self.make_zero_conv(ch)
