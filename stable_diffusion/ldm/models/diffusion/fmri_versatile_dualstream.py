@@ -51,7 +51,7 @@ class VersatileNetAdaptor(UNetModelVD):
         for level_idx, mult in list(enumerate(channel_mult))[::-1]:
             for block_idx in range(self.num_noattn_blocks[level_idx] + 1):
                 ch = mult * model_channels
-                print('ch: ', ch)
+                # print('ch: ', ch)
                 self.zero_convs.append(self.make_zero_conv(ch))
 
 
@@ -78,7 +78,7 @@ class VersatileNetAdaptor(UNetModelVD):
         for i_module, t_module, zero_conv in zip(self.unet_image.output_blocks, self.unet_text.output_blocks, self.zero_convs):
             h = th.cat([h, hs.pop()], dim=1)
             h = self.mixed_run_dc(i_module, t_module, h, emb, c0, c1, xtype, c0_type, c1_type, mixed_ratio)
-            print(h.shape)
+            # print(h.shape)
             outs.append(zero_conv(h, emb))
 
         if xtype == 'image':
