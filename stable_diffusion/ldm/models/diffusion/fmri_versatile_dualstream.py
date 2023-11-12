@@ -42,7 +42,6 @@ class VersatileNetAdaptor(UNetModelVD):
         dims = self.dims = 2
         model_channels = self.model_channels
         channel_mult = self.channel_mult
-        second_dim = self.second_dim
 
         self.zero_convs = nn.ModuleList([self.make_zero_conv(self.model_channels)])
 
