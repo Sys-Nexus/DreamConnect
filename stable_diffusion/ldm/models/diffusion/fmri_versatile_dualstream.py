@@ -84,7 +84,7 @@ class VersatileNetAdaptor(UNetModelVD):
 
 
 class DualLDM(LatentDiffusion):
-    def __init__(self,  *args, **kwargs):
+    def __init__(self, clip_cfg, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.vd_clip = VDCLIP(clip_cfg)
 
