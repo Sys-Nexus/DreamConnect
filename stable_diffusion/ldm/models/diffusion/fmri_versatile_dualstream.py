@@ -59,7 +59,7 @@ class ControlledUnetModel(UNetModel):
         # import pdb; pdb.set_trace()
 
         for i, module in enumerate(self.output_blocks):
-            print(i, hs[-1].shape, control[-1].shape)
+            print(i, hs[-1].shape, control[0].shape)
             if i in unmatched_layers:
                 control.pop(0)
 
