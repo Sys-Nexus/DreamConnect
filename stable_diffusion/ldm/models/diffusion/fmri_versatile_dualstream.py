@@ -36,6 +36,7 @@ from ldm.models.diffusion.fmri_ddpm_edit import LatentDiffusion, DDPM
 import torchvision
 import k_diffusion as K
 
+from ldm.modules.diffusionmodules.openaimodel import UNetModel
 
 class ControlledUnetModel(UNetModel):
     def forward(self, x, timesteps=None, context=None, control=None, only_mid_control=False, **kwargs):
