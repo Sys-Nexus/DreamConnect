@@ -59,7 +59,10 @@ class ControlledUnetModel(UNetModel):
         # import pdb; pdb.set_trace()
 
         for i, module in enumerate(self.output_blocks):
-            if only_mid_control or control is None or i in unmatched_layers:
+            if i in unmatched_layers:
+                control.pop(0)
+                
+            if only_mid_control or control is None:
                 h = torch.cat([h, hs.pop()], dim=1)
             else:
                 h = torch.cat([h, hs.pop() + control.pop(0)], dim=1)
