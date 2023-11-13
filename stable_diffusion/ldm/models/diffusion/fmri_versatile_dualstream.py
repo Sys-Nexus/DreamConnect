@@ -154,7 +154,7 @@ class DualLDM(LatentDiffusion):
         self.scale = scale
         self.mixing = mixing
 
-        import pdb; pdb.set_trace();
+        # import pdb; pdb.set_trace();
 
     def get_input(self, batch, k, return_first_stage_outputs=False, force_c_encode=False,
                   cond_key=None, return_original_cond=False, bs=None, uncond=0.075, sz=256):
