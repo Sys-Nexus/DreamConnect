@@ -256,6 +256,7 @@ class DualLDM(LatentDiffusion):
 
         c_w_uncond = copy.deepcopy(c)
 
+        import pdb; pdb.set_trace();
         c0 = torch.cat(c["c_crossattn_1"]["image_emb"], 1)
         c1 = torch.cat(c["c_crossattn_1"]["text_emb"], 1)
         uncond_c0 = torch.cat(c["c_crossattn_1"]["null_image_emb"], 1)
