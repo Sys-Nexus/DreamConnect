@@ -256,10 +256,10 @@ class DualLDM(LatentDiffusion):
 
         c_w_uncond = copy.deepcopy(c)
 
-        c0 = torch.cat(cond["c_crossattn_1"]["image_emb"], 1)
-        c1 = torch.cat(cond["c_crossattn_1"]["text_emb"], 1)
-        uncond_c0 = torch.cat(cond["c_crossattn_1"]["null_image_emb"], 1)
-        uncond_c1 = torch.cat(cond["c_crossattn_1"]["null_text_emb"], 1)
+        c0 = torch.cat(c["c_crossattn_1"]["image_emb"], 1)
+        c1 = torch.cat(c["c_crossattn_1"]["text_emb"], 1)
+        uncond_c0 = torch.cat(c["c_crossattn_1"]["null_image_emb"], 1)
+        uncond_c1 = torch.cat(c["c_crossattn_1"]["null_text_emb"], 1)
 
         c_w_uncond["c_crossattn_1"]["image_emb"] = torch.cat([uncond_c0, c0], 0)
         c_w_uncond["c_crossattn_1"]["text_emb"] = torch.cat([uncond_c1, c1], 0)
