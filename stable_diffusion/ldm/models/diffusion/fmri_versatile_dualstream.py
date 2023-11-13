@@ -404,7 +404,7 @@ class DualLDM(LatentDiffusion):
                                                         xtype='image', c0_type='vision', 
                                                         c1_type='prompt', mixed_ratio=0.6)
             cond.pop('c_crossattn_1')
-
+            cond.pop('null_prompt_emb')
             fmri_control = [c * scale for c, scale in zip(control_res, self.control_scales)]
             cond["control"] = fmri_control
             ## only add above 
