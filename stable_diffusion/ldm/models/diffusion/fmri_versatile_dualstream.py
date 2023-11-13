@@ -235,8 +235,13 @@ class DualLDM(LatentDiffusion):
                    quantize_denoised=True, inpaint=False):
         x_gt, c = self.get_input(batch, self.first_stage_key)
         import pdb; pdb.set_trace();
-        init_latent = c["c_crossattn_1"]["fmri_vae"]
-        z_enc = self.sampler.stochastic_encode(init_latent, torch.tensor([self.t_enc]).cuda())
+        init_latent = torch.cat(c["c_crossattn_1"]["fmri_vae"],dim=0)
+
+        self.device = x_gt.device
+        self.sampler.model.model.diffusion_model.device = x_gt.device
+        self.sampler.make_schedule(ddim_num_steps=self.ddim_steps, ddim_eta=self.ddim_eta, verbose=False)
+
+        z_enc = self.sampler.stochastic_encode(init_latent, torch.tensor([self.t_enc]).to(x_gt.device))
 
         z_enc_gen = z_enc_edit = z_enc
         z_gen, z_edit = self.sampler.decode_dual(
