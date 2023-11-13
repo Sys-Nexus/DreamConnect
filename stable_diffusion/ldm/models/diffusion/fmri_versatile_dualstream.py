@@ -251,7 +251,11 @@ class DualLDM(LatentDiffusion):
                    N=2, n_row=4, sample=True, 
                    steps=100, ddim_eta=1., return_keys=None,
                    quantize_denoised=True, inpaint=False):
-        x_gt, c = self.get_input(batch, self.first_stage_key, force_c_encode=True)
+        self.model.eval()
+        
+        N = min(batch['image'].shape[0], N)
+        x_gt, c = self.get_input(batch, self.first_stage_key, force_c_encode=True,
+                    bs=N, uncond=0)
         # import pdb; pdb.set_trace();
         init_latent = torch.cat(c["c_crossattn_1"]["fmri_vae"],dim=0)
         # image256 = F.interpolate(batch['image'], (256,256))
@@ -292,9 +296,11 @@ class DualLDM(LatentDiffusion):
         x_gen = self.decode_first_stage(z_gen.half())
         x_edit = self.decode_first_stage(z_edit.half())
 
-        x_cat = torch.cat([x_gen, x_edit], dim=-1)
+        x_cat = torch.cat([x_gen, x_edit], dim=-2)
         x_cat = torch.clamp((x_cat+1.0)/2.0, min=0., max=1.)
         torchvision.utils.save_image(x_cat, 'x_cat.jpg')
+
+        self.model.train()
         import pdb; pdb.set_trace()
 
     def apply_model(self, x_noisy_gen, x_noisy_edit, t, cond, return_ids=False):
