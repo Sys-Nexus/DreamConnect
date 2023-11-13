@@ -1128,7 +1128,8 @@ class LatentDiffusion(DDPM):
         noise = noise_edit
         x_noisy_edit = self.q_sample(x_start=x_start, t=t, noise=noise_edit)
 
-        model_output = self.apply_model(x_noisy_gen, x_noisy_edit, t, cond)
+        # model_output = self.apply_model(x_noisy_gen, x_noisy_edit, t, cond)
+        _, model_output = self.apply_model(x_noisy_gen, x_noisy_edit, t, cond)
 
         loss_dict = {}
         prefix = 'train' if self.training else 'val'
