@@ -18,7 +18,7 @@ filter_mode=${2:-'tune_sideconv'} #no_filter
 # jobname=${1:-'recon_tune_sideconv'}
 # filter_mode=${2:-'tune_sideconv'} #no_filter
 gpus=${3:-'3,'}
-master_port=${4:-'27499'}
+master_port=${4:-'27699'}
 mode=${5:-'single'}
 vis=${6:-1}
 
