@@ -249,8 +249,8 @@ class DualLDM(LatentDiffusion):
             x_latent_edit=z_enc_edit,
             t_start=self.t_enc,
             cond_dict=c,
-            unconditional_guidance_scale_gen=self.scale,
-            unconditional_guidance_scale_edit=self.scale,
+            unconditional_guidance_scale_gen=cfg_text,
+            unconditional_guidance_scale_edit=cfg_text,
             mixed_ratio=(1-self.mixing), 
         )
         # x_gen = self.kl_net.autokl_decode(z_gen.half())
@@ -363,6 +363,7 @@ class DualLDM(LatentDiffusion):
             c1 = torch.cat(cond["c_crossattn_1"]["text_emb"], 1)
             fmri_vae = torch.cat(cond["c_crossattn_1"]["fmri_vae"],1)
 
+            import pdb; pdb.set_trace()
             x_recon_gen, control_res = self.control_model.forward_dc(x=torch.cat([x_noisy_gen], dim=1), 
                                                         # hint=fmri_vae,
                                                         timesteps=t,
