@@ -228,7 +228,8 @@ class DualLDM(LatentDiffusion):
 
         cond["c_crossattn_1"]["null_image_emb"] = [fmri_null_x]
         cond["c_crossattn_1"]["null_text_emb"] = [fmri_null_cap]
-        cond["null_prompt_emb"] = [null_prompt]*len(cap)
+        import pdb; pdb.set_trace()
+        cond["null_prompt_emb"] = [null_prompt.expand(len(cap),-1)]
 
         if self.is_fmri_input is True:
             cond["c_concat"] = [input_mask * self.fmri2visual_model((xc["c_concat"])).detach()]
