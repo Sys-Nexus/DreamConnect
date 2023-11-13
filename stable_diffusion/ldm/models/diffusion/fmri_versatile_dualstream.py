@@ -218,16 +218,17 @@ class DualLDM(LatentDiffusion):
         if force_c_encode is False:
             cond["c_crossattn_1"]["image_emb"] = [torch.where(fmri_prompt_mask.bool(), fmri_null_x, fmri_x)]
             cond["c_crossattn_1"]["text_emb"] = [torch.where(fmri_prompt_mask.bool(), fmri_null_cap, fmri_cap)]
+            cond["c_crossattn"] = [torch.where(prompt_mask, null_prompt, self.get_learned_conditioning(xc["c_crossattn"]).detach())]
         else:
             cond["c_crossattn_1"]["image_emb"] = [fmri_x]
             cond["c_crossattn_1"]["text_emb"] = [fmri_cap]
+            cond["c_crossattn"] = [self.get_learned_conditioning(xc["c_crossattn"]).detach()]
 
         cond["c_crossattn_1"]["fmri_vae"] = [fmri_vae]
 
         cond["c_crossattn_1"]["null_image_emb"] = [fmri_null_x]
         cond["c_crossattn_1"]["null_text_emb"] = [fmri_null_cap]
-
-        cond["c_crossattn"] = [torch.where(prompt_mask, null_prompt, self.get_learned_conditioning(xc["c_crossattn"]).detach())]
+        cond["null_prompt_emb"] = [null_prompt]
 
         if self.is_fmri_input is True:
             cond["c_concat"] = [input_mask * self.fmri2visual_model((xc["c_concat"])).detach()]
@@ -266,11 +267,14 @@ class DualLDM(LatentDiffusion):
         # import pdb; pdb.set_trace();
         c0 = torch.cat(c["c_crossattn_1"]["image_emb"], 1)
         c1 = torch.cat(c["c_crossattn_1"]["text_emb"], 1)
+        prompt_emb = torch.cat(c["c_crossattn"], 1)
         uncond_c0 = torch.cat(c["c_crossattn_1"]["null_image_emb"], 1)
         uncond_c1 = torch.cat(c["c_crossattn_1"]["null_text_emb"], 1)
+        null_prompt_emb = torch.cat(c["null_prompt_emb"], 1)
 
         c_w_uncond["c_crossattn_1"]["image_emb"] = [torch.cat([uncond_c0, c0], 0)]
         c_w_uncond["c_crossattn_1"]["text_emb"] = [torch.cat([uncond_c1, c1], 0)]
+        c_w_uncond["c_crossattn"] = [torch.cat([null_prompt_emb, prompt_emb], 0)]
 
         z_enc_gen = z_enc_edit = z_enc
         z_gen, z_edit = self.sampler.decode_dual(
