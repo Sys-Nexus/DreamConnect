@@ -537,6 +537,11 @@ class fMRIVersatileEdit(LatentDiffusion):
         self.scale = scale
         self.mixing = mixing
 
+        ###### Try to use K-Diffusion replace customized sampler
+        model_wrap = K.external.CompVisDenoiser(net)
+        self.model_wrap_cfg = CFGDenoiser(model_wrap)
+
+
     @torch.no_grad()
     def log_images(self, batch, epoch_n, iter_n, batch_idx, model_wrap, model_wrap_cfg,
                    save_dir, split,
@@ -549,8 +554,8 @@ class fMRIVersatileEdit(LatentDiffusion):
         # zim = Image.open('results/vdvae/subj{:02d}/{}.png'.format(sub,im_id))
    
         # zim = regularize_image(zim)
-        zim = batch['image']
         # zin = zim*2 - 1
+        zim = batch['image']
         zin = zim.half().cuda()
 
         self.sampler.model.model.diffusion_model.device = zin.device

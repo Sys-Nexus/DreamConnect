@@ -16,6 +16,7 @@ import torchvision.transforms as tvtrans
 from lib.cfg_helper import model_cfg_bank
 from lib.model_zoo import get_model
 from lib.model_zoo.ddim_vd import DDIMSampler_VD
+from lib.model_zoo.ddim_vd_dual import DDIMSampler_Dual
 from lib.experiments.sd_default import color_adjust, auto_merge_imlist
 from torch.utils.data import DataLoader, Dataset
 
@@ -137,7 +138,9 @@ class DualLDM(LatentDiffusion):
             print('clip missing {} params.'.format(len(missing)))
             print('clip missing: ', missing)
             print('clip unexpected {} params.'.format(len(unexpected)))
-            # import pdb; pdb.set_trace();
+
+        self.sampler = DDIMSampler_Dual(self)
+        import pdb; pdb.set_trace();
 
     def get_input(self, batch, k, return_first_stage_outputs=False, force_c_encode=False,
                   cond_key=None, return_original_cond=False, bs=None, uncond=0.075, sz=256):
@@ -337,5 +340,5 @@ class DualLDM(LatentDiffusion):
         # else:
         #     return x_recon
 
-        # return x_recon_gen, x_recon_edit
-        return x_recon_edit
+        return x_recon_gen, x_recon_edit
+        # return x_recon_edit
