@@ -391,10 +391,11 @@ class DualLDM(LatentDiffusion):
 
         else:
             ## only add this
-            cond["only_mid_control"] = self.only_mid_control
-            c0 = torch.cat(cond["c_crossattn_1"]["image_emb"], 1)
-            c1 = torch.cat(cond["c_crossattn_1"]["text_emb"], 1)
-            fmri_vae = torch.cat(cond["c_crossattn_1"]["fmri_vae"],1)
+            new_cond = copy.deepcopy(cond)
+            new_cond["only_mid_control"] = self.only_mid_control
+            c0 = torch.cat(new_cond["c_crossattn_1"]["image_emb"], 1)
+            c1 = torch.cat(new_cond["c_crossattn_1"]["text_emb"], 1)
+            fmri_vae = torch.cat(new_cond["c_crossattn_1"]["fmri_vae"],1)
 
             # import pdb; pdb.set_trace()
             x_recon_gen, control_res = self.control_model.forward_dc(x=torch.cat([x_noisy_gen], dim=1), 
@@ -403,12 +404,12 @@ class DualLDM(LatentDiffusion):
                                                         c0=c0, c1=c1,
                                                         xtype='image', c0_type='vision', 
                                                         c1_type='prompt', mixed_ratio=0.6)
-            cond.pop('c_crossattn_1')
-            cond.pop('null_prompt_emb')
+            new_cond.pop('c_crossattn_1')
+            new_cond.pop('null_prompt_emb')
             fmri_control = [c * scale for c, scale in zip(control_res, self.control_scales)]
-            cond["control"] = fmri_control
+            new_cond["control"] = fmri_control
             ## only add above 
-            x_recon_edit = self.model(x_noisy_edit, t, **cond)
+            x_recon_edit = self.model(x_noisy_edit, t, **new_cond)
 
         # if isinstance(x_recon, tuple) and not return_ids:
         #     return x_recon[0]
