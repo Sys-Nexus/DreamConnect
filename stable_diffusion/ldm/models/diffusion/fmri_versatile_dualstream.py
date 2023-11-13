@@ -96,7 +96,9 @@ class VersatileNetAdaptor(UNetModelVD):
         return TimestepEmbedSequential(zero_module(conv_nd(self.dims, channels, channels, 1, padding=0)))
 
     def forward_dc(self, x, timesteps, c0, c1, xtype, c0_type, c1_type, mixed_ratio):
+        print(x.shape, c0.shape, c1.shape, timestamps)
         import pdb; pdb.set_trace()
+
         hs, outs = [], []
         t_emb = timestep_embedding(timesteps, self.model_channels, repeat_only=False)
         
@@ -256,7 +258,7 @@ class DualLDM(LatentDiffusion):
 
         c_w_uncond = copy.deepcopy(c)
 
-        import pdb; pdb.set_trace();
+        # import pdb; pdb.set_trace();
         c0 = torch.cat(c["c_crossattn_1"]["image_emb"], 1)
         c1 = torch.cat(c["c_crossattn_1"]["text_emb"], 1)
         uncond_c0 = torch.cat(c["c_crossattn_1"]["null_image_emb"], 1)
