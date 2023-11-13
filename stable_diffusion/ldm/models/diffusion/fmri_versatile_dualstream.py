@@ -7,6 +7,7 @@ from pathlib import Path
 import numpy as np
 import numpy.random as npr
 from einops import rearrange, repeat
+import copy
 
 import torch
 import torch as th
@@ -208,9 +209,17 @@ class DualLDM(LatentDiffusion):
         fmri_cap = self.vd_clip.clip_encode_text(cap)
 
         cond["c_crossattn_1"] = {}
-        cond["c_crossattn_1"]["image_emb"] = [torch.where(fmri_prompt_mask.bool(), fmri_null_x, fmri_x)]
-        cond["c_crossattn_1"]["text_emb"] = [torch.where(fmri_prompt_mask.bool(), fmri_null_cap, fmri_cap)]
+        if force_c_encode is False:
+            cond["c_crossattn_1"]["image_emb"] = [torch.where(fmri_prompt_mask.bool(), fmri_null_x, fmri_x)]
+            cond["c_crossattn_1"]["text_emb"] = [torch.where(fmri_prompt_mask.bool(), fmri_null_cap, fmri_cap)]
+        else:
+            cond["c_crossattn_1"]["image_emb"] = [fmri_x]
+            cond["c_crossattn_1"]["text_emb"] = [fmri_cap]
+
         cond["c_crossattn_1"]["fmri_vae"] = [fmri_vae]
+
+        cond["c_crossattn_1"]["null_image_emb"] = [fmri_null_x]
+        cond["c_crossattn_1"]["null_text_emb"] = [fmri_null_cap]
 
         cond["c_crossattn"] = [torch.where(prompt_mask, null_prompt, self.get_learned_conditioning(xc["c_crossattn"]).detach())]
 
@@ -234,7 +243,7 @@ class DualLDM(LatentDiffusion):
                    N=2, n_row=4, sample=True, 
                    steps=100, ddim_eta=1., return_keys=None,
                    quantize_denoised=True, inpaint=False):
-        x_gt, c = self.get_input(batch, self.first_stage_key)
+        x_gt, c = self.get_input(batch, self.first_stage_key, force_c_encode=True)
         # import pdb; pdb.set_trace();
         init_latent = torch.cat(c["c_crossattn_1"]["fmri_vae"],dim=0)
         # init_latent = self.first_stage_model.encode(batch['image'].half().to(x_gt.device)).mode()
@@ -245,12 +254,22 @@ class DualLDM(LatentDiffusion):
 
         z_enc = self.sampler.stochastic_encode(init_latent, torch.tensor([self.t_enc]).to(x_gt.device))
 
+        c_w_uncond = copy.deepcopy(c)
+
+        c0 = torch.cat(cond["c_crossattn_1"]["image_emb"], 1)
+        c1 = torch.cat(cond["c_crossattn_1"]["text_emb"], 1)
+        uncond_c0 = torch.cat(cond["c_crossattn_1"]["null_image_emb"], 1)
+        uncond_c1 = torch.cat(cond["c_crossattn_1"]["null_text_emb"], 1)
+
+        c_w_uncond["c_crossattn_1"]["image_emb"] = torch.cat([uncond_c0, c0], 0)
+        c_w_uncond["c_crossattn_1"]["text_emb"] = torch.cat([uncond_c1, c1], 0)
+
         z_enc_gen = z_enc_edit = z_enc
         z_gen, z_edit = self.sampler.decode_dual(
             x_latent_gen=z_enc_gen,
             x_latent_edit=z_enc_edit,
             t_start=self.t_enc,
-            cond_dict=c,
+            cond_dict=c_w_uncond,
             unconditional_guidance_scale_gen=cfg_text,
             unconditional_guidance_scale_edit=cfg_text,
             mixed_ratio=(1-self.mixing), 
