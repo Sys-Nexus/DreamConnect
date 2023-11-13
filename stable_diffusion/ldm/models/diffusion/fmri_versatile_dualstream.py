@@ -50,12 +50,12 @@ class ControlledUnetModel(UNetModel):
             emb = self.time_embed(t_emb.type(self.time_embed[0].weight.dtype))
             h = x.type(self.dtype)
             for module in self.input_blocks:
-                print('h: ', h.shape, 'context: ', context.shape)
+                # print('h: ', h.shape, 'context: ', context.shape)
                 h = module(h, emb, context)
                 hs.append(h)
             h = self.middle_block(h, emb, context)
 
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
 
         if control is not None:
             h += control.pop(0)
@@ -100,8 +100,8 @@ class VersatileNetAdaptor(UNetModelVD):
         return TimestepEmbedSequential(zero_module(conv_nd(self.dims, channels, channels, 1, padding=0)))
 
     def forward_dc(self, x, timesteps, c0, c1, xtype, c0_type, c1_type, mixed_ratio):
-        print(x.shape, c0.shape, c1.shape, timesteps)
-        import pdb; pdb.set_trace()
+        # print(x.shape, c0.shape, c1.shape, timesteps)
+        # import pdb; pdb.set_trace()
 
         hs, outs = [], []
         t_emb = timestep_embedding(timesteps, self.model_channels, repeat_only=False)
