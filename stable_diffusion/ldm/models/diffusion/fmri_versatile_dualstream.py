@@ -307,7 +307,7 @@ class DualLDM(LatentDiffusion):
         torchvision.utils.save_image(x_cat, path)
 
         self.model.train()
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
 
     def apply_model(self, x_noisy_gen, x_noisy_edit, t, cond, return_ids=False):
         if isinstance(cond, dict):
