@@ -95,6 +95,7 @@ class VersatileNetAdaptor(UNetModelVD):
         return TimestepEmbedSequential(zero_module(conv_nd(self.dims, channels, channels, 1, padding=0)))
 
     def forward_dc(self, x, timesteps, c0, c1, xtype, c0_type, c1_type, mixed_ratio):
+        import pdb; pdb.set_trace()
         hs, outs = [], []
         t_emb = timestep_embedding(timesteps, self.model_channels, repeat_only=False)
         
@@ -234,9 +235,9 @@ class DualLDM(LatentDiffusion):
                    steps=100, ddim_eta=1., return_keys=None,
                    quantize_denoised=True, inpaint=False):
         x_gt, c = self.get_input(batch, self.first_stage_key)
-        import pdb; pdb.set_trace();
-        # init_latent = torch.cat(c["c_crossattn_1"]["fmri_vae"],dim=0)
-        init_latent = self.first_stage_model.encode(batch['image'].half().to(x_gt.device))
+        # import pdb; pdb.set_trace();
+        init_latent = torch.cat(c["c_crossattn_1"]["fmri_vae"],dim=0)
+        # init_latent = self.first_stage_model.encode(batch['image'].half().to(x_gt.device)).mode()
 
         self.device = x_gt.device
         self.sampler.model.model.diffusion_model.device = x_gt.device
@@ -364,7 +365,7 @@ class DualLDM(LatentDiffusion):
             c1 = torch.cat(cond["c_crossattn_1"]["text_emb"], 1)
             fmri_vae = torch.cat(cond["c_crossattn_1"]["fmri_vae"],1)
 
-            import pdb; pdb.set_trace()
+            # import pdb; pdb.set_trace()
             x_recon_gen, control_res = self.control_model.forward_dc(x=torch.cat([x_noisy_gen], dim=1), 
                                                         # hint=fmri_vae,
                                                         timesteps=t,
