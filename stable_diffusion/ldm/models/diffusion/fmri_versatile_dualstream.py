@@ -96,7 +96,7 @@ class VersatileNetAdaptor(UNetModelVD):
         return TimestepEmbedSequential(zero_module(conv_nd(self.dims, channels, channels, 1, padding=0)))
 
     def forward_dc(self, x, timesteps, c0, c1, xtype, c0_type, c1_type, mixed_ratio):
-        print(x.shape, c0.shape, c1.shape, timestamps)
+        print(x.shape, c0.shape, c1.shape, timesteps)
         import pdb; pdb.set_trace()
 
         hs, outs = [], []
