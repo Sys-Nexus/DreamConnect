@@ -234,7 +234,7 @@ class DualLDM(LatentDiffusion):
                    steps=100, ddim_eta=1., return_keys=None,
                    quantize_denoised=True, inpaint=False):
         x_gt, c = self.get_input(batch, self.first_stage_key)
-        import pdb; pdb.set_trace();
+        # import pdb; pdb.set_trace();
         init_latent = torch.cat(c["c_crossattn_1"]["fmri_vae"],dim=0)
 
         self.device = x_gt.device

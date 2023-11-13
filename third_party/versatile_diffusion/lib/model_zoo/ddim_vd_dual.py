@@ -451,7 +451,7 @@ class DDIMSampler_Dual(DDIMSampler):
         return x_dec
 
     @torch.no_grad()
-    def decode_dual(self, x_latent_gen, x_latent_edit, t_start, 
+    def decode_dual(self, x_latent_gen, x_latent_edit, t_start, cond_dict,
                unconditional_guidance_scale_gen=1.0, unconditional_guidance_scale_edit=1.0, unconditional_conditioning=None, xtype='image', first_ctype='vision', second_ctype='prompt',
                use_original_steps=False, mixed_ratio=0.5, callback=None):
         timesteps = np.arange(self.ddpm_num_timesteps) if use_original_steps else self.ddim_timesteps
