@@ -295,7 +295,8 @@ class DualLDM(LatentDiffusion):
         x_cat = torch.cat([x_gen, x_edit], dim=-1)
         x_cat = torch.clamp((x_cat+1.0)/2.0, min=0., max=1.)
         torchvision.utils.save_image(x_cat, 'x_cat.jpg')
-
+        import pdb; pdb.set_trace()
+        
     def apply_model(self, x_noisy_gen, x_noisy_edit, t, cond, return_ids=False):
         if isinstance(cond, dict):
             # hybrid case, cond is exptected to be a dict
