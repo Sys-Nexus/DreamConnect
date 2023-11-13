@@ -291,6 +291,75 @@ class DDIMSampler_Dual(DDIMSampler):
         return x_prev, pred_x0
     
     @torch.no_grad()
+    def p_sample_ddim_dual(self, 
+                      x_gen, 
+                      x_edit,
+                      t, 
+                      cond_dict,
+                      index, 
+                      unconditional_guidance_scale_gen=1., 
+                      unconditional_guidance_scale_edit=1.,
+                      xtype='image',
+                      first_ctype='prompt',
+                      second_ctype='prompt',
+                      repeat_noise=False, 
+                      use_original_steps=False, 
+                      noise_dropout=0.,
+                      temperature=1.,
+                      mixed_ratio=0.5,):
+
+        b, *_, device = *x_edit.shape, self.model.model.diffusion_model.device
+
+        x_gen_in = torch.cat([x_gen] * 2)
+        x_edit_in = torch.cat([x_edit] * 2)
+        t_in = torch.cat([t] * 2)
+        # first_c = torch.cat(first_conditioning)
+        # second_c = torch.cat(second_conditioning)
+
+        # e_t_gen_cat, e_t_edit_cat = self.model.apply_model_dc(
+        #     x_gen_in, x_edit_in, t_in, first_c, second_c, xtype=xtype, first_ctype=first_ctype, second_ctype=second_ctype, mixed_ratio=mixed_ratio)#.chunk(4)
+        e_t_gen_cat, e_t_edit_cat = self.model.apply_model(
+            x_gen_in, x_edit_in, t_in, cond_dict)#.chunk(4)
+
+        e_t_uncond_gen, e_t_gen = e_t_gen_cat.chunk(2)
+        e_t_uncond_edit, e_t_edit = e_t_edit_cat.chunk(2)
+
+        e_t_gen = e_t_uncond_gen + unconditional_guidance_scale_gen * (e_t_gen - e_t_uncond_gen)
+        e_t_edit = e_t_uncond_edit + unconditional_guidance_scale_edit * (e_t_edit - e_t_uncond_edit)
+
+        alphas = self.model.alphas_cumprod if use_original_steps else self.ddim_alphas
+        alphas_prev = self.model.alphas_cumprod_prev if use_original_steps else self.ddim_alphas_prev
+        sqrt_one_minus_alphas = self.model.sqrt_one_minus_alphas_cumprod if use_original_steps else self.ddim_sqrt_one_minus_alphas
+        sigmas = self.model.ddim_sigmas_for_original_num_steps if use_original_steps else self.ddim_sigmas
+        # select parameters corresponding to the currently considered timestep
+
+        if xtype == 'image':
+            extended_shape = (b, 1, 1, 1)
+        elif xtype == 'text':
+            extended_shape = (b, 1)
+
+        a_t = torch.full(extended_shape, alphas[index], device=device, dtype=x_edit.dtype)
+        a_prev = torch.full(extended_shape, alphas_prev[index], device=device, dtype=x_edit.dtype)
+        sigma_t = torch.full(extended_shape, sigmas[index], device=device, dtype=x_edit.dtype)
+        sqrt_one_minus_at = torch.full(extended_shape, sqrt_one_minus_alphas[index], device=device, dtype=x_edit.dtype)
+
+        # current prediction for x_0
+        # import pdb; pdb.set_trace()
+        pred_x0_gen = (x_gen - sqrt_one_minus_at * e_t_gen) / a_t.sqrt()
+        pred_x0_edit = (x_edit - sqrt_one_minus_at * e_t_edit) / a_t.sqrt()
+        dir_xt_gen = (1. - a_prev - sigma_t**2).sqrt() * e_t_gen
+        dir_xt_edit = (1. - a_prev - sigma_t**2).sqrt() * e_t_edit
+        noise_gen = sigma_t * noise_like(x_gen, repeat_noise) * temperature
+        noise_edit = sigma_t * noise_like(x_edit, repeat_noise) * temperature
+        if noise_dropout > 0.:
+            noise_gen = torch.nn.functional.dropout(noise_gen, p=noise_dropout)
+            noise_edit = torch.nn.functional.dropout(noise_edit, p=noise_dropout)
+        x_prev_gen = a_prev.sqrt() * pred_x0_gen + dir_xt_gen + noise_gen
+        x_prev_edit = a_prev.sqrt() * pred_x0_edit + dir_xt_edit + noise_edit
+        return x_prev_gen, pred_x0_gen, x_prev_edit, pred_x0_edit
+
+
+    @torch.no_grad()
     def encode(self, x0, c, t_enc, use_original_steps=False, return_intermediates=None,
               unconditional_guidance_scale=1.0, unconditional_conditioning=None, callback=None):
        num_reference_steps = self.ddpm_num_timesteps if use_original_steps else self.ddim_timesteps.shape[0]
@@ -380,7 +449,38 @@ class DDIMSampler_Dual(DDIMSampler):
                                           unconditional_conditioning=unconditional_conditioning)
             if callback: callback(i)
         return x_dec
-    
+
+    @torch.no_grad()
+    def decode_dual(self, x_latent_gen, x_latent_edit, t_start, 
+               unconditional_guidance_scale_gen=1.0, unconditional_guidance_scale_edit=1.0, unconditional_conditioning=None, xtype='image', first_ctype='vision', second_ctype='prompt',
+               use_original_steps=False, mixed_ratio=0.5, callback=None):
+        timesteps = np.arange(self.ddpm_num_timesteps) if use_original_steps else self.ddim_timesteps
+        timesteps = timesteps[:t_start]
+
+        time_range = np.flip(timesteps)
+        total_steps = timesteps.shape[0]
+        print(f"Running DDIM Sampling with {total_steps} timesteps")
+
+        iterator = tqdm(time_range, desc='Decoding image', total=total_steps)
+        x_dec_gen, x_dec_edit = x_latent_gen, x_latent_edit
+        for i, step in enumerate(iterator):
+            index = total_steps - i - 1
+            ts = torch.full((x_latent_edit.shape[0],), step, device=x_latent_edit.device, dtype=torch.long)
+            x_dec_gen, _, x_dec_edit, _ = self.p_sample_ddim_dual(
+                x_dec_gen, 
+                x_dec_edit,
+                ts,
+                cond_dict,
+                index, 
+                unconditional_guidance_scale_gen=unconditional_guidance_scale_gen,
+                unconditional_guidance_scale_edit=unconditional_guidance_scale_edit,
+                use_original_steps=use_original_steps,
+                noise_dropout=0,
+                temperature=1,
+                mixed_ratio=mixed_ratio,)
+            if callback: callback(i)
+        return x_dec_gen, x_dec_edit
+
     @torch.no_grad()
     def decode_dc(self, x_latent, first_conditioning, second_conditioning, t_start, unconditional_guidance_scale=1.0, unconditional_conditioning=None, xtype='image', first_ctype='vision', second_ctype='prompt',
                use_original_steps=False, mixed_ratio=0.5, callback=None):

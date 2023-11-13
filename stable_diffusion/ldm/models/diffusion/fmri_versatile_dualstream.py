@@ -140,6 +140,20 @@ class DualLDM(LatentDiffusion):
             print('clip unexpected {} params.'.format(len(unexpected)))
 
         self.sampler = DDIMSampler_Dual(self)
+
+        ddim_steps = 50
+        ddim_eta = 0
+        scale = 7.5
+        strength = 0.75
+        mixing = 0.4
+        t_enc = int(strength * ddim_steps)
+
+        self.t_enc = t_enc
+        self.ddim_steps = ddim_steps
+        self.ddim_eta = ddim_eta
+        self.scale = scale
+        self.mixing = mixing
+
         import pdb; pdb.set_trace();
 
     def get_input(self, batch, k, return_first_stage_outputs=False, force_c_encode=False,
@@ -219,7 +233,29 @@ class DualLDM(LatentDiffusion):
                    N=2, n_row=4, sample=True, 
                    steps=100, ddim_eta=1., return_keys=None,
                    quantize_denoised=True, inpaint=False):
-        pass
+        x_gt, c = self.get_input(batch, self.first_stage_key)
+        import pdb; pdb.set_trace();
+        init_latent = c["c_crossattn_1"]["fmri_vae"]
+        z_enc = self.sampler.stochastic_encode(init_latent, torch.tensor([self.t_enc]).cuda())
+
+        z_enc_gen = z_enc_edit = z_enc
+        z_gen, z_edit = self.sampler.decode_dual(
+            x_latent_gen=z_enc_gen,
+            x_latent_edit=z_enc_edit,
+            t_start=self.t_enc,
+            cond_dict=c,
+            unconditional_guidance_scale_gen=self.scale,
+            unconditional_guidance_scale_edit=self.scale,
+            mixed_ratio=(1-self.mixing), 
+        )
+        # x_gen = self.kl_net.autokl_decode(z_gen.half())
+        # x_edit = self.kl_net.autokl_decode(z_edit.half())
+        x_gen = self.first_stage_model.decode(z_gen.half())
+        x_edit = self.first_stage_model.decode(z_edit.half())
+
+        x_cat = torch.cat([x_gen, x_edit], dim=-1)
+        x_cat = torch.clamp((x_cat+1.0)/2.0, min=0., max=1.)
+        torchvision.utils.save_image(x_cat, 'x_cat.jpg')
 
     def apply_model(self, x_noisy_gen, x_noisy_edit, t, cond, return_ids=False):
         if isinstance(cond, dict):
