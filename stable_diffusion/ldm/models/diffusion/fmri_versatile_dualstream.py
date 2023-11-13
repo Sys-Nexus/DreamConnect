@@ -42,6 +42,8 @@ from ldm.modules.diffusionmodules.openaimodel import UNetModel
 
 class ControlledUnetModel(UNetModel):
     def forward(self, x, timesteps=None, context=None, control=None, only_mid_control=False, **kwargs):
+        print(x.shape, timestamps.shape)
+        import pdb; pdb.set_trace()
         unmatched_layers = [2, 5, 8]
         hs = []
         with torch.no_grad():
