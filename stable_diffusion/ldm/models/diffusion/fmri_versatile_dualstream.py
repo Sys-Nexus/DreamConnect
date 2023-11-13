@@ -253,9 +253,9 @@ class DualLDM(LatentDiffusion):
                    quantize_denoised=True, inpaint=False):
         x_gt, c = self.get_input(batch, self.first_stage_key, force_c_encode=True)
         # import pdb; pdb.set_trace();
-        # init_latent = torch.cat(c["c_crossattn_1"]["fmri_vae"],dim=0)
-        image256 = F.interpolate(batch['image'], (256,256))
-        init_latent = self.first_stage_model.encode(image256.half().to(x_gt.device)).mode()*self.scale_factor
+        init_latent = torch.cat(c["c_crossattn_1"]["fmri_vae"],dim=0)
+        # image256 = F.interpolate(batch['image'], (256,256))
+        # init_latent = self.first_stage_model.encode(image256.half().to(x_gt.device)).mode()*self.scale_factor
 
         self.device = x_gt.device
         self.sampler.model.model.diffusion_model.device = x_gt.device
@@ -289,14 +289,14 @@ class DualLDM(LatentDiffusion):
         )
         # x_gen = self.kl_net.autokl_decode(z_gen.half())
         # x_edit = self.kl_net.autokl_decode(z_edit.half())
-        x_gen = self.first_stage_model.decode(z_gen.half())
-        x_edit = self.first_stage_model.decode(z_edit.half())
+        x_gen = self.decode_first_stage(z_gen.half())
+        x_edit = self.decode_first_stage(z_edit.half())
 
         x_cat = torch.cat([x_gen, x_edit], dim=-1)
         x_cat = torch.clamp((x_cat+1.0)/2.0, min=0., max=1.)
         torchvision.utils.save_image(x_cat, 'x_cat.jpg')
         import pdb; pdb.set_trace()
-        
+
     def apply_model(self, x_noisy_gen, x_noisy_edit, t, cond, return_ids=False):
         if isinstance(cond, dict):
             # hybrid case, cond is exptected to be a dict
