@@ -252,7 +252,8 @@ class DualLDM(LatentDiffusion):
                    steps=100, ddim_eta=1., return_keys=None,
                    quantize_denoised=True, inpaint=False):
         self.model.eval()
-        
+        s = batch['s'][0]
+
         N = min(batch['image'].shape[0], N)
         x_gt, c = self.get_input(batch, self.first_stage_key, force_c_encode=True,
                     bs=N, uncond=0)
@@ -298,7 +299,12 @@ class DualLDM(LatentDiffusion):
 
         x_cat = torch.cat([x_gen, x_edit], dim=-2)
         x_cat = torch.clamp((x_cat+1.0)/2.0, min=0., max=1.)
-        torchvision.utils.save_image(x_cat, 'x_cat.jpg')
+        
+        root = os.path.join(save_dir, "images", split)
+        filename = "all_iter-{:06}_ep-{:06}_bidx-{:06d}-{:06d}.png".format(iter_n, epoch_n, batch_idx, s)
+        path = os.path.join(root, filename)
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        torchvision.utils.save_image(x_cat, path)
 
         self.model.train()
         import pdb; pdb.set_trace()
