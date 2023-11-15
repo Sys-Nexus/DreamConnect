@@ -174,9 +174,9 @@ class DualLDM(LatentDiffusion):
         for param in self.fmri_vclip.parameters():
             param.requires_grad = False
 
+        import pdb; pdb.set_trace();
         if self.fmri_vclip_pretrain_path is not None and os.path.exists(self.fmri_vclip_pretrain_path):
             sd = torch.load(self.fmri_vclip_pretrain_path, map_location="cpu")
-            import pdb; pdb.set_trace();
 
     def get_input(self, batch, k, return_first_stage_outputs=False, force_c_encode=False,
                   cond_key=None, return_original_cond=False, bs=None, uncond=0.075, sz=256):
