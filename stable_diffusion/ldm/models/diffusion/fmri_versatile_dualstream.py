@@ -228,6 +228,9 @@ class DualLDM(LatentDiffusion):
 
         null_x = torch.zeros_like(x)
         null_cap = ['' for _ in range(len(cap))]
+        
+        import pdb; pdb.set_trace();
+        fmri_null_x = self.fmri_vclip(null_x)
         fmri_null_x = self.vd_clip.clip_encode_vision(null_x)
         fmri_null_cap = self.vd_clip.clip_encode_text(null_cap)
 
