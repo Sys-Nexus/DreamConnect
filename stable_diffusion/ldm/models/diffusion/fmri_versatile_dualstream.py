@@ -234,7 +234,7 @@ class DualLDM(LatentDiffusion):
         # fmri_null_x = self.vd_clip.clip_encode_vision(null_x)
         fmri_null_cap = self.vd_clip.clip_encode_text(null_cap)
 
-        fmri_x = self.fmri_vclip(voxel.half())
+        _, fmri_x = self.fmri_vclip(voxel.half())
         # fmri_x = self.vd_clip.clip_encode_vision(x)
         fmri_cap = self.vd_clip.clip_encode_text(cap)
 
