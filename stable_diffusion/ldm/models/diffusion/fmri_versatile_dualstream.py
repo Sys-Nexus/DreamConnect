@@ -230,8 +230,7 @@ class DualLDM(LatentDiffusion):
         null_cap = ['' for _ in range(len(cap))]
         
         # import pdb; pdb.set_trace();
-        null_voxel = torch.zeros_like(voxel)
-        _, fmri_null_x = self.fmri_vclip(null_voxel.half())
+        _, fmri_null_x = self.fmri_vclip(torch.zeros_like(voxel).half())
         # fmri_null_x = self.vd_clip.clip_encode_vision(null_x)
         fmri_null_cap = self.vd_clip.clip_encode_text(null_cap)
 
