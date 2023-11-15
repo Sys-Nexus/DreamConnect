@@ -151,7 +151,7 @@ model:
       name: clip_frozen
       type: clip_frozen
     
-    fmri_vclip_pretrain_path: None
+    fmri_vclip_pretrain_path: '/data/yashengsun/Proj/MMEdit/fMRI-reconstruction-NSD/train_logs/prior_257_final_subj01_bimixco_softclip_byol/last.pth'
     fmri_vclip_cfg:
       target: third_party.fMRI_reconstruction_NSD.src.models.BrainNetwork
       params:

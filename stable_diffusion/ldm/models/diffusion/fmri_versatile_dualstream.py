@@ -174,10 +174,16 @@ class DualLDM(LatentDiffusion):
         for param in self.fmri_vclip.parameters():
             param.requires_grad = False
 
-        import pdb; pdb.set_trace();
+        # import pdb; pdb.set_trace();
         if self.fmri_vclip_pretrain_path is not None and os.path.exists(self.fmri_vclip_pretrain_path):
             sd = torch.load(self.fmri_vclip_pretrain_path, map_location="cpu")
+            state_dict = sd['model_state_dict']
+            filter_state_dict = {k.replace('voxel2clip.',''):v for k,v in state_dict.items() if 'voxel2clip.' in k}
+            missing, unexpected = self.fmri_vclip.load_state_dict(filter_state_dict, strict=False)
 
+            print('vox2clip vclip: [missing]', len(missing))
+            print('vox2clip vclip: [unexpected] ', len(unexpected))
+            
     def get_input(self, batch, k, return_first_stage_outputs=False, force_c_encode=False,
                   cond_key=None, return_original_cond=False, bs=None, uncond=0.075, sz=256):
         x = DDPM.get_input(self, batch, k)
