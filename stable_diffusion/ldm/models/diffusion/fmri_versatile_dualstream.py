@@ -33,7 +33,7 @@ from lib.model_zoo.vd import VDCLIP
 import matplotlib.pyplot as plt
 from skimage.transform import resize, downscale_local_mean
 
-from ldm.util import log_txt_as_img
+from ldm.util import log_txt_as_img, instantiate_from_config
 from ldm.models.diffusion.fmri_ddpm_edit import LatentDiffusion, DDPM
 import torchvision
 import k_diffusion as K
