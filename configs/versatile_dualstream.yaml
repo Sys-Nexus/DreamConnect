@@ -37,11 +37,6 @@ model:
     monitor: val/loss_simple_ema
     scale_factor: 0.18215
     unet_lr_ratio: 1e-9
-    clip_cfg:
-      symbol: clip
-      args: {}
-      name: clip_frozen
-      type: clip_frozen
 
     scheduler_config: # 10000 warmup steps
       target: ldm.lr_scheduler.LambdaLinearScheduler
@@ -149,6 +144,19 @@ model:
       target: ldm.modules.encoders.fmri_nips23.Voxel2StableDiffusionModel
       params: 
         in_dim: 15724
+
+    clip_cfg:
+      symbol: clip
+      args: {}
+      name: clip_frozen
+      type: clip_frozen
+    
+    fmri_vclip_pretrain_path: None
+    fmri_vclip_cfg:
+      target: third_party.fMRI_reconstruction_NSD.src.models.BrainNetwork
+      params:
+        in_dim: 15724
+        out_dim: 197376
 
 data:
   target: main.DataModuleFromConfig
