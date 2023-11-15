@@ -197,6 +197,7 @@ class DualLDM(LatentDiffusion):
 
         with torch.no_grad():
             voxel = batch['fmri'].to(z)
+            if bs is not None: voxel = voxel[:bs]
             if voxel.shape[1] == 3: voxel = voxel.mean(dim=1)
             self.fmri2lowlevel = self.fmri2lowlevel.float()
             lowlevel_vae = self.fmri2lowlevel(voxel).half()
