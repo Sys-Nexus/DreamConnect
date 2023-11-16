@@ -59,7 +59,7 @@ def main():
     train_clip = np.zeros((num_train, num_embed, num_features))
     test_clip = np.zeros((num_test, num_embed, num_features))
 
-    os.makedirs('nsd_data_dir/extracted_features/subj{:02d}', exist_ok=True)
+    os.makedirs('nsd_data_dir/extracted_features/subj{:02d}'.format(sub), exist_ok=True)
     # import pdb; pdb.set_trace()
     with torch.no_grad():
         for i in range(num_test):
