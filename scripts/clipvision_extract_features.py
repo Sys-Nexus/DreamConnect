@@ -21,7 +21,7 @@ def main():
     # params copied from configs/versatile_dualstream.yaml
     clip_params = {'symbol':'clip', 'args':{}, 'name':'clip_frozen', 'type':'clip_frozen'}
     clip_cfg = EasyDict(clip_params)
-    vd_clip = VDCLIP(clip_cfg).cuda()
+    vd_clip = VDCLIP(clip_cfg).cuda().half()
     pretrained_control_unet_path = 'third_party/versatile_diffusion/pretrained/vd-four-flow-v1-0-fp16-deprecated.pth'
     # import pdb; pdb.set_trace()
 
@@ -66,14 +66,14 @@ def main():
         for i in tqdm(range(num_test)):
             cin = F.interpolate(test_dataset[i]['image'].unsqueeze(0),(256,256)).cuda()
             # import pdb; pdb.set_trace()
-            c = vd_clip.clip_encode_vision(cin.float())
+            c = vd_clip.clip_encode_vision(cin.half())
             test_clip[i] = c.to('cpu').numpy().mean(0)
         
         np.save('nsd_data_dir/extracted_features/subj{:02d}/nsd_clipvision_test.npy'.format(sub),test_clip)
             
         for i in tqdm(range(num_train)):
             cin = F.interpolate(train_dataset[i]['image'].unsqueeze(0), (256,256)).cuda()
-            c = vd_clip.clip_encode_vision(cin.float())
+            c = vd_clip.clip_encode_vision(cin.half())
             train_clip[i] = c.to('cpu').numpy().mean(0)
         
         np.save('nsd_data_dir/extracted_features/subj{:02d}/nsd_clipvision_train.npy'.format(sub),train_clip)
