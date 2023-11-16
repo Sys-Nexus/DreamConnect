@@ -23,9 +23,11 @@ def main():
     sub = 1
 
     train_path = 'nsd_data_dir/processed_data/subj{:02d}/nsd_train_fmriavg_nsdgeneral_sub{}.npy'.format(sub,sub)
-    train_fmri = np.load(train_path)
+    train_fmri = np.load(train_path).astype(np.float32)
     test_path = 'nsd_data_dir/processed_data/subj{:02d}/nsd_test_fmriavg_nsdgeneral_sub{}.npy'.format(sub,sub)
-    test_fmri = np.load(test_path)
+    test_fmri = np.load(test_path).astype(np.float32)
+    print(np.mean(train_fmri),np.std(train_fmri))
+    print(np.mean(test_fmri),np.std(test_fmri))
     import pdb; pdb.set_trace();
 
     train_ds_params = {
