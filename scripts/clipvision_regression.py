@@ -84,7 +84,7 @@ def main():
         pred_clip[:,i] = pred_test_latent
         print(i,reg.score(test_fmri,test_clip[:,i]))
 
-    np.save('nsd_data_dir/predicted_features/subj{:02d}/nsd_cliptext_clipvision_nsdgeneral.npy'.format(sub),pred_clip)
+    np.save('nsd_data_dir/predicted_features/subj{:02d}/nsd_clipvision_predtest_nsdgeneral.npy'.format(sub),pred_clip)
 
 
     datadict = {
