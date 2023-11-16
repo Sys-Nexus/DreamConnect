@@ -89,7 +89,7 @@ def main():
     }
 
     with open('data/regression_weights/subj{:02d}/cliptext_regression_weights.pkl'.format(sub),"wb") as f:
-    pickle.dump(datadict,f)
+        pickle.dump(datadict,f)
 
 
 if __name__ == '__main__':
