@@ -65,16 +65,15 @@ def main():
     with torch.no_grad():
         for i in tqdm(range(num_test)):
             cin = F.interpolate(test_dataset[i]['image'].unsqueeze(0),(256,256)).cuda()
-            import pdb; pdb.set_trace()
-
-            c = vd_clip.clip_encode_vision(cin)
+            # import pdb; pdb.set_trace()
+            c = vd_clip.clip_encode_vision(cin.float())
             test_clip[i] = c.to('cpu').numpy().mean(0)
         
         np.save('nsd_data_dir/extracted_features/subj{:02d}/nsd_clipvision_test.npy'.format(sub),test_clip)
             
         for i in tqdm(range(num_train)):
             cin = F.interpolate(train_dataset[i]['image'].unsqueeze(0), (256,256)).cuda()
-            c = vd_clip.clip_encode_vision(cin)
+            c = vd_clip.clip_encode_vision(cin.float())
             train_clip[i] = c.to('cpu').numpy().mean(0)
         
         np.save('nsd_data_dir/extracted_features/subj{:02d}/nsd_clipvision_train.npy'.format(sub),train_clip)
