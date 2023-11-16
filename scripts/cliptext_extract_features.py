@@ -63,17 +63,20 @@ def main():
     os.makedirs('nsd_data_dir/extracted_features/subj{:02d}'.format(sub), exist_ok=True)
     # import pdb; pdb.set_trace()
     with torch.no_grad():
-        for i in tqdm(range(num_test)):
-            cin = [test_dataset[i]['cap']]
-            c = vd_clip.clip_encode_text(cin)
-            test_clip[i] = c.to('cpu').numpy().mean(0)
+        # for i in tqdm(range(num_test)):
+        #     cin = [test_dataset[i]['cap']]
+        #     c = vd_clip.clip_encode_text(cin)
+        #     test_clip[i] = c.to('cpu').numpy().mean(0)
         
-        np.save('nsd_data_dir/extracted_features/subj{:02d}/nsd_cliptext_test.npy'.format(sub),test_clip)
+        # np.save('nsd_data_dir/extracted_features/subj{:02d}/nsd_cliptext_test.npy'.format(sub),test_clip)
             
         for i in tqdm(range(num_train)):
-            cin = [test_dataset[i]['cap']]
-            c = vd_clip.clip_encode_text(cin)
-            train_clip[i] = c.to('cpu').numpy().mean(0)
+            try:
+                cin = [test_dataset[i]['cap']]
+                c = vd_clip.clip_encode_text(cin)
+                train_clip[i] = c.to('cpu').numpy().mean(0)
+            except:
+                print(i, cin)
         np.save('nsd_data_dir/extracted_features/subj{:02d}/nsd_cliptext_train.npy'.format(sub),train_clip)
 
 
