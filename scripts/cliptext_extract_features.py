@@ -72,7 +72,7 @@ def main():
             
         for i in tqdm(range(num_train)):
             try:
-                cin = [test_dataset[i]['cap']]
+                cin = [train_dataset[i]['cap']]
                 c = vd_clip.clip_encode_text(cin)
                 train_clip[i] = c.to('cpu').numpy().mean(0)
             except:
