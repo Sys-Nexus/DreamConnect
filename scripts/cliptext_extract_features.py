@@ -71,7 +71,6 @@ def main():
     test_fmri, train_fmri = [], []
     for i in tqdm(range(num_test)):
         test_fmri_i = test_dataset[i]['fmri']
-        import pdb; pdb.set_trace();
         test_fmri.append(test_fmri_i)
 
     test_fmri = np.concatenate(test_fmri)
@@ -79,6 +78,7 @@ def main():
 
     for i in tqdm(range(num_train)):
         train_fmri_i = train_dataset[i]['fmri']
+        import pdb; pdb.set_trace();
         train_fmri.append(train_fmri_i)
 
     train_fmri = np.concatenate(train_fmri)
