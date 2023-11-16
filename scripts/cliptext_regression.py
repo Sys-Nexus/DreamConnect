@@ -71,7 +71,7 @@ def main():
     pred_clip = np.zeros_like(test_clip)
     
     os.makedirs('data/predicted_features/subj{:02d}'.format(sub), exist_ok=True)
-    os.makedirs('data/regression_weights/subj{:02d}/cliptext_regression_weights.pkl'.format(sub), exist_ok=True)
+    os.makedirs('data/regression_weights/subj{:02d}'.format(sub), exist_ok=True)
     for i in tqdm(range(num_embed)):
         reg = skl.Ridge(alpha=100000, max_iter=50000, fit_intercept=True)
         reg.fit(train_fmri, train_clip[:,i])
