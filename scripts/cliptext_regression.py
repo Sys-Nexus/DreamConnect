@@ -70,8 +70,8 @@ def main():
     reg_b = np.zeros((num_embed,num_dim)).astype(np.float32)
     pred_clip = np.zeros_like(test_clip)
     
-    os.makedirs('data/predicted_features/subj{:02d}'.format(sub), exist_ok=True)
-    os.makedirs('data/regression_weights/subj{:02d}'.format(sub), exist_ok=True)
+    os.makedirs('nsd_data_dir/predicted_features/subj{:02d}'.format(sub), exist_ok=True)
+    os.makedirs('nsd_data_dir/regression_weights/subj{:02d}'.format(sub), exist_ok=True)
     for i in tqdm(range(num_embed)):
         reg = skl.Ridge(alpha=100000, max_iter=50000, fit_intercept=True)
         reg.fit(train_fmri, train_clip[:,i])
@@ -84,7 +84,7 @@ def main():
         pred_clip[:,i] = pred_test_latent
         print(i,reg.score(test_fmri,test_clip[:,i]))
 
-    np.save('data/predicted_features/subj{:02d}/nsd_cliptext_predtest_nsdgeneral.npy'.format(sub),pred_clip)
+    np.save('nsd_data_dir/predicted_features/subj{:02d}/nsd_cliptext_predtest_nsdgeneral.npy'.format(sub),pred_clip)
 
 
     datadict = {
@@ -93,7 +93,7 @@ def main():
 
     }
 
-    with open('data/regression_weights/subj{:02d}/cliptext_regression_weights.pkl'.format(sub),"wb") as f:
+    with open('nsd_data_dir/regression_weights/subj{:02d}/cliptext_regression_weights.pkl'.format(sub),"wb") as f:
         pickle.dump(datadict,f)
 
 
