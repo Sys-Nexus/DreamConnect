@@ -4,7 +4,7 @@ import json
 from tqdm import tqdm
 import random
 import numpy as np
-import scipy.io
+# import scipy.io
 from PIL import Image
 import torch
 import pickle
