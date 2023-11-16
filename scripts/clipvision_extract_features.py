@@ -64,8 +64,9 @@ def main():
     # import pdb; pdb.set_trace()
     with torch.no_grad():
         for i in tqdm(range(num_test)):
-            # import pdb; pdb.set_trace()
             cin = F.interpolate(test_dataset[i]['image'].unsqueeze(0),(256,256))
+            import pdb; pdb.set_trace()
+
             c = vd_clip.clip_encode_vision(cin)
             test_clip[i] = c.to('cpu').numpy().mean(0)
         
