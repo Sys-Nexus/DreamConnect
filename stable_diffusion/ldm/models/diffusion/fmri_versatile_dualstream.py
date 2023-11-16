@@ -241,8 +241,8 @@ class DualLDM(LatentDiffusion):
 
         fmri_null_x = self.vd_clip.clip_encode_vision(null_x)
         fmri_null_cap = self.vd_clip.clip_encode_text(null_cap)
-        fmri_x = batch['nsd_clipvision'][:null_x.shape[0]]
-        fmri_cap = batch['nsd_cliptext'][:null_x.shape[0]]
+        fmri_x = batch['nsd_clipvision'][:null_x.shape[0]].to(fmri_null_x.device)
+        fmri_cap = batch['nsd_cliptext'][:null_x.shape[0]].to(fmri_null_x.device)
 
         cond["c_crossattn_1"] = {}
         if force_c_encode is False:
