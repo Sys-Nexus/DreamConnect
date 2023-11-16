@@ -87,8 +87,9 @@ class NIPS23NSDDataset(Dataset):
         sub = 1
         self.nsd_cliptext_path = 'nsd_data_dir/predicted_features/subj{:02d}/nsd_cliptext_pred{}_nsdgeneral.npy'.format(sub,split)
         self.nsd_clipvision_path = 'nsd_data_dir/predicted_features/subj{:02d}/nsd_clipvision_pred{}_nsdgeneral.npy'.format(sub,split)
-        self.all_nsd_cliptext = np.load(self.nsd_cliptext_path)
-        self.all_nsd_clipvision = np.load(self.nsd_clipvision_path)
+        if os.path.exists(self.nsd_cliptext_path):
+            self.all_nsd_cliptext = np.load(self.nsd_cliptext_path)
+            self.all_nsd_clipvision = np.load(self.nsd_clipvision_path)
 
         cached_path = 'datadict_{}_{}.pkl'.format(split, 'subj01')
         self.resolution = resolution
@@ -126,8 +127,7 @@ class NIPS23NSDDataset(Dataset):
 
     def __getitem__(self, index):
         s = self.cocos[index]
-        nsd_cliptext = self.all_nsd_cliptext[index]
-        nsd_clipvision = self.all_nsd_clipvision[index]
+
         # voxel, img_input, coco = self.data[index]
         caps = self.cap_dict[s]
         img = self.nsda.read_images(s)
@@ -136,8 +136,12 @@ class NIPS23NSDDataset(Dataset):
         fmri_norm = self.voxels[index][0]
 
         nsd_dict = {'cap': random.choices(caps)[0], 'image': init_image[0], 'fmri': fmri_norm, 's': s}
-        nsd_dict['nsd_cliptext'] = nsd_cliptext
-        nsd_dict['nsd_clipvision'] = nsd_clipvision
+        
+        if os.path.exists(self.nsd_cliptext_path):
+            nsd_cliptext = self.all_nsd_cliptext[index]
+            nsd_clipvision = self.all_nsd_clipvision[index]
+            nsd_dict['nsd_cliptext'] = nsd_cliptext
+            nsd_dict['nsd_clipvision'] = nsd_clipvision
 
         if self.is_reconstruct_mode or random.uniform(0,1.)<self.reconstruct_prob:
             instruction_text = random.choice(self.valid_do_nothing_ops)
