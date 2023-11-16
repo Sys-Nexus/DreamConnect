@@ -27,7 +27,7 @@ def main():
     if pretrained_control_unet_path is not None and os.path.exists(pretrained_control_unet_path):
         pretrained_state_dict = torch.load(pretrained_control_unet_path, map_location="cpu")
         pretrained_state_dict = {k:v for k,v in pretrained_state_dict.items() if 'clip.' in k}
-        missing, unexpected = self.vd_clip.load_state_dict(pretrained_state_dict, strict=False)
+        missing, unexpected = vd_clip.load_state_dict(pretrained_state_dict, strict=False)
 
         print('clip missing {} params.'.format(len(missing)))
         print('clip missing: ', missing)
