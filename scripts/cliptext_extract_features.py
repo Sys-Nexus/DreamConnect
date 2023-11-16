@@ -22,7 +22,7 @@ def main():
     clip_cfg = EasyDict(clip_params)
     vd_clip = VDCLIP(clip_cfg)
     pretrained_control_unet_path = 'third_party/versatile_diffusion/pretrained/vd-four-flow-v1-0-fp16-deprecated.pth'
-    import pdb; pdb.set_trace()
+    # import pdb; pdb.set_trace()
 
     if pretrained_control_unet_path is not None and os.path.exists(pretrained_control_unet_path):
         pretrained_state_dict = torch.load(pretrained_control_unet_path, map_location="cpu")
@@ -61,20 +61,20 @@ def main():
 
     os.makedirs('nsd_data_dir/extracted_features/subj{:02d}'.format(sub), exist_ok=True)
     # import pdb; pdb.set_trace()
-    # with torch.no_grad():
-    #     for i in tqdm(range(num_test)):
-    #         cin = [test_dataset[i]['cap']]
-    #         c = vd_clip.clip_encode_text(cin)
-    #         test_clip[i] = c.to('cpu').numpy().mean(0)
+    with torch.no_grad():
+        for i in tqdm(range(num_test)):
+            cin = [test_dataset[i]['cap']]
+            c = vd_clip.clip_encode_text(cin)
+            test_clip[i] = c.to('cpu').numpy().mean(0)
         
-    #     np.save('nsd_data_dir/extracted_features/subj{:02d}/nsd_cliptext_test.npy'.format(sub),test_clip)
+        np.save('nsd_data_dir/extracted_features/subj{:02d}/nsd_cliptext_test.npy'.format(sub),test_clip)
             
-    #     for i in tqdm(range(num_train)):
-    #         cin = [train_dataset[i]['cap']]
-    #         c = vd_clip.clip_encode_text(cin)
-    #         train_clip[i] = c.to('cpu').numpy().mean(0)
+        for i in tqdm(range(num_train)):
+            cin = [train_dataset[i]['cap']]
+            c = vd_clip.clip_encode_text(cin)
+            train_clip[i] = c.to('cpu').numpy().mean(0)
         
-    #     np.save('nsd_data_dir/extracted_features/subj{:02d}/nsd_cliptext_train.npy'.format(sub),train_clip)
+        np.save('nsd_data_dir/extracted_features/subj{:02d}/nsd_cliptext_train.npy'.format(sub),train_clip)
 
     os.makedirs('nsd_data_dir/processed_data/subj{:02d}'.format(sub), exist_ok=True)
     train_fmri_path = 'nsd_data_dir/processed_data/subj{:02d}/nsd_train_fmriavg_nsdgeneral_sub{}.npy'.format(sub,sub)
