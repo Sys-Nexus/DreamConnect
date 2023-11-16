@@ -2,6 +2,7 @@ import torch
 import numpy as np
 import os
 import sys
+from easydict import EasyDict
 
 proj_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(proj_root)
@@ -29,7 +30,9 @@ def main():
     # net.clip = net.clip.to(device)
     
     # params copied from configs/versatile_dualstream.yaml
-    vd_clip = VDCLIP(symbol='clip', args={}, name='clip_frozen', type='clip_frozen')
+    clip_params = {'symbol':'clip', 'args':{}, 'name':'clip_frozen', 'type':'clip_frozen'}
+    clip_cfg = EasyDict(clip_params)
+    vd_clip = VDCLIP(clip_cfg)
     
     train_ds_params = {
         'nsd_root': '/data/yashengsun/Proj/MMEdit/StableDiffusionReconstruction/nsd',
