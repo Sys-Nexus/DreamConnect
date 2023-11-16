@@ -79,7 +79,7 @@ def main():
     for i in tqdm(range(num_train)):
         train_fmri_i = train_dataset[i]['fmri']
         train_fmri_i = np.mean(train_fmri_i, axis=0)
-        import pdb; pdb.set_trace();
+        # import pdb; pdb.set_trace();
         train_fmri.append(train_fmri_i)
 
     train_fmri = np.stack(train_fmri)
