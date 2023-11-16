@@ -22,6 +22,12 @@ from third_party.StableDiffusionReconstruction.codes.utils.nsd_creater import NI
 def main():
     sub = 1
 
+    train_path = 'nsd_data_dir/processed_data/subj{:02d}/nsd_train_fmriavg_nsdgeneral_sub{}.npy'.format(sub,sub)
+    train_fmri = np.load(train_path)
+    test_path = 'nsd_data_dir/processed_data/subj{:02d}/nsd_test_fmriavg_nsdgeneral_sub{}.npy'.format(sub,sub)
+    test_fmri = np.load(test_path)
+    import pdb; pdb.set_trace();
+
     train_ds_params = {
         'nsd_root': '/data/yashengsun/Proj/MMEdit/StableDiffusionReconstruction/nsd',
         'resolution': 320,
