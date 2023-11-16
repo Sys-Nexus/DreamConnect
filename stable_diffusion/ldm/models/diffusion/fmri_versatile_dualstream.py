@@ -231,13 +231,18 @@ class DualLDM(LatentDiffusion):
         null_cap = ['' for _ in range(len(cap))]
         
         # import pdb; pdb.set_trace();
-        _, fmri_null_x = self.fmri_vclip(torch.zeros_like(voxel).half())
+        # # _, fmri_null_x = self.fmri_vclip(torch.zeros_like(voxel).half())
         # fmri_null_x = self.vd_clip.clip_encode_vision(null_x)
-        fmri_null_cap = self.vd_clip.clip_encode_text(null_cap)
+        # fmri_null_cap = self.vd_clip.clip_encode_text(null_cap)
 
-        _, fmri_x = self.fmri_vclip(voxel.half())
+        # # _, fmri_x = self.fmri_vclip(voxel.half())
         # fmri_x = self.vd_clip.clip_encode_vision(x)
-        fmri_cap = self.vd_clip.clip_encode_text(cap)
+        # fmri_cap = self.vd_clip.clip_encode_text(cap)
+
+        fmri_null_x = self.vd_clip.clip_encode_vision(null_x)
+        fmri_null_cap = self.vd_clip.clip_encode_text(null_cap)
+        fmri_x = batch['nsd_clipvision'][:null_x.shape[0]]
+        fmri_cap = batch['nsd_cliptext'][:null_x.shape[0]]
 
         cond["c_crossattn_1"] = {}
         if force_c_encode is False:
