@@ -49,7 +49,7 @@ def main():
     
     train_dataset = NIPS23NSDDataset(**train_ds_params)
     test_dataset = NIPS23NSDDataset(**test_ds_params)
-
+    import pdb; pdb.set_trace()
 
     #### TODO: add preprocessing normalization.
     num_voxels, num_train, num_test = train_fmri.shape[1], len(train_fmri), len(test_fmri)
