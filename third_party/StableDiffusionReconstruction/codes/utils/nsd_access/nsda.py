@@ -8,7 +8,7 @@ from pandas import json_normalize
 from tqdm import tqdm
 import h5py
 # import matplotlib.pyplot as plt
-import matplotlib.image as mpimg
+# import matplotlib.image as mpimg
 
 import urllib.request
 import zipfile
