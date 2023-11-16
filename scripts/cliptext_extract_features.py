@@ -73,15 +73,16 @@ def main():
         test_fmri_i = test_dataset[i]['fmri']
         test_fmri.append(test_fmri_i)
 
-    test_fmri = np.concatenate(test_fmri)
+    test_fmri = np.stack(test_fmri)
     np.save(test_fmri_path, test_fmri)
 
     for i in tqdm(range(num_train)):
         train_fmri_i = train_dataset[i]['fmri']
+        train_fmri_i = np.mean(train_fmri_i, axis=0)
         import pdb; pdb.set_trace();
         train_fmri.append(train_fmri_i)
 
-    train_fmri = np.concatenate(train_fmri)
+    train_fmri = np.stack(train_fmri)
     np.save(train_fmri_path, train_fmri)
 
 
