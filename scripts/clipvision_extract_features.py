@@ -4,6 +4,7 @@ import os
 import sys
 from easydict import EasyDict
 from tqdm import tqdm
+import torch.nn.functional as F  
 
 proj_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(proj_root)
@@ -63,15 +64,15 @@ def main():
     # import pdb; pdb.set_trace()
     with torch.no_grad():
         for i in tqdm(range(num_test)):
-            import pdb; pdb.set_trace()
-            cin = [test_dataset[i]['cap']]
+            # import pdb; pdb.set_trace()
+            cin = F.interpolate(test_dataset[i]['image'].unsqueeze(0),(256,256))
             c = vd_clip.clip_encode_vision(cin)
             test_clip[i] = c.to('cpu').numpy().mean(0)
         
         np.save('nsd_data_dir/extracted_features/subj{:02d}/nsd_clipvision_test.npy'.format(sub),test_clip)
             
         for i in tqdm(range(num_train)):
-            cin = [train_dataset[i]['cap']]
+            cin = F.interpolate(train_dataset[i]['image'].unsqueeze(0), (256,256))
             c = vd_clip.clip_encode_vision(cin)
             train_clip[i] = c.to('cpu').numpy().mean(0)
         
