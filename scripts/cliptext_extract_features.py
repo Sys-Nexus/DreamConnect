@@ -21,7 +21,19 @@ def main():
     clip_params = {'symbol':'clip', 'args':{}, 'name':'clip_frozen', 'type':'clip_frozen'}
     clip_cfg = EasyDict(clip_params)
     vd_clip = VDCLIP(clip_cfg)
-    
+    pretrained_control_unet_path = 'third_party/versatile_diffusion/pretrained/vd-four-flow-v1-0-fp16-deprecated.pth'
+    import pdb; pdb.set_trace()
+
+    if pretrained_control_unet_path is not None and os.path.exists(pretrained_control_unet_path):
+        pretrained_state_dict = torch.load(pretrained_control_unet_path, map_location="cpu")
+        pretrained_state_dict = {k:v for k,v in pretrained_state_dict.items() if 'clip.' in k}
+        missing, unexpected = self.vd_clip.load_state_dict(pretrained_state_dict, strict=False)
+
+        print('clip missing {} params.'.format(len(missing)))
+        print('clip missing: ', missing)
+        print('clip unexpected {} params.'.format(len(unexpected)))
+
+
     train_ds_params = {
         'nsd_root': '/data/yashengsun/Proj/MMEdit/StableDiffusionReconstruction/nsd',
         'resolution': 320,
