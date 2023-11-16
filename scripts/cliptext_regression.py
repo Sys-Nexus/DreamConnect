@@ -28,7 +28,7 @@ def main():
     test_fmri = np.load(test_path).astype(np.float32)
     print(np.mean(train_fmri),np.std(train_fmri))
     print(np.mean(test_fmri),np.std(test_fmri))
-    import pdb; pdb.set_trace();
+    # import pdb; pdb.set_trace();
 
     train_ds_params = {
         'nsd_root': '/data/yashengsun/Proj/MMEdit/StableDiffusionReconstruction/nsd',
@@ -70,7 +70,9 @@ def main():
     reg_b = np.zeros((num_embed,num_dim)).astype(np.float32)
     pred_clip = np.zeros_like(test_clip)
     
-    for i in range(num_embed):
+    os.makedirs('data/predicted_features/subj{:02d}'.format(sub), exist_ok=True)
+    os.makedirs('data/regression_weights/subj{:02d}/cliptext_regression_weights.pkl'.format(sub), exist_ok=True)
+    for i in tqdm(range(num_embed)):
         reg = skl.Ridge(alpha=100000, max_iter=50000, fit_intercept=True)
         reg.fit(train_fmri, train_clip[:,i])
         reg_w[i] = reg.coef_
