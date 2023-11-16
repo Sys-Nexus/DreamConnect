@@ -25,7 +25,7 @@ def freeze(model):
 
 # @register('fmri', version)
 class FmriEmbedder(nn.Module):
-    def __init__(self, adaptor_fmri2image_path='', force_type_convert=False, is_infer=True):
+    def __init__(self, adaptor_fmri2image_path='', force_type_convert=False, out_dim=768, is_infer=True):
         super(FmriEmbedder, self).__init__()
         # num_voxels = 7604 # use roi ventral region
         # num_voxels = 5917 # use roi early region
@@ -44,11 +44,11 @@ class FmriEmbedder(nn.Module):
             freeze(self.adaptor_fmri2image)
  
         # embed_dim = 768
-        # self.image_projection = nn.Parameter(torch.empty(embed_dim, embed_dim))
-        # self.text_projection = nn.Parameter(torch.empty(embed_dim, embed_dim))
-        # nn.init.normal_(self.image_projection, std=embed_dim ** -0.5)
-        # nn.init.normal_(self.text_projection, std=embed_dim ** -0.5)
-        # self.logit_scale = nn.Parameter(torch.ones([]) * np.log(1 / 0.07))
+        self.image_projection = nn.Parameter(torch.empty(embed_dim, embed_dim))
+        self.text_projection = nn.Parameter(torch.empty(embed_dim, embed_dim))
+        nn.init.normal_(self.image_projection, std=embed_dim ** -0.5)
+        nn.init.normal_(self.text_projection, std=embed_dim ** -0.5)
+        self.logit_scale = nn.Parameter(torch.ones([]) * np.log(1 / 0.07))
 
         if os.path.exists(adaptor_fmri2image_path):
             self.init_fmri_weight()
