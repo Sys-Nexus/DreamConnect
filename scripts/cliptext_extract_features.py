@@ -3,6 +3,7 @@ import numpy as np
 import os
 import sys
 from easydict import EasyDict
+from tqdm import tqdm
 
 proj_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(proj_root)
@@ -62,14 +63,14 @@ def main():
     os.makedirs('nsd_data_dir/extracted_features/subj{:02d}'.format(sub), exist_ok=True)
     # import pdb; pdb.set_trace()
     with torch.no_grad():
-        for i in range(num_test):
+        for i in tqdm(range(num_test)):
             cin = [test_dataset[i]['cap']]
             c = vd_clip.clip_encode_text(cin)
             test_clip[i] = c.to('cpu').numpy().mean(0)
         
         np.save('nsd_data_dir/extracted_features/subj{:02d}/nsd_cliptext_test.npy'.format(sub),test_clip)
             
-        for i in range(num_train):
+        for i in tqdm(range(num_train)):
             cin = [test_dataset[i]['cap']]
             c = vd_clip.clip_encode_text(cin)
             train_clip[i] = c.to('cpu').numpy().mean(0)
