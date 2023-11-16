@@ -85,8 +85,8 @@ class NIPS23NSDDataset(Dataset):
         self.reconstruct_prob = reconstruct_prob
 
         sub = 1
-        self.nsd_cliptext_path = 'nsd_data_dir/predicted_features/subj{:02d}/nsd_cliptext_predtest_nsdgeneral.npy'.format(sub)
-        self.nsd_clipvision_path = 'nsd_data_dir/predicted_features/subj{:02d}/nsd_clipvision_predtest_nsdgeneral.npy'.format(sub)
+        self.nsd_cliptext_path = 'nsd_data_dir/predicted_features/subj{:02d}/nsd_cliptext_pred{}_nsdgeneral.npy'.format(sub,split)
+        self.nsd_clipvision_path = 'nsd_data_dir/predicted_features/subj{:02d}/nsd_clipvision_pred{}_nsdgeneral.npy'.format(sub,split)
         self.all_nsd_cliptext = np.load(self.nsd_cliptext_path)
         self.all_nsd_clipvision = np.load(self.nsd_clipvision_path)
 
