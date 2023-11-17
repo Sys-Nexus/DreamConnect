@@ -6,8 +6,7 @@ model:
   weight_decay: 0.01
   # target: ldm.models.diffusion.control_fmri_ddpm_edit.ControlLDM
   # target: ldm.models.diffusion.fmri_versatile_edit.fMRIVersatileEdit
-  # target: ldm.models.diffusion.fmri_versatile_edit.ControlLDM
-  target: ldm.models.diffusion.fmri_versatile_edit.ControlLDM
+  target: ldm.models.diffusion.fmri_versatile_dualstream.DualLDM
   params:
     fp16: True
     deepspeed: 'deepspeed_1'
@@ -38,11 +37,6 @@ model:
     monitor: val/loss_simple_ema
     scale_factor: 0.18215
     unet_lr_ratio: 1e-9
-    clip_cfg:
-      symbol: clip
-      args: {}
-      name: clip_frozen
-      type: clip_frozen
 
     scheduler_config: # 10000 warmup steps
       target: ldm.lr_scheduler.LambdaLinearScheduler
@@ -81,7 +75,7 @@ model:
     # pretrained_control_unet_path: /data/yashengsun/Proj/MMEdit/CoDI/checkpoints/CoDi_video_diffuser_8frames.pth
     pretrained_control_unet_path: 'third_party/versatile_diffusion/pretrained/vd-four-flow-v1-0-fp16-deprecated.pth'
     control_stage_config:
-      target: ldm.models.diffusion.fmri_versatile_edit.VersatileControlNet
+      target: ldm.models.diffusion.fmri_versatile_dualstream.VersatileNetAdaptor
       params:
         unet_image_cfg:
           # target: third_party.versatile_diffusion.lib.model_zoo.openaimodel.UNetModel2D
@@ -122,9 +116,10 @@ model:
     #     force_type_convert: true
 
     unet_config:
+      # target: ldm.modules.diffusionmodules.openaimodel.UNetModel
       # target: ldm.modules.diffusionmodules.openaimodel_dual_condition.UNetModel
       # inherit from target: ldm.modules.diffusionmodules.openaimodel.UNetModel
-      target: ldm.models.diffusion.fmri_codi_edit.ControlledUnetModel
+      target: ldm.models.diffusion.fmri_versatile_dualstream.ControlledUnetModel
       params:
         image_size: 32 # unused
         in_channels: 8
@@ -150,6 +145,19 @@ model:
       params: 
         in_dim: 15724
 
+    clip_cfg:
+      symbol: clip
+      args: {}
+      name: clip_frozen
+      type: clip_frozen
+    
+    fmri_vclip_pretrain_path: '/data/yashengsun/Proj/MMEdit/fMRI-reconstruction-NSD/train_logs/prior_257_final_subj01_bimixco_softclip_byol/last.pth'
+    fmri_vclip_cfg:
+      target: third_party.fMRI_reconstruction_NSD.src.models.BrainNetwork
+      params:
+        in_dim: 15724
+        out_dim: 197376
+
 data:
   target: main.DataModuleFromConfig
   params:
@@ -164,7 +172,7 @@ data:
         split: 'train'
         is_reconstruct_mode: False
         url: 'nsd_data_dir/train_subj01_{0..17}.tar'
-        reconstruct_prob: 1.01
+        reconstruct_prob: 0.05
 
     validation:
       target: third_party.StableDiffusionReconstruction.codes.utils.nsd_creater.NIPS23NSDDataset
@@ -174,7 +182,7 @@ data:
         split: 'test'
         is_reconstruct_mode: False
         url: 'nsd_data_dir/test_subj01_{0..1}.tar'
-        reconstruct_prob: 1.01
+        reconstruct_prob: 0.05
 
 trainer:
   initial_scale: 13
