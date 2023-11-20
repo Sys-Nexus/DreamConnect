@@ -459,13 +459,7 @@ class DualLDM(LatentDiffusion):
             fmri_control = [c * scale for c, scale in zip(control_res, self.control_scales)]
             new_cond["control"] = fmri_control
             ## only add above 
-            import pdb; pdb.set_trace()
+            # import pdb; pdb.set_trace()
             x_recon_edit = self.model(x_noisy_edit, t, **new_cond)
 
-        # if isinstance(x_recon, tuple) and not return_ids:
-        #     return x_recon[0]
-        # else:
-        #     return x_recon
-
         return x_recon_gen, x_recon_edit
-        # return x_recon_edit
