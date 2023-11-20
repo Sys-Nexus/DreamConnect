@@ -238,7 +238,7 @@ class DualLDM(LatentDiffusion):
         # # _, fmri_x = self.fmri_vclip(voxel.half())
         # fmri_x = self.vd_clip.clip_encode_vision(x)
         # fmri_cap = self.vd_clip.clip_encode_text(cap)
-
+        import pdb; pdb.set_trace();
         fmri_null_x = self.vd_clip.clip_encode_vision(null_x)
         fmri_null_cap = self.vd_clip.clip_encode_text(null_cap)
         # fmri_x = batch['nsd_clipvision'][:null_x.shape[0]].to(fmri_null_x)
@@ -459,7 +459,7 @@ class DualLDM(LatentDiffusion):
             new_cond.pop('null_prompt_emb')
             fmri_control = [c * scale for c, scale in zip(control_res, self.control_scales)]
             new_cond["control"] = fmri_control
-            ## only add above 
+            ## only add above
             # import pdb; pdb.set_trace()
             x_recon_edit = self.model(x_noisy_edit, t, **new_cond)
 
