@@ -972,7 +972,7 @@ class LatentDiffusion(DDPM):
             return self.first_stage_model.encode(x)
 
     def forward(self, batch, batch_idx, num_steps, *args, **kwargs):
-        # import pdb; pdb.set_trace();
+        import pdb; pdb.set_trace();
         x, c = self.get_input(batch, self.first_stage_key)
         t = torch.randint(0, self.num_timesteps, (x.shape[0],), device=x.device).long()
         if self.model.conditioning_key is not None:
@@ -1119,14 +1119,14 @@ class LatentDiffusion(DDPM):
         return mean_flat(kl_prior) / np.log(2.0)
 
     ### TODO: what we should give to noise_edit
-    def p_losses(self, x_start, cond, t, noise=None, noise_edit=None):
+    def p_losses(self, x_start_gen, x_start_edit, cond, t, noise=None, noise_edit=None):
         import pdb; pdb.set_trace();
-        noise_gen = default(noise, lambda: torch.randn_like(x_start))
-        x_noisy_gen = self.q_sample(x_start=x_start, t=t, noise=noise_gen)
+        noise_gen = default(noise, lambda: torch.randn_like(x_start_gen))
+        x_noisy_gen = self.q_sample(x_start=x_start_gen, t=t, noise=noise_gen)
 
-        noise_edit = default(noise_edit, lambda: torch.randn_like(x_start))
+        noise_edit = default(noise_edit, lambda: torch.randn_like(x_start_edit))
         noise = noise_edit
-        x_noisy_edit = self.q_sample(x_start=x_start, t=t, noise=noise_edit)
+        x_noisy_edit = self.q_sample(x_start=x_start_edit, t=t, noise=noise_edit)
 
         # model_output = self.apply_model(x_noisy_gen, x_noisy_edit, t, cond)
         _, model_output = self.apply_model(x_noisy_gen, x_noisy_edit, t, cond)
@@ -1136,7 +1136,7 @@ class LatentDiffusion(DDPM):
         
         # import pdb; pdb.set_trace();
         if self.parameterization == "x0":
-            target = x_start
+            target = x_start_edit
         elif self.parameterization == "eps":
             target = noise
         else:
