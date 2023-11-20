@@ -329,9 +329,9 @@ class DualLDM(LatentDiffusion):
         # x_edit = self.kl_net.autokl_decode(z_edit.half())
         x_gen = self.decode_first_stage(z_gen.half())
         x_edit = self.decode_first_stage(z_edit.half())
-        x_instruct_txt = log_txt_as_img((x_gt.shape[2], x_gt.shape[3]), xc["c_crossattn"])
+        x_instruct_txt = log_txt_as_img((x_gt.shape[2], x_gt.shape[3]), c["c_crossattn"])
 
-        x_cat = torch.cat([xc["c_concat"], x_instruct_txt, x_gen, x_edit], dim=-2)
+        x_cat = torch.cat([c["c_concat"], x_instruct_txt, x_gen, x_edit], dim=-2)
         x_cat = torch.clamp((x_cat+1.0)/2.0, min=0., max=1.)
         
         root = os.path.join(save_dir, "images", split)
