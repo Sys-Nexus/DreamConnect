@@ -1162,7 +1162,7 @@ class LatentDiffusion(DDPM):
 
             loss_simple = loss_simple * min_snr
 
-        logvar_t = self.logvar.to(x_start.device)[t]
+        logvar_t = self.logvar.to(x_start_edit.device)[t]
         loss = loss_simple / torch.exp(logvar_t) + logvar_t
         # loss = loss_simple / torch.exp(self.logvar) + self.logvar
         if self.learn_logvar:
