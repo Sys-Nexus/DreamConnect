@@ -318,6 +318,7 @@ class DDIMSampler_Dual(DDIMSampler):
 
         # e_t_gen_cat, e_t_edit_cat = self.model.apply_model_dc(
         #     x_gen_in, x_edit_in, t_in, first_c, second_c, xtype=xtype, first_ctype=first_ctype, second_ctype=second_ctype, mixed_ratio=mixed_ratio)#.chunk(4)
+        import pdb; pdb.set_trace()
         e_t_gen_cat, e_t_edit_cat = self.model.apply_model(
             x_gen_in, x_edit_in, t_in, cond_dict)#.chunk(4)
 
