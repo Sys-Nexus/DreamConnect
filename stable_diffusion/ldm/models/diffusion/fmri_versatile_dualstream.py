@@ -329,7 +329,7 @@ class DualLDM(LatentDiffusion):
         # x_edit = self.kl_net.autokl_decode(z_edit.half())
         x_gen = self.decode_first_stage(z_gen.half())
         x_edit = self.decode_first_stage(z_edit.half())
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
         x_instruct_txt = log_txt_as_img((x_gen.shape[2], x_gen.shape[3]), xc["c_crossattn"])
         c_concat = F.interpolate(xc["c_concat"], (x_gen.shape[2], x_gen.shape[3]))
         x_cat = torch.cat([x_instruct_txt.detach().cpu(), c_concat.detach().cpu(), 
@@ -459,6 +459,7 @@ class DualLDM(LatentDiffusion):
             fmri_control = [c * scale for c, scale in zip(control_res, self.control_scales)]
             new_cond["control"] = fmri_control
             ## only add above 
+            import pdb; pdb.set_trace()
             x_recon_edit = self.model(x_noisy_edit, t, **new_cond)
 
         # if isinstance(x_recon, tuple) and not return_ids:
