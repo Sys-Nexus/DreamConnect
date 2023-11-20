@@ -291,7 +291,7 @@ class DualLDM(LatentDiffusion):
         z_gt, c, x, xrec, xc = self.get_input(batch, self.first_stage_key, force_c_encode=True,
                                                bs=N, uncond=0, return_original_cond=True, 
                                                return_first_stage_outputs=True)
-        import pdb; pdb.set_trace();
+        # import pdb; pdb.set_trace();
         init_latent = torch.cat(c["c_crossattn_1"]["fmri_vae"],dim=0)
 
         self.device = z_gt.device
@@ -331,8 +331,10 @@ class DualLDM(LatentDiffusion):
         # import pdb; pdb.set_trace()
         x_instruct_txt = log_txt_as_img((x_gen.shape[2], x_gen.shape[3]), xc["c_crossattn"])
         c_concat = F.interpolate(xc["c_concat"], (x_gen.shape[2], x_gen.shape[3]))
-        x_cat = torch.cat([x_instruct_txt.detach().cpu(), c_concat.detach().cpu(), 
-                x_gen.detach().cpu(), x_edit.detach().cpu()], dim=-2)
+        x_resize = F.interpolate(x, (x_gen.shape[2], x_gen.shape[3]))
+        x_cat = torch.cat([x_instruct_txt.detach().cpu(), 
+                            x_resize.detach().cpu(), c_concat.detach().cpu(), 
+                            x_gen.detach().cpu(), x_edit.detach().cpu()], dim=-2)
         x_cat = torch.clamp((x_cat+1.0)/2.0, min=0., max=1.)
         
         root = os.path.join(save_dir, "images", split)
