@@ -508,7 +508,7 @@ class LatentDiffusion(DDPM):
             missing, unexpected = self.control_model.load_state_dict(pretrained_state_dict, strict=False)
             print('control_model zeroconv, missing {} params.'.format(len(missing)))
             print('control model zeroconv, unexpected {} params.'.format(len(unexpected)))
-            # import pdb; pdb.set_trace()
+            import pdb; pdb.set_trace()
             
         ## init fmri pretrained
         self.cond_stage_forward_fmri = cond_stage_forward_fmri
