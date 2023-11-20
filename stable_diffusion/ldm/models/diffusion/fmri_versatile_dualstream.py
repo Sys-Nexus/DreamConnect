@@ -288,18 +288,16 @@ class DualLDM(LatentDiffusion):
         s = batch['s'][0]
 
         N = min(batch['image'].shape[0], N)
-        x_gt, c, xc = self.get_input(batch, self.first_stage_key, force_c_encode=True,
-                                bs=N, uncond=0, return_original_cond=True)
+        z_gt, c, x, xrec, xc = self.get_input(batch, self.first_stage_key, force_c_encode=True,
+                                               bs=N, uncond=0, return_original_cond=True)
         import pdb; pdb.set_trace();
         init_latent = torch.cat(c["c_crossattn_1"]["fmri_vae"],dim=0)
-        # image256 = F.interpolate(batch['image'], (256,256))
-        # init_latent = self.first_stage_model.encode(image256.half().to(x_gt.device)).mode()*self.scale_factor
 
-        self.device = x_gt.device
-        self.sampler.model.model.diffusion_model.device = x_gt.device
+        self.device = z_gt.device
+        self.sampler.model.model.diffusion_model.device = z_gt.device
         self.sampler.make_schedule(ddim_num_steps=self.ddim_steps, ddim_eta=self.ddim_eta, verbose=False)
 
-        z_enc = self.sampler.stochastic_encode(init_latent, torch.tensor([self.t_enc]).to(x_gt.device))
+        z_enc = self.sampler.stochastic_encode(init_latent, torch.tensor([self.t_enc]).to(z_gt.device))
 
         c_w_uncond = copy.deepcopy(c)
 
