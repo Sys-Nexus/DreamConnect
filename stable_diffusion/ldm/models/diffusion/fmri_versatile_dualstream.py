@@ -289,7 +289,8 @@ class DualLDM(LatentDiffusion):
 
         N = min(batch['image'].shape[0], N)
         z_gt, c, x, xrec, xc = self.get_input(batch, self.first_stage_key, force_c_encode=True,
-                                               bs=N, uncond=0, return_original_cond=True)
+                                               bs=N, uncond=0, return_original_cond=True, 
+                                               return_first_stage_outputs=True)
         import pdb; pdb.set_trace();
         init_latent = torch.cat(c["c_crossattn_1"]["fmri_vae"],dim=0)
 
