@@ -51,6 +51,7 @@ def read_edit_json(root, map_keys):
     # for i in range(len(meta)):
     for i in range(len(map_keys)):
         res_dict[map_keys[i]] = meta[i]
+    import pdb; pdb.set_trace();
     return res_dict
 
 
