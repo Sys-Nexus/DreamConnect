@@ -288,8 +288,8 @@ class DualLDM(LatentDiffusion):
         s = batch['s'][0]
 
         N = min(batch['image'].shape[0], N)
-        x_gt, c = self.get_input(batch, self.first_stage_key, force_c_encode=True,
-                    bs=N, uncond=0)
+        x_gt, c, xc = self.get_input(batch, self.first_stage_key, force_c_encode=True,
+                                bs=N, uncond=0, return_original_cond=True)
         # import pdb; pdb.set_trace();
         init_latent = torch.cat(c["c_crossattn_1"]["fmri_vae"],dim=0)
         # image256 = F.interpolate(batch['image'], (256,256))
@@ -329,9 +329,9 @@ class DualLDM(LatentDiffusion):
         # x_edit = self.kl_net.autokl_decode(z_edit.half())
         x_gen = self.decode_first_stage(z_gen.half())
         x_edit = self.decode_first_stage(z_edit.half())
-        x_instruct_txt = log_txt_as_img((x_gt.shape[2], x_gt.shape[3]), c["c_crossattn"])
+        x_instruct_txt = log_txt_as_img((x_gt.shape[2], x_gt.shape[3]), xc["c_crossattn"])
 
-        x_cat = torch.cat([c["c_concat"], x_instruct_txt, x_gen, x_edit], dim=-2)
+        x_cat = torch.cat([xc["c_concat"], x_instruct_txt, x_gen, x_edit], dim=-2)
         x_cat = torch.clamp((x_cat+1.0)/2.0, min=0., max=1.)
         
         root = os.path.join(save_dir, "images", split)
