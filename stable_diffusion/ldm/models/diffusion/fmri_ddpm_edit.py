@@ -1120,7 +1120,7 @@ class LatentDiffusion(DDPM):
 
     ### TODO: what we should give to noise_edit
     def p_losses(self, x_start, cond, t, noise=None, noise_edit=None):
-        # import pdb; pdb.set_trace();
+        import pdb; pdb.set_trace();
         noise_gen = default(noise, lambda: torch.randn_like(x_start))
         x_noisy_gen = self.q_sample(x_start=x_start, t=t, noise=noise_gen)
 
