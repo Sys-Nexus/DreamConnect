@@ -314,7 +314,7 @@ class DualLDM(LatentDiffusion):
         c_w_uncond["c_crossattn_1"]["image_emb"] = [torch.cat([uncond_c0, c0], 0)]
         c_w_uncond["c_crossattn_1"]["text_emb"] = [torch.cat([uncond_c1, c1], 0)]
         c_w_uncond["c_crossattn"] = [torch.cat([null_prompt_emb, prompt_emb], 0)]
-        c_w_uncond["c_concat"] = [torch.cat([c['c_concat'],]*2, 0)]
+        c_w_uncond["c_concat"] = [torch.cat(c['c_concat']*2, 0)]
 
         z_enc_gen = z_enc_edit = z_enc
         z_gen, z_edit = self.sampler.decode_dual(
