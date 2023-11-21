@@ -153,6 +153,7 @@ class DualLDM(LatentDiffusion):
         self.sampler = DDIMSampler_Dual(self)
 
         ddim_steps = 50
+        ddim_steps = 500
         ddim_eta = 0
         scale = 7.5
         strength = 0.75
