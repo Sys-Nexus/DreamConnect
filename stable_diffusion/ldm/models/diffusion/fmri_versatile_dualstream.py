@@ -43,40 +43,43 @@ from ldm.modules.diffusionmodules.openaimodel import UNetModel
 class ControlledUnetModel(UNetModel):
     def forward(self, x, timesteps=None, context=None, control=None, only_mid_control=False, **kwargs):
         # print(x.shape, timesteps)
-        unmatched_layers = [2, 5, 8]
-        hs = []
-        with torch.no_grad():
-            t_emb = timestep_embedding(timesteps, self.model_channels, repeat_only=False)
-            emb = self.time_embed(t_emb.type(self.time_embed[0].weight.dtype))
-            h = x.type(self.dtype)
-            for module in self.input_blocks:
-                # print('h: ', h.shape, 'context: ', context.shape)
-                h = module(h, emb, context)
-                hs.append(h)
-            h = self.middle_block(h, emb, context)
-
-        # import pdb; pdb.set_trace()
-
         if control is not None:
-            h += control.pop(0)
+            unmatched_layers = [2, 5, 8]
+            hs = []
+            with torch.no_grad():
+                t_emb = timestep_embedding(timesteps, self.model_channels, repeat_only=False)
+                emb = self.time_embed(t_emb.type(self.time_embed[0].weight.dtype))
+                h = x.type(self.dtype)
+                for module in self.input_blocks:
+                    # print('h: ', h.shape, 'context: ', context.shape)
+                    h = module(h, emb, context)
+                    hs.append(h)
+                h = self.middle_block(h, emb, context)
 
-        # for control_i, h_i in zip(control[::-1], hs):
-        #     print(control_i.shape, h_i.shape)
-        # import pdb; pdb.set_trace()
+            # import pdb; pdb.set_trace()
 
-        for i, module in enumerate(self.output_blocks):
-            # print(i, hs[-1].shape, control[0].shape)
-            if i in unmatched_layers:
-                control.pop(0)
+            if control is not None:
+                h += control.pop(0)
 
-            if only_mid_control or control is None or i in unmatched_layers:
-                h = torch.cat([h, hs.pop()], dim=1)
-            else:
-                h = torch.cat([h, hs.pop() + control.pop(0)], dim=1)
-            h = module(h, emb, context)
+            # for control_i, h_i in zip(control[::-1], hs):
+            #     print(control_i.shape, h_i.shape)
+            # import pdb; pdb.set_trace()
 
-        h = h.type(x.dtype)
-        return self.out(h)
+            for i, module in enumerate(self.output_blocks):
+                # print(i, hs[-1].shape, control[0].shape)
+                if i in unmatched_layers:
+                    control.pop(0)
+
+                if only_mid_control or control is None or i in unmatched_layers:
+                    h = torch.cat([h, hs.pop()], dim=1)
+                else:
+                    h = torch.cat([h, hs.pop() + control.pop(0)], dim=1)
+                h = module(h, emb, context)
+
+            h = h.type(x.dtype)
+            return self.out(h)
+        else:
+            return super().forward(x, timesteps=timesteps, context=context, **kwargs)
 
 class VersatileNetAdaptor(UNetModelVD):
     def __init__(self, *args, **kwargs):
