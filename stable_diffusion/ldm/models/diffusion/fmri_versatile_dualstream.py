@@ -161,7 +161,7 @@ class DualLDM(LatentDiffusion):
         t_enc = int(strength * ddim_steps)
 
         self.t_enc = t_enc
-        self.t_enc = ddim_steps
+        self.t_enc = 0
         self.ddim_steps = ddim_steps
         self.ddim_eta = ddim_eta
         self.scale = scale
