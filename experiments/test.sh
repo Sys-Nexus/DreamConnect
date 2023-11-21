@@ -1,5 +1,6 @@
 # jobname=${1:-'instru_tune_sideconv'}
-jobname=${1:-'versatile_dualstream_instruct_test'}
+# jobname=${1:-'versatile_dualstream_instruct_test'}
+jobname=${1:-'versatile_dualstream_unit_instruct_test'}
 filter_mode=${2:-'tune_sideconv'} #no_filter
 
 gpus=${3:-'3,'}
