@@ -161,6 +161,7 @@ class DualLDM(LatentDiffusion):
         t_enc = int(strength * ddim_steps)
 
         self.t_enc = t_enc
+        self.t_enc = ddim_steps
         self.ddim_steps = ddim_steps
         self.ddim_eta = ddim_eta
         self.scale = scale
@@ -322,7 +323,6 @@ class DualLDM(LatentDiffusion):
 
         z_enc_gen = z_enc_edit = z_enc
         z_enc_edit = torch.randn_like(z_enc)
-        self.t_enc = self.ddim_steps
         z_gen, z_edit = self.sampler.decode_dual(
             x_latent_gen=z_enc_gen,
             x_latent_edit=z_enc_edit,
