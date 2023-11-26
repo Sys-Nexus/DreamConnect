@@ -377,8 +377,8 @@ class DualLDM(LatentDiffusion):
 
     def apply_model(self, x_noisy_gen, x_noisy_edit, t, cond=None, return_ids=False):
         if cond is not None:
-            return super().apply_model(x_noisy_gen=x_noisy_gen, x_noisy_edit=x_noisy_edit, 
-                                                t=t, cond=cond, return_ids=return_ids)
+            return super().apply_model(x_noisy=x_noisy_gen, t=x_noisy_edit, 
+                                             cond=t, return_ids=return_ids)
         if isinstance(cond, dict):
             # hybrid case, cond is exptected to be a dict
             pass
