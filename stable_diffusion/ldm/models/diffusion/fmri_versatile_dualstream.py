@@ -161,7 +161,7 @@ class DualLDM(LatentDiffusion):
         t_enc = int(strength * ddim_steps)
 
         self.t_enc = t_enc
-        self.t_enc = 0
+        # self.t_enc = 0
         self.ddim_steps = ddim_steps
         self.ddim_eta = ddim_eta
         self.scale = scale
@@ -336,6 +336,26 @@ class DualLDM(LatentDiffusion):
         # x_edit = self.kl_net.autokl_decode(z_edit.half())
         x_gen = self.decode_first_stage(z_gen.half())
         x_edit = self.decode_first_stage(z_edit.half())
+
+        ######### another way to sampling ############
+        steps_std = 100
+        sigmas_std = model_wrap.get_sigmas(steps_std)
+        z_pred_std = torch.randn_like(z_enc)
+        cond_std = {"c_crossattn": prompt_emb}
+        uncond_std = {"c_crossattn": null_prompt_emb}
+        extra_args = {
+            "cond": cond_std,
+            "uncond": uncond_std,
+            "text_cfg_scale": cfg_text,
+            "fmri_cfg_scale": 0.0,
+        }
+        z_pred_std = K.sampling.sample_euler_ancestral(model_wrap_cfg, z_pred_std, sigmas_std, extra_args=extra_args)
+        x_pred_std = self.decode_first_stage(z_pred_std)
+        x_pred_std_resize = F.interpolate(x_pred_std, (x_edit.shape[-2],x_edit.shape[-1]))
+        prev_curr = torch.cat([x_edit, x_pred_std_resize], dim=-2)
+        torchvision.utils.save_image('two_sampler.jpg', prev_curr)
+        import pdb; pdb.set_trace()        
+
         # import pdb; pdb.set_trace()
         x_instruct_txt = log_txt_as_img((x_gen.shape[2], x_gen.shape[3]), xc["c_crossattn"])
         c_concat = F.interpolate(xc["c_concat"], (x_gen.shape[2], x_gen.shape[3]))

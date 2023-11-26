@@ -77,20 +77,27 @@ class CFGDenoiser(nn.Module):
         # import pdb; pdb.set_trace();
 
         cfg_cond = {
-            "c_crossattn": [torch.cat([cond["c_crossattn"], uncond["c_crossattn"], cond["c_crossattn"]])],
-            # "c_crossattn_1": [torch.cat([cond["c_crossattn_1"], cond["c_crossattn_1"], uncond["c_crossattn_1"]])],
-            # "c_concat": [torch.cat([cond["c_concat"][0], cond["c_concat"][0], uncond["c_concat"][0]])],
+            "c_crossattn": [torch.cat([cond["c_crossattn"][0], uncond["c_crossattn"][0], uncond["c_crossattn"][0]])],
+            "c_concat": [torch.cat([cond["c_concat"][0], cond["c_concat"][0], uncond["c_concat"][0]])],
         }
-        cfg_cond['c_crossattn_1'] = {}
-        cfg_cond["c_crossattn_1"]["image_emb"] = [torch.cat([cond["c_crossattn_1"]["image_emb"],
-                                                            cond["c_crossattn_1"]["image_emb"],
-                                                            uncond["c_crossattn_1"]["image_emb"]])]
-        cfg_cond["c_crossattn_1"]["text_emb"] = [torch.cat([cond["c_crossattn_1"]["text_emb"],
-                                                            cond["c_crossattn_1"]["text_emb"],
-                                                            uncond["c_crossattn_1"]["text_emb"]])]
-        cfg_cond["c_crossattn_1"]["fmri_vae"] = [torch.cat([cond["c_crossattn_1"]["fmri_vae"],
-                                                            cond["c_crossattn_1"]["fmri_vae"],
-                                                            uncond["c_crossattn_1"]["fmri_vae"]])]
+
+        # cfg_cond = {
+        #     "c_crossattn": [torch.cat([cond["c_crossattn"], uncond["c_crossattn"], cond["c_crossattn"]])],
+        #     "c_crossattn_1": [torch.cat([cond["c_crossattn_1"], cond["c_crossattn_1"], uncond["c_crossattn_1"]])],
+        #     "c_concat": [torch.cat([cond["c_concat"][0], cond["c_concat"][0], uncond["c_concat"][0]])],
+        # }
+
+
+        # cfg_cond['c_crossattn_1'] = {}
+        # cfg_cond["c_crossattn_1"]["image_emb"] = [torch.cat([cond["c_crossattn_1"]["image_emb"],
+        #                                                     cond["c_crossattn_1"]["image_emb"],
+        #                                                     uncond["c_crossattn_1"]["image_emb"]])]
+        # cfg_cond["c_crossattn_1"]["text_emb"] = [torch.cat([cond["c_crossattn_1"]["text_emb"],
+        #                                                     cond["c_crossattn_1"]["text_emb"],
+        #                                                     uncond["c_crossattn_1"]["text_emb"]])]
+        # cfg_cond["c_crossattn_1"]["fmri_vae"] = [torch.cat([cond["c_crossattn_1"]["fmri_vae"],
+        #                                                     cond["c_crossattn_1"]["fmri_vae"],
+        #                                                     uncond["c_crossattn_1"]["fmri_vae"]])]
         # import pdb; pdb.set_trace()
         out_cond, out_img_cond, out_txt_cond \
             = self.inner_model(cfg_z, cfg_sigma, cond=cfg_cond).chunk(3)
