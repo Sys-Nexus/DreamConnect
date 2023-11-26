@@ -341,8 +341,9 @@ class DualLDM(LatentDiffusion):
         steps_std = 100
         sigmas_std = model_wrap.get_sigmas(steps_std)
         z_pred_std = torch.randn_like(z_enc)
-        cond_std = {"c_crossattn": prompt_emb}
-        uncond_std = {"c_crossattn": null_prompt_emb}
+        print('prompt_emb: ', prompt_emb.shape, 'null_prompt_emb:', null_prompt_emb.shape)
+        cond_std = {"c_crossattn": [prompt_emb]}
+        uncond_std = {"c_crossattn": [null_prompt_emb]}
         extra_args = {
             "cond": cond_std,
             "uncond": uncond_std,
