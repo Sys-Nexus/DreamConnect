@@ -498,7 +498,7 @@ def train_one_epoch(config, model, model_ema, data_loader, val_data_loader, opti
                 for val_idx, batch in enumerate(val_data_loader):
                     batch_size = batch['image'].shape[0]
                     if model_wrap is not None:
-                        model.log_images(batch, epoch, idx, val_idx, model_wrap, model_wrap_cfg, save_dir, 'val', cfg_text=1.5, cfg_fmri=2.5)
+                        model.log_images(batch, epoch, idx, val_idx, model_wrap, model_wrap_cfg, save_dir, 'val', cfg_text=7.5, cfg_fmri=2.5)
 
                     if val_idx == 5:
                         break
