@@ -364,7 +364,8 @@ class DualLDM(LatentDiffusion):
         # os.makedirs(os.path.dirname(save_path), exist_ok=True)
         # torchvision.utils.save_image(x_pred_std*0.5+0.5, save_path)
         # return 
-        import pdb; pdb.set_trace()
+        # torchvision.utils.save_image(x_edit*0.5+0.5, 'x_edit.jpg')
+        # torchvision.utils.save_image(x_gen*0.5+0.5, 'x_gen.jpg')
 
         # import pdb; pdb.set_trace()
         x_instruct_txt = log_txt_as_img((x_gen.shape[2], x_gen.shape[3]), xc["c_crossattn"])
