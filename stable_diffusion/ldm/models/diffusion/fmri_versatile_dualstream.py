@@ -158,7 +158,6 @@ class DualLDM(LatentDiffusion):
         ddim_eta = 0
         scale = 7.5
         strength = 0.75
-        strength = 1.0
         mixing = 0.4
         t_enc = int(strength * ddim_steps)
 
@@ -320,11 +319,11 @@ class DualLDM(LatentDiffusion):
         c_w_uncond["c_crossattn"] = [torch.cat([null_prompt_emb, prompt_emb], 0)]
         c_w_uncond["c_concat"] = [torch.cat(c['c_concat']*2, 0)]
 
-        # z_enc = self.sampler.stochastic_encode(init_latent, torch.tensor([self.t_enc]).to(z_gt.device))
-        # z_enc_gen = z_enc_edit = z_enc
+        z_enc = self.sampler.stochastic_encode(init_latent, torch.tensor([self.t_enc]).to(z_gt.device))
+        z_enc_gen = z_enc_edit = z_enc
 
-        z_enc_edit = torch.randn_like(z_gt)
-        z_enc_gen = torch.randn_like(z_gt)
+        # z_enc_edit = torch.randn_like(z_gt)
+        # z_enc_gen = torch.randn_like(z_gt)
 
         instruct_cap = batch['fmri_edit']['c_crossattn'][0]
         ######### designed dual-stream diffusion sampling ##########
@@ -339,37 +338,32 @@ class DualLDM(LatentDiffusion):
         )
         x_gen = self.decode_first_stage(z_gen.half())
         x_edit = self.decode_first_stage(z_edit.half())
-        save_path = os.path.join("debug", "images", "new",  
-                "all_iter-{:06}_ep-{:06}_bidx-{:06d}-{:06d}-{}.png".format(iter_n, epoch_n, batch_idx, s, instruct_cap))
-        os.makedirs(os.path.dirname(save_path), exist_ok=True)
-        torchvision.utils.save_image(x_edit*0.5+0.5, save_path)
-        return 
-        
-        ######### another way to sampling ############
-        steps_std = 50
-        sigmas_std = model_wrap.get_sigmas(steps_std)
-        z_pred_std = torch.randn_like(z_enc)
-        # print('prompt_emb: ', prompt_emb.shape, 'null_prompt_emb:', null_prompt_emb.shape)
-        cond_std = {"c_crossattn": [prompt_emb], "c_concat": c['c_concat']}
-        uncond_std = {"c_crossattn": [null_prompt_emb], "c_concat": [torch.zeros_like(c['c_concat'][0])]}
-        extra_args = {
-            "cond": cond_std,
-            "uncond": uncond_std,
-            "text_cfg_scale": cfg_text,
-            "fmri_cfg_scale": 0.0,
-        }
-        z_pred_std = K.sampling.sample_euler_ancestral(model_wrap_cfg, z_pred_std, sigmas_std, extra_args=extra_args)
-        x_pred_std = self.decode_first_stage(z_pred_std)
-        save_path = os.path.join("debug", "images", "ori",  
-                "all_iter-{:06}_ep-{:06}_bidx-{:06d}-{:06d}-{}.png".format(iter_n, epoch_n, batch_idx, s, instruct_cap))
-        os.makedirs(os.path.dirname(save_path), exist_ok=True)
-        torchvision.utils.save_image(x_pred_std*0.5+0.5, save_path)
-        return 
-        import pdb; pdb.set_trace()
+        # save_path = os.path.join("debug", "images", "new",  
+        #         "all_iter-{:06}_ep-{:06}_bidx-{:06d}-{:06d}-{}.png".format(iter_n, epoch_n, batch_idx, s, instruct_cap))
+        # os.makedirs(os.path.dirname(save_path), exist_ok=True)
+        # torchvision.utils.save_image(x_edit*0.5+0.5, save_path)
+        # return 
 
-        x_pred_std_resize = F.interpolate(x_pred_std, (x_edit.shape[-2],x_edit.shape[-1]))
-        prev_curr = torch.cat([x_edit, x_pred_std_resize], dim=-2)
-        torchvision.utils.save_image(prev_curr, 'two_sampler.jpg')
+        # ######### another way to sampling ############
+        # steps_std = 50
+        # sigmas_std = model_wrap.get_sigmas(steps_std)
+        # z_pred_std = torch.randn_like(z_enc)
+        # # print('prompt_emb: ', prompt_emb.shape, 'null_prompt_emb:', null_prompt_emb.shape)
+        # cond_std = {"c_crossattn": [prompt_emb], "c_concat": c['c_concat']}
+        # uncond_std = {"c_crossattn": [null_prompt_emb], "c_concat": [torch.zeros_like(c['c_concat'][0])]}
+        # extra_args = {
+        #     "cond": cond_std,
+        #     "uncond": uncond_std,
+        #     "text_cfg_scale": cfg_text,
+        #     "fmri_cfg_scale": 0.0,
+        # }
+        # z_pred_std = K.sampling.sample_euler_ancestral(model_wrap_cfg, z_pred_std, sigmas_std, extra_args=extra_args)
+        # x_pred_std = self.decode_first_stage(z_pred_std)
+        # save_path = os.path.join("debug", "images", "ori",  
+        #         "all_iter-{:06}_ep-{:06}_bidx-{:06d}-{:06d}-{}.png".format(iter_n, epoch_n, batch_idx, s, instruct_cap))
+        # os.makedirs(os.path.dirname(save_path), exist_ok=True)
+        # torchvision.utils.save_image(x_pred_std*0.5+0.5, save_path)
+        # return 
         import pdb; pdb.set_trace()
 
         # import pdb; pdb.set_trace()
