@@ -342,7 +342,7 @@ class DualLDM(LatentDiffusion):
         save_path = os.path.join("debug", "images", "new",  
                 "all_iter-{:06}_ep-{:06}_bidx-{:06d}-{:06d}-{}.png".format(iter_n, epoch_n, batch_idx, s, instruct_cap))
         os.makedirs(os.path.dirname(save_path), exist_ok=True)
-        torchvision.utils.save_image(x_pred_std*0.5+0.5, save_path)
+        torchvision.utils.save_image(x_edit*0.5+0.5, save_path)
 
         ######### another way to sampling ############
         steps_std = 50
