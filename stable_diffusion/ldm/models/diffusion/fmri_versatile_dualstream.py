@@ -376,9 +376,10 @@ class DualLDM(LatentDiffusion):
         # import pdb; pdb.set_trace()
 
     def apply_model(self, x_noisy_gen, x_noisy_edit, t, cond=None, return_ids=False):
+        import pdb; pdb.set_trace()
         if cond is not None:
             return super().apply_model(x_noisy=x_noisy_gen, t=x_noisy_edit, 
-                                             cond=t, return_ids=return_ids)
+                                             cond=t, return_ids=cond)
         if isinstance(cond, dict):
             # hybrid case, cond is exptected to be a dict
             pass
