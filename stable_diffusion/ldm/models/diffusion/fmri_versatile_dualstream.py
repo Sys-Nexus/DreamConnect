@@ -355,6 +355,9 @@ class DualLDM(LatentDiffusion):
         }
         z_pred_std = K.sampling.sample_euler_ancestral(model_wrap_cfg, z_pred_std, sigmas_std, extra_args=extra_args)
         x_pred_std = self.decode_first_stage(z_pred_std)
+        torchvision.utils.save_image('x_pred_std.jpg', x_pred_std)
+        import pdb; pdb.set_trace()
+
         x_pred_std_resize = F.interpolate(x_pred_std, (x_edit.shape[-2],x_edit.shape[-1]))
         prev_curr = torch.cat([x_edit, x_pred_std_resize], dim=-2)
         torchvision.utils.save_image('two_sampler.jpg', prev_curr)
