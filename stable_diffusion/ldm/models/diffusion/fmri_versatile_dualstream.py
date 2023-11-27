@@ -497,8 +497,8 @@ class DualLDM(LatentDiffusion):
             new_cond.pop('c_crossattn_1')
             new_cond.pop('null_prompt_emb')
             fmri_control = [c * scale for c, scale in zip(control_res, self.control_scales)]
-            # new_cond["control"] = fmri_control
-            new_cond["control"] = None
+            new_cond["control"] = fmri_control
+            # new_cond["control"] = None
             ## only add above
             # import pdb; pdb.set_trace()
             x_recon_edit = self.model(x_noisy_edit, t, **new_cond)
