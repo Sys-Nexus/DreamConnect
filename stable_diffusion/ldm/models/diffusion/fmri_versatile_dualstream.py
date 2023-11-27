@@ -79,6 +79,7 @@ class ControlledUnetModel(UNetModel):
             h = h.type(x.dtype)
             return self.out(h)
         else:
+            import pdb; pdb.set_trace();
             return super().forward(x, timesteps=timesteps, context=context, **kwargs)
 
 class VersatileNetAdaptor(UNetModelVD):
