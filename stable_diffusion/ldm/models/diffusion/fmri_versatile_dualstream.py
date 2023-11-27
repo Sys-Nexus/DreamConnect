@@ -355,7 +355,12 @@ class DualLDM(LatentDiffusion):
         }
         z_pred_std = K.sampling.sample_euler_ancestral(model_wrap_cfg, z_pred_std, sigmas_std, extra_args=extra_args)
         x_pred_std = self.decode_first_stage(z_pred_std)
-        torchvision.utils.save_image(x_pred_std*0.5+0.5, 'x_pred_std.jpg')
+        instruct_cap = batch['fmri_edit']['c_crossattn'][0]
+        save_path = os.path.join("debug", "images", "ori",  
+                "all_iter-{:06}_ep-{:06}_bidx-{:06d}-{:06d}-{}.png".format(iter_n, epoch_n, batch_idx, s, instruct_cap))
+        os.makedirs(os.path.dirname(save_path), exist_ok=True)
+        torchvision.utils.save_image(x_pred_std*0.5+0.5, save_path)
+        return 
         import pdb; pdb.set_trace()
 
         x_pred_std_resize = F.interpolate(x_pred_std, (x_edit.shape[-2],x_edit.shape[-1]))
