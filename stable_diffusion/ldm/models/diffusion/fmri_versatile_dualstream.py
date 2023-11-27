@@ -323,19 +323,21 @@ class DualLDM(LatentDiffusion):
 
         z_enc_gen = z_enc_edit = z_enc
         z_enc_edit = torch.randn_like(z_enc)
-        z_gen, z_edit = self.sampler.decode_dual(
-            x_latent_gen=z_enc_gen,
-            x_latent_edit=z_enc_edit,
-            t_start=self.t_enc,
-            cond_dict=c_w_uncond,
-            unconditional_guidance_scale_gen=cfg_text,
-            unconditional_guidance_scale_edit=cfg_text,
-            mixed_ratio=(1-self.mixing), 
-        )
-        # x_gen = self.kl_net.autokl_decode(z_gen.half())
-        # x_edit = self.kl_net.autokl_decode(z_edit.half())
-        x_gen = self.decode_first_stage(z_gen.half())
-        x_edit = self.decode_first_stage(z_edit.half())
+
+        ######### designed dual-stream diffusion sampling ##########
+        # z_gen, z_edit = self.sampler.decode_dual(
+        #     x_latent_gen=z_enc_gen,
+        #     x_latent_edit=z_enc_edit,
+        #     t_start=self.t_enc,
+        #     cond_dict=c_w_uncond,
+        #     unconditional_guidance_scale_gen=cfg_text,
+        #     unconditional_guidance_scale_edit=cfg_text,
+        #     mixed_ratio=(1-self.mixing), 
+        # )
+        # # x_gen = self.kl_net.autokl_decode(z_gen.half())
+        # # x_edit = self.kl_net.autokl_decode(z_edit.half())
+        # x_gen = self.decode_first_stage(z_gen.half())
+        # x_edit = self.decode_first_stage(z_edit.half())
 
         ######### another way to sampling ############
         steps_std = 100
@@ -355,7 +357,7 @@ class DualLDM(LatentDiffusion):
         x_pred_std_resize = F.interpolate(x_pred_std, (x_edit.shape[-2],x_edit.shape[-1]))
         prev_curr = torch.cat([x_edit, x_pred_std_resize], dim=-2)
         torchvision.utils.save_image('two_sampler.jpg', prev_curr)
-        import pdb; pdb.set_trace()        
+        import pdb; pdb.set_trace()
 
         # import pdb; pdb.set_trace()
         x_instruct_txt = log_txt_as_img((x_gen.shape[2], x_gen.shape[3]), xc["c_crossattn"])
@@ -377,9 +379,9 @@ class DualLDM(LatentDiffusion):
 
     def apply_model(self, x_noisy_gen, x_noisy_edit, t, cond=None, return_ids=False):
         # import pdb; pdb.set_trace()
-        if cond is None:
-            return super().apply_model(x_noisy=x_noisy_gen, t=x_noisy_edit, 
-                                             cond=t, return_ids=cond)
+        # if cond is None:
+        #     return super().apply_model(x_noisy=x_noisy_gen, t=x_noisy_edit, 
+        #                                      cond=t, return_ids=cond)
         if isinstance(cond, dict):
             # hybrid case, cond is exptected to be a dict
             pass
