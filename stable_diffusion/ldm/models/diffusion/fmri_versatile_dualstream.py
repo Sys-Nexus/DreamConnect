@@ -68,14 +68,14 @@ class ControlledUnetModel(UNetModel):
             # import pdb; pdb.set_trace()
 
             for i, module in enumerate(self.output_blocks):
-                print(i, hs[-1].shape, control[0].shape)
-                if i in unmatched_layers:
-                    print('out i {}:'.format(i))
-                    print(control[0].shape)
-                    control.pop(0)
+                # print(i, hs[-1].shape, control[0].shape)
+                # if i in unmatched_layers:
+                #     print('out i {}:'.format(i))
+                #     print(control[0].shape)
+                #     control.pop(0)
 
-                if only_mid_control or control is None or i in unmatched_layers:
-                    print(h.shape, hs[-1].shape)
+                if only_mid_control or control is None:# or i in unmatched_layers:
+                    # print(h.shape, hs[-1].shape)
                     h = torch.cat([h, hs.pop()], dim=1)
                 else:
                     h = torch.cat([h, hs.pop() + control.pop(0)], dim=1)
@@ -201,7 +201,7 @@ class PreVersatileNetAdaptor(UNetModelVD):
             h = self.mixed_run_dc(i_module, t_module, h, emb, c0, c1, xtype, c0_type, c1_type, mixed_ratio)
             out_i = zero_conv(h, emb)
             outs.append(out_i)
-            print(h.shape, out_i.shape)
+            # print(h.shape, out_i.shape)
 
         if xtype == 'image':
             return self.unet_image.out(h), outs
