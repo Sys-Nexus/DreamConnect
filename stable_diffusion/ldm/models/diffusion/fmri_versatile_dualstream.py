@@ -177,8 +177,10 @@ class PreVersatileNetAdaptor(UNetModelVD):
         #             self.zero_convs.append(self.make_zero_conv(ch))
         #         stride_i += 1
         for level, mult in enumerate(channel_mult):
-            for nr in range(self.num_res_blocks[level]):
+            for nr in range(self.num_noattn_blocks[level]):
                 ch = mult * model_channels
+                self.zero_convs.append(self.make_zero_conv(ch))
+            if level_idx != len(channel_mult) - 1:
                 self.zero_convs.append(self.make_zero_conv(ch))
 
 
