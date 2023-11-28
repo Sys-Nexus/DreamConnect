@@ -52,8 +52,6 @@ class ControlledUnetModel(UNetModel):
                 h = x.type(self.dtype)
                 for i, module in enumerate(self.input_blocks):
                     # print('h: ', h.shape, 'context: ', context.shape)
-                    if is_pre_insert:
-                        pass
                     h = module(h, emb, context)
                     hs.append(h)
                 h = self.middle_block(h, emb, context)
@@ -78,7 +76,7 @@ class ControlledUnetModel(UNetModel):
                     # print(h.shape, hs[-1].shape)
                     h = torch.cat([h, hs.pop()], dim=1)
                 else:
-                    print(i, hs[-1].shape, control[0].shape)
+                    print('insert: ', i, hs[-1].shape, control[0].shape)
                     h = torch.cat([h, hs.pop() + control.pop(0)], dim=1)
                 h = module(h, emb, context)
 
@@ -208,7 +206,7 @@ class PreVersatileNetAdaptor(UNetModelVD):
             out_i = zero_conv(h, emb)
             outs.append(out_i)
             hs.append(h)
-            # print(i, h.shape, out_i.shape)
+            print('gen: ', i, h.shape, out_i.shape)
 
         h = self.mixed_run_dc(
             self.unet_image.middle_block, self.unet_text.middle_block, 
