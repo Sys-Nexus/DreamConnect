@@ -72,11 +72,10 @@ model:
     
     # pretrained_control_unet_zeroconv_path: logs/fmri_instruct_dualstream_tune_sideconv_fmri_instruct_dualstream_tune_sideconv_2023-10-09/checkpoints/ckpt_epoch_75/state.pth
     # pretrained_control_unet_zeroconv_path: logs/instru_tune_sideconv_instru_tune_sideconv_2023-10-25/checkpoints/ckpt_epoch_190/mp_rank_00_model_states.pt
-    pretrained_control_unet_zeroconv_path: logs/versatile_dualstream_reconstruct_versatile_dualstream_reconstruct_2023-11-17/checkpoints/ckpt_epoch_135/mp_rank_00_model_states.pt
     # pretrained_control_unet_path: /data/yashengsun/Proj/MMEdit/CoDI/checkpoints/CoDi_video_diffuser_8frames.pth
     pretrained_control_unet_path: 'third_party/versatile_diffusion/pretrained/vd-four-flow-v1-0-fp16-deprecated.pth'
     control_stage_config:
-      target: ldm.models.diffusion.fmri_versatile_dualstream.VersatileNetAdaptor
+      target: ldm.models.diffusion.fmri_versatile_dualstream.PreVersatileNetAdaptor
       params:
         unet_image_cfg:
           # target: third_party.versatile_diffusion.lib.model_zoo.openaimodel.UNetModel2D
@@ -93,7 +92,7 @@ model:
             num_heads: 8
             context_dim: 768
             use_checkpoint: True
-              
+
         unet_text_cfg:
           # target: third_party.versatile_diffusion.lib.model_zoo.openaimodel.UNetModel0D_MultiDim
           type: openai_unet_0dmd
@@ -173,7 +172,7 @@ data:
         split: 'train'
         is_reconstruct_mode: False
         url: 'nsd_data_dir/train_subj01_{0..17}.tar'
-        reconstruct_prob: 0.0
+        reconstruct_prob: 0.05
 
     validation:
       target: third_party.StableDiffusionReconstruction.codes.utils.nsd_creater.NIPS23NSDDataset
@@ -183,7 +182,7 @@ data:
         split: 'test'
         is_reconstruct_mode: False
         url: 'nsd_data_dir/test_subj01_{0..1}.tar'
-        reconstruct_prob: 0.0
+        reconstruct_prob: 0.05
 
 trainer:
   initial_scale: 13
