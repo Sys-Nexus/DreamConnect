@@ -101,7 +101,7 @@ class PostVersatileNetAdaptor(UNetModelVD):
         self.middle_block_out = self.make_zero_conv(ch)
 
         unmatched_layers = [2, 5, 8]
-        out_cs = {2: None, 5: 640, 8: None}
+        out_cs = {2: None, 5: 640, 8: 320}
         stride_i = 0
         for level_idx, mult in list(enumerate(channel_mult))[::-1]:
             for block_idx in range(self.num_noattn_blocks[level_idx] + 1):
