@@ -50,8 +50,10 @@ class ControlledUnetModel(UNetModel):
                 t_emb = timestep_embedding(timesteps, self.model_channels, repeat_only=False)
                 emb = self.time_embed(t_emb.type(self.time_embed[0].weight.dtype))
                 h = x.type(self.dtype)
-                for module in self.input_blocks:
+                for i, module in enumerate(self.input_blocks):
                     # print('h: ', h.shape, 'context: ', context.shape)
+                    if is_pre_insert:
+                        pass
                     h = module(h, emb, context)
                     hs.append(h)
                 h = self.middle_block(h, emb, context)
@@ -96,15 +98,21 @@ class VersatileNetAdaptor(UNetModelVD):
 
         ch = channel_mult[-1] * model_channels
         self.middle_block_out = self.make_zero_conv(ch)
+
+        unmatched_layers = [2, 5, 8]
+        stride_i = 0
         for level_idx, mult in list(enumerate(channel_mult))[::-1]:
             for block_idx in range(self.num_noattn_blocks[level_idx] + 1):
                 ch = mult * model_channels
                 # print('ch: ', ch)
-                self.zero_convs.append(self.make_zero_conv(ch))
+                if stride_i in unmatched_layers:
+                    self.zero_convs.append(self.make_zero_conv(ch, stride=2))
+                else:
+                    self.zero_convs.append(self.make_zero_conv(ch))
+                stride_i += 1
 
-
-    def make_zero_conv(self, channels):
-        return TimestepEmbedSequential(zero_module(conv_nd(self.dims, channels, channels, 1, padding=0)))
+    def make_zero_conv(self, channels, stride=1):
+        return TimestepEmbedSequential(zero_module(conv_nd(self.dims, channels, channels, stride, padding=0)))
 
     def forward_dc(self, x, timesteps, c0, c1, xtype, c0_type, c1_type, mixed_ratio):
         # print(x.shape, c0.shape, c1.shape, timesteps)
