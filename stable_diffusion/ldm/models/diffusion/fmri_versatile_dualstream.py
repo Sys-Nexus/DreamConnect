@@ -146,7 +146,7 @@ class PostVersatileNetAdaptor(UNetModelVD):
             h = self.mixed_run_dc(i_module, t_module, h, emb, c0, c1, xtype, c0_type, c1_type, mixed_ratio)
             out_i = zero_conv(h, emb)
             outs.append(out_i)
-            print(i, h.shape, out_i.shape)
+            # print(i, h.shape, out_i.shape)
 
         if xtype == 'image':
             return self.unet_image.out(h), outs
