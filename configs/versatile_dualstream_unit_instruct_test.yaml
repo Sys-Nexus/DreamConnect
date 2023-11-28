@@ -77,7 +77,7 @@ model:
     # pretrained_control_unet_path: /data/yashengsun/Proj/MMEdit/CoDI/checkpoints/CoDi_video_diffuser_8frames.pth
     pretrained_control_unet_path: 'third_party/versatile_diffusion/pretrained/vd-four-flow-v1-0-fp16-deprecated.pth'
     control_stage_config:
-      target: ldm.models.diffusion.fmri_versatile_dualstream.VersatileNetAdaptor
+      target: ldm.models.diffusion.fmri_versatile_dualstream.PostVersatileNetAdaptor
       params:
         unet_image_cfg:
           # target: third_party.versatile_diffusion.lib.model_zoo.openaimodel.UNetModel2D
