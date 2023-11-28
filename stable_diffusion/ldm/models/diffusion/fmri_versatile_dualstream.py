@@ -167,15 +167,20 @@ class PreVersatileNetAdaptor(UNetModelVD):
 
         unmatched_layers = [2, 5, 8]
         stride_i = 0
-        for level_idx, mult in list(enumerate(channel_mult))[::-1]:
-            for block_idx in range(self.num_noattn_blocks[level_idx] + 1):
+        # for level_idx, mult in list(enumerate(channel_mult))[::-1]:
+        #     for block_idx in range(self.num_noattn_blocks[level_idx] + 1):
+        #         ch = mult * model_channels
+        #         # print('ch: ', ch)
+        #         if stride_i in unmatched_layers:
+        #             self.zero_convs.append(self.make_zero_conv(ch, stride=2))
+        #         else:
+        #             self.zero_convs.append(self.make_zero_conv(ch))
+        #         stride_i += 1
+        for level, mult in enumerate(channel_mult):
+            for nr in range(self.num_res_blocks[level]):
                 ch = mult * model_channels
-                # print('ch: ', ch)
-                if stride_i in unmatched_layers:
-                    self.zero_convs.append(self.make_zero_conv(ch, stride=2))
-                else:
-                    self.zero_convs.append(self.make_zero_conv(ch))
-                stride_i += 1
+                self.zero_convs.append(self.make_zero_conv(ch))
+
 
     def make_zero_conv(self, channels, stride=1):
         return TimestepEmbedSequential(zero_module(conv_nd(self.dims, channels, channels, stride, padding=0)))
@@ -193,20 +198,21 @@ class PreVersatileNetAdaptor(UNetModelVD):
         if xtype == 'text':
             x = x[:, :, None, None]
         h = x
-        for i_module, t_module in zip(self.unet_image.input_blocks, self.unet_text.input_blocks):
+        for i, (i_module, t_module, zero_conv) in enumerate(zip(self.unet_image.input_blocks, self.unet_text.input_blocks, self.zero_convs)):
             h = self.mixed_run_dc(i_module, t_module, h, emb, c0, c1, xtype, c0_type, c1_type, mixed_ratio)
+            out_i = zero_conv(h, emb)
+            outs.append(out_i)
             hs.append(h)
+            print(i, h.shape, out_i.shape)
+
         h = self.mixed_run_dc(
             self.unet_image.middle_block, self.unet_text.middle_block, 
             h, emb, c0, c1, xtype, c0_type, c1_type, mixed_ratio)
         outs.append(self.middle_block_out(h, emb))
         
-        for i_module, t_module, zero_conv in zip(self.unet_image.output_blocks, self.unet_text.output_blocks, self.zero_convs):
+        for i_module, t_module in zip(self.unet_image.output_blocks, self.unet_text.output_blocks):
             h = th.cat([h, hs.pop()], dim=1)
             h = self.mixed_run_dc(i_module, t_module, h, emb, c0, c1, xtype, c0_type, c1_type, mixed_ratio)
-            out_i = zero_conv(h, emb)
-            outs.append(out_i)
-            # print(h.shape, out_i.shape)
 
         if xtype == 'image':
             return self.unet_image.out(h), outs
