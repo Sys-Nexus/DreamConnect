@@ -106,13 +106,13 @@ class PostVersatileNetAdaptor(UNetModelVD):
                 ch = mult * model_channels
                 # print('ch: ', ch)
                 if stride_i in unmatched_layers:
-                    self.zero_convs.append(self.make_zero_conv(ch, stride=2))
+                    self.zero_convs.append(self.make_zero_conv(ch, kernel_size=2, stride=2))
                 else:
                     self.zero_convs.append(self.make_zero_conv(ch))
                 stride_i += 1
 
-    def make_zero_conv(self, channels, stride=1):
-        return TimestepEmbedSequential(zero_module(conv_nd(self.dims, channels, channels, stride, padding=0)))
+    def make_zero_conv(self, channels, kernel_size=1, stride=1):
+        return TimestepEmbedSequential(zero_module(conv_nd(self.dims, channels, channels, kernel_size, stride=stride, padding=0)))
 
     def forward_dc(self, x, timesteps, c0, c1, xtype, c0_type, c1_type, mixed_ratio):
         # print(x.shape, c0.shape, c1.shape, timesteps)
