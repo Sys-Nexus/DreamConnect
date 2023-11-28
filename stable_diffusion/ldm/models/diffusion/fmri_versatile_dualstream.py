@@ -160,7 +160,7 @@ class PreVersatileNetAdaptor(UNetModelVD):
         model_channels = self.model_channels
         channel_mult = self.channel_mult
 
-        self.zero_convs = nn.ModuleList([])
+        self.zero_convs = nn.ModuleList([self.make_zero_conv(model_channels)]) # different from postversatilenetadaptor
 
         ch = channel_mult[-1] * model_channels
         self.middle_block_out = self.make_zero_conv(ch)
@@ -184,8 +184,11 @@ class PreVersatileNetAdaptor(UNetModelVD):
                 self.zero_convs.append(self.make_zero_conv(ch))
 
 
-    def make_zero_conv(self, channels, stride=1):
-        return TimestepEmbedSequential(zero_module(conv_nd(self.dims, channels, channels, stride, padding=0)))
+    def make_zero_conv(self, channels, kernel_size=1, stride=1, out_channels=None):
+        if out_channels is None:
+            return TimestepEmbedSequential(zero_module(conv_nd(self.dims, channels, channels, kernel_size, stride=stride, padding=0)))
+        else:
+            return TimestepEmbedSequential(zero_module(conv_nd(self.dims, channels, out_channels, kernel_size, stride=stride, padding=0)))
 
     def forward_dc(self, x, timesteps, c0, c1, xtype, c0_type, c1_type, mixed_ratio):
         # print(x.shape, c0.shape, c1.shape, timesteps)
