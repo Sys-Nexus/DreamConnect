@@ -41,7 +41,7 @@ import k_diffusion as K
 from ldm.modules.diffusionmodules.openaimodel import UNetModel
 
 class ControlledUnetModel(UNetModel):
-    def forward(self, x, timesteps=None, context=None, control=None, only_mid_control=False, **kwargs):
+    def forward(self, x, timesteps=None, context=None, control=None, only_mid_control=False, is_pre_insert=False, **kwargs):
         # print(x.shape, timesteps)
         if control is not None:
             unmatched_layers = [2, 5, 8]
@@ -67,10 +67,13 @@ class ControlledUnetModel(UNetModel):
 
             for i, module in enumerate(self.output_blocks):
                 # print(i, hs[-1].shape, control[0].shape)
+                print('out i {}:'.format(i))
                 if i in unmatched_layers:
+                    print(control[0].shape)
                     control.pop(0)
 
                 if only_mid_control or control is None or i in unmatched_layers:
+                    print(h.shape, hs[-1].shape)
                     h = torch.cat([h, hs.pop()], dim=1)
                 else:
                     h = torch.cat([h, hs.pop() + control.pop(0)], dim=1)
