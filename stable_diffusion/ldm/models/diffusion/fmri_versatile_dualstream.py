@@ -208,7 +208,7 @@ class PreVersatileNetAdaptor(UNetModelVD):
             out_i = zero_conv(h, emb)
             outs.append(out_i)
             hs.append(h)
-            print(i, h.shape, out_i.shape)
+            # print(i, h.shape, out_i.shape)
 
         h = self.mixed_run_dc(
             self.unet_image.middle_block, self.unet_text.middle_block, 
@@ -219,6 +219,7 @@ class PreVersatileNetAdaptor(UNetModelVD):
             h = th.cat([h, hs.pop()], dim=1)
             h = self.mixed_run_dc(i_module, t_module, h, emb, c0, c1, xtype, c0_type, c1_type, mixed_ratio)
 
+        outs = reversed(outs)
         if xtype == 'image':
             return self.unet_image.out(h), outs
         elif xtype == 'text':
