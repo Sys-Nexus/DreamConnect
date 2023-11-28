@@ -87,7 +87,7 @@ class ControlledUnetModel(UNetModel):
             # import pdb; pdb.set_trace();
             return super().forward(x, timesteps=timesteps, context=context, **kwargs)
 
-class VersatileNetAdaptor(UNetModelVD):
+class PostVersatileNetAdaptor(UNetModelVD):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         dims = self.dims = 2
@@ -134,11 +134,74 @@ class VersatileNetAdaptor(UNetModelVD):
             self.unet_image.middle_block, self.unet_text.middle_block, 
             h, emb, c0, c1, xtype, c0_type, c1_type, mixed_ratio)
         outs.append(self.middle_block_out(h, emb))
+        
+        for i, (i_module, t_module, zero_conv) in enumerate(zip(self.unet_image.output_blocks, 
+                                                self.unet_text.output_blocks, self.zero_convs)):
+            h = th.cat([h, hs.pop()], dim=1)
+            h = self.mixed_run_dc(i_module, t_module, h, emb, c0, c1, xtype, c0_type, c1_type, mixed_ratio)
+            out_i = zero_conv(h, emb)
+            outs.append(out_i)
+            print(i, h.shape, out_i.shape)
+
+        if xtype == 'image':
+            return self.unet_image.out(h), outs
+        elif xtype == 'text':
+            return self.unet_text.out(h).squeeze(-1).squeeze(-1), outs
+
+class PreVersatileNetAdaptor(UNetModelVD):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        dims = self.dims = 2
+        model_channels = self.model_channels
+        channel_mult = self.channel_mult
+
+        self.zero_convs = nn.ModuleList([])
+
+        ch = channel_mult[-1] * model_channels
+        self.middle_block_out = self.make_zero_conv(ch)
+
+        unmatched_layers = [2, 5, 8]
+        stride_i = 0
+        for level_idx, mult in list(enumerate(channel_mult))[::-1]:
+            for block_idx in range(self.num_noattn_blocks[level_idx] + 1):
+                ch = mult * model_channels
+                # print('ch: ', ch)
+                if stride_i in unmatched_layers:
+                    self.zero_convs.append(self.make_zero_conv(ch, stride=2))
+                else:
+                    self.zero_convs.append(self.make_zero_conv(ch))
+                stride_i += 1
+
+    def make_zero_conv(self, channels, stride=1):
+        return TimestepEmbedSequential(zero_module(conv_nd(self.dims, channels, channels, stride, padding=0)))
+
+    def forward_dc(self, x, timesteps, c0, c1, xtype, c0_type, c1_type, mixed_ratio):
+        # print(x.shape, c0.shape, c1.shape, timesteps)
+        # import pdb; pdb.set_trace()
+
+        hs, outs = [], []
+        t_emb = timestep_embedding(timesteps, self.model_channels, repeat_only=False)
+        
+        x=x.half()
+        emb = self.time_embed(t_emb.half())
+
+        if xtype == 'text':
+            x = x[:, :, None, None]
+        h = x
+        for i_module, t_module in zip(self.unet_image.input_blocks, self.unet_text.input_blocks):
+            h = self.mixed_run_dc(i_module, t_module, h, emb, c0, c1, xtype, c0_type, c1_type, mixed_ratio)
+            hs.append(h)
+        h = self.mixed_run_dc(
+            self.unet_image.middle_block, self.unet_text.middle_block, 
+            h, emb, c0, c1, xtype, c0_type, c1_type, mixed_ratio)
+        outs.append(self.middle_block_out(h, emb))
+        
         for i_module, t_module, zero_conv in zip(self.unet_image.output_blocks, self.unet_text.output_blocks, self.zero_convs):
             h = th.cat([h, hs.pop()], dim=1)
             h = self.mixed_run_dc(i_module, t_module, h, emb, c0, c1, xtype, c0_type, c1_type, mixed_ratio)
-            # print(h.shape)
-            outs.append(zero_conv(h, emb))
+            out_i = zero_conv(h, emb)
+            outs.append(out_i)
+            print(h.shape, out_i.shape)
 
         if xtype == 'image':
             return self.unet_image.out(h), outs
