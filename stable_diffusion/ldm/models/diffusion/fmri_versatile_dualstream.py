@@ -78,6 +78,7 @@ class ControlledUnetModel(UNetModel):
                     # print(h.shape, hs[-1].shape)
                     h = torch.cat([h, hs.pop()], dim=1)
                 else:
+                    print(i, hs[-1].shape, control[0].shape)
                     h = torch.cat([h, hs.pop() + control.pop(0)], dim=1)
                 h = module(h, emb, context)
 
