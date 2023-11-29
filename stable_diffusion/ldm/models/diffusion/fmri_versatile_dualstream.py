@@ -68,7 +68,7 @@ class ControlledUnetModel(UNetModel):
                 #     print(control[0].shape)
                 #     control.pop(0)
 
-                if only_mid_control or control is None or i < num_control_layers:# or i in unmatched_layers:
+                if only_mid_control or control is None or i > num_control_layers:# or i in unmatched_layers:
                     # print(h.shape, hs[-1].shape)
                     h = torch.cat([h, hs.pop()], dim=1)
                 else:
