@@ -213,8 +213,8 @@ class PreVersatileNetAdaptor(UNetModelVD):
             h = th.cat([h, hs.pop()], dim=1)
             h = self.mixed_run_dc(i_module, t_module, h, emb, c0, c1, xtype, c0_type, c1_type, mixed_ratio)
 
-        outs = reversed(outs)
-        import pdb; pdb.set_trace()
+        outs = list(reversed(outs))
+        # import pdb; pdb.set_trace()
         if xtype == 'image':
             return self.unet_image.out(h), outs
         elif xtype == 'text':
