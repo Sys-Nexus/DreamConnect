@@ -41,7 +41,7 @@ import k_diffusion as K
 from ldm.modules.diffusionmodules.openaimodel import UNetModel
 
 class ControlledUnetModel(UNetModel):
-    def forward(self, x, timesteps=None, context=None, control=None, only_mid_control=False, num_control_layers=9, **kwargs):
+    def forward(self, x, timesteps=None, context=None, control=None, only_mid_control=False, num_control_layers=8, **kwargs):
         # print(x.shape, timesteps)
         if control is not None:
             # unmatched_layers = [2, 5, 8]
