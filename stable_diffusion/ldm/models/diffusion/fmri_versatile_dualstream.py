@@ -41,10 +41,10 @@ import k_diffusion as K
 from ldm.modules.diffusionmodules.openaimodel import UNetModel
 
 class ControlledUnetModel(UNetModel):
-    def forward(self, x, timesteps=None, context=None, control=None, only_mid_control=False, is_pre_insert=False, **kwargs):
+    def forward(self, x, timesteps=None, context=None, control=None, only_mid_control=False, num_control_layers=8, **kwargs):
         # print(x.shape, timesteps)
         if control is not None:
-            unmatched_layers = [2, 5, 8]
+            # unmatched_layers = [2, 5, 8]
             hs = []
             with torch.no_grad():
                 t_emb = timestep_embedding(timesteps, self.model_channels, repeat_only=False)
@@ -68,7 +68,7 @@ class ControlledUnetModel(UNetModel):
                 #     print(control[0].shape)
                 #     control.pop(0)
 
-                if only_mid_control or control is None:# or i in unmatched_layers:
+                if only_mid_control or control is None or i < num_control_layers:# or i in unmatched_layers:
                     # print(h.shape, hs[-1].shape)
                     h = torch.cat([h, hs.pop()], dim=1)
                 else:
@@ -409,7 +409,7 @@ class DualLDM(LatentDiffusion):
         z_enc = self.sampler.stochastic_encode(init_latent, torch.tensor([self.t_enc]).to(z_gt.device))
         z_enc_gen = z_enc_edit = z_enc
 
-        z_enc_edit = torch.randn_like(z_enc)
+        # z_enc_edit = torch.randn_like(z_enc)
         # z_enc_gen = torch.randn_like(z_gt)
 
         instruct_cap = batch['fmri_edit']['c_crossattn'][0]
