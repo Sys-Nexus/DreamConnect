@@ -39,7 +39,7 @@ import torchvision
 import k_diffusion as K
 
 from ldm.modules.diffusionmodules.openaimodel import UNetModel
-
+from ldm.modules.attention import SpatialTransformer
 
 class FusionPriorUnetModel(UNetModel):
     def __init__(self, *args, **kwargs):
@@ -56,7 +56,7 @@ class FusionPriorUnetModel(UNetModel):
         model_channels = self.model_channels
         num_heads = self.num_heads
         legacy = self.legacy
-        
+
         self.merge_blocks = nn.ModuleList([])
         ds = 1
         for level, mult in enumerate(channel_mult):
