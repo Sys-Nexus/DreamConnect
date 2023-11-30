@@ -238,7 +238,7 @@ class PreVersatileNetAdaptor(UNetModelVD):
             if level != len(channel_mult) - 1:
                 self.zero_convs.append(self.make_zero_conv(ch))
 
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
 
     def make_zero_conv(self, channels, kernel_size=1, stride=1, out_channels=None):
         if out_channels is None:
@@ -260,7 +260,7 @@ class PreVersatileNetAdaptor(UNetModelVD):
             x = x[:, :, None, None]
         h = x
         for i, (i_module, t_module, zero_conv) in enumerate(zip(self.unet_image.input_blocks, self.unet_text.input_blocks, self.zero_convs)):
-            print('gen: ', i, h.shape, out_i.shape)
+            print('gen: ', i, h.shape)
             h = self.mixed_run_dc(i_module, t_module, h, emb, c0, c1, xtype, c0_type, c1_type, mixed_ratio)
             out_i = zero_conv(h, emb)
             outs.append(out_i)
