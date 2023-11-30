@@ -89,7 +89,7 @@ class FusionPriorUnetModel(UNetModel):
                 input_block_chans.append(ch)
                 ch = out_ch
                 ds *= 2
-
+        import pdb; pdb.set_trace()
         layers = [SpatialTransformer(ch, num_heads, dim_head, default_eps=default_eps, force_type_convert=force_type_convert, 
                                                 depth=transformer_depth, context_dim=context_dim)]
         self.merge_blocks.append(TimestepEmbedSequential(*layers))
