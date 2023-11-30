@@ -111,13 +111,13 @@ class FusionPriorUnetModel(UNetModel):
                         dim_head = ch // num_heads if use_spatial_transformer else num_head_channels
 
                     layers = [SpatialTransformer(ch, num_heads, dim_head, default_eps=default_eps, force_type_convert=force_type_convert, 
-                                                depth=transformer_depth, context_dim=context_dim)]
+                                                depth=transformer_depth, context_dim=ch)]
                     self.merge_blocks.append(TimestepEmbedSequential(*layers))
 
             if level and i == num_res_blocks:
                 out_ch = ch
                 layers = [SpatialTransformer(ch, num_heads, dim_head, default_eps=default_eps, force_type_convert=force_type_convert, 
-                                            depth=transformer_depth, context_dim=context_dim)]
+                                            depth=transformer_depth, context_dim=ch)]
                 self.merge_blocks.append(TimestepEmbedSequential(*layers))
                 ds //= 2
 
@@ -149,7 +149,7 @@ class FusionPriorUnetModel(UNetModel):
                     h = torch.cat([h, self.merge_blocks[i+1](torch.cat([h,control.pop(0)],dim=-1), emb)[:,:,:,:h.shape[-1]//2]], dim=1)
                 h = module(h, emb, context)
 
-            import pdb; pdb.set_trace()
+            # import pdb; pdb.set_trace()
 
             h = h.type(x.dtype)
             return self.out(h)
