@@ -136,7 +136,7 @@ class FusionPriorUnetModel(UNetModel):
             
             if control is not None:
                 # h += control.pop(0)
-                # import pdb; pdb.set_trace()
+                import pdb; pdb.set_trace()
                 h = self.merge_blocks[0](torch.cat([h,control.pop(0)],dim=-1), emb)[:,:,:,:h.shape[-1]//2]
 
             for i, module in enumerate(self.output_blocks):
