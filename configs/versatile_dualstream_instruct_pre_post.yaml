@@ -120,8 +120,8 @@ model:
       # target: ldm.modules.diffusionmodules.openaimodel.UNetModel
       # target: ldm.modules.diffusionmodules.openaimodel_dual_condition.UNetModel
       # inherit from target: ldm.modules.diffusionmodules.openaimodel.UNetModel
-      # target: ldm.models.diffusion.fmri_versatile_dualstream.ControlledUnetModel
-      target: ldm.models.diffusion.fmri_versatile_dualstream.FusionPriorUnetModel
+      target: ldm.models.diffusion.fmri_versatile_dualstream.ControlledUnetModel
+      # target: ldm.models.diffusion.fmri_versatile_dualstream.FusionPriorUnetModel
       params:
         image_size: 32 # unused
         in_channels: 8
