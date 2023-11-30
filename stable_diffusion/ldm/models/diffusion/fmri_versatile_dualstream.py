@@ -92,8 +92,32 @@ class FusionPriorUnetModel(UNetModel):
 
     def forward(self, x, timesteps=None, context=None, control=None, only_mid_control=False, **kwargs):
         if control is not None:
-            pass
+            hs = []
+            with torch.no_grad():
+                t_emb = timestep_embedding(timesteps, self.model_channels, repeat_only=False)
+                emb = self.time_embed(t_emb.type(self.time_embed[0].weight.dtype))
+                h = x.type(self.dtype)
+                for i, module in enumerate(self.input_blocks):
+                    h = module(h, emb, context)
+                    hs.append(h)
+                h = self.middle_block(h, emb, context)
+            
+            if control is not None:
+                # h += control.pop(0)
+                h = self.merge_blocks[0](h, emb, context=control.pop(0))
+
+            for i, module in enumerate(self.output_blocks):
+                if only_mid_control or control is None or i > num_control_layers:# or i in unmatched_layers:
+                    h = torch.cat([h, hs.pop()], dim=1)
+                else:
+                    # h = torch.cat([h, hs.pop() + control.pop(0)], dim=1)
+                    h = torch.cat([h, self.merge_blocks[i+1](hs.pop(), emb, context=control.pop(0))], dim=1)
+                h = module(h, emb, context)
+
             import pdb; pdb.set_trace()
+
+            h = h.type(x.dtype)
+            return self.out(h)
         else:
             # import pdb; pdb.set_trace();
             return super().forward(x, timesteps=timesteps, context=context, **kwargs)
