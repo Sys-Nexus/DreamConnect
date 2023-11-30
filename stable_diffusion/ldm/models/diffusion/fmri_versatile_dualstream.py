@@ -58,6 +58,7 @@ class FusionPriorUnetModel(UNetModel):
         legacy = self.legacy
 
         self.merge_blocks = nn.ModuleList([])
+        input_block_chans = [model_channels]
         ds = 1
         for level, mult in enumerate(channel_mult):
             for _ in range(num_res_blocks):
@@ -72,20 +73,37 @@ class FusionPriorUnetModel(UNetModel):
                     if legacy:
                         #num_heads = 1
                         dim_head = ch // num_heads if use_spatial_transformer else num_head_channels
-                    layers.append(
-                        SpatialTransformer(
-                            ch, num_heads, dim_head, default_eps=default_eps, force_type_convert=force_type_convert, depth=transformer_depth, context_dim=context_dim
-                        )
-                    )
-                self.merge_blocks.append(TimestepEmbedSequential(*layers))
+                    # layers.append(
+                    #     SpatialTransformer(
+                    #         ch, num_heads, dim_head, default_eps=default_eps, force_type_convert=force_type_convert, depth=transformer_depth, context_dim=context_dim
+                    #     )
+                    # )
+                # self.merge_blocks.append(TimestepEmbedSequential(*layers))
+                input_block_chans.append(ch)
+
             if level != len(channel_mult) - 1:
+                out_ch = ch
+                # layers = [SpatialTransformer(ch, num_heads, dim_head, default_eps=default_eps, force_type_convert=force_type_convert, 
+                #                             depth=transformer_depth, context_dim=context_dim)]
+                # self.merge_blocks.append(TimestepEmbedSequential(*layers))
+                input_block_chans.append(ch)
+                ch = out_ch
+                ds *= 2
+
+        for level, mult in list(enumerate(channel_mult))[::-1]:
+            for i in range(num_res_blocks + 1):
+                ch = model_channels * mult
+                ich = input_block_chans.pop()
+                layers = [SpatialTransformer(ch, num_heads, dim_head, default_eps=default_eps, force_type_convert=force_type_convert, 
+                                            depth=transformer_depth, context_dim=context_dim)]
+                self.merge_blocks.append(TimestepEmbedSequential(*layers))
+
+            if level and i == num_res_blocks:
                 out_ch = ch
                 layers = [SpatialTransformer(ch, num_heads, dim_head, default_eps=default_eps, force_type_convert=force_type_convert, 
                                             depth=transformer_depth, context_dim=context_dim)]
                 self.merge_blocks.append(TimestepEmbedSequential(*layers))
-                ch = out_ch
-                ds *= 2
-
+                ds //= 2
 
         print('len of merge blocks is {}.'.format(len(self.merge_blocks)))
         # import pdb; pdb.set_trace()
