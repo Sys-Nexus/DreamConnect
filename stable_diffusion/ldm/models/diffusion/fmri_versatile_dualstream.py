@@ -94,9 +94,19 @@ class FusionPriorUnetModel(UNetModel):
             for i in range(num_res_blocks + 1):
                 ch = model_channels * mult
                 ich = input_block_chans.pop()
-                layers = [SpatialTransformer(ch, num_heads, dim_head, default_eps=default_eps, force_type_convert=force_type_convert, 
-                                            depth=transformer_depth, context_dim=context_dim)]
-                self.merge_blocks.append(TimestepEmbedSequential(*layers))
+                if ds in attention_resolutions:
+                    if num_head_channels == -1:
+                        dim_head = ch // num_heads
+                    else:
+                        num_heads = ch // num_head_channels
+                        dim_head = num_head_channels
+                    if legacy:
+                        #num_heads = 1
+                        dim_head = ch // num_heads if use_spatial_transformer else num_head_channels
+
+                    layers = [SpatialTransformer(ch, num_heads, dim_head, default_eps=default_eps, force_type_convert=force_type_convert, 
+                                                depth=transformer_depth, context_dim=context_dim)]
+                    self.merge_blocks.append(TimestepEmbedSequential(*layers))
 
             if level and i == num_res_blocks:
                 out_ch = ch
