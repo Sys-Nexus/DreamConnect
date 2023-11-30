@@ -128,7 +128,7 @@ class FusionPriorUnetModel(UNetModel):
         print('len of merge blocks is {}.'.format(len(self.merge_blocks)))
         import pdb; pdb.set_trace()
 
-    def forward(self, x, timesteps=None, context=None, control=None, only_mid_control=False, **kwargs):
+    def forward(self, x, timesteps=None, context=None, control=None, only_mid_control=False, num_control_layers=11, **kwargs):
         if control is not None:
             hs = []
             with torch.no_grad():
@@ -146,11 +146,11 @@ class FusionPriorUnetModel(UNetModel):
                 h = self.merge_blocks[0](torch.cat([h,control.pop(0)],dim=-1), emb)[:,:,:,:h.shape[-1]]
 
             for i, module in enumerate(self.output_blocks):
-                if only_mid_control or control is None: #or i > num_control_layers:# or i in unmatched_layers:
+                if only_mid_control or control is None or i > num_control_layers:# or i in unmatched_layers:
                     h = torch.cat([h, hs.pop()], dim=1)
                 else:
                     # h = torch.cat([h, hs.pop() + control.pop(0)], dim=1)
-                    print(i, hs[-1].shape, control[0].shape, h.shape)
+                    # print(i, hs[-1].shape, control[0].shape, h.shape)
                     # import pdb; pdb.set_trace()
                     mix = self.merge_blocks[i+1](torch.cat([hs.pop(),control.pop(0)],dim=-1), emb)[:,:,:,:h.shape[-1]]
                     h = torch.cat([h, mix], dim=1)
