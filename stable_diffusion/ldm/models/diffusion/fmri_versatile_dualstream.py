@@ -260,11 +260,11 @@ class PreVersatileNetAdaptor(UNetModelVD):
             x = x[:, :, None, None]
         h = x
         for i, (i_module, t_module, zero_conv) in enumerate(zip(self.unet_image.input_blocks, self.unet_text.input_blocks, self.zero_convs)):
+            print('gen: ', i, h.shape, out_i.shape)
             h = self.mixed_run_dc(i_module, t_module, h, emb, c0, c1, xtype, c0_type, c1_type, mixed_ratio)
             out_i = zero_conv(h, emb)
             outs.append(out_i)
             hs.append(h)
-            print('gen: ', i, h.shape, out_i.shape)
 
         print('gen: ', i+1, h.shape)
         h = self.mixed_run_dc(
