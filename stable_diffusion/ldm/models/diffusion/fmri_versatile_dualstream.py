@@ -140,7 +140,7 @@ class FusionPriorUnetModel(UNetModel):
                     h = torch.cat([h, hs.pop()], dim=1)
                 else:
                     # h = torch.cat([h, hs.pop() + control.pop(0)], dim=1)
-                    h = torch.cat([h, self.merge_blocks[i+1](torch.cat([h,control.pop(0)],dim=-1), emb)], dim=1)[:,:,:,:h.shape[-1]//2]
+                    h = torch.cat([h, self.merge_blocks[i+1](torch.cat([h,control.pop(0)],dim=-1), emb)[:,:,:,:h.shape[-1]//2]], dim=1)
                 h = module(h, emb, context)
 
             import pdb; pdb.set_trace()
