@@ -110,11 +110,12 @@ class ControlledUnetModel(UNetModel):
                 emb = self.time_embed(t_emb.type(self.time_embed[0].weight.dtype))
                 h = x.type(self.dtype)
                 for i, module in enumerate(self.input_blocks):
-                    print('h: ', h.shape, 'context: ', context.shape)
+                    print('gen: ', i, h.shape, 'context: ', context.shape)
                     h = module(h, emb, context)
                     hs.append(h)
+                print('gen: ', i+1, h.shape, 'context: ', context.shape)
                 h = self.middle_block(h, emb, context)
-                print('h: ', h.shape, 'context: ', context.shape)
+                print('gen: ', i+2, h.shape, 'context: ', context.shape)
 
             import pdb; pdb.set_trace()
 
@@ -265,12 +266,13 @@ class PreVersatileNetAdaptor(UNetModelVD):
             hs.append(h)
             print('gen: ', i, h.shape, out_i.shape)
 
+        print('gen: ', i+1, h.shape)
         h = self.mixed_run_dc(
             self.unet_image.middle_block, self.unet_text.middle_block, 
             h, emb, c0, c1, xtype, c0_type, c1_type, mixed_ratio)
         outs.append(self.middle_block_out(h, emb))
         
-        print('gen: ', h.shape)
+        print('gen: ', i+2, h.shape)
         import pdb; pdb.set_trace()
 
         for i_module, t_module in zip(self.unet_image.output_blocks, self.unet_text.output_blocks):
