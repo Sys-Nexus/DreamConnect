@@ -53,6 +53,7 @@ class FusionPriorUnetModel(UNetModel):
         default_eps = self.default_eps
         force_type_convert = self.force_type_convert
         num_head_channels = self.num_head_channels
+        model_channels = self.model_channels
 
         self.merge_blocks = nn.ModuleList([])
         ds = 1
