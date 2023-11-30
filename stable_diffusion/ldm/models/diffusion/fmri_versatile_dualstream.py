@@ -110,14 +110,14 @@ class ControlledUnetModel(UNetModel):
                 emb = self.time_embed(t_emb.type(self.time_embed[0].weight.dtype))
                 h = x.type(self.dtype)
                 for i, module in enumerate(self.input_blocks):
-                    print('gen: ', i, h.shape, 'context: ', context.shape)
+                    # print('gen: ', i, h.shape, 'context: ', context.shape)
                     h = module(h, emb, context)
                     hs.append(h)
-                print('gen: ', i+1, h.shape, 'context: ', context.shape)
+                # print('gen: ', i+1, h.shape, 'context: ', context.shape)
                 h = self.middle_block(h, emb, context)
-                print('gen: ', i+2, h.shape, 'context: ', context.shape)
+                # print('gen: ', i+2, h.shape, 'context: ', context.shape)
 
-            import pdb; pdb.set_trace()
+            # import pdb; pdb.set_trace()
 
             if control is not None:
                 h += control.pop(0)
@@ -260,19 +260,19 @@ class PreVersatileNetAdaptor(UNetModelVD):
             x = x[:, :, None, None]
         h = x
         for i, (i_module, t_module, zero_conv) in enumerate(zip(self.unet_image.input_blocks, self.unet_text.input_blocks, self.zero_convs)):
-            print('gen: ', i, h.shape)
+            # print('gen: ', i, h.shape)
             h = self.mixed_run_dc(i_module, t_module, h, emb, c0, c1, xtype, c0_type, c1_type, mixed_ratio)
             out_i = zero_conv(h, emb)
             outs.append(out_i)
             hs.append(h)
 
-        print('gen: ', i+1, h.shape)
+        # print('gen: ', i+1, h.shape)
         h = self.mixed_run_dc(
             self.unet_image.middle_block, self.unet_text.middle_block, 
             h, emb, c0, c1, xtype, c0_type, c1_type, mixed_ratio)
         outs.append(self.middle_block_out(h, emb))
         
-        print('gen: ', i+2, h.shape)
+        # print('gen: ', i+2, h.shape)
         import pdb; pdb.set_trace()
 
         for i_module, t_module in zip(self.unet_image.output_blocks, self.unet_text.output_blocks):
