@@ -54,7 +54,8 @@ class FusionPriorUnetModel(UNetModel):
         force_type_convert = self.force_type_convert
         num_head_channels = self.num_head_channels
         model_channels = self.model_channels
-
+        num_heads = self.num_heads
+        
         self.merge_blocks = nn.ModuleList([])
         ds = 1
         for level, mult in enumerate(channel_mult):
