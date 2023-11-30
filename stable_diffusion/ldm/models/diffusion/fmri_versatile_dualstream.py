@@ -90,6 +90,10 @@ class FusionPriorUnetModel(UNetModel):
                 ch = out_ch
                 ds *= 2
 
+        layers = [SpatialTransformer(ch, num_heads, dim_head, default_eps=default_eps, force_type_convert=force_type_convert, 
+                                                depth=transformer_depth, context_dim=context_dim)]
+                    self.merge_blocks.append(TimestepEmbedSequential(*layers))
+
         for level, mult in list(enumerate(channel_mult))[::-1]:
             for i in range(num_res_blocks + 1):
                 ch = model_channels * mult
