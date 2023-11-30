@@ -126,7 +126,7 @@ class FusionPriorUnetModel(UNetModel):
         #         ds //= 2
 
         print('len of merge blocks is {}.'.format(len(self.merge_blocks)))
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
 
     def forward(self, x, timesteps=None, context=None, control=None, only_mid_control=False, num_control_layers=11, **kwargs):
         if control is not None:
