@@ -88,7 +88,7 @@ class FusionPriorUnetModel(UNetModel):
 
 
         print('len of merge blocks is {}.'.format(len(self.merge_blocks)))
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
 
     def forward(self, x, timesteps=None, context=None, control=None, only_mid_control=False, **kwargs):
         if control is not None:
@@ -104,6 +104,7 @@ class FusionPriorUnetModel(UNetModel):
             
             if control is not None:
                 # h += control.pop(0)
+                import pdb; pdb.set_trace()
                 h = self.merge_blocks[0](h, emb, context=control.pop(0))
 
             for i, module in enumerate(self.output_blocks):
@@ -297,7 +298,7 @@ class PreVersatileNetAdaptor(UNetModelVD):
         outs.append(self.middle_block_out(h, emb))
         
         # print('gen: ', i+2, h.shape)
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
 
         for i_module, t_module in zip(self.unet_image.output_blocks, self.unet_text.output_blocks):
             h = th.cat([h, hs.pop()], dim=1)
