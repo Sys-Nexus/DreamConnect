@@ -58,6 +58,7 @@ class FusionPriorUnetModel(UNetModel):
         legacy = self.legacy
 
         self.merge_blocks = nn.ModuleList([])
+        merge_blocks_list = []
         input_block_chans = [model_channels]
         ds = 1
         for level, mult in enumerate(channel_mult):
