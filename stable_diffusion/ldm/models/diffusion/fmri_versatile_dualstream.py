@@ -90,8 +90,10 @@ class FusionPriorUnetModel(UNetModel):
                 ch = out_ch
                 ds *= 2
         # import pdb; pdb.set_trace()
-        layers = [SpatialTransformer(ch, num_heads, dim_head, default_eps=default_eps, force_type_convert=force_type_convert, 
-                                                depth=transformer_depth)]
+        layers = [SpatialTransformer(ch, num_heads, dim_head, default_eps=default_eps, 
+                                                force_type_convert=force_type_convert, 
+                                                depth=transformer_depth,
+                                                context_dim=ch)]
         self.merge_blocks.append(TimestepEmbedSequential(*layers))
 
         for level, mult in list(enumerate(channel_mult))[::-1]:
