@@ -128,7 +128,7 @@ class FusionPriorUnetModel(UNetModel):
         print('len of merge blocks is {}.'.format(len(self.merge_blocks)))
         # import pdb; pdb.set_trace()
 
-    def forward(self, x, timesteps=None, context=None, control=None, only_mid_control=False, num_control_layers=11, **kwargs):
+    def forward(self, x, timesteps=None, context=None, control=None, only_mid_control=False, num_control_layers=10, **kwargs):
         if control is not None:
             hs = []
             with torch.no_grad():
