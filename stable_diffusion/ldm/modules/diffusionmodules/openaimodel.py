@@ -549,6 +549,7 @@ class UNetModel(nn.Module):
         self.transformer_depth = transformer_depth
         self.default_eps = default_eps
         self.force_type_convert = force_type_convert
+        self.legacy = legacy
 
         self.image_size = image_size
         self.in_channels = in_channels
