@@ -78,13 +78,13 @@ class FusionPriorUnetModel(UNetModel):
                         )
                     )
                 self.merge_blocks.append(TimestepEmbedSequential(*layers))
-                if level != len(channel_mult) - 1:
-                    out_ch = ch
-                    layers = [SpatialTransformer(ch, num_heads, dim_head, default_eps=default_eps, force_type_convert=force_type_convert, 
-                                                depth=transformer_depth, context_dim=context_dim)]
-                    self.merge_blocks.append(TimestepEmbedSequential(*layers))
-                    ch = out_ch
-                    ds *= 2
+            if level != len(channel_mult) - 1:
+                out_ch = ch
+                layers = [SpatialTransformer(ch, num_heads, dim_head, default_eps=default_eps, force_type_convert=force_type_convert, 
+                                            depth=transformer_depth, context_dim=context_dim)]
+                self.merge_blocks.append(TimestepEmbedSequential(*layers))
+                ch = out_ch
+                ds *= 2
 
 
         print('len of merge blocks is {}.'.format(len(self.merge_blocks)))
