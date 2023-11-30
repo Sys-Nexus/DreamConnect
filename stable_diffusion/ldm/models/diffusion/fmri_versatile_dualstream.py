@@ -236,6 +236,7 @@ class PreVersatileNetAdaptor(UNetModelVD):
             if level != len(channel_mult) - 1:
                 self.zero_convs.append(self.make_zero_conv(ch))
 
+        import pdb; pdb.set_trace()
 
     def make_zero_conv(self, channels, kernel_size=1, stride=1, out_channels=None):
         if out_channels is None:
