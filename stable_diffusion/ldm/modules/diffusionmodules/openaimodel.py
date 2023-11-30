@@ -545,6 +545,11 @@ class UNetModel(nn.Module):
         if num_head_channels == -1:
             assert num_heads != -1, 'Either num_heads or num_head_channels has to be set'
 
+        self.context_dim = context_dim
+        self.transformer_depth = transformer_depth
+        self.default_eps = default_eps
+        self.force_type_convert = force_type_convert
+
         self.image_size = image_size
         self.in_channels = in_channels
         self.model_channels = model_channels

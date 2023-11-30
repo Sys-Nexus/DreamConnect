@@ -40,6 +40,54 @@ import k_diffusion as K
 
 from ldm.modules.diffusionmodules.openaimodel import UNetModel
 
+
+class FusionPriorUnetModel(UNetModel):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        channel_mult = self.channel_mult
+        num_res_blocks = self.num_res_blocks
+        attention_resolutions = self.attention_resolutions
+        context_dim = self.context_dim
+        transformer_depth = self.transformer_depth
+        default_eps = self.default_eps
+        force_type_convert = self.force_type_convert
+        num_head_channels = self.num_head_channels
+
+        self.merge_blocks = nn.ModuleList([])
+        ds = 1
+        for level, mult in enumerate(channel_mult):
+            for _ in range(num_res_blocks):
+                layers = []
+                ch = mult * model_channels
+                if ds in attention_resolutions:
+                    if num_head_channels == -1:
+                        dim_head = ch // num_heads
+                    else:
+                        num_heads = ch // num_head_channels
+                        dim_head = num_head_channels
+                    if legacy:
+                        #num_heads = 1
+                        dim_head = ch // num_heads if use_spatial_transformer else num_head_channels
+                    layers.append(
+                        SpatialTransformer(
+                            ch, num_heads, dim_head, default_eps=default_eps, force_type_convert=force_type_convert, depth=transformer_depth, context_dim=context_dim
+                        )
+                    )
+                self.merge_blocks.append(TimestepEmbedSequential(*layers))
+
+        print('len of merge blocks is {}.'.format(len(self.merge_blocks)))
+        import pdb; pdb.set_trace()
+
+    def forward(self, x, timesteps=None, context=None, control=None, only_mid_control=False, **kwargs):
+        if control is not None:
+            pass
+            import pdb; pdb.set_trace()
+        else:
+            # import pdb; pdb.set_trace();
+            return super().forward(x, timesteps=timesteps, context=context, **kwargs)
+
+
 class ControlledUnetModel(UNetModel):
     def forward(self, x, timesteps=None, context=None, control=None, only_mid_control=False, num_control_layers=8, **kwargs):
         # print(x.shape, timesteps)
