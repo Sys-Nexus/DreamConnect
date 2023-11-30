@@ -142,7 +142,7 @@ class FusionPriorUnetModel(UNetModel):
                 h = self.merge_blocks[0](torch.cat([h,control.pop(0)],dim=-1), emb)[:,:,:,:h.shape[-1]//2]
 
             for i, module in enumerate(self.output_blocks):
-                if only_mid_control or control is None or i > num_control_layers:# or i in unmatched_layers:
+                if only_mid_control or control is None: #or i > num_control_layers:# or i in unmatched_layers:
                     h = torch.cat([h, hs.pop()], dim=1)
                 else:
                     # h = torch.cat([h, hs.pop() + control.pop(0)], dim=1)
