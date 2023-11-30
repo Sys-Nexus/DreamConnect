@@ -132,15 +132,15 @@ class FusionPriorUnetModel(UNetModel):
             
             if control is not None:
                 # h += control.pop(0)
-                import pdb; pdb.set_trace()
-                h = self.merge_blocks[0](torch.cat([h,control.pop(0)],dim=-1), emb)
+                # import pdb; pdb.set_trace()
+                h = self.merge_blocks[0](torch.cat([h,control.pop(0)],dim=-1), emb)[:,:,:,:h.shape[-1]//2]
 
             for i, module in enumerate(self.output_blocks):
                 if only_mid_control or control is None or i > num_control_layers:# or i in unmatched_layers:
                     h = torch.cat([h, hs.pop()], dim=1)
                 else:
                     # h = torch.cat([h, hs.pop() + control.pop(0)], dim=1)
-                    h = torch.cat([h, self.merge_blocks[i+1](torch.cat([h,control.pop(0)],dim=-1), emb)], dim=1)
+                    h = torch.cat([h, self.merge_blocks[i+1](torch.cat([h,control.pop(0)],dim=-1), emb)], dim=1)[:,:,:,:h.shape[-1]//2]
                 h = module(h, emb, context)
 
             import pdb; pdb.set_trace()
