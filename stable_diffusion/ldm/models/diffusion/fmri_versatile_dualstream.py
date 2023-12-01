@@ -56,6 +56,10 @@ class FusionPriorUnetModel(UNetModel):
         model_channels = self.model_channels
         num_heads = self.num_heads
         legacy = self.legacy
+        
+        print(self.transformer_depth)
+        import pdb; pdb.set_trace()
+        transformer_depth = 1
 
         self.merge_blocks = nn.ModuleList([])
         merge_blocks_list = []
