@@ -261,7 +261,10 @@ class BasicTransformerBlock(nn.Module):
         self.checkpoint = checkpoint
 
     def forward(self, x, context=None):
-        return checkpoint(self._forward, (x, context), self.parameters(), self.checkpoint)
+        if context is not None:
+            return checkpoint(self._forward, (x, context), self.parameters(), self.checkpoint)
+        else:
+            return checkpoint(self._forward, (x,), self.parameters(), self.checkpoint)
 
     def _forward(self, x, context=None):
         x = x.type(self.norm1.weight.dtype)
