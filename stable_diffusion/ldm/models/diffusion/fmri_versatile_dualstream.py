@@ -152,7 +152,7 @@ class FusionPriorUnetModel(UNetModel):
                 else:
                     # mix = torch.cat([h, hs.pop() + control.pop(0)], dim=1)
                     # mix = hs.pop() + control.pop(0)
-                    # print(i, hs[-1].shape, control[0].shape, h.shape)
+                    print(i, hs[-1].shape, control[0].shape, h.shape)
                     cat = self.merge_blocks[i+1](torch.cat([hs.pop(),control.pop(0)],dim=-1), emb)
                     mix = cat[:,:,:,:h.shape[-1]] + torch.zeros_like(cat[:,:,:,:h.shape[-1]])*cat[:,:,:,h.shape[-1]:]
                     # import pdb; pdb.set_trace()
