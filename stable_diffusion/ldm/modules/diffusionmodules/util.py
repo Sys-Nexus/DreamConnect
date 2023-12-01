@@ -148,7 +148,7 @@ class CheckpointFunction(torch.autograd.Function):
     @staticmethod
     @torch.cuda.amp.custom_bwd # add this
     def backward(ctx, *output_grads):
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
         ctx.input_tensors = [x.detach().requires_grad_(True) for x in ctx.input_tensors]
         with torch.enable_grad():
             # Fixes a bug where the first op in run_function modifies the
