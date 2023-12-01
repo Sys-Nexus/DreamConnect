@@ -150,7 +150,8 @@ class FusionPriorUnetModel(UNetModel):
                 if only_mid_control or control is None or i > num_control_layers:# or i in unmatched_layers:
                     h = torch.cat([h, hs.pop()], dim=1)
                 else:
-                    mix = torch.cat([h, hs.pop() + control.pop(0)], dim=1)
+                    # mix = torch.cat([h, hs.pop() + control.pop(0)], dim=1)
+                    mix = hs.pop() + control.pop(0)
                     # print(i, hs[-1].shape, control[0].shape, h.shape)
                     # cat = self.merge_blocks[i+1](torch.cat([hs.pop(),control.pop(0)],dim=-1), emb)
                     # mix = cat[:,:,:,:h.shape[-1]] + 0*cat[:,:,:,h.shape[-1]:]
