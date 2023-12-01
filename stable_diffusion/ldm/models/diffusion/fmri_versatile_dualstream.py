@@ -709,14 +709,14 @@ class DualLDM(LatentDiffusion):
             fmri_vae = torch.cat(new_cond["c_crossattn_1"]["fmri_vae"],1)
 
             # import pdb; pdb.set_trace()
-            with torch.no_grad():
-                x_recon_gen, control_res = self.control_model.forward_dc(x=torch.cat([x_noisy_gen], dim=1), 
-                                                            # hint=fmri_vae,
-                                                            timesteps=t,
-                                                            c0=c0, c1=c1,
-                                                            xtype='image', c0_type='vision', 
-                                                           c1_type='prompt', mixed_ratio=0.6)
-            control_res = [tt.detach().requires_grad_(True) for tt in control_res]
+            # with torch.no_grad():
+            x_recon_gen, control_res = self.control_model.forward_dc(x=torch.cat([x_noisy_gen], dim=1), 
+                                                        # hint=fmri_vae,
+                                                        timesteps=t,
+                                                        c0=c0, c1=c1,
+                                                        xtype='image', c0_type='vision', 
+                                                        c1_type='prompt', mixed_ratio=0.6)
+            # control_res = [tt.detach().requires_grad_(True) for tt in control_res]
             new_cond.pop('c_crossattn_1')
             new_cond.pop('null_prompt_emb')
             fmri_control = [c * scale for c, scale in zip(control_res, self.control_scales)]
