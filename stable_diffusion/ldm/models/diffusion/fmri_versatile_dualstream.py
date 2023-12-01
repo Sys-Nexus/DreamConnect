@@ -292,28 +292,18 @@ class PreVersatileNetAdaptor(UNetModelVD):
         model_channels = self.model_channels
         channel_mult = self.channel_mult
 
-        self.zero_convs = nn.ModuleList([self.make_zero_conv(model_channels)]) # different from postversatilenetadaptor
+        # self.zero_convs = nn.ModuleList([self.make_zero_conv(model_channels)]) # different from postversatilenetadaptor
 
-        ch = channel_mult[-1] * model_channels
-        self.middle_block_out = self.make_zero_conv(ch)
+        # ch = channel_mult[-1] * model_channels
+        # self.middle_block_out = self.make_zero_conv(ch)
 
-        unmatched_layers = [2, 5, 8]
-        stride_i = 0
-        # for level_idx, mult in list(enumerate(channel_mult))[::-1]:
-        #     for block_idx in range(self.num_noattn_blocks[level_idx] + 1):
+        # stride_i = 0
+        # for level, mult in enumerate(channel_mult):
+        #     for nr in range(self.num_noattn_blocks[level]):
         #         ch = mult * model_channels
-        #         # print('ch: ', ch)
-        #         if stride_i in unmatched_layers:
-        #             self.zero_convs.append(self.make_zero_conv(ch, stride=2))
-        #         else:
-        #             self.zero_convs.append(self.make_zero_conv(ch))
-        #         stride_i += 1
-        for level, mult in enumerate(channel_mult):
-            for nr in range(self.num_noattn_blocks[level]):
-                ch = mult * model_channels
-                self.zero_convs.append(self.make_zero_conv(ch))
-            if level != len(channel_mult) - 1:
-                self.zero_convs.append(self.make_zero_conv(ch))
+        #         self.zero_convs.append(self.make_zero_conv(ch))
+        #     if level != len(channel_mult) - 1:
+        #         self.zero_convs.append(self.make_zero_conv(ch))
 
         # import pdb; pdb.set_trace()
 
@@ -337,21 +327,17 @@ class PreVersatileNetAdaptor(UNetModelVD):
             x = x[:, :, None, None]
         h = x
         for i, (i_module, t_module, zero_conv) in enumerate(zip(self.unet_image.input_blocks, self.unet_text.input_blocks, self.zero_convs)):
-            # print('gen: ', i, h.shape)
             h = self.mixed_run_dc(i_module, t_module, h, emb, c0, c1, xtype, c0_type, c1_type, mixed_ratio)
-            out_i = zero_conv(h, emb)
-            outs.append(out_i)
+            # out_i = zero_conv(h, emb)
+            # outs.append(out_i)
+            outs.append(h)
             hs.append(h)
 
-        # print('gen: ', i+1, h.shape)
         h = self.mixed_run_dc(
             self.unet_image.middle_block, self.unet_text.middle_block, 
             h, emb, c0, c1, xtype, c0_type, c1_type, mixed_ratio)
-        outs.append(self.middle_block_out(h, emb))
-        
-        # print('gen: ', i+2, h.shape)
-        # import pdb; pdb.set_trace()
-
+        # outs.append(self.middle_block_out(h, emb))
+        outs.append(h)        
         for i_module, t_module in zip(self.unet_image.output_blocks, self.unet_text.output_blocks):
             h = th.cat([h, hs.pop()], dim=1)
             h = self.mixed_run_dc(i_module, t_module, h, emb, c0, c1, xtype, c0_type, c1_type, mixed_ratio)
