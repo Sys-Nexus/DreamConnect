@@ -78,7 +78,7 @@ class FusionPriorUnetModel(UNetModel):
                     if legacy:
                         #num_heads = 1
                         dim_head = ch // num_heads if use_spatial_transformer else num_head_channels
-                    print('heads: ', num_heads, dim_head)
+                    # print('heads: ', num_heads, dim_head)
                     layers.append(
                         SpatialTransformer(
                             ch, num_heads, dim_head, default_eps=default_eps, force_type_convert=force_type_convert, depth=transformer_depth, context_dim=ch, use_linear=True
@@ -89,7 +89,7 @@ class FusionPriorUnetModel(UNetModel):
 
             if level != len(channel_mult) - 1:
                 out_ch = ch
-                print('heads: ', num_heads, dim_head)
+                # print('heads: ', num_heads, dim_head)
                 layers = [SpatialTransformer(ch, num_heads, dim_head, default_eps=default_eps, force_type_convert=force_type_convert, 
                                             depth=transformer_depth, context_dim=ch, use_linear=True)]
                 merge_blocks_list.append(TimestepEmbedSequential(*layers))
@@ -97,7 +97,7 @@ class FusionPriorUnetModel(UNetModel):
                 ch = out_ch
                 ds *= 2
         # import pdb; pdb.set_trace()
-        print('heads: ', num_heads, dim_head)
+        # print('heads: ', num_heads, dim_head)
         layers = [SpatialTransformer(ch, num_heads, dim_head, default_eps=default_eps, 
                                                 force_type_convert=force_type_convert, 
                                                 depth=transformer_depth,
