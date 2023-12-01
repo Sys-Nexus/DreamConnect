@@ -537,9 +537,9 @@ def filter_optimized_params(model, args):
     if args.filter_mode == 'no_filter':
         param_groups = model.parameters()
     elif args.filter_mode == 'tune_sideconv':
-        import pdb; pdb.set_trace();
-        filtered_params = [param for name, param in model.named_parameters() if param.requires_grad is True and ('control_model.zero_convs' in name or 'control_model.middle_block_out' in name) or 'control_model.input_hint_block' in name]
-        filtered_names = [name for name, param in model.named_parameters() if param.requires_grad is True and ('control_model.zero_convs' in name or 'control_model.middle_block_out' in name) or 'control_model.input_hint_block' in name]
+        # import pdb; pdb.set_trace();
+        filtered_params = [param for name, param in model.named_parameters() if param.requires_grad is True and ('control_model.zero_convs' in name or 'control_model.middle_block_out' in name) or 'control_model.input_hint_block' in name or 'merge_blocks' in name]
+        filtered_names = [name for name, param in model.named_parameters() if param.requires_grad is True and ('control_model.zero_convs' in name or 'control_model.middle_block_out' in name) or 'control_model.input_hint_block' in name or 'merge_blocks' in name]
         # print(filtered_names)
         param_groups = [{'params': filtered_params, 'lr': model.learning_rate}]
     elif args.filter_mode == 'tune_instruct':
