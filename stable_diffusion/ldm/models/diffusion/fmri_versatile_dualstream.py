@@ -142,8 +142,8 @@ class FusionPriorUnetModel(UNetModel):
             
             if control is not None:
                 h += control.pop(0)
-                # cat = self.merge_blocks[0](torch.cat([h,control.pop(0)],dim=-1), emb)
-                # h = cat[:,:,:,:h.shape[-1]] + 0* cat[:,:,:,h.shape[-1]:]
+                cat = self.merge_blocks[0](torch.cat([h,control.pop(0)],dim=-1), emb)
+                h = cat[:,:,:,:h.shape[-1]] + torch.zeros_like(cat[:,:,:,:h.shape[-1]])*cat[:,:,:,h.shape[-1]:]
                 # import pdb; pdb.set_trace()
 
             for i, module in enumerate(self.output_blocks):
@@ -151,10 +151,10 @@ class FusionPriorUnetModel(UNetModel):
                     h = torch.cat([h, hs.pop()], dim=1)
                 else:
                     # mix = torch.cat([h, hs.pop() + control.pop(0)], dim=1)
-                    mix = hs.pop() + control.pop(0)
+                    # mix = hs.pop() + control.pop(0)
                     # print(i, hs[-1].shape, control[0].shape, h.shape)
-                    # cat = self.merge_blocks[i+1](torch.cat([hs.pop(),control.pop(0)],dim=-1), emb)
-                    # mix = cat[:,:,:,:h.shape[-1]] + 0*cat[:,:,:,h.shape[-1]:]
+                    cat = self.merge_blocks[i+1](torch.cat([hs.pop(),control.pop(0)],dim=-1), emb)
+                    mix = cat[:,:,:,:h.shape[-1]] + torch.zeros_like(cat[:,:,:,:h.shape[-1]])*cat[:,:,:,h.shape[-1]:]
                     # import pdb; pdb.set_trace()
                     h = torch.cat([h, mix], dim=1)
                 h = module(h, emb, context)
