@@ -279,6 +279,36 @@ class BasicTransformerBlock(nn.Module):
         # x = self.ff(self.norm3(x)) + x
         # return x
 
+class SimpleBasicTransformerBlock(nn.Module):
+    ATTENTION_MODES = {
+        "softmax": CrossAttention,  # vanilla attention
+    }
+    def __init__(self, dim, n_heads, d_head, dropout=0., context_dim=None, gated_ff=True, checkpoint=True,
+                 disable_self_attn=False):
+        super().__init__()
+        attn_mode = "softmax"
+        assert attn_mode in self.ATTENTION_MODES
+        attn_cls = self.ATTENTION_MODES[attn_mode]
+        self.disable_self_attn = disable_self_attn
+        self.attn1 = attn_cls(query_dim=dim, heads=n_heads, dim_head=d_head, dropout=dropout,
+                              context_dim=context_dim if self.disable_self_attn else None)  # is a self-attention if not self.disable_self_attn
+        self.norm1 = nn.LayerNorm(dim)
+        self.checkpoint = checkpoint
+
+    def forward(self, x, context=None):
+        if context is not None:
+            return checkpoint(self._forward, (x, context), self.parameters(), self.checkpoint)
+        else:
+            return checkpoint(self._forward, (x,), self.parameters(), self.checkpoint)
+
+    def _forward(self, x, context=None):
+        x = x.type(self.norm1.weight.dtype)
+        if context is not None:
+            context = context.type(self.norm1.weight.dtype)
+        x = self.attn1(self.norm1(x)) + x
+        return x
+
+
 
 # class SpatialTransformer(nn.Module):
 #     """
@@ -342,7 +372,7 @@ class SpatialTransformer(nn.Module):
     def __init__(self, in_channels, n_heads, d_head, default_eps, force_type_convert,
                  depth=1, dropout=0., context_dim=None,
                  disable_self_attn=False, use_linear=False,
-                 use_checkpoint=True):
+                 use_checkpoint=True, is_simple_basic=False):
         super().__init__()
         if exists(context_dim) and not isinstance(context_dim, list):
             context_dim = [context_dim]
@@ -359,11 +389,18 @@ class SpatialTransformer(nn.Module):
         else:
             self.proj_in = nn.Linear(in_channels, inner_dim)
 
-        self.transformer_blocks = nn.ModuleList(
-            [BasicTransformerBlock(inner_dim, n_heads, d_head, dropout=dropout, context_dim=context_dim[d],
-                                   disable_self_attn=disable_self_attn, checkpoint=use_checkpoint)
-                for d in range(depth)]
-        )
+        if is_simple_basic is True:
+            self.transformer_blocks = nn.ModuleList(
+                [SimpleBasicTransformerBlock(inner_dim, n_heads, d_head, dropout=dropout, context_dim=context_dim[d],
+                                    disable_self_attn=disable_self_attn, checkpoint=use_checkpoint)
+                    for d in range(depth)]
+            )
+        else:
+            self.transformer_blocks = nn.ModuleList(
+                [BasicTransformerBlock(inner_dim, n_heads, d_head, dropout=dropout, context_dim=context_dim[d],
+                                    disable_self_attn=disable_self_attn, checkpoint=use_checkpoint)
+                    for d in range(depth)]
+            )
         if not use_linear:
             self.proj_out = zero_module(nn.Conv2d(inner_dim,
                                                   in_channels,

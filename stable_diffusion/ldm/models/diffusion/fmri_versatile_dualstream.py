@@ -61,6 +61,9 @@ class FusionPriorUnetModel(UNetModel):
         # import pdb; pdb.set_trace()
         transformer_depth = 1
 
+        is_simple_basic = True
+        SpatialTransformerCLS = SpatialTransformer
+
         self.merge_blocks = nn.ModuleList([])
         merge_blocks_list = []
         input_block_chans = [model_channels]
@@ -80,8 +83,8 @@ class FusionPriorUnetModel(UNetModel):
                         dim_head = ch // num_heads if use_spatial_transformer else num_head_channels
                     # print('heads: ', num_heads, dim_head)
                     layers.append(
-                        SpatialTransformer(
-                            ch, num_heads, dim_head, default_eps=default_eps, force_type_convert=force_type_convert, depth=transformer_depth, context_dim=ch, use_linear=True
+                        SpatialTransformerCLS(
+                            ch, num_heads, dim_head, default_eps=default_eps, force_type_convert=force_type_convert, depth=transformer_depth, context_dim=ch, use_linear=True, is_simple_basic=is_simple_basic
                         )
                     )
                 merge_blocks_list.append(TimestepEmbedSequential(*layers))
@@ -90,19 +93,20 @@ class FusionPriorUnetModel(UNetModel):
             if level != len(channel_mult) - 1:
                 out_ch = ch
                 # print('heads: ', num_heads, dim_head)
-                layers = [SpatialTransformer(ch, num_heads, dim_head, default_eps=default_eps, force_type_convert=force_type_convert, 
-                                            depth=transformer_depth, context_dim=ch, use_linear=True)]
+                layers = [SpatialTransformerCLS(ch, num_heads, dim_head, default_eps=default_eps, force_type_convert=force_type_convert, 
+                                            depth=transformer_depth, context_dim=ch, use_linear=True, is_simple_basic=is_simple_basic)]
                 merge_blocks_list.append(TimestepEmbedSequential(*layers))
                 input_block_chans.append(ch)
                 ch = out_ch
                 ds *= 2
         # import pdb; pdb.set_trace()
         # print('heads: ', num_heads, dim_head)
-        layers = [SpatialTransformer(ch, num_heads, dim_head, default_eps=default_eps, 
+        layers = [SpatialTransformerCLS(ch, num_heads, dim_head, default_eps=default_eps, 
                                                 force_type_convert=force_type_convert, 
                                                 depth=transformer_depth,
                                                 context_dim=ch,
-                                                use_linear=True)]
+                                                use_linear=True,
+                                                is_simple_basic=is_simple_basic)]
         
         merge_blocks_list.append(TimestepEmbedSequential(*layers))
         merge_blocks_list = list(reversed(merge_blocks_list))
