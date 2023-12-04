@@ -510,7 +510,7 @@ class DualLDM(LatentDiffusion):
     def log_images(self, batch, epoch_n, iter_n, batch_idx, model_wrap, model_wrap_cfg,
                    save_dir, split,
                    cfg_text=7.5, cfg_fmri=1.5,
-                   N=2, n_row=4, sample=True, 
+                   N=1, n_row=4, sample=True, 
                    steps=100, ddim_eta=1., return_keys=None,
                    quantize_denoised=True, inpaint=False):
         self.model.eval()
