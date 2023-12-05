@@ -502,14 +502,22 @@ def train_one_epoch(config, model, model_ema, data_loader, val_data_loader, opti
         save_dir = visdir
         if (epoch * num_steps + idx) % 1000 == 0:
             with torch.no_grad():
-                for val_idx, batch in enumerate(val_data_loader):
-                    batch_size = batch['image'].shape[0]
-                    if model_wrap is not None:
-                        model.log_images(batch, epoch, idx, val_idx, model_wrap, model_wrap_cfg, save_dir, 'val', cfg_text=cfg_text, cfg_fmri=2.5)
+                if random.uniform(0,1) > 0.5:
+                    for val_idx, batch in enumerate(val_data_loader):
+                        batch_size = batch['image'].shape[0]
+                        if model_wrap is not None:
+                            model.log_images(batch, epoch, idx, val_idx, model_wrap, model_wrap_cfg, save_dir, 'val', cfg_text=cfg_text, cfg_fmri=2.5)
 
-                    if val_idx == 5:
-                        break
+                        if val_idx == 5:
+                            break
+                else:
+                    for val_idx, batch in enumerate(train_data_loader):
+                        batch_size = batch['image'].shape[0]
+                        if model_wrap is not None:
+                            model.log_images(batch, epoch, idx, val_idx, model_wrap, model_wrap_cfg, save_dir, 'train', cfg_text=cfg_text, cfg_fmri=2.5)
 
+                        if val_idx == 5:
+                            break
         if idx == num_steps - 1:
             with torch.no_grad():
                 model_ema.store(model.parameters())
@@ -752,8 +760,8 @@ if __name__ == "__main__":
     if opt.isTrain:
         for epoch in range(start_epoch, config.trainer.max_epochs):
             data_loader_train.sampler.set_epoch(epoch)
-            print(data_loader_train.batch_size)
-            import pdb; pdb.set_trace();
+            # print(data_loader_train.batch_size)
+            # import pdb; pdb.set_trace();
             train_one_epoch(config, model, model_ema, data_loader_train, data_loader_val, 
                     optimizer, epoch, lr_scheduler, scaler, model_wrap, model_wrap_cfg, visdir, cfg_text=opt.cfg_text)
             if epoch % config.trainer.save_freq == 0:
