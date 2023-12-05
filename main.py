@@ -752,6 +752,8 @@ if __name__ == "__main__":
     if opt.isTrain:
         for epoch in range(start_epoch, config.trainer.max_epochs):
             data_loader_train.sampler.set_epoch(epoch)
+            print(data_loader_train.batch_size)
+            import pdb; pdb.set_trace();
             train_one_epoch(config, model, model_ema, data_loader_train, data_loader_val, 
                     optimizer, epoch, lr_scheduler, scaler, model_wrap, model_wrap_cfg, visdir, cfg_text=opt.cfg_text)
             if epoch % config.trainer.save_freq == 0:
