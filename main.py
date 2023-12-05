@@ -477,7 +477,7 @@ def train_one_epoch(config, model, model_ema, data_loader, val_data_loader, opti
                 f'loss_scale {loss_scale_meter.val:.4f} ({loss_scale_meter.avg:.4f})\t'
                 f'mem {memory_used:.0f}MB')
 
-        if (epoch * num_steps + idx) % 100 == 0:
+        if (epoch * num_steps * data_loader.batch_size + idx) % 10000 == 0:
             log_message = dict(
                 lr=optimizer.param_groups[0]['lr'], 
                 time=batch_time.val, 
