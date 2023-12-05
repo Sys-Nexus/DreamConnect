@@ -39,6 +39,7 @@ from utils.deepspeed import create_ds_config
 # for inference
 import k_diffusion as K
 import einops
+import random
 from einops import rearrange
 
 third_party_proj_root = os.path.join(proj_root, 'third_party')
