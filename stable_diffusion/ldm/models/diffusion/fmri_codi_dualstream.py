@@ -41,6 +41,7 @@ import k_diffusion as K
 from ldm.modules.diffusionmodules.openaimodel import UNetModel
 from ldm.modules.attention import SpatialTransformer
 from third_party.CoDI.core.models.latent_diffusion.diffusion_unet import UNetModel2D
+from third_party.CoDI.core.models.codi import CoDIClip
 
 
 ## instruction branch in dual-stream
