@@ -190,16 +190,16 @@ class PreCoDiAdaptor(UNetModel2D):
         return self.out(h), outs
 
 class DualLDM(LatentDiffusion):
-    def __init__(self, clip_cfg, fmri_vclip_cfg, fmri_vclip_pretrain_path, *args, **kwargs):
+    def __init__(self, clip_cfg, fmri_vclip_cfg=None, fmri_vclip_pretrain_path=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.vd_clip = VDCLIP(clip_cfg)
+        self.codi_clip = CoDIClip(clip_cfg)
 
-        pretrained_control_unet_path = kwargs['pretrained_control_unet_path']
-        if pretrained_control_unet_path is not None and os.path.exists(pretrained_control_unet_path):
-            # import pdb; pdb.set_trace()
-            pretrained_state_dict = torch.load(pretrained_control_unet_path, map_location="cpu")
+        pretrained_codi_clip_path = kwargs['pretrained_codi_clip_path']
+        if pretrained_codi_clip_path is not None and os.path.exists(pretrained_codi_clip_path):
+            import pdb; pdb.set_trace()
+            pretrained_state_dict = torch.load(pretrained_codi_clip_path, map_location="cpu")
             pretrained_state_dict = {k:v for k,v in pretrained_state_dict.items() if 'clip.' in k}
-            missing, unexpected = self.vd_clip.load_state_dict(pretrained_state_dict, strict=False)
+            missing, unexpected = self.codi_clip.load_state_dict(pretrained_state_dict, strict=False)
 
             print('clip missing {} params.'.format(len(missing)))
             print('clip missing: ', missing)
@@ -289,22 +289,11 @@ class DualLDM(LatentDiffusion):
         null_x = torch.zeros_like(xc["c_concat"])
         null_cap = ['' for _ in range(len(cap))]
         
-        # import pdb; pdb.set_trace();
-        # # _, fmri_null_x = self.fmri_vclip(torch.zeros_like(voxel).half())
-        # fmri_null_x = self.vd_clip.clip_encode_vision(null_x)
-        # fmri_null_cap = self.vd_clip.clip_encode_text(null_cap)
+        fmri_null_x = self.codi_clip.clip_encode_vision(null_x)
+        fmri_null_cap = self.codi_clip.clip_encode_text(null_cap)
 
-        # # _, fmri_x = self.fmri_vclip(voxel.half())
-        # fmri_x = self.vd_clip.clip_encode_vision(x)
-        # fmri_cap = self.vd_clip.clip_encode_text(cap)
-        # import pdb; pdb.set_trace();
-        fmri_null_x = self.vd_clip.clip_encode_vision(null_x)
-        fmri_null_cap = self.vd_clip.clip_encode_text(null_cap)
-        # fmri_x = batch['nsd_clipvision'][:null_x.shape[0]].to(fmri_null_x)
-        # fmri_cap = batch['nsd_cliptext'][:null_x.shape[0]].to(fmri_null_x)
-        fmri_x = self.vd_clip.clip_encode_vision(xc["c_concat"])
-        fmri_cap = self.vd_clip.clip_encode_text(cap)
-
+        fmri_x = self.codi_clip.clip_encode_vision(xc["c_concat"])
+        fmri_cap = self.codi_clip.clip_encode_text(cap)
 
         cond["c_crossattn_1"] = {}
         if force_c_encode is False:
@@ -539,22 +528,18 @@ class DualLDM(LatentDiffusion):
             ## only add this
             new_cond = copy.deepcopy(cond)
             new_cond["only_mid_control"] = self.only_mid_control
-            c0 = torch.cat(new_cond["c_crossattn_1"]["image_emb"], 1)
-            c1 = torch.cat(new_cond["c_crossattn_1"]["text_emb"], 1)
-            fmri_vae = torch.cat(new_cond["c_crossattn_1"]["fmri_vae"],1)
 
             # import pdb; pdb.set_trace()
             # with torch.no_grad():
-            x_recon_gen, control_res = self.control_model.forward_dc(x=torch.cat([x_noisy_gen], dim=1), 
-                                                        # hint=fmri_vae,
-                                                        timesteps=t,
-                                                        c0=c0, c1=c1,
-                                                        xtype='image', c0_type='vision', 
-                                                        c1_type='prompt', mixed_ratio=0.6)
+            control_prompt = torch.cat(cond["c_crossattn_1"]["text_emb"], 1)
+            x_recon_gen, control_res = \
+                self.control_model.forward_dc(x=torch.cat([x_noisy_gen], dim=1), 
+                                              timesteps=t,
+                                              context=control_prompt)
             # control_res = [tt.detach().requires_grad_(True) for tt in control_res]
+            fmri_control = [c * scale for c, scale in zip(control_res, self.control_scales)]
             new_cond.pop('c_crossattn_1')
             new_cond.pop('null_prompt_emb')
-            fmri_control = [c * scale for c, scale in zip(control_res, self.control_scales)]
             new_cond["control"] = fmri_control
             # new_cond["control"] = None
             ## only add above

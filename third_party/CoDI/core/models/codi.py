@@ -17,6 +17,51 @@ version = '0'
 symbol = 'codi'
 
 
+class CoDIClip(nn.Module):
+    def __init__(self,
+                 clip_cfg,
+                 vision_scale_factor=0.1812,
+                 text_scale_factor=4.3108,
+                 audio_scale_factor=0.9228,
+                 scale_by_std=False,
+                 *args,
+                 **kwargs):
+        super().__init__(*args, **kwargs)
+        self.clip = get_model()(clip_cfg)
+
+        if not scale_by_std:
+            self.vision_scale_factor = vision_scale_factor
+            self.text_scale_factor = text_scale_factor
+            self.audio_scale_factor = audio_scale_factor
+        else:
+            self.register_buffer("text_scale_factor", torch.tensor(text_scale_factor))
+            self.register_buffer("audio_scale_factor", torch.tensor(audio_scale_factor))
+            self.register_buffer('vision_scale_factor', torch.tensor(vision_scale_factor))
+
+        self.freeze()
+        
+    def freeze(self):
+        self.eval()
+        for param in self.parameters():
+            param.requires_grad = False
+
+    @torch.no_grad()
+    def clip_encode_vision(self, vision, encode_type='encode_vision'):
+        swap_type = self.clip.encode_type
+        self.clip.encode_type = encode_type
+        embedding = self.clip.encode(vision)
+        self.clip.encode_type = swap_type
+        return embedding
+
+    @torch.no_grad()
+    def clip_encode_text(self, text, encode_type='encode_text'):
+        swap_type = self.clip.encode_type
+        self.clip.encode_type = encode_type
+        embedding = self.clip.encode(text)
+        self.clip.encode_type = swap_type
+        return embedding
+
+
 @register('codi', version)
 class CoDi(DDPM):
     def __init__(self,
