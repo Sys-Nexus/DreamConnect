@@ -16,7 +16,7 @@ from .sd import DDPM
 version = '0'
 symbol = 'codi'
 
-
+@register('codi_clip', version)
 class CoDIClip(nn.Module):
     def __init__(self,
                  clip_cfg,
