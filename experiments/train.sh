@@ -3,7 +3,8 @@
 # jobname=${1:-'instru_tune_sideconv'}
 # jobname=${1:-'versatile_tune_sideconv'}
 
-jobname=${1:-'versatile_dualstream'}
+jobname=${1:-'codi_dualstream_instruct_pre_post'}
+# jobname=${1:-'versatile_dualstream'}
 filter_mode=${2:-'tune_sideconv'} #no_filter
 
 # jobname=${1:-'fmri_reconstruct_codi'} # lower learning rate compared to instru_tune_sideconv
