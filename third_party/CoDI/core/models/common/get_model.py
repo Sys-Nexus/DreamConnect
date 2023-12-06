@@ -67,7 +67,7 @@ class get_model(object):
             from ..latent_diffusion import diffusion_unet
         elif t.find('fmri')==0:
             from ..encoders import fmri
-        # import pdb; pdb.set_trace()
+        import pdb; pdb.set_trace()
         args = preprocess_model_args(cfg.args)
         net = self.model[t](**args)
 
