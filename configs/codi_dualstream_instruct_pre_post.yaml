@@ -136,12 +136,6 @@ model:
       target: ldm.modules.encoders.fmri_nips23.Voxel2StableDiffusionModel
       params: 
         in_dim: 15724
-
-    clip_cfg:
-      symbol: clip
-      args: {}
-      name: clip_frozen
-      type: clip_frozen
     
     fmri_vclip_pretrain_path: '/data/yashengsun/Proj/MMEdit/fMRI-reconstruction-NSD/train_logs/prior_257_final_subj01_bimixco_softclip_byol/last.pth'
     # fmri_vclip_cfg:
