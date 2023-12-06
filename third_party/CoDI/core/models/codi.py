@@ -28,7 +28,8 @@ class CoDIClip(nn.Module):
                  *args,
                  **kwargs):
         super().__init__(*args, **kwargs)
-        self.clip = get_model()(clip_cfg)
+        # self.clip = get_model()(clip_cfg)
+        self.clip = FrozenCLIP()
 
         if not scale_by_std:
             self.vision_scale_factor = vision_scale_factor
