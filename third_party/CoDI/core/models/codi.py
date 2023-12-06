@@ -12,6 +12,7 @@ from contextlib import contextmanager
 
 from .common.get_model import get_model, register
 from .sd import DDPM
+from .encoders.clip import FrozenCLIP
 
 version = '0'
 symbol = 'codi'

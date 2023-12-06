@@ -41,8 +41,8 @@ model:
     clip_cfg:
       symbol: clip
       args: {}
-    #   name: clip_frozen
-      type: codi_clip
+      name: clip_frozen
+      type: clip_frozen
 
     scheduler_config: # 10000 warmup steps
       target: ldm.lr_scheduler.LambdaLinearScheduler
