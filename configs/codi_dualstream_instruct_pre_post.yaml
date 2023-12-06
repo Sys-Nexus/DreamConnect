@@ -97,7 +97,7 @@ model:
         use_video_architecture: True
         init_connector: False
         force_type_convert: True
-        is_side_net: True
+        is_side_net: False
         use_fp16: True
 
     # cond_stage_config_fmri:
