@@ -153,17 +153,17 @@ model:
       name: clip_frozen
       type: clip_frozen
     
-    fmri_vclip_pretrain_path: '/data/yashengsun/Proj/MMEdit/fMRI-reconstruction-NSD/train_logs/prior_257_final_subj01_bimixco_softclip_byol/last.pth'
-    fmri_vclip_cfg:
-      target: third_party.fMRI_reconstruction_NSD.src.models.BrainNetwork
-      params:
-        in_dim: 15724
-        out_dim: 197376
+    # fmri_vclip_pretrain_path: '/data/yashengsun/Proj/MMEdit/fMRI-reconstruction-NSD/train_logs/prior_257_final_subj01_bimixco_softclip_byol/last.pth'
+    # fmri_vclip_cfg:
+    #   target: third_party.fMRI_reconstruction_NSD.src.models.BrainNetwork
+    #   params:
+    #     in_dim: 15724
+    #     out_dim: 197376
 
 data:
   target: main.DataModuleFromConfig
   params:
-    batch_size: 2
+    batch_size: 8
     # batch_size: 1
     num_workers: 4
     train:
