@@ -497,7 +497,7 @@ class DualLDM(LatentDiffusion):
         # else:
             # cond["c_concat"] = [input_mask * self.encode_first_stage((xc["c_concat"])).mode().detach()]
         # c_concat = F.interpolate(xc["c_concat"], (sz,sz)) if sz is not None else xc["c_concat"]
-        c_concat = F.interpolate(xc["c_concat"], (512,512))
+        c_concat = F.interpolate(xc["c_concat"], (256,256))
         cond["c_concat"] = [self.encode_first_stage(c_concat).mode().detach()]
         out = [z, cond]
         if return_first_stage_outputs:
