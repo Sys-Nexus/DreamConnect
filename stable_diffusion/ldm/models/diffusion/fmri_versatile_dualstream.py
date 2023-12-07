@@ -596,7 +596,7 @@ class DualLDM(LatentDiffusion):
         # import pdb; pdb.set_trace()
         x_instruct_txt = log_txt_as_img((x_gen.shape[2], x_gen.shape[3]), xc["c_crossattn"])
         x_instruct_txt_resize = F.interpolate(x_instruct_txt, (x_gen.shape[2], x_gen.shape[3]))
-        c_concat_resize = F.interpolate(c_concat, (x_gen.shape[2], x_gen.shape[3]))
+        c_concat_resize = F.interpolate(xc["c_concat"], (x_gen.shape[2], x_gen.shape[3]))
         x_resize = F.interpolate(x, (x_gen.shape[2], x_gen.shape[3]))
         import pdb; pdb.set_trace()
         x_cat = torch.cat([x_instruct_txt_resize.detach().cpu(), 
