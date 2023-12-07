@@ -496,8 +496,8 @@ class DualLDM(LatentDiffusion):
         #     cond["c_concat"] = [input_mask * self.fmri2visual_model((xc["c_concat"])).detach()]
         # else:
             # cond["c_concat"] = [input_mask * self.encode_first_stage((xc["c_concat"])).mode().detach()]
-        # c_concat = F.interpolate(xc["c_concat"], (sz,sz)) if sz is not None else xc["c_concat"]
-        c_concat = F.interpolate(xc["c_concat"], (256,256))
+        c_concat = F.interpolate(xc["c_concat"], (sz,sz)) if sz is not None else xc["c_concat"]
+        # c_concat = F.interpolate(xc["c_concat"], (256,256))
         cond["c_concat"] = [self.encode_first_stage(c_concat).mode().detach()]
         out = [z, cond]
         if return_first_stage_outputs:
@@ -541,8 +541,8 @@ class DualLDM(LatentDiffusion):
         c_w_uncond["c_crossattn_1"]["image_emb"] = [torch.cat([uncond_c0, c0], 0)]
         c_w_uncond["c_crossattn_1"]["text_emb"] = [torch.cat([uncond_c1, c1], 0)]
         c_w_uncond["c_crossattn"] = [torch.cat([null_prompt_emb, prompt_emb], 0)]
-        # c_concat = F.interpolate(xc["c_concat"], (x.shape[2], x.shape[3]))
-        c_concat = c["c_concat"][0]
+        c_concat = F.interpolate(xc["c_concat"], (x.shape[2], x.shape[3]))
+        c_concat = self.encode_first_stage(c_concat).mode().detach()
         c_w_uncond["c_concat"] = [torch.cat([c_concat,]*2, 0)]
 
         z_enc = self.sampler.stochastic_encode(init_latent, torch.tensor([self.t_enc]).to(z_gt.device))
