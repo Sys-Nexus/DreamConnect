@@ -598,6 +598,7 @@ class DualLDM(LatentDiffusion):
         x_instruct_txt_resize = F.interpolate(x_instruct_txt, (x_gen.shape[2], x_gen.shape[3]))
         c_concat_resize = F.interpolate(c_concat, (x_gen.shape[2], x_gen.shape[3]))
         x_resize = F.interpolate(x, (x_gen.shape[2], x_gen.shape[3]))
+        import pdb; pdb.set_trace()
         x_cat = torch.cat([x_instruct_txt_resize.detach().cpu(), 
                             x_resize.detach().cpu(), c_concat_resize.detach().cpu(), 
                             x_gen.detach().cpu(), x_edit.detach().cpu()], dim=-2)
