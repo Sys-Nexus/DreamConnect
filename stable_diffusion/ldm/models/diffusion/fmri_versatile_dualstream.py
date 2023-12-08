@@ -760,7 +760,7 @@ class DualLDM(LatentDiffusion):
             fmri_control = [c * scale for c, scale in zip(control_res, self.control_scales)]
             new_cond["control"] = fmri_control
             x_recon_gen = x_recon_gen.requires_grad_(True)
-            new_cond["noisy_c_concat"] = [x_recon_gen]
+            # new_cond["noisy_c_concat"] = [x_recon_gen]
             new_cond["control"] = None
             ## only add above
             # import pdb; pdb.set_trace()
