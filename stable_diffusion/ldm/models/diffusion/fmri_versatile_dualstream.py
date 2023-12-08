@@ -551,7 +551,7 @@ class DualLDM(LatentDiffusion):
 
         z_enc_edit = torch.randn_like(init_latent)
         z_enc_gen = torch.randn_like(init_latent)
-        t_enc = self.t_enc
+        t_enc = 50
 
         instruct_cap = batch['fmri_edit']['c_crossattn'][0]
         ######### designed dual-stream diffusion sampling ##########
