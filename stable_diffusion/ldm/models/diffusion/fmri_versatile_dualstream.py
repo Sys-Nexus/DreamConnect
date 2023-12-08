@@ -511,6 +511,7 @@ class DualLDM(LatentDiffusion):
     def log_images(self, batch, epoch_n, iter_n, batch_idx, model_wrap, model_wrap_cfg,
                    save_dir, split,
                    cfg_text=7.5, cfg_fmri=1.5,
+                   cfg_text_edit=None, cfg_image_edit=None,
                    N=1, n_row=4, sample=True, 
                    steps=100, ddim_eta=1., return_keys=None,
                    quantize_denoised=True, inpaint=False):
@@ -538,12 +539,22 @@ class DualLDM(LatentDiffusion):
         uncond_c1 = torch.cat(c["c_crossattn_1"]["null_text_emb"], 1)
         null_prompt_emb = torch.cat(c["null_prompt_emb"], 1)
 
-        c_w_uncond["c_crossattn_1"]["image_emb"] = [torch.cat([uncond_c0, c0], 0)]
-        c_w_uncond["c_crossattn_1"]["text_emb"] = [torch.cat([uncond_c1, c1], 0)]
-        c_w_uncond["c_crossattn"] = [torch.cat([null_prompt_emb, prompt_emb], 0)]
-        c_concat = F.interpolate(xc["c_concat"], (512, 512))
-        c_concat = self.encode_first_stage(c_concat).mode().detach()
-        c_w_uncond["c_concat"] = [torch.cat([c_concat,]*2, 0)]
+        cfg_text_edit, cfg_image_edit = 7.5, 2.5
+
+        if cfg_text_edit is not None and cfg_image_edit is not None:
+            c_w_uncond["c_crossattn_1"]["image_emb"] = [torch.cat([uncond_c0, c0], 0)]
+            c_w_uncond["c_crossattn_1"]["text_emb"] = [torch.cat([uncond_c1, c1], 0)]
+            c_w_uncond["c_crossattn"] = [torch.cat([null_prompt_emb, prompt_emb], 0)]
+            c_concat = F.interpolate(xc["c_concat"], (512, 512))
+            c_concat = self.encode_first_stage(c_concat).mode().detach()
+            c_w_uncond["c_concat"] = [torch.cat([c_concat,]*2, 0)]
+        else:
+            c_w_uncond["c_crossattn_1"]["image_emb"] = [torch.cat([uncond_c0, c0, c0], 0)]
+            c_w_uncond["c_crossattn_1"]["text_emb"] = [torch.cat([uncond_c1, c1, c1], 0)]
+            c_w_uncond["c_crossattn"] = [torch.cat([null_prompt_emb, prompt_emb, prompt_emb], 0)]
+            c_concat = F.interpolate(xc["c_concat"], (512, 512))
+            c_concat = self.encode_first_stage(c_concat).mode().detach()
+            c_w_uncond["c_concat"] = [torch.cat([c_concat, torch.zeros_like(c_concat), c_concat], 0)]
 
         # z_enc = self.sampler.stochastic_encode(init_latent, torch.tensor([self.t_enc]).to(z_gt.device))
         # z_enc_gen = z_enc_edit = z_enc
@@ -563,6 +574,8 @@ class DualLDM(LatentDiffusion):
             cond_dict=c_w_uncond,
             unconditional_guidance_scale_gen=cfg_text,
             unconditional_guidance_scale_edit=cfg_text,
+            unconditional_guidance_scale_text_edit=cfg_text_edit,
+            unconditional_guidance_scale_image_edit=cfg_image_edit,
             mixed_ratio=(1-self.mixing), 
         )
         x_gen = self.decode_first_stage(z_gen.half())
