@@ -1448,7 +1448,7 @@ class DiffusionWrapper(nn.Module):
             if noisy_c_concat is None:
                 xc = torch.cat([x] + [x], dim=1)
             else:
-                xc = torch.cat([x] + noisy_c_concat, dim=1)
+                xc = torch.cat([x] + [noisy_c_concat], dim=1)
             cc = torch.cat(c_crossattn, 1)
             out = self.diffusion_model(xc, t, context=cc, control=control, only_mid_control=only_mid_control)
         elif self.conditioning_key == 'adm':
