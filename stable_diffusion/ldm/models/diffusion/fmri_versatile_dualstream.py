@@ -554,7 +554,7 @@ class DualLDM(LatentDiffusion):
             c_w_uncond["c_crossattn"] = [torch.cat([null_prompt_emb, prompt_emb], 0)]
             c_concat = F.interpolate(xc["c_concat"], (512, 512))
             c_concat = self.encode_first_stage(c_concat).mode().detach()
-            c_w_uncond["c_concat"] = [torch.cat([c_concat,]*2, 0)]            
+            c_w_uncond["c_concat"] = [torch.cat([c_concat,]*2, 0)]
 
         # z_enc = self.sampler.stochastic_encode(init_latent, torch.tensor([self.t_enc]).to(z_gt.device))
         # z_enc_gen = z_enc_edit = z_enc
@@ -573,7 +573,7 @@ class DualLDM(LatentDiffusion):
             t_start=t_enc,
             cond_dict=c_w_uncond,
             unconditional_guidance_scale_gen=cfg_text,
-            unconditional_guidance_scale_edit=cfg_text,
+            unconditional_guidance_scale_edit=None,
             unconditional_guidance_scale_text_edit=cfg_text_edit,
             unconditional_guidance_scale_image_edit=cfg_image_edit,
             mixed_ratio=(1-self.mixing), 
