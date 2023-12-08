@@ -763,7 +763,7 @@ class DualLDM(LatentDiffusion):
             # new_cond["noisy_c_concat"] = [x_recon_gen]
             new_cond["control"] = None
             ## only add above
-            # import pdb; pdb.set_trace()
+            import pdb; pdb.set_trace()
             x_recon_edit = self.model(x_noisy_edit, t, **new_cond)
 
         return x_recon_gen, x_recon_edit
