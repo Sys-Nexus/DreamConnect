@@ -541,7 +541,7 @@ class DualLDM(LatentDiffusion):
 
         cfg_text_edit, cfg_image_edit = 7.5, 1.5
         unconditional_guidance_scale_edit = None
-        
+
         if cfg_text_edit is not None and cfg_image_edit is not None:
             c_w_uncond["c_crossattn_1"]["image_emb"] = [torch.cat([uncond_c0, c0, c0], 0)]
             c_w_uncond["c_crossattn_1"]["text_emb"] = [torch.cat([uncond_c1, c1, c1], 0)]
@@ -568,7 +568,7 @@ class DualLDM(LatentDiffusion):
 
         instruct_cap = batch['fmri_edit']['c_crossattn'][0]
         ######### designed dual-stream diffusion sampling ##########
-        if unconditional_guidance_scale_edit is None:
+        if unconditional_guidance_scale_edit is not None:
             z_gen, z_edit = self.sampler.decode_dual(
                 x_latent_gen=z_enc_gen,
                 x_latent_edit=z_enc_edit,
