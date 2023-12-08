@@ -592,7 +592,7 @@ class DualLDM(LatentDiffusion):
                 unconditional_guidance_scale_image_edit=cfg_image_edit,
                 mixed_ratio=(1-self.mixing), 
             )
-            import pdb; pdb.set_trace()
+            # import pdb; pdb.set_trace()
         x_gen = self.decode_first_stage(z_gen.half())
         x_edit = self.decode_first_stage(z_edit.half())
         # save_path = os.path.join("debug", "images", "new",  
