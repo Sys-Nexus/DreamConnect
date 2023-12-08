@@ -744,7 +744,7 @@ class DualLDM(LatentDiffusion):
             new_cond.pop('null_prompt_emb')
             fmri_control = [c * scale for c, scale in zip(control_res, self.control_scales)]
             new_cond["control"] = fmri_control
-            new_cond["noisy_c_concat"] = x_recon_gen
+            new_cond["noisy_c_concat"] = [x_recon_gen]
             # new_cond["control"] = None
             ## only add above
             # import pdb; pdb.set_trace()
