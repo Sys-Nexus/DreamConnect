@@ -549,8 +549,8 @@ class DualLDM(LatentDiffusion):
         # z_enc_gen = z_enc_edit = z_enc
         # self.t_enc = t_enc
 
-        z_enc_edit = torch.randn_like(z_gt)
-        z_enc_gen = torch.randn_like(z_gt)
+        z_enc_edit = torch.randn_like(init_latent)
+        z_enc_gen = torch.randn_like(init_latent)
         t_enc = self.t_enc
 
         instruct_cap = batch['fmri_edit']['c_crossattn'][0]
