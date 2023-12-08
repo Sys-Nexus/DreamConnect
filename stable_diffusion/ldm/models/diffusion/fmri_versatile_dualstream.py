@@ -545,18 +545,20 @@ class DualLDM(LatentDiffusion):
         c_concat = self.encode_first_stage(c_concat).mode().detach()
         c_w_uncond["c_concat"] = [torch.cat([c_concat,]*2, 0)]
 
-        z_enc = self.sampler.stochastic_encode(init_latent, torch.tensor([self.t_enc]).to(z_gt.device))
-        z_enc_gen = z_enc_edit = z_enc
+        # z_enc = self.sampler.stochastic_encode(init_latent, torch.tensor([self.t_enc]).to(z_gt.device))
+        # z_enc_gen = z_enc_edit = z_enc
+        # self.t_enc = t_enc
 
-        # z_enc_edit = torch.randn_like(z_enc)
-        # z_enc_gen = torch.randn_like(z_gt)
+        z_enc_edit = torch.randn_like(z_gt)
+        z_enc_gen = torch.randn_like(z_gt)
+        t_enc = self.t_enc
 
         instruct_cap = batch['fmri_edit']['c_crossattn'][0]
         ######### designed dual-stream diffusion sampling ##########
         z_gen, z_edit = self.sampler.decode_dual(
             x_latent_gen=z_enc_gen,
             x_latent_edit=z_enc_edit,
-            t_start=self.t_enc,
+            t_start=t_enc,
             cond_dict=c_w_uncond,
             unconditional_guidance_scale_gen=cfg_text,
             unconditional_guidance_scale_edit=cfg_text,
