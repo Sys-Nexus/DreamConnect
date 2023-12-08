@@ -1426,7 +1426,7 @@ class DiffusionWrapper(nn.Module):
         self.conditioning_key = conditioning_key
         assert self.conditioning_key in [None, 'concat', 'crossattn', 'hybrid', 'adm', 'fmri_hybrid', 'fmri_controlnet']
 
-    def forward(self, x, t, c_concat: list = None, c_crossattn: list = None,  c_crossattn_1: list = None, control = None, only_mid_control=False):
+    def forward(self, x, t, c_concat: list = None, noisy_c_concat: list = None, c_crossattn: list = None,  c_crossattn_1: list = None, control = None, only_mid_control=False):
         if self.conditioning_key is None:
             out = self.diffusion_model(x, t)
         elif self.conditioning_key == 'concat':
@@ -1442,6 +1442,10 @@ class DiffusionWrapper(nn.Module):
             out = self.diffusion_model(xc, t, context=cc)
         elif self.conditioning_key == 'fmri_controlnet':
             xc = torch.cat([x] + [x], dim=1)
+            cc = torch.cat(c_crossattn, 1)
+            out = self.diffusion_model(xc, t, context=cc, control=control, only_mid_control=only_mid_control)
+        elif self.conditioning_key == 'fmri_noisy_concat':
+            xc = torch.cat([x] + noisy_c_concat, dim=1)
             cc = torch.cat(c_crossattn, 1)
             out = self.diffusion_model(xc, t, context=cc, control=control, only_mid_control=only_mid_control)
         elif self.conditioning_key == 'adm':
