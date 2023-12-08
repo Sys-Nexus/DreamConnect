@@ -389,7 +389,7 @@ class DDIMSampler_Dual(DDIMSampler):
 
         # e_t_gen_cat, e_t_edit_cat = self.model.apply_model_dc(
         #     x_gen_in, x_edit_in, t_in, first_c, second_c, xtype=xtype, first_ctype=first_ctype, second_ctype=second_ctype, mixed_ratio=mixed_ratio)#.chunk(4)
-        # import pdb; pdb.set_trace()
+        import pdb; pdb.set_trace()
         e_t_gen_cat, e_t_edit_cat = self.model.apply_model(
             x_gen_in, x_edit_in, t_in, cond_dict)#.chunk(4)
 
@@ -558,6 +558,7 @@ class DDIMSampler_Dual(DDIMSampler):
                     temperature=1,
                     mixed_ratio=mixed_ratio,)
             else:
+                import pdb; pdb.set_trace()
                 x_dec_gen, x0_dec_gen, x_dec_edit, x0_dec_edit = self.p_sample_ddim_dual_cfg(
                     x_dec_gen, 
                     x_dec_edit,
