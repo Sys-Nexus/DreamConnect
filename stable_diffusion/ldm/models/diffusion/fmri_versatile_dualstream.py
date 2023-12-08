@@ -567,17 +567,31 @@ class DualLDM(LatentDiffusion):
 
         instruct_cap = batch['fmri_edit']['c_crossattn'][0]
         ######### designed dual-stream diffusion sampling ##########
-        z_gen, z_edit = self.sampler.decode_dual(
-            x_latent_gen=z_enc_gen,
-            x_latent_edit=z_enc_edit,
-            t_start=t_enc,
-            cond_dict=c_w_uncond,
-            unconditional_guidance_scale_gen=cfg_text,
-            unconditional_guidance_scale_edit=None,
-            unconditional_guidance_scale_text_edit=cfg_text_edit,
-            unconditional_guidance_scale_image_edit=cfg_image_edit,
-            mixed_ratio=(1-self.mixing), 
-        )
+        if unconditional_guidance_scale_edit is None:
+            z_gen, z_edit = self.sampler.decode_dual(
+                x_latent_gen=z_enc_gen,
+                x_latent_edit=z_enc_edit,
+                t_start=t_enc,
+                cond_dict=c_w_uncond,
+                unconditional_guidance_scale_gen=cfg_text,
+                unconditional_guidance_scale_edit=unconditional_guidance_scale_edit,
+                unconditional_guidance_scale_text_edit=None,
+                unconditional_guidance_scale_image_edit=None,
+                mixed_ratio=(1-self.mixing), 
+            )
+        else:
+            z_gen, z_edit, z0_gen_info, z0_edit_info = self.sampler.decode_dual(
+                x_latent_gen=z_enc_gen,
+                x_latent_edit=z_enc_edit,
+                t_start=t_enc,
+                cond_dict=c_w_uncond,
+                unconditional_guidance_scale_gen=cfg_text,
+                unconditional_guidance_scale_edit=None,
+                unconditional_guidance_scale_text_edit=cfg_text_edit,
+                unconditional_guidance_scale_image_edit=cfg_image_edit,
+                mixed_ratio=(1-self.mixing), 
+            )
+            import pdb; pdb.set_trace()
         x_gen = self.decode_first_stage(z_gen.half())
         x_edit = self.decode_first_stage(z_edit.half())
         # save_path = os.path.join("debug", "images", "new",  
