@@ -512,6 +512,7 @@ class DualLDM(LatentDiffusion):
                    save_dir, split,
                    cfg_text=7.5, cfg_fmri=1.5,
                    cfg_text_edit=None, cfg_image_edit=None,
+                   delay_t=None,
                    N=1, n_row=4, sample=True, 
                    steps=100, ddim_eta=1., return_keys=None,
                    quantize_denoised=True, inpaint=False):
@@ -566,6 +567,7 @@ class DualLDM(LatentDiffusion):
         z_enc_edit = torch.randn_like(init_latent)
         t_enc = 49
 
+        delay_t = 20*20
         instruct_cap = batch['fmri_edit']['c_crossattn'][0]
         ######### designed dual-stream diffusion sampling ##########
         if unconditional_guidance_scale_edit is not None:
@@ -590,6 +592,7 @@ class DualLDM(LatentDiffusion):
                 unconditional_guidance_scale_edit=None,
                 unconditional_guidance_scale_text_edit=cfg_text_edit,
                 unconditional_guidance_scale_image_edit=cfg_image_edit,
+                delay_t=delay_t,
                 mixed_ratio=(1-self.mixing), 
             )
             # import pdb; pdb.set_trace()
@@ -660,7 +663,7 @@ class DualLDM(LatentDiffusion):
         self.model.train()
         # import pdb; pdb.set_trace()
 
-    def apply_model(self, x_noisy_gen, x_noisy_edit, t, cond=None, return_ids=False):
+    def apply_model(self, x_noisy_gen, x_noisy_edit, t, cond=None, delay_t=None, return_ids=False):
         if isinstance(cond, dict):
             # hybrid case, cond is exptected to be a dict
             pass
@@ -780,7 +783,9 @@ class DualLDM(LatentDiffusion):
             new_cond["control"] = None
             ## only add above
             # import pdb; pdb.set_trace()
-            print('timesteps: ', t)
-            x_recon_edit = self.model(x_noisy_edit, t, **new_cond)
+            # print('timesteps: ', t)
+            edit_t = t if delay_t is not None else t + delay_t
+            edit_t = torch.clamp(edit_t, max=961)
+            x_recon_edit = self.model(x_noisy_edit, edit_t, **new_cond)
 
         return x_recon_gen, x_recon_edit

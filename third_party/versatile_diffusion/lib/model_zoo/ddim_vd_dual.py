@@ -370,6 +370,7 @@ class DDIMSampler_Dual(DDIMSampler):
                       unconditional_guidance_scale_gen=1., 
                       unconditional_guidance_scale_text_edit=1.,
                       unconditional_guidance_scale_image_edit=1.,
+                      delay_t=None,
                       xtype='image',
                       first_ctype='prompt',
                       second_ctype='prompt',
@@ -391,7 +392,7 @@ class DDIMSampler_Dual(DDIMSampler):
         #     x_gen_in, x_edit_in, t_in, first_c, second_c, xtype=xtype, first_ctype=first_ctype, second_ctype=second_ctype, mixed_ratio=mixed_ratio)#.chunk(4)
         # import pdb; pdb.set_trace()
         e_t_gen_cat, e_t_edit_cat = self.model.apply_model(
-            x_gen_in, x_edit_in, t_in, cond_dict)#.chunk(4)
+            x_gen_in, x_edit_in, t_in, cond_dict, delay_t=delay_t)#.chunk(4)
 
         e_t_uncond_gen, _, e_t_gen_full = e_t_gen_cat.chunk(3)
         e_t_uncond_text_edit, e_t_uncond_image_edit, e_t_edit_full = e_t_edit_cat.chunk(3)
@@ -527,7 +528,8 @@ class DDIMSampler_Dual(DDIMSampler):
     def decode_dual(self, x_latent_gen, x_latent_edit, t_start, cond_dict,
                unconditional_guidance_scale_gen=1.0, unconditional_guidance_scale_edit=1.0,
                unconditional_guidance_scale_text_edit=None, unconditional_guidance_scale_image_edit=None,
-               unconditional_conditioning=None, xtype='image', first_ctype='vision', second_ctype='prompt',
+               delay_t=None, unconditional_conditioning=None, xtype='image', 
+               first_ctype='vision', second_ctype='prompt',
                use_original_steps=False, mixed_ratio=0.5, callback=None):
         timesteps = np.arange(self.ddpm_num_timesteps) if use_original_steps else self.ddim_timesteps
         timesteps = timesteps[:t_start]
@@ -568,6 +570,7 @@ class DDIMSampler_Dual(DDIMSampler):
                     unconditional_guidance_scale_gen=unconditional_guidance_scale_gen,
                     unconditional_guidance_scale_text_edit=unconditional_guidance_scale_text_edit,
                     unconditional_guidance_scale_image_edit=unconditional_guidance_scale_image_edit,
+                    delay_t=delay_t,
                     use_original_steps=use_original_steps,
                     noise_dropout=0,
                     temperature=1,
