@@ -593,6 +593,14 @@ class DualLDM(LatentDiffusion):
                 mixed_ratio=(1-self.mixing), 
             )
             # import pdb; pdb.set_trace()
+            x0_gen_info, x0_edit_info = [], []
+            for z0_gen, z0_edit in zip(z0_gen_info, z0_edit_info):
+                x0_gen = self.first_stage_model.decode(z0_gen)
+                x0_edit = self.first_stage_model.decode(z0_edit)
+                x0_gen_info.append(x0_gen)
+                x0_eidt_info.append(x0_edit)
+            import pdb; pdb.set_trace()
+            
         x_gen = self.decode_first_stage(z_gen.half())
         x_edit = self.decode_first_stage(z_edit.half())
         # save_path = os.path.join("debug", "images", "new",  
