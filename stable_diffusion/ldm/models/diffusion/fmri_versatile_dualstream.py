@@ -598,9 +598,12 @@ class DualLDM(LatentDiffusion):
                 x0_gen = self.first_stage_model.decode(z0_gen)
                 x0_edit = self.first_stage_model.decode(z0_edit)
                 x0_gen_info.append(x0_gen)
-                x0_eidt_info.append(x0_edit)
-            import pdb; pdb.set_trace()
-            
+                x0_edit_info.append(x0_edit)
+            # import pdb; pdb.set_trace()
+            x0_gen_info = torch.cat(x0_gen_info, dim=0)
+            x0_edit_info = torch.cat(x0_edit_info, dim=0)
+            x0_info = torch.cat([x0_gen_info, x0_edit], dim=-1)
+
         x_gen = self.decode_first_stage(z_gen.half())
         x_edit = self.decode_first_stage(z_edit.half())
         # save_path = os.path.join("debug", "images", "new",  
@@ -648,6 +651,11 @@ class DualLDM(LatentDiffusion):
         path = os.path.join(root, filename)
         os.makedirs(os.path.dirname(path), exist_ok=True)
         torchvision.utils.save_image(x_cat, path)
+
+        filename_inter = "intermediate_all_iter-{:06}_ep-{:06}_bidx-{:06d}-{:06d}.png".format(iter_n, epoch_n, batch_idx, s)
+        path_inter = os.path.join(root, filename_inter)
+        os.makedirs(os.path.dirname(path_inter), exist_ok=True)
+        torchvision.utils.save_image(x0_info, path_inter)
 
         self.model.train()
         # import pdb; pdb.set_trace()
