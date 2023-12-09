@@ -602,7 +602,7 @@ class DualLDM(LatentDiffusion):
             # import pdb; pdb.set_trace()
             x0_gen_info = torch.cat(x0_gen_info, dim=0)
             x0_edit_info = torch.cat(x0_edit_info, dim=0)
-            x0_info = torch.cat([x0_gen_info, x0_edit], dim=-1)
+            x0_info = torch.cat([x0_gen_info, x0_edit_info], dim=-1)
 
         x_gen = self.decode_first_stage(z_gen.half())
         x_edit = self.decode_first_stage(z_edit.half())
