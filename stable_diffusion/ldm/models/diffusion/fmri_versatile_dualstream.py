@@ -780,6 +780,7 @@ class DualLDM(LatentDiffusion):
             new_cond["control"] = None
             ## only add above
             # import pdb; pdb.set_trace()
+            print('timesteps: ', t)
             x_recon_edit = self.model(x_noisy_edit, t, **new_cond)
 
         return x_recon_gen, x_recon_edit
