@@ -530,7 +530,7 @@ class DDIMSampler_Dual(DDIMSampler):
                unconditional_guidance_scale_text_edit=None, unconditional_guidance_scale_image_edit=None,
                delay_t=None, unconditional_conditioning=None, xtype='image', 
                first_ctype='vision', second_ctype='prompt',
-               use_original_steps=False, mixed_ratio=0.5, callback=None):
+               use_original_steps=False, mixed_ratio=0.5, callback=None, coarse_spatial_steps=15):
         timesteps = np.arange(self.ddpm_num_timesteps) if use_original_steps else self.ddim_timesteps
         timesteps = timesteps[:t_start]
 
@@ -539,9 +539,11 @@ class DDIMSampler_Dual(DDIMSampler):
         print(f"Running DDIM Sampling with {total_steps} timesteps")
 
         iterator = tqdm(time_range, desc='Decoding image', total=total_steps)
-        x_dec_gen, x_dec_edit = x_latent_gen, x_latent_edit
+        x_dec_gen, x_dec_edit = x_latent_gen.clone(), x_latent_edit.clone()
         x_dec_gen_info, x_dec_edit_info = [], []
         # cond_dict['noisy_c_concat'] = torch.cat([x_dec_edit,]*3, dim=0) / 0.18215
+        
+        ### first round to get a coarse spatial guidance
         for i, step in enumerate(iterator):
             index = total_steps - i - 1
             ts = torch.full((x_latent_edit.shape[0],), step, device=x_latent_edit.device, dtype=torch.long)
@@ -577,14 +579,44 @@ class DDIMSampler_Dual(DDIMSampler):
                     mixed_ratio=mixed_ratio,)
                 # print(x0_dec_gen.shape, x_dec_gen.shape)
                 # import pdb; pdb.set_trace()
-                if delay_t is not None and step + delay_t > 961:
-                    x_dec_edit = torch.randn_like(x_dec_edit)
-                cond_dict['noisy_c_concat'] = torch.cat([x0_dec_gen]*3, dim=0) #/ 0.18215
+                # if delay_t is not None and step + delay_t > 961:
+                #     x_dec_edit = torch.randn_like(x_dec_edit)
+                # cond_dict['noisy_c_concat'] = torch.cat([x0_dec_gen]*3, dim=0) #/ 0.18215
 
                 x_dec_gen_info.append(x0_dec_gen)
                 x_dec_edit_info.append(x0_dec_edit)
+            if i > coarse_spatial_steps: break
             if callback: callback(i)
         
+        ### second round to get an edited image
+        x_dec_gen, x_dec_edit = x_latent_gen.clone(), x_latent_edit.clone()
+        for i, step in enumerate(iterator):
+            index = total_steps - i - 1
+            ts = torch.full((x_latent_edit.shape[0],), step, device=x_latent_edit.device, dtype=torch.long)
+            if unconditional_guidance_scale_edit is None:
+                cond_dict['noisy_c_concat'] = torch.cat([x0_dec_gen]*3, dim=0) #/ 0.18215
+                x_dec_gen, x0_dec_gen, x_dec_edit, x0_dec_edit = self.p_sample_ddim_dual_cfg(
+                    x_dec_gen, 
+                    x_dec_edit,
+                    ts,
+                    cond_dict,
+                    index, 
+                    unconditional_guidance_scale_gen=unconditional_guidance_scale_gen,
+                    unconditional_guidance_scale_text_edit=unconditional_guidance_scale_text_edit,
+                    unconditional_guidance_scale_image_edit=unconditional_guidance_scale_image_edit,
+                    delay_t=delay_t,
+                    use_original_steps=use_original_steps,
+                    noise_dropout=0,
+                    temperature=1,
+                    mixed_ratio=mixed_ratio,)
+                # print(x0_dec_gen.shape, x_dec_gen.shape)
+                # import pdb; pdb.set_trace()
+                # if delay_t is not None and step + delay_t > 961:
+                #     x_dec_edit = torch.randn_like(x_dec_edit)
+                x_dec_gen_info.append(x0_dec_gen)
+                x_dec_edit_info.append(x0_dec_edit)
+            if callback: callback(i)
+
         if unconditional_guidance_scale_edit is not None:
             return x_dec_gen, x_dec_edit
         else:
