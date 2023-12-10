@@ -385,14 +385,78 @@ class DDIMSampler_Dual(DDIMSampler):
         x_gen_in = torch.cat([x_gen] * 3)
         x_edit_in = torch.cat([x_edit] * 3)
         t_in = torch.cat([t] * 3)
-        # first_c = torch.cat(first_conditioning)
-        # second_c = torch.cat(second_conditioning)
-
-        # e_t_gen_cat, e_t_edit_cat = self.model.apply_model_dc(
-        #     x_gen_in, x_edit_in, t_in, first_c, second_c, xtype=xtype, first_ctype=first_ctype, second_ctype=second_ctype, mixed_ratio=mixed_ratio)#.chunk(4)
-        # import pdb; pdb.set_trace()
+        
         e_t_gen_cat, e_t_edit_cat = self.model.apply_model(
             x_gen_in, x_edit_in, t_in, cond_dict, delay_t=delay_t)#.chunk(4)
+
+        e_t_uncond_gen, _, e_t_gen_full = e_t_gen_cat.chunk(3)
+        e_t_uncond_text_edit, e_t_uncond_image_edit, e_t_edit_full = e_t_edit_cat.chunk(3)
+
+        e_t_gen = e_t_uncond_gen + unconditional_guidance_scale_gen * (e_t_gen_full - e_t_uncond_gen)
+        e_t_edit = 0.5 * (e_t_uncond_text_edit + e_t_uncond_image_edit) + \
+                        unconditional_guidance_scale_text_edit * (e_t_edit_full - e_t_uncond_text_edit) + \
+                        unconditional_guidance_scale_image_edit * (e_t_edit_full - e_t_uncond_image_edit)
+
+        alphas = self.model.alphas_cumprod if use_original_steps else self.ddim_alphas
+        alphas_prev = self.model.alphas_cumprod_prev if use_original_steps else self.ddim_alphas_prev
+        sqrt_one_minus_alphas = self.model.sqrt_one_minus_alphas_cumprod if use_original_steps else self.ddim_sqrt_one_minus_alphas
+        sigmas = self.model.ddim_sigmas_for_original_num_steps if use_original_steps else self.ddim_sigmas
+        # select parameters corresponding to the currently considered timestep
+
+        if xtype == 'image':
+            extended_shape = (b, 1, 1, 1)
+        elif xtype == 'text':
+            extended_shape = (b, 1)
+
+        a_t = torch.full(extended_shape, alphas[index], device=device, dtype=x_edit.dtype)
+        a_prev = torch.full(extended_shape, alphas_prev[index], device=device, dtype=x_edit.dtype)
+        sigma_t = torch.full(extended_shape, sigmas[index], device=device, dtype=x_edit.dtype)
+        sqrt_one_minus_at = torch.full(extended_shape, sqrt_one_minus_alphas[index], device=device, dtype=x_edit.dtype)
+
+        # current prediction for x_0
+        # import pdb; pdb.set_trace()
+        pred_x0_gen = (x_gen - sqrt_one_minus_at * e_t_gen) / a_t.sqrt()
+        pred_x0_edit = (x_edit - sqrt_one_minus_at * e_t_edit) / a_t.sqrt()
+        dir_xt_gen = (1. - a_prev - sigma_t**2).sqrt() * e_t_gen
+        dir_xt_edit = (1. - a_prev - sigma_t**2).sqrt() * e_t_edit
+        noise_gen = sigma_t * noise_like(x_gen, repeat_noise) * temperature
+        noise_edit = sigma_t * noise_like(x_edit, repeat_noise) * temperature
+        if noise_dropout > 0.:
+            noise_gen = torch.nn.functional.dropout(noise_gen, p=noise_dropout)
+            noise_edit = torch.nn.functional.dropout(noise_edit, p=noise_dropout)
+        x_prev_gen = a_prev.sqrt() * pred_x0_gen + dir_xt_gen + noise_gen
+        x_prev_edit = a_prev.sqrt() * pred_x0_edit + dir_xt_edit + noise_edit
+        return x_prev_gen, pred_x0_gen, x_prev_edit, pred_x0_edit
+    
+    @torch.no_grad()
+    def asyn_p_sample_ddim_dual_cfg(self, 
+                      x_gen, 
+                      x_edit,
+                      t_gen,
+                      t_edit,
+                      cond_dict,
+                      index, 
+                      unconditional_guidance_scale_gen=1., 
+                      unconditional_guidance_scale_text_edit=1.,
+                      unconditional_guidance_scale_image_edit=1.,
+                      xtype='image',
+                      first_ctype='prompt',
+                      second_ctype='prompt',
+                      repeat_noise=False, 
+                      use_original_steps=False, 
+                      noise_dropout=0.,
+                      temperature=1.,
+                      mixed_ratio=0.5,):
+
+        b, *_, device = *x_edit.shape, self.model.model.diffusion_model.device
+
+        x_gen_in = torch.cat([x_gen] * 3)
+        x_edit_in = torch.cat([x_edit] * 3)
+        t_gen_in = torch.cat([t_gen] * 3)
+        t_edit_in = torch.cat([t_edit] * 3)
+        
+        e_t_gen_cat, e_t_edit_cat = self.model.apply_model(
+            x_gen_in, x_edit_in, t_gen_in, cond_dict, t_edit_in=t_edit_in)#.chunk(4)
 
         e_t_uncond_gen, _, e_t_gen_full = e_t_gen_cat.chunk(3)
         e_t_uncond_text_edit, e_t_uncond_image_edit, e_t_edit_full = e_t_edit_cat.chunk(3)
@@ -547,7 +611,7 @@ class DDIMSampler_Dual(DDIMSampler):
         for i, step in enumerate(iterator):
             index = total_steps - i - 1
             ts = torch.full((x_latent_edit.shape[0],), step, device=x_latent_edit.device, dtype=torch.long)
-            # import pdb; pdb.set_trace()
+            import pdb; pdb.set_trace()
             if unconditional_guidance_scale_edit is not None:
                 x_dec_gen, _, x_dec_edit, _ = self.p_sample_ddim_dual(
                     x_dec_gen, 
