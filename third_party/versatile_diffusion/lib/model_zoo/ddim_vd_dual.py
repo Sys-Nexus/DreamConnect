@@ -489,7 +489,7 @@ class DDIMSampler_Dual(DDIMSampler):
         dir_xt_gen = (1. - a_prev - sigma_t**2).sqrt() * e_t_gen
         noise_gen = sigma_t * noise_like(x_gen, repeat_noise) * temperature
 
-        offset = (t_edit - t_gen).mean().item() // 20
+        # offset = (t_edit - t_gen).mean().item() // 20
         # print('offset: ', offset)
         a_t_offset = torch.full(extended_shape, alphas[index+offset], device=device, dtype=x_edit.dtype)
         a_prev_offset = torch.full(extended_shape, alphas_prev[index+offset], device=device, dtype=x_edit.dtype)
