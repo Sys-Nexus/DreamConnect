@@ -488,7 +488,10 @@ class DDIMSampler_Dual(DDIMSampler):
         pred_x0_gen = (x_gen - sqrt_one_minus_at * e_t_gen) / a_t.sqrt()
         dir_xt_gen = (1. - a_prev - sigma_t**2).sqrt() * e_t_gen
         noise_gen = sigma_t * noise_like(x_gen, repeat_noise) * temperature
-
+        if noise_dropout > 0.:
+            noise_gen = torch.nn.functional.dropout(noise_gen, p=noise_dropout)
+        x_prev_gen = a_prev.sqrt() * pred_x0_gen + dir_xt_gen + noise_gen
+        
         # offset = (t_edit - t_gen).mean().item() // 20
         # print('offset: ', offset)
         a_t_offset = torch.full(extended_shape, alphas[index+offset], device=device, dtype=x_edit.dtype)
@@ -499,12 +502,10 @@ class DDIMSampler_Dual(DDIMSampler):
         pred_x0_edit = (x_edit - sqrt_one_minus_at_offset * e_t_edit) / a_t_offset.sqrt()
         dir_xt_edit = (1. - a_prev_offset - sigma_t_offset**2).sqrt() * e_t_edit
         noise_edit = sigma_t_offset * noise_like(x_edit, repeat_noise) * temperature
-        
         if noise_dropout > 0.:
-            noise_gen = torch.nn.functional.dropout(noise_gen, p=noise_dropout)
             noise_edit = torch.nn.functional.dropout(noise_edit, p=noise_dropout)
-        x_prev_gen = a_prev.sqrt() * pred_x0_gen + dir_xt_gen + noise_gen
-        x_prev_edit = a_prev.sqrt() * pred_x0_edit + dir_xt_edit + noise_edit
+        x_prev_edit = a_prev_offset.sqrt() * pred_x0_edit + dir_xt_edit + noise_edit
+        
         return x_prev_gen, pred_x0_gen, x_prev_edit, pred_x0_edit
 
     @torch.no_grad()
