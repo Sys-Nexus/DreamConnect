@@ -589,8 +589,9 @@ class DDIMSampler_Dual(DDIMSampler):
             if callback: callback(i)
         
         ### second round to get an edited image
+        iterator_2nd = tqdm(time_range, desc='Decoding image', total=total_steps)
         x_dec_gen, x_dec_edit = x_latent_gen.clone(), x_latent_edit.clone()
-        for i, step in enumerate(iterator):
+        for i, step in enumerate(iterator_2nd):
             index = total_steps - i - 1
             ts = torch.full((x_latent_edit.shape[0],), step, device=x_latent_edit.device, dtype=torch.long)
             if unconditional_guidance_scale_edit is None:
