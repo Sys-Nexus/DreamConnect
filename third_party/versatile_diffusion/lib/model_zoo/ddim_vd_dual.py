@@ -640,7 +640,6 @@ class DDIMSampler_Dual(DDIMSampler):
                     x_dec_gen, 
                     x_dec_edit,
                     ts,
-                    ts,
                     cond_dict,
                     index, 
                     unconditional_guidance_scale_gen=unconditional_guidance_scale_gen,
