@@ -786,6 +786,7 @@ class DualLDM(LatentDiffusion):
             # print('timesteps: ', t)
             # edit_t = t if delay_t is None else t + delay_t
             # edit_t = torch.clamp(edit_t, max=961)
+            edit_t = t
             x_recon_edit = self.model(x_noisy_edit, edit_t, **new_cond)
 
         return x_recon_gen, x_recon_edit
