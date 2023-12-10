@@ -786,6 +786,7 @@ class DualLDM(LatentDiffusion):
             # import pdb; pdb.set_trace()
             # print('timesteps: ', t)
             edit_t = t_edit_in if t_edit_in is not None else t
+            print('edit_t: ', edit_t)
             # edit_t = t if delay_t is None else t + delay_t
             # edit_t = torch.clamp(edit_t, max=961)
             # edit_t = t
