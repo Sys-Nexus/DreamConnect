@@ -659,7 +659,7 @@ class DDIMSampler_Dual(DDIMSampler):
 
                 x_dec_gen_info.append(x0_dec_gen)
                 x_dec_edit_info.append(x0_dec_edit)
-            if i > coarse_spatial_steps: break
+            if i >= coarse_spatial_steps: break
             if callback: callback(i)
         
         import pdb; pdb.set_trace()
@@ -667,8 +667,8 @@ class DDIMSampler_Dual(DDIMSampler):
         ### second round to get an edited image
         iterator_2nd = tqdm(time_range, desc='Decoding image', total=total_steps)
         # x_dec_gen = x_latent_gen.clone()
-        # x_dec_edit = x_latent_edit.clone()
-        x_dec_edit = x_latent_gen.clone()
+        x_dec_edit = x_latent_edit.clone()
+        # x_dec_edit = x_latent_gen.clone()
         for i, step in enumerate(iterator_2nd):
             if i <= coarse_spatial_steps: continue
             index = total_steps - i - 1
