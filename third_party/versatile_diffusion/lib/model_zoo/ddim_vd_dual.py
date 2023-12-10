@@ -436,6 +436,7 @@ class DDIMSampler_Dual(DDIMSampler):
                       t_edit,
                       cond_dict,
                       index, 
+                      offset,
                       unconditional_guidance_scale_gen=1., 
                       unconditional_guidance_scale_text_edit=1.,
                       unconditional_guidance_scale_image_edit=1.,
@@ -489,7 +490,7 @@ class DDIMSampler_Dual(DDIMSampler):
         noise_gen = sigma_t * noise_like(x_gen, repeat_noise) * temperature
 
         offset = (t_edit - t_gen).mean().item() // 20
-        print('offset: ', offset)
+        # print('offset: ', offset)
         a_t_offset = torch.full(extended_shape, alphas[index+offset], device=device, dtype=x_edit.dtype)
         a_prev_offset = torch.full(extended_shape, alphas_prev[index+offset], device=device, dtype=x_edit.dtype)
         sigma_t_offset = torch.full(extended_shape, sigmas[index+offset], device=device, dtype=x_edit.dtype)
@@ -678,6 +679,7 @@ class DDIMSampler_Dual(DDIMSampler):
                     edit_ts,
                     cond_dict,
                     index, 
+                    offset=coarse_spatial_steps,
                     unconditional_guidance_scale_gen=unconditional_guidance_scale_gen,
                     unconditional_guidance_scale_text_edit=unconditional_guidance_scale_text_edit,
                     unconditional_guidance_scale_image_edit=unconditional_guidance_scale_image_edit,
