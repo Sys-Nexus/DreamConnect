@@ -652,7 +652,7 @@ class DDIMSampler_Dual(DDIMSampler):
                     temperature=1,
                     mixed_ratio=mixed_ratio,)
                 # print(x0_dec_gen.shape, x_dec_gen.shape)
-                # import pdb; pdb.set_trace()
+                #
                 # if delay_t is not None and step + delay_t > 961:
                 #     x_dec_edit = torch.randn_like(x_dec_edit)
                 # cond_dict['noisy_c_concat'] = torch.cat([x0_dec_gen]*3, dim=0) #/ 0.18215
@@ -662,6 +662,8 @@ class DDIMSampler_Dual(DDIMSampler):
             if i > coarse_spatial_steps: break
             if callback: callback(i)
         
+        import pdb; pdb.set_trace()
+
         ### second round to get an edited image
         iterator_2nd = tqdm(time_range, desc='Decoding image', total=total_steps)
         # x_dec_gen = x_latent_gen.clone()

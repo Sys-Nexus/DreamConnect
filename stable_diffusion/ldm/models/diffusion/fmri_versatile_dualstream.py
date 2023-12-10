@@ -568,7 +568,6 @@ class DualLDM(LatentDiffusion):
         # import pdb; pdb.set_trace()
         t_enc = 49
 
-        delay_t = 20*20
         instruct_cap = batch['fmri_edit']['c_crossattn'][0]
         ######### designed dual-stream diffusion sampling ##########
         if unconditional_guidance_scale_edit is not None:
