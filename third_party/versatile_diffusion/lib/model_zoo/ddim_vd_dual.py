@@ -541,7 +541,7 @@ class DDIMSampler_Dual(DDIMSampler):
         iterator = tqdm(time_range, desc='Decoding image', total=total_steps)
         x_dec_gen, x_dec_edit = x_latent_gen, x_latent_edit
         x_dec_gen_info, x_dec_edit_info = [], []
-        cond_dict['noisy_c_concat'] = torch.cat([torch.randn_like(x_dec_edit),]*3, dim=0) / 0.18215
+        cond_dict['noisy_c_concat'] = torch.cat([x_dec_edit,]*3, dim=0) / 0.18215
         for i, step in enumerate(iterator):
             index = total_steps - i - 1
             ts = torch.full((x_latent_edit.shape[0],), step, device=x_latent_edit.device, dtype=torch.long)
@@ -563,6 +563,7 @@ class DDIMSampler_Dual(DDIMSampler):
                 # import pdb; pdb.set_trace()
                 if delay_t is not None and step + delay_t > 961:
                     x_dec_edit = torch.randn_like(x_dec_edit)
+                import pdb; pdb.set_trace()
                 x_dec_gen, x0_dec_gen, x_dec_edit, x0_dec_edit = self.p_sample_ddim_dual_cfg(
                     x_dec_gen, 
                     x_dec_edit,
