@@ -662,7 +662,7 @@ class DDIMSampler_Dual(DDIMSampler):
             if i >= coarse_spatial_steps: break
             if callback: callback(i)
         
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
 
         ### second round to get an edited image
         iterator_2nd = tqdm(time_range, desc='Decoding image', total=total_steps)
