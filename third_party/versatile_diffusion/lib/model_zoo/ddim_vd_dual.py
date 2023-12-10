@@ -387,7 +387,7 @@ class DDIMSampler_Dual(DDIMSampler):
         t_in = torch.cat([t] * 3)
         
         e_t_gen_cat, e_t_edit_cat = self.model.apply_model(
-            x_gen_in, x_edit_in, t_in, cond_dict, delay_t=delay_t)#.chunk(4)
+            x_gen_in, x_edit_in, t_in, cond_dict)#.chunk(4)
 
         e_t_uncond_gen, _, e_t_gen_full = e_t_gen_cat.chunk(3)
         e_t_uncond_text_edit, e_t_uncond_image_edit, e_t_edit_full = e_t_edit_cat.chunk(3)
