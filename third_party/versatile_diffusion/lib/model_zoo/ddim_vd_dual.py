@@ -681,7 +681,6 @@ class DDIMSampler_Dual(DDIMSampler):
                     unconditional_guidance_scale_gen=unconditional_guidance_scale_gen,
                     unconditional_guidance_scale_text_edit=unconditional_guidance_scale_text_edit,
                     unconditional_guidance_scale_image_edit=unconditional_guidance_scale_image_edit,
-                    delay_t=delay_t,
                     use_original_steps=use_original_steps,
                     noise_dropout=0,
                     temperature=1,
