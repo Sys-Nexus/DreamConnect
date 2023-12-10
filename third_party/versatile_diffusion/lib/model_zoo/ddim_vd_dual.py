@@ -577,9 +577,8 @@ class DDIMSampler_Dual(DDIMSampler):
                     mixed_ratio=mixed_ratio,)
                 # print(x0_dec_gen.shape, x_dec_gen.shape)
                 # import pdb; pdb.set_trace()
-                # if delay_t is not None and step + delay_t > 961:
-                #     x_dec_edit = x_latent_edit
-                #     x_dec_edit = torch.randn_like(x_dec_edit)
+                if delay_t is not None and step + delay_t > 961:
+                    x_dec_edit = torch.randn_like(x_dec_edit)
                 cond_dict['noisy_c_concat'] = torch.cat([x0_dec_gen]*3, dim=0) #/ 0.18215
 
                 x_dec_gen_info.append(x0_dec_gen)
