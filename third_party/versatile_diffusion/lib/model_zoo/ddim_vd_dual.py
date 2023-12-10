@@ -696,7 +696,7 @@ class DDIMSampler_Dual(DDIMSampler):
         ### third round to finalize the edited image
         x_dec_gen_ = x_dec_gen.clone()
         for i, step in enumerate(range(start_step+coarse_spatial_steps*20-20, -1, -20)):
-            index = total_steps - i - 1
+            index = total_steps - i - 1 - coarse_spatial_steps
             gen_ts = torch.full((x_latent_edit.shape[0],), start_step, device=x_latent_edit.device, dtype=torch.long)
             edit_ts = torch.full((x_latent_edit.shape[0],), step, device=x_latent_edit.device, dtype=torch.long)
             if unconditional_guidance_scale_edit is None:
