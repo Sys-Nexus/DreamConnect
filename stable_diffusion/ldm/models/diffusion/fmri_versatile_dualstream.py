@@ -565,6 +565,7 @@ class DualLDM(LatentDiffusion):
         # z_enc_edit = torch.randn_like(init_latent) #* self.scale_factor
         # z_enc_edit = self.sampler.stochastic_encode(torch.randn_like(init_latent), torch.tensor([int(0.75*50)]).to(z_gt.device))
         z_enc_edit = torch.randn_like(init_latent)
+        import pdb; pdb.set_trace()
         t_enc = 49
 
         delay_t = 20*20
