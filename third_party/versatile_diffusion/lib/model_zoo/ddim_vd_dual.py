@@ -505,7 +505,7 @@ class DDIMSampler_Dual(DDIMSampler):
         if noise_dropout > 0.:
             noise_edit = torch.nn.functional.dropout(noise_edit, p=noise_dropout)
         x_prev_edit = a_prev_offset.sqrt() * pred_x0_edit + dir_xt_edit + noise_edit
-        
+
         return x_prev_gen, pred_x0_gen, x_prev_edit, pred_x0_edit
 
     @torch.no_grad()
@@ -665,7 +665,8 @@ class DDIMSampler_Dual(DDIMSampler):
         ### second round to get an edited image
         iterator_2nd = tqdm(time_range, desc='Decoding image', total=total_steps)
         # x_dec_gen = x_latent_gen.clone()
-        x_dec_edit = x_latent_edit.clone()
+        # x_dec_edit = x_latent_edit.clone()
+        x_dec_edit = x_latent_gen.clone()
         for i, step in enumerate(iterator_2nd):
             if i <= coarse_spatial_steps: continue
             index = total_steps - i - 1
@@ -673,7 +674,7 @@ class DDIMSampler_Dual(DDIMSampler):
             edit_ts = torch.full((x_latent_edit.shape[0],), step+coarse_spatial_steps*20, device=x_latent_edit.device, dtype=torch.long)
             if unconditional_guidance_scale_edit is None:
                 cond_dict['noisy_c_concat'] = torch.cat([x0_dec_gen]*3, dim=0) #/ 0.18215 # be consistent with instructDiffusion
-                print('====', index, coarse_spatial_steps, i, step, '====')
+                # print('====', index, coarse_spatial_steps, i, step, '====')
                 x_dec_gen, x0_dec_gen, x_dec_edit, x0_dec_edit = self.asyn_p_sample_ddim_dual_cfg(
                     x_dec_gen, 
                     x_dec_edit,
