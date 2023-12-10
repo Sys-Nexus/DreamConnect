@@ -664,7 +664,7 @@ class DualLDM(LatentDiffusion):
         self.model.train()
         # import pdb; pdb.set_trace()
 
-    def apply_model(self, x_noisy_gen, x_noisy_edit, t, cond=None, delay_t=None, return_ids=False):
+    def apply_model(self, x_noisy_gen, x_noisy_edit, t, cond=None, t_edit_in=None, return_ids=False):
         if isinstance(cond, dict):
             # hybrid case, cond is exptected to be a dict
             pass
@@ -785,8 +785,9 @@ class DualLDM(LatentDiffusion):
             ## only add above
             # import pdb; pdb.set_trace()
             # print('timesteps: ', t)
-            edit_t = t if delay_t is None else t + delay_t
-            edit_t = torch.clamp(edit_t, max=961)
+            edit_t = t_edit_in if t_edit_in is not None else t
+            # edit_t = t if delay_t is None else t + delay_t
+            # edit_t = torch.clamp(edit_t, max=961)
             # edit_t = t
             x_recon_edit = self.model(x_noisy_edit, edit_t, **new_cond)
 

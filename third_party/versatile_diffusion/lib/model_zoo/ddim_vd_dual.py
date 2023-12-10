@@ -485,11 +485,20 @@ class DDIMSampler_Dual(DDIMSampler):
         # current prediction for x_0
         # import pdb; pdb.set_trace()
         pred_x0_gen = (x_gen - sqrt_one_minus_at * e_t_gen) / a_t.sqrt()
-        pred_x0_edit = (x_edit - sqrt_one_minus_at * e_t_edit) / a_t.sqrt()
         dir_xt_gen = (1. - a_prev - sigma_t**2).sqrt() * e_t_gen
-        dir_xt_edit = (1. - a_prev - sigma_t**2).sqrt() * e_t_edit
         noise_gen = sigma_t * noise_like(x_gen, repeat_noise) * temperature
-        noise_edit = sigma_t * noise_like(x_edit, repeat_noise) * temperature
+
+        offset = (t_edit - t_gen).mean().item() // 20
+        print('offset: ', offset)
+        a_t_offset = torch.full(extended_shape, alphas[index+offset], device=device, dtype=x_edit.dtype)
+        a_prev_offset = torch.full(extended_shape, alphas_prev[index+offset], device=device, dtype=x_edit.dtype)
+        sigma_t_offset = torch.full(extended_shape, sigmas[index+offset], device=device, dtype=x_edit.dtype)
+        sqrt_one_minus_at_offset = torch.full(extended_shape, sqrt_one_minus_alphas[index+offset], device=device, dtype=x_edit.dtype)
+
+        pred_x0_edit = (x_edit - sqrt_one_minus_at_offset * e_t_edit) / a_t_offset.sqrt()
+        dir_xt_edit = (1. - a_prev_offset - sigma_t_offset**2).sqrt() * e_t_edit
+        noise_edit = sigma_t_offset * noise_like(x_edit, repeat_noise) * temperature
+        
         if noise_dropout > 0.:
             noise_gen = torch.nn.functional.dropout(noise_gen, p=noise_dropout)
             noise_edit = torch.nn.functional.dropout(noise_edit, p=noise_dropout)
@@ -654,17 +663,20 @@ class DDIMSampler_Dual(DDIMSampler):
         
         ### second round to get an edited image
         iterator_2nd = tqdm(time_range, desc='Decoding image', total=total_steps)
-        x_dec_gen = x_latent_gen.clone()
-        # x_dec_gen, x_dec_edit = x_latent_gen.clone(), x_latent_edit.clone()
+        # x_dec_gen = x_latent_gen.clone()
+        x_dec_edit = x_latent_edit.clone()
         for i, step in enumerate(iterator_2nd):
+            if i <= coarse_spatial_steps: continue
             index = total_steps - i - 1
-            ts = torch.full((x_latent_edit.shape[0],), step, device=x_latent_edit.device, dtype=torch.long)
+            gen_ts = torch.full((x_latent_edit.shape[0],), step, device=x_latent_edit.device, dtype=torch.long)
+            edit_ts = torch.full((x_latent_edit.shape[0],), step+coarse_spatial_steps*20, device=x_latent_edit.device, dtype=torch.long)
             if unconditional_guidance_scale_edit is None:
                 cond_dict['noisy_c_concat'] = torch.cat([x0_dec_gen]*3, dim=0) #/ 0.18215 # be consistent with instructDiffusion
-                x_dec_gen, x0_dec_gen, x_dec_edit, x0_dec_edit = self.p_sample_ddim_dual_cfg(
+                x_dec_gen, x0_dec_gen, x_dec_edit, x0_dec_edit = self.asyn_p_sample_ddim_dual_cfg(
                     x_dec_gen, 
                     x_dec_edit,
-                    ts,
+                    gen_ts,
+                    edit_ts,
                     cond_dict,
                     index, 
                     unconditional_guidance_scale_gen=unconditional_guidance_scale_gen,
