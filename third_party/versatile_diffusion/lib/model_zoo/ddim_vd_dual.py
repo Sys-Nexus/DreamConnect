@@ -620,7 +620,7 @@ class DDIMSampler_Dual(DDIMSampler):
         for i, step in enumerate(iterator):
             index = total_steps - i - 1
             ts = torch.full((x_latent_edit.shape[0],), step, device=x_latent_edit.device, dtype=torch.long)
-            import pdb; pdb.set_trace()
+            # import pdb; pdb.set_trace()
             if unconditional_guidance_scale_edit is not None:
                 x_dec_gen, _, x_dec_edit, _ = self.p_sample_ddim_dual(
                     x_dec_gen, 
@@ -640,12 +640,12 @@ class DDIMSampler_Dual(DDIMSampler):
                     x_dec_gen, 
                     x_dec_edit,
                     ts,
+                    ts,
                     cond_dict,
                     index, 
                     unconditional_guidance_scale_gen=unconditional_guidance_scale_gen,
                     unconditional_guidance_scale_text_edit=unconditional_guidance_scale_text_edit,
                     unconditional_guidance_scale_image_edit=unconditional_guidance_scale_image_edit,
-                    delay_t=delay_t,
                     use_original_steps=use_original_steps,
                     noise_dropout=0,
                     temperature=1,
