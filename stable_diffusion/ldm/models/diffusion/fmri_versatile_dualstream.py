@@ -482,6 +482,21 @@ class DualLDM(LatentDiffusion):
 
         return loss, loss_dict
 
+    def forward(self, batch, batch_idx, num_steps, *args, **kwargs):
+        # import pdb; pdb.set_trace();
+        x, c = self.get_input(batch, self.first_stage_key)
+        t = torch.randint(0, self.num_timesteps-self.coarse_spatial_steps, (x.shape[0],), device=x.device).long()
+        if self.model.conditioning_key is not None:
+            assert c is not None
+            if self.cond_stage_trainable:
+                c = self.get_learned_conditioning(c)
+            if self.shorten_cond_schedule:  # TODO: drop this option
+                tc = self.cond_ids[t]
+                c = self.q_sample(x_start=c, t=tc, noise=torch.randn_like(c.float()))
+        loss, loss_dict = self.p_losses(c['c_concat'][0], x, c, t, t_edit=t.clone()+self.coarse_spatial_steps, *args, **kwargs)
+            
+        return loss, loss_dict
+
     def get_input(self, batch, k, return_first_stage_outputs=False, force_c_encode=False,
                   cond_key=None, return_original_cond=False, bs=None, uncond=0.075, sz=256):
         x = DDPM.get_input(self, batch, k)
