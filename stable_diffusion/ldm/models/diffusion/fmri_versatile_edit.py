@@ -351,6 +351,21 @@ class ControlLDM(LatentDiffusion):
                 return {key: log[key] for key in return_keys}
         return log
 
+    def forward(self, batch, batch_idx, num_steps, *args, **kwargs):
+        # import pdb; pdb.set_trace();
+        x, c = self.get_input(batch, self.first_stage_key)
+        t = torch.randint(0, self.num_timesteps-self.coarse_spatial_steps, (x.shape[0],), device=x.device).long()
+        if self.model.conditioning_key is not None:
+            assert c is not None
+            if self.cond_stage_trainable:
+                c = self.get_learned_conditioning(c)
+            if self.shorten_cond_schedule:  # TODO: drop this option
+                tc = self.cond_ids[t]
+                c = self.q_sample(x_start=c, t=tc, noise=torch.randn_like(c.float()))
+        loss, loss_dict = self.p_losses(c['c_concat'][0], x, c, t, *args, **kwargs)
+            
+        return loss, loss_dict
+
     def apply_model(self, x_noisy, t, cond, return_ids=False):
         
         if isinstance(cond, dict):

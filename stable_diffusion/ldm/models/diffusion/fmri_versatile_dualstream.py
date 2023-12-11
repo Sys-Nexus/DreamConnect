@@ -362,7 +362,7 @@ class DualLDM(LatentDiffusion):
     def __init__(self, clip_cfg, fmri_vclip_cfg=None, fmri_vclip_pretrain_path=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.vd_clip = VDCLIP(clip_cfg)
-
+        self.coarse_spatial_steps = kwargs['coarse_spatial_steps']
         pretrained_control_unet_path = kwargs['pretrained_control_unet_path']
         if pretrained_control_unet_path is not None and os.path.exists(pretrained_control_unet_path):
             # import pdb; pdb.set_trace()
