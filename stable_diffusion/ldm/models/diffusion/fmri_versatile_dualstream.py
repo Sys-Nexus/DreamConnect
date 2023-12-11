@@ -181,7 +181,7 @@ class FusionPriorUnetModel(UNetModel):
 
 
 class ControlledUnetModel(UNetModel):
-    def forward(self, x, timesteps=None, context=None, control=None, only_mid_control=False, num_control_layers=8, **kwargs):
+    def forward(self, x, timesteps=None, context=None, control=None, only_mid_control=False, num_control_layers=1000, **kwargs):
         # print(x.shape, timesteps)
         if control is not None:
             # unmatched_layers = [2, 5, 8]
@@ -411,7 +411,77 @@ class DualLDM(LatentDiffusion):
 
             print('vox2clip vclip: [missing]', len(missing))
             print('vox2clip vclip: [unexpected] ', len(unexpected))
-            
+    
+    ### TODO: what we should give to noise_edit
+    def p_losses(self, x_start_gen, x_start_edit, cond, t, noise=None, noise_edit=None, t_edit=None):
+        # import pdb; pdb.set_trace();
+        noise_gen = default(noise, lambda: torch.randn_like(x_start_gen))
+        x_noisy_gen = self.q_sample(x_start=x_start_gen, t=t, noise=noise_gen)
+
+        noise_edit = default(noise_edit, lambda: torch.randn_like(x_start_edit))
+        noise = noise_edit
+
+        coarse_spatial_steps = 15
+        t_edit = t.clone() + coarse_spatial_steps
+        t_edit = t if t_edit is not None else t_edit
+        x_noisy_edit = self.q_sample(x_start=x_start_edit, t=t_edit, noise=noise_edit)
+
+        _, model_output = self.apply_model(x_noisy_gen, x_noisy_edit, t, cond, t_edit_in=t_edit)
+
+        loss_dict = {}
+        prefix = 'train' if self.training else 'val'
+        
+        # import pdb; pdb.set_trace();
+        if self.parameterization == "x0":
+            target = x_start_edit
+        elif self.parameterization == "eps":
+            target = noise
+        else:
+            raise NotImplementedError()
+
+        loss_simple = self.get_loss(model_output, target, mean=False).mean([1, 2, 3])
+        loss_dict.update({f'{prefix}/loss_simple': loss_simple.mean()})
+
+        # additional_loss_type is in the format of min_snr_k
+        if self.additional_loss_type is not None and isinstance(self.additional_loss_type, str) and self.additional_loss_type.startswith("min_snr_"):
+            import pdb; pdb.set_trace();
+            k = float(self.additional_loss_type.split("_")[-1])
+            alpha = extract_into_tensor(self.sqrt_alphas_cumprod, t, t.shape)
+            sigma = extract_into_tensor(self.sqrt_one_minus_alphas_cumprod, t, t.shape)
+
+            snr = (alpha / sigma) ** 2
+            min_snr = torch.stack([snr, k * torch.ones_like(t)], dim=1).min(dim=1)[0]
+            if self.parameterization == "eps":
+                loss_simple = loss_simple * min_snr / snr
+            elif self.parameterization == "x0":
+                loss_simple = loss_simple * min_snr
+            else:
+                raise NotImplementedError()
+
+            loss_simple = loss_simple * min_snr
+
+        if t_edit is not None:
+            logvar_t_edit = self.logvar.to(x_start_edit.device)[t_edit]
+            loss = loss_simple / torch.exp(logvar_t_edit) + logvar_t_edit
+        else:
+            logvar_t = self.logvar.to(x_start_edit.device)[t]
+            loss = loss_simple / torch.exp(logvar_t) + logvar_t
+        # loss = loss_simple / torch.exp(self.logvar) + self.logvar
+        if self.learn_logvar:
+            import pdb; pdb.set_trace();
+            loss_dict.update({f'{prefix}/loss_gamma': loss.mean()})
+            loss_dict.update({'logvar': self.logvar.data.mean()})
+
+        loss = self.l_simple_weight * loss.mean()
+
+        loss_vlb = self.get_loss(model_output, target, mean=False).mean(dim=(1, 2, 3))
+        loss_vlb = (self.lvlb_weights[t] * loss_vlb).mean()
+        loss_dict.update({f'{prefix}/loss_vlb': loss_vlb})
+        loss += (self.original_elbo_weight * loss_vlb)
+        loss_dict.update({f'{prefix}/loss': loss})
+
+        return loss, loss_dict
+
     def get_input(self, batch, k, return_first_stage_outputs=False, force_c_encode=False,
                   cond_key=None, return_original_cond=False, bs=None, uncond=0.075, sz=256):
         x = DDPM.get_input(self, batch, k)
@@ -780,7 +850,7 @@ class DualLDM(LatentDiffusion):
             new_cond["control"] = fmri_control
             x_recon_gen = x_recon_gen.requires_grad_(True)
             # new_cond["noisy_c_concat"] = [x_recon_gen]
-            new_cond["control"] = None
+            new_cond["control"] = fmri_control
             ## only add above
             # import pdb; pdb.set_trace()
             # print('timesteps: ', t)
