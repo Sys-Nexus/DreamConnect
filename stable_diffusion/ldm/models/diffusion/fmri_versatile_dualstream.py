@@ -421,8 +421,6 @@ class DualLDM(LatentDiffusion):
         noise_edit = default(noise_edit, lambda: torch.randn_like(x_start_edit))
         noise = noise_edit
 
-        coarse_spatial_steps = 15
-        t_edit = t.clone() + coarse_spatial_steps
         t_edit = t if t_edit is not None else t_edit
         x_noisy_edit = self.q_sample(x_start=x_start_edit, t=t_edit, noise=noise_edit)
 
