@@ -330,22 +330,22 @@ class PreVersatileNetAdaptor(UNetModelVD):
         if xtype == 'text':
             x = x[:, :, None, None]
         h = x
-        for i, (i_module, t_module) in enumerate(zip(self.unet_image.input_blocks, self.unet_text.input_blocks)):
-            h = self.mixed_run_dc(i_module, t_module, h, emb, c0, c1, xtype, c0_type, c1_type, mixed_ratio)
-            outs.append(h)
-            hs.append(h)
-
-        # for i, (i_module, t_module, zero_conv) in enumerate(zip(self.unet_image.input_blocks, self.unet_text.input_blocks, self.zero_convs)):
+        # for i, (i_module, t_module) in enumerate(zip(self.unet_image.input_blocks, self.unet_text.input_blocks)):
         #     h = self.mixed_run_dc(i_module, t_module, h, emb, c0, c1, xtype, c0_type, c1_type, mixed_ratio)
-        #     out_i = zero_conv(h, emb)
-        #     outs.append(out_i)
+        #     outs.append(h)
         #     hs.append(h)
+
+        for i, (i_module, t_module, zero_conv) in enumerate(zip(self.unet_image.input_blocks, self.unet_text.input_blocks, self.zero_convs)):
+            h = self.mixed_run_dc(i_module, t_module, h, emb, c0, c1, xtype, c0_type, c1_type, mixed_ratio)
+            out_i = zero_conv(h, emb)
+            outs.append(out_i)
+            hs.append(h)
 
         h = self.mixed_run_dc(
             self.unet_image.middle_block, self.unet_text.middle_block, 
             h, emb, c0, c1, xtype, c0_type, c1_type, mixed_ratio)
-        # outs.append(self.middle_block_out(h, emb))
-        outs.append(h)        
+        outs.append(self.middle_block_out(h, emb))
+        # outs.append(h)        
         for i_module, t_module in zip(self.unet_image.output_blocks, self.unet_text.output_blocks):
             h = th.cat([h, hs.pop()], dim=1)
             h = self.mixed_run_dc(i_module, t_module, h, emb, c0, c1, xtype, c0_type, c1_type, mixed_ratio)
