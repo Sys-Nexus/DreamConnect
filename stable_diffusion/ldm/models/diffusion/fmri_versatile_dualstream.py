@@ -40,6 +40,7 @@ import k_diffusion as K
 
 from ldm.modules.diffusionmodules.openaimodel import UNetModel
 from ldm.modules.attention import SpatialTransformer
+from ldm.util import default
 
 class FusionPriorUnetModel(UNetModel):
     def __init__(self, *args, **kwargs):
