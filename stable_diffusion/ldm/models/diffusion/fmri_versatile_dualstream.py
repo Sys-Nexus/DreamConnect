@@ -296,18 +296,17 @@ class PreVersatileNetAdaptor(UNetModelVD):
         model_channels = self.model_channels
         channel_mult = self.channel_mult
 
-        # self.zero_convs = nn.ModuleList([self.make_zero_conv(model_channels)]) # different from postversatilenetadaptor
+        self.zero_convs = nn.ModuleList([self.make_zero_conv(model_channels)]) # different from postversatilenetadaptor
 
-        # ch = channel_mult[-1] * model_channels
-        # self.middle_block_out = self.make_zero_conv(ch)
+        ch = channel_mult[-1] * model_channels
+        self.middle_block_out = self.make_zero_conv(ch)
 
-        # stride_i = 0
-        # for level, mult in enumerate(channel_mult):
-        #     for nr in range(self.num_noattn_blocks[level]):
-        #         ch = mult * model_channels
-        #         self.zero_convs.append(self.make_zero_conv(ch))
-        #     if level != len(channel_mult) - 1:
-        #         self.zero_convs.append(self.make_zero_conv(ch))
+        for level, mult in enumerate(channel_mult):
+            for nr in range(self.num_noattn_blocks[level]):
+                ch = mult * model_channels
+                self.zero_convs.append(self.make_zero_conv(ch))
+            if level != len(channel_mult) - 1:
+                self.zero_convs.append(self.make_zero_conv(ch))
 
         # import pdb; pdb.set_trace()
 
