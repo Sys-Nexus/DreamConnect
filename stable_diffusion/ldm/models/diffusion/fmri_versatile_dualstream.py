@@ -225,71 +225,6 @@ class ControlledUnetModel(UNetModel):
             # import pdb; pdb.set_trace();
             return super().forward(x, timesteps=timesteps, context=context, **kwargs)
 
-class PostVersatileNetAdaptor(UNetModelVD):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        dims = self.dims = 2
-        model_channels = self.model_channels
-        channel_mult = self.channel_mult
-
-        self.zero_convs = nn.ModuleList([])
-
-        ch = channel_mult[-1] * model_channels
-        self.middle_block_out = self.make_zero_conv(ch)
-
-        unmatched_layers = [2, 5, 8]
-        out_cs = {2: None, 5: 640, 8: 320}
-        stride_i = 0
-        for level_idx, mult in list(enumerate(channel_mult))[::-1]:
-            for block_idx in range(self.num_noattn_blocks[level_idx] + 1):
-                ch = mult * model_channels
-                # print('ch: ', ch)
-                if stride_i in unmatched_layers:
-                    self.zero_convs.append(self.make_zero_conv(ch, kernel_size=2, stride=2, out_channels=out_cs[stride_i]))
-                else:
-                    self.zero_convs.append(self.make_zero_conv(ch))
-                stride_i += 1
-
-    def make_zero_conv(self, channels, kernel_size=1, stride=1, out_channels=None):
-        if out_channels is None:
-            return TimestepEmbedSequential(zero_module(conv_nd(self.dims, channels, channels, kernel_size, stride=stride, padding=0)))
-        else:
-            return TimestepEmbedSequential(zero_module(conv_nd(self.dims, channels, out_channels, kernel_size, stride=stride, padding=0)))
-
-    def forward_dc(self, x, timesteps, c0, c1, xtype, c0_type, c1_type, mixed_ratio):
-        # print(x.shape, c0.shape, c1.shape, timesteps)
-        # import pdb; pdb.set_trace()
-
-        hs, outs = [], []
-        t_emb = timestep_embedding(timesteps, self.model_channels, repeat_only=False)
-        
-        x=x.half()
-        emb = self.time_embed(t_emb.half())
-
-        if xtype == 'text':
-            x = x[:, :, None, None]
-        h = x
-        for i_module, t_module in zip(self.unet_image.input_blocks, self.unet_text.input_blocks):
-            h = self.mixed_run_dc(i_module, t_module, h, emb, c0, c1, xtype, c0_type, c1_type, mixed_ratio)
-            hs.append(h)
-        h = self.mixed_run_dc(
-            self.unet_image.middle_block, self.unet_text.middle_block, 
-            h, emb, c0, c1, xtype, c0_type, c1_type, mixed_ratio)
-        outs.append(self.middle_block_out(h, emb))
-        
-        for i, (i_module, t_module, zero_conv) in enumerate(zip(self.unet_image.output_blocks, 
-                                                self.unet_text.output_blocks, self.zero_convs)):
-            h = th.cat([h, hs.pop()], dim=1)
-            h = self.mixed_run_dc(i_module, t_module, h, emb, c0, c1, xtype, c0_type, c1_type, mixed_ratio)
-            out_i = zero_conv(h, emb)
-            outs.append(out_i)
-            # print(i, h.shape, out_i.shape)
-
-        if xtype == 'image':
-            return self.unet_image.out(h), outs
-        elif xtype == 'text':
-            return self.unet_text.out(h).squeeze(-1).squeeze(-1), outs
-
 class PreVersatileNetAdaptor(UNetModelVD):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -301,6 +236,7 @@ class PreVersatileNetAdaptor(UNetModelVD):
 
         ch = channel_mult[-1] * model_channels
         self.middle_block_out = self.make_zero_conv(ch)
+        self.x0_block_out = self.make_zero_conv(4)
 
         for level, mult in enumerate(channel_mult):
             for nr in range(self.num_noattn_blocks[level]):
@@ -317,10 +253,7 @@ class PreVersatileNetAdaptor(UNetModelVD):
         else:
             return TimestepEmbedSequential(zero_module(conv_nd(self.dims, channels, out_channels, kernel_size, stride=stride, padding=0)))
 
-    def forward_dc(self, x, timesteps, c0, c1, xtype, c0_type, c1_type, mixed_ratio):
-        # print(x.shape, c0.shape, c1.shape, timesteps)
-        # import pdb; pdb.set_trace()
-
+    def forward_dc(self, x, timesteps, c0, c1, xtype, c0_type, c1_type, mixed_ratio, is_save_intermediate=True, is_save_x0=False):
         hs, outs = [], []
         t_emb = timestep_embedding(timesteps, self.model_channels, repeat_only=False)
         
@@ -330,30 +263,32 @@ class PreVersatileNetAdaptor(UNetModelVD):
         if xtype == 'text':
             x = x[:, :, None, None]
         h = x
-        # for i, (i_module, t_module) in enumerate(zip(self.unet_image.input_blocks, self.unet_text.input_blocks)):
-        #     h = self.mixed_run_dc(i_module, t_module, h, emb, c0, c1, xtype, c0_type, c1_type, mixed_ratio)
-        #     outs.append(h)
-        #     hs.append(h)
 
         for i, (i_module, t_module, zero_conv) in enumerate(zip(self.unet_image.input_blocks, self.unet_text.input_blocks, self.zero_convs)):
             h = self.mixed_run_dc(i_module, t_module, h, emb, c0, c1, xtype, c0_type, c1_type, mixed_ratio)
-            out_i = zero_conv(h, emb)
-            outs.append(out_i)
+            if is_save_intermediate is True:
+                outs.append(zero_conv(h, emb))
             hs.append(h)
 
         h = self.mixed_run_dc(
             self.unet_image.middle_block, self.unet_text.middle_block, 
             h, emb, c0, c1, xtype, c0_type, c1_type, mixed_ratio)
-        outs.append(self.middle_block_out(h, emb))
-        # outs.append(h)        
+        if is_save_intermediate is True:
+            outs.append(self.middle_block_out(h, emb))
+
         for i_module, t_module in zip(self.unet_image.output_blocks, self.unet_text.output_blocks):
             h = th.cat([h, hs.pop()], dim=1)
             h = self.mixed_run_dc(i_module, t_module, h, emb, c0, c1, xtype, c0_type, c1_type, mixed_ratio)
+        final_out = self.unet_image.out(h)
+        
+        if is_save_x0 is True:
+            denoised_x0 = self.sampler.get_x0(x, final_out, index)
+            outs.append(self.x0_block_out(denoised_x0))
 
         outs = list(reversed(outs))
         # import pdb; pdb.set_trace()
         if xtype == 'image':
-            return self.unet_image.out(h), outs
+            return final_out, outs
         elif xtype == 'text':
             return self.unet_text.out(h).squeeze(-1).squeeze(-1), outs
 
@@ -362,6 +297,8 @@ class DualLDM(LatentDiffusion):
     def __init__(self, clip_cfg, fmri_vclip_cfg=None, fmri_vclip_pretrain_path=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.vd_clip = VDCLIP(clip_cfg)
+
+        self.is_save_x0 = kwargs['is_save_x0']
         self.coarse_spatial_steps = kwargs['coarse_spatial_steps']
         pretrained_control_unet_path = kwargs['pretrained_control_unet_path']
         if pretrained_control_unet_path is not None and os.path.exists(pretrained_control_unet_path):
@@ -424,7 +361,7 @@ class DualLDM(LatentDiffusion):
         t_edit = t if t_edit is not None else t_edit
         x_noisy_edit = self.q_sample(x_start=x_start_edit, t=t_edit, noise=noise_edit)
 
-        _, model_output = self.apply_model(x_noisy_gen, x_noisy_edit, t, cond, t_edit_in=t_edit)
+        _, model_output = self.apply_model(x_noisy_gen, x_noisy_edit, t, cond, t_edit_in=t_edit, is_save_x0=self.is_save_x0)
 
         loss_dict = {}
         prefix = 'train' if self.training else 'val'
@@ -481,7 +418,6 @@ class DualLDM(LatentDiffusion):
         return loss, loss_dict
 
     def forward(self, batch, batch_idx, num_steps, *args, **kwargs):
-        # import pdb; pdb.set_trace();
         x, c = self.get_input(batch, self.first_stage_key)
         t = torch.randint(0, self.num_timesteps-self.coarse_spatial_steps, (x.shape[0],), device=x.device).long()
         if self.model.conditioning_key is not None:
@@ -491,8 +427,9 @@ class DualLDM(LatentDiffusion):
             if self.shorten_cond_schedule:  # TODO: drop this option
                 tc = self.cond_ids[t]
                 c = self.q_sample(x_start=c, t=tc, noise=torch.randn_like(c.float()))
+        import pdb; pdb.set_trace();
         loss, loss_dict = self.p_losses(c['c_concat'][0], x, c, t, t_edit=t.clone()+self.coarse_spatial_steps, *args, **kwargs)
-            
+
         return loss, loss_dict
 
     def get_input(self, batch, k, return_first_stage_outputs=False, force_c_encode=False,
@@ -746,7 +683,7 @@ class DualLDM(LatentDiffusion):
         self.model.train()
         # import pdb; pdb.set_trace()
 
-    def apply_model(self, x_noisy_gen, x_noisy_edit, t, cond=None, t_edit_in=None, return_ids=False):
+    def apply_model(self, x_noisy_gen, x_noisy_edit, t, cond=None, t_edit_in=None, is_save_intermediate=True, is_save_x0=False, return_ids=False):
         if isinstance(cond, dict):
             # hybrid case, cond is exptected to be a dict
             pass
@@ -848,14 +785,16 @@ class DualLDM(LatentDiffusion):
             c1 = torch.cat(new_cond["c_crossattn_1"]["text_emb"], 1)
             fmri_vae = torch.cat(new_cond["c_crossattn_1"]["fmri_vae"],1)
 
-            # import pdb; pdb.set_trace()
+            import pdb; pdb.set_trace()
             with torch.no_grad():
                 x_recon_gen, control_res = self.control_model.forward_dc(x=torch.cat([x_noisy_gen], dim=1), 
                                                             # hint=fmri_vae,
                                                             timesteps=t,
                                                             c0=c0, c1=c1,
                                                             xtype='image', c0_type='vision', 
-                                                            c1_type='prompt', mixed_ratio=0.6)
+                                                            c1_type='prompt', mixed_ratio=0.6,
+                                                            is_save_intermediate=is_save_intermediate,
+                                                            is_save_x0=is_save_x0)
             # control_res = [tt.detach().requires_grad_(True) for tt in control_res]
             new_cond.pop('c_crossattn_1')
             new_cond.pop('null_prompt_emb')

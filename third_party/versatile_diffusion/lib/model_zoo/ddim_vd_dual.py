@@ -290,6 +290,21 @@ class DDIMSampler_Dual(DDIMSampler):
         x_prev = a_prev.sqrt() * pred_x0 + dir_xt + noise
         return x_prev, pred_x0
     
+    def get_x0(self, x_gen, e_t_gen, index, use_original_steps=False):
+        b, *_, device = *x_gen.shape, self.model.model.diffusion_model.device
+        if xtype == 'image':
+            extended_shape = (b, 1, 1, 1)
+        elif xtype == 'text':
+            extended_shape = (b, 1)
+        
+        alphas = self.model.alphas_cumprod if use_original_steps else self.ddim_alphas
+        a_t = torch.full(extended_shape, alphas[index], device=device, dtype=x_gen.dtype)
+        sqrt_one_minus_alphas = self.model.sqrt_one_minus_alphas_cumprod if use_original_steps else self.ddim_sqrt_one_minus_alphas
+        sqrt_one_minus_at = torch.full(extended_shape, sqrt_one_minus_alphas[index], device=device, dtype=x_gen.dtype)
+
+        pred_x0_gen = (x_gen - sqrt_one_minus_at * e_t_gen) / a_t.sqrt()
+        return pred_x0_gen
+
     @torch.no_grad()
     def p_sample_ddim_dual(self, 
                       x_gen, 

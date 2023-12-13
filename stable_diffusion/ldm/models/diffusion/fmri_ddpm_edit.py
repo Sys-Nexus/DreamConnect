@@ -393,6 +393,7 @@ class LatentDiffusion(DDPM):
                  deepspeed="",
                  is_fmri_input=False,
                  coarse_spatial_steps=0,
+                 is_save_x0=False,
                  *args, **kwargs):
 
         self.deepspeed = deepspeed
