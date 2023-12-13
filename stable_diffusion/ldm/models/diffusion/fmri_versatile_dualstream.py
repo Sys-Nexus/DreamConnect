@@ -253,7 +253,9 @@ class PreVersatileNetAdaptor(UNetModelVD):
         else:
             return TimestepEmbedSequential(zero_module(conv_nd(self.dims, channels, out_channels, kernel_size, stride=stride, padding=0)))
 
-    def forward_dc(self, x, timesteps, c0, c1, xtype, c0_type, c1_type, mixed_ratio, is_save_intermediate=True, is_save_x0=False, sqrt_one_minus_at=None):
+    def forward_dc(self, x, timesteps, c0, c1, xtype, c0_type, c1_type, mixed_ratio, 
+                    is_save_intermediate=True, is_save_x0=False, 
+                    sqrt_one_minus_at=None, a_t=None):
         hs, outs = [], []
         t_emb = timestep_embedding(timesteps, self.model_channels, repeat_only=False)
         
@@ -789,6 +791,12 @@ class DualLDM(LatentDiffusion):
 
             import pdb; pdb.set_trace()
             with torch.no_grad():
+                b, *_, device = *x_noisy_gen.shape, self.model.model.diffusion_model.device
+                extended_shape = (b, 1, 1, 1)
+                sqrt_one_minus_alphas = self.model.sqrt_one_minus_alphas_cumprod if use_original_steps else self.ddim_sqrt_one_minus_alphas
+                sqrt_one_minus_at = torch.full(extended_shape, sqrt_one_minus_alphas[index], device=device, dtype=x_noisy_gen.dtype)
+                a_t = torch.full(extended_shape, alphas[index], device=device, dtype=x_noisy_gen.dtype)
+                
                 x_recon_gen, control_res = self.control_model.forward_dc(x=torch.cat([x_noisy_gen], dim=1), 
                                                             # hint=fmri_vae,
                                                             timesteps=t,
@@ -796,7 +804,9 @@ class DualLDM(LatentDiffusion):
                                                             xtype='image', c0_type='vision', 
                                                             c1_type='prompt', mixed_ratio=0.6,
                                                             is_save_intermediate=is_save_intermediate,
-                                                            is_save_x0=is_save_x0)
+                                                            is_save_x0=is_save_x0,
+                                                            sqrt_one_minus_at=sqrt_one_minus_at,
+                                                            a_t=a_t)
             # control_res = [tt.detach().requires_grad_(True) for tt in control_res]
             new_cond.pop('c_crossattn_1')
             new_cond.pop('null_prompt_emb')
