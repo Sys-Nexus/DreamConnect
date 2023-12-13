@@ -363,8 +363,9 @@ class DualLDM(LatentDiffusion):
 
         t_edit = t if t_edit is not None else t_edit
         x_noisy_edit = self.q_sample(x_start=x_start_edit, t=t_edit, noise=noise_edit)
-
-        _, model_output = self.apply_model(x_noisy_gen, x_noisy_edit, t, cond, t_edit_in=t_edit, is_save_x0=self.is_save_x0)
+        import pdb; pdb.set_trace()
+        _, model_output = self.apply_model(x_noisy_gen, x_noisy_edit, t, cond, t_edit_in=t_edit, 
+                    is_save_x0=self.is_save_x0, sqrt_one_minus_at=sqrt_one_minus_at, a_t=a_t)
 
         loss_dict = {}
         prefix = 'train' if self.training else 'val'
@@ -687,7 +688,8 @@ class DualLDM(LatentDiffusion):
         self.model.train()
         # import pdb; pdb.set_trace()
 
-    def apply_model(self, x_noisy_gen, x_noisy_edit, t, cond=None, t_edit_in=None, is_save_intermediate=True, is_save_x0=False, return_ids=False):
+    def apply_model(self, x_noisy_gen, x_noisy_edit, t, cond=None, t_edit_in=None, is_save_intermediate=True, is_save_x0=False, 
+                            sqrt_one_minus_at=None, a_t=None, return_ids=False):
         if isinstance(cond, dict):
             # hybrid case, cond is exptected to be a dict
             pass
@@ -791,12 +793,6 @@ class DualLDM(LatentDiffusion):
 
             import pdb; pdb.set_trace()
             with torch.no_grad():
-                b, *_, device = *x_noisy_gen.shape, self.model.model.diffusion_model.device
-                extended_shape = (b, 1, 1, 1)
-                sqrt_one_minus_alphas = self.model.sqrt_one_minus_alphas_cumprod if use_original_steps else self.ddim_sqrt_one_minus_alphas
-                sqrt_one_minus_at = torch.full(extended_shape, sqrt_one_minus_alphas[index], device=device, dtype=x_noisy_gen.dtype)
-                a_t = torch.full(extended_shape, alphas[index], device=device, dtype=x_noisy_gen.dtype)
-                
                 x_recon_gen, control_res = self.control_model.forward_dc(x=torch.cat([x_noisy_gen], dim=1), 
                                                             # hint=fmri_vae,
                                                             timesteps=t,
