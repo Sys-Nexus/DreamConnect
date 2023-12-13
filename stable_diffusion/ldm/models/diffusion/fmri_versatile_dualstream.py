@@ -364,6 +364,14 @@ class DualLDM(LatentDiffusion):
         t_edit = t if t_edit is not None else t_edit
         x_noisy_edit = self.q_sample(x_start=x_start_edit, t=t_edit, noise=noise_edit)
         import pdb; pdb.set_trace()
+        b = x_start_gen.shape[0]
+        extended_shape = (b, 1, 1, 1)
+        alphas = self.alphas_cumprod #if use_original_steps else self.ddim_alphas
+        index = torch.ones_like(t)
+        a_t = torch.full(extended_shape, alphas[index], device=x_noisy_gen.device, dtype=x_noisy_gen.dtype)
+        sqrt_one_minus_alphas = self.sqrt_one_minus_alphas_cumprod
+        sqrt_one_minus_at = torch.full(extended_shape, sqrt_one_minus_alphas[index], device=device, dtype=x_noisy_gen.dtype)
+
         _, model_output = self.apply_model(x_noisy_gen, x_noisy_edit, t, cond, t_edit_in=t_edit, 
                     is_save_x0=self.is_save_x0, sqrt_one_minus_at=sqrt_one_minus_at, a_t=a_t)
 
