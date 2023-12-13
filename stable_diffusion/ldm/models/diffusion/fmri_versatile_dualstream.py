@@ -282,6 +282,7 @@ class PreVersatileNetAdaptor(UNetModelVD):
         final_out = self.unet_image.out(h)
         
         if is_save_x0 is True:
+            index = torch.ones_like(timesteps)
             denoised_x0 = self.sampler.get_x0(x, final_out, index)
             outs.append(self.x0_block_out(denoised_x0))
 
@@ -419,7 +420,8 @@ class DualLDM(LatentDiffusion):
 
     def forward(self, batch, batch_idx, num_steps, *args, **kwargs):
         x, c = self.get_input(batch, self.first_stage_key)
-        t = torch.randint(0, self.num_timesteps-self.coarse_spatial_steps, (x.shape[0],), device=x.device).long()
+        ratio = self.num_timesteps // self.ddim_steps
+        t = torch.randint(0, self.num_timesteps-self.coarse_spatial_steps*ratio, (x.shape[0],), device=x.device).long()
         if self.model.conditioning_key is not None:
             assert c is not None
             if self.cond_stage_trainable:
@@ -428,7 +430,7 @@ class DualLDM(LatentDiffusion):
                 tc = self.cond_ids[t]
                 c = self.q_sample(x_start=c, t=tc, noise=torch.randn_like(c.float()))
         import pdb; pdb.set_trace();
-        loss, loss_dict = self.p_losses(c['c_concat'][0], x, c, t, t_edit=t.clone()+self.coarse_spatial_steps, *args, **kwargs)
+        loss, loss_dict = self.p_losses(c['c_concat'][0], x, c, t, t_edit=t.clone()+self.coarse_spatial_steps*ratio, *args, **kwargs)
 
         return loss, loss_dict
 

@@ -297,6 +297,7 @@ class DDIMSampler_Dual(DDIMSampler):
         elif xtype == 'text':
             extended_shape = (b, 1)
         
+        import pdb; pdb.set_trace()
         alphas = self.model.alphas_cumprod if use_original_steps else self.ddim_alphas
         a_t = torch.full(extended_shape, alphas[index], device=device, dtype=x_gen.dtype)
         sqrt_one_minus_alphas = self.model.sqrt_one_minus_alphas_cumprod if use_original_steps else self.ddim_sqrt_one_minus_alphas
