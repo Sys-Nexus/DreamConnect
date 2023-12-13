@@ -253,7 +253,7 @@ class PreVersatileNetAdaptor(UNetModelVD):
         else:
             return TimestepEmbedSequential(zero_module(conv_nd(self.dims, channels, out_channels, kernel_size, stride=stride, padding=0)))
 
-    def forward_dc(self, x, timesteps, c0, c1, xtype, c0_type, c1_type, mixed_ratio, is_save_intermediate=True, is_save_x0=False):
+    def forward_dc(self, x, timesteps, c0, c1, xtype, c0_type, c1_type, mixed_ratio, is_save_intermediate=True, is_save_x0=False, sqrt_one_minus_at=None):
         hs, outs = [], []
         t_emb = timestep_embedding(timesteps, self.model_channels, repeat_only=False)
         
@@ -283,7 +283,7 @@ class PreVersatileNetAdaptor(UNetModelVD):
         
         if is_save_x0 is True:
             index = torch.ones_like(timesteps)
-            denoised_x0 = self.sampler.get_x0(x, final_out, index)
+            denoised_x0 = (x - sqrt_one_minus_at * final_out) / a_t.sqrt()
             outs.append(self.x0_block_out(denoised_x0))
 
         outs = list(reversed(outs))
@@ -429,7 +429,7 @@ class DualLDM(LatentDiffusion):
             if self.shorten_cond_schedule:  # TODO: drop this option
                 tc = self.cond_ids[t]
                 c = self.q_sample(x_start=c, t=tc, noise=torch.randn_like(c.float()))
-        import pdb; pdb.set_trace();
+        # import pdb; pdb.set_trace();
         loss, loss_dict = self.p_losses(c['c_concat'][0], x, c, t, t_edit=t.clone()+self.coarse_spatial_steps*ratio, *args, **kwargs)
 
         return loss, loss_dict
