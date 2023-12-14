@@ -736,11 +736,11 @@ class DDIMSampler_Dual(DDIMSampler):
         x_dec_gen_ = x_dec_gen.clone()
         for i, step in enumerate(tqdm(range(start_step+coarse_spatial_steps*20-20, -1, -20), desc='Decoding image', total=coarse_spatial_steps)):
             index = start_index - i
-            print(i, step, index)
+            # print(i, step, index)
             # import pdb; pdb.set_trace()
             gen_ts = torch.full((x_latent_edit.shape[0],), start_step, device=x_latent_edit.device, dtype=torch.long)
             edit_ts = torch.full((x_latent_edit.shape[0],), step, device=x_latent_edit.device, dtype=torch.long)
-            a_t, sqrt_one_minus_at = self.get_al(x_dec_gen, index)
+            a_t, sqrt_one_minus_at = self.get_al(x_dec_gen, 0)
             # cond_dict['noisy_c_concat'] = torch.cat([x0_dec_gen]*3, dim=0) / 0.18215 # be consistent with instructDiffusion
             # print('====', index, coarse_spatial_steps, i, step, '====')
             x_dec_gen_, x0_dec_gen_, x_dec_edit, x0_dec_edit = self.asyn_p_sample_ddim_dual_cfg(
