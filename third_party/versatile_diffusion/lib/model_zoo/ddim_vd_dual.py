@@ -656,7 +656,7 @@ class DDIMSampler_Dual(DDIMSampler):
         for i, step in enumerate(iterator):
             index = total_steps - i - 1
             ts = torch.full((x_latent_edit.shape[0],), step, device=x_latent_edit.device, dtype=torch.long)
-            import pdb; pdb.set_trace()
+            # import pdb; pdb.set_trace()
             b = x_dec_gen.shape[0]
             extended_shape = (b, 1, 1, 1)
             alphas = self.ddim_alphas
