@@ -463,7 +463,8 @@ class DDIMSampler_Dual(DDIMSampler):
                       use_original_steps=False, 
                       noise_dropout=0.,
                       temperature=1.,
-                      mixed_ratio=0.5,):
+                      mixed_ratio=0.5,
+                      is_save_intermediate=False):
 
         b, *_, device = *x_edit.shape, self.model.model.diffusion_model.device
 
@@ -621,7 +622,7 @@ class DDIMSampler_Dual(DDIMSampler):
                unconditional_guidance_scale_text_edit=None, unconditional_guidance_scale_image_edit=None,
                delay_t=None, unconditional_conditioning=None, xtype='image', 
                first_ctype='vision', second_ctype='prompt',
-               use_original_steps=False, mixed_ratio=0.5, callback=None, coarse_spatial_steps=15):
+               use_original_steps=False, mixed_ratio=0.5, is_save_intermediate=True, callback=None, coarse_spatial_steps=15):
         timesteps = np.arange(self.ddpm_num_timesteps) if use_original_steps else self.ddim_timesteps
         timesteps = timesteps[:t_start]
 
@@ -701,7 +702,8 @@ class DDIMSampler_Dual(DDIMSampler):
                     use_original_steps=use_original_steps,
                     noise_dropout=0,
                     temperature=1,
-                    mixed_ratio=mixed_ratio,)
+                    mixed_ratio=mixed_ratio,
+                    is_save_intermediate=is_save_intermediate)
                 x_dec_gen_info.append(x0_dec_gen)
                 x_dec_edit_info.append(x0_dec_edit)
                 
@@ -734,7 +736,8 @@ class DDIMSampler_Dual(DDIMSampler):
                     use_original_steps=use_original_steps,
                     noise_dropout=0,
                     temperature=1,
-                    mixed_ratio=mixed_ratio,)
+                    mixed_ratio=mixed_ratio,
+                    is_save_intermediate=is_save_intermediate)
                 x_dec_gen_info.append(x0_dec_gen)
                 x_dec_edit_info.append(x0_dec_edit)
             if callback: callback(i)
