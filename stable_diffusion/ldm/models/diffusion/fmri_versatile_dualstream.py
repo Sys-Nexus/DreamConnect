@@ -183,9 +183,9 @@ class FusionPriorUnetModel(UNetModel):
 
 class ControlledUnetModel(UNetModel):
     def forward(self, x, timesteps=None, context=None, control=None, only_mid_control=False, num_control_layers=1000, **kwargs):
-        # print(x.shape, timesteps)
+        print(x.shape, control[0].shape, timesteps)
         if control is not None:
-            control.pop(0)
+            contorl.pop(0)
             # unmatched_layers = [2, 5, 8]
             hs = []
             with torch.no_grad():
@@ -287,14 +287,15 @@ class PreVersatileNetAdaptor(UNetModelVD):
         if is_save_x0 is True:
             index = torch.ones_like(timesteps)
             denoised_x0 = (x - sqrt_one_minus_at * final_out) / a_t.sqrt()
-            # outs.append(self.x0_block_out(denoised_x0, emb))
-            outs.append(denoised_x0)
+            outs.append(self.x0_block_out(denoised_x0, emb))
+            # outs.append(denoised_x0)
             # import pdb; pdb.set_trace();
 
         outs = list(reversed(outs))
         # import pdb; pdb.set_trace()
         if xtype == 'image':
-            return final_out, outs
+            # return final_out, outs
+            return denoised_x0, outs
         elif xtype == 'text':
             return self.unet_text.out(h).squeeze(-1).squeeze(-1), outs
 
@@ -825,16 +826,7 @@ class DualLDM(LatentDiffusion):
             new_cond["control"] = fmri_control
             x_recon_gen = x_recon_gen.requires_grad_(True)
             # new_cond["noisy_c_concat"] = [x_recon_gen]
-            new_cond["control"] = fmri_control
-            ## only add above
-            # import pdb; pdb.set_trace()
-            # print('timesteps: ', t)
             edit_t = t_edit_in if t_edit_in is not None else t
-            # print('edit_t: ', edit_t)
-            # edit_t = t if delay_t is None else t + delay_t
-            # edit_t = torch.clamp(edit_t, max=961)
-            # edit_t = t
             x_recon_edit = self.model(x_noisy_edit, edit_t, **new_cond)
 
-        # return x_recon_gen, x_recon_edit
-        return x_recon_gen, control_res[0]
+        return x_recon_gen, x_recon_edit
