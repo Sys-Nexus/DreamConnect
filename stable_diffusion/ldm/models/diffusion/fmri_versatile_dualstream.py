@@ -630,7 +630,8 @@ class DualLDM(LatentDiffusion):
                 unconditional_guidance_scale_image_edit=cfg_image_edit,
                 delay_t=delay_t,
                 mixed_ratio=(1-self.mixing),
-                is_save_intermediate=self.is_save_intermediate
+                is_save_intermediate=self.is_save_intermediate,
+                is_save_x0=self.is_save_x0
             )
             # import pdb; pdb.set_trace()
             x0_gen_info, x0_edit_info = [], []

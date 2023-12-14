@@ -394,7 +394,9 @@ class DDIMSampler_Dual(DDIMSampler):
                       use_original_steps=False, 
                       noise_dropout=0.,
                       temperature=1.,
-                      mixed_ratio=0.5,):
+                      mixed_ratio=0.5,
+                      is_save_intermediate=True,
+                      is_save_x0=False):
 
         b, *_, device = *x_edit.shape, self.model.model.diffusion_model.device
 
@@ -403,7 +405,9 @@ class DDIMSampler_Dual(DDIMSampler):
         t_in = torch.cat([t] * 3)
         
         e_t_gen_cat, e_t_edit_cat = self.model.apply_model(
-            x_gen_in, x_edit_in, t_in, cond_dict)#.chunk(4)
+                        x_gen_in, x_edit_in, t_in, cond_dict, 
+                        is_save_intermediate=is_save_intermediate, 
+                        is_save_x0=is_save_x0)#.chunk(4)
 
         e_t_uncond_gen, _, e_t_gen_full = e_t_gen_cat.chunk(3)
         e_t_uncond_text_edit, e_t_uncond_image_edit, e_t_edit_full = e_t_edit_cat.chunk(3)
@@ -464,7 +468,8 @@ class DDIMSampler_Dual(DDIMSampler):
                       noise_dropout=0.,
                       temperature=1.,
                       mixed_ratio=0.5,
-                      is_save_intermediate=False):
+                      is_save_intermediate=True,
+                      is_save_x0=False):
 
         b, *_, device = *x_edit.shape, self.model.model.diffusion_model.device
 
@@ -622,7 +627,8 @@ class DDIMSampler_Dual(DDIMSampler):
                unconditional_guidance_scale_text_edit=None, unconditional_guidance_scale_image_edit=None,
                delay_t=None, unconditional_conditioning=None, xtype='image', 
                first_ctype='vision', second_ctype='prompt',
-               use_original_steps=False, mixed_ratio=0.5, is_save_intermediate=True, callback=None, coarse_spatial_steps=15):
+               use_original_steps=False, mixed_ratio=0.5, is_save_intermediate=True, 
+               is_save_x0=True, callback=None, coarse_spatial_steps=15):
         timesteps = np.arange(self.ddpm_num_timesteps) if use_original_steps else self.ddim_timesteps
         timesteps = timesteps[:t_start]
 
@@ -667,7 +673,9 @@ class DDIMSampler_Dual(DDIMSampler):
                     use_original_steps=use_original_steps,
                     noise_dropout=0,
                     temperature=1,
-                    mixed_ratio=mixed_ratio,)
+                    mixed_ratio=mixed_ratio,
+                    is_save_intermediate=is_save_intermediate,
+                    is_save_x0=is_save_x0)
 
                 x_dec_gen_info.append(x0_dec_gen)
                 x_dec_edit_info.append(x0_dec_edit)
@@ -703,7 +711,8 @@ class DDIMSampler_Dual(DDIMSampler):
                     noise_dropout=0,
                     temperature=1,
                     mixed_ratio=mixed_ratio,
-                    is_save_intermediate=is_save_intermediate)
+                    is_save_intermediate=is_save_intermediate,
+                    is_save_x0=is_save_x0)
                 x_dec_gen_info.append(x0_dec_gen)
                 x_dec_edit_info.append(x0_dec_edit)
                 
@@ -737,7 +746,8 @@ class DDIMSampler_Dual(DDIMSampler):
                     noise_dropout=0,
                     temperature=1,
                     mixed_ratio=mixed_ratio,
-                    is_save_intermediate=is_save_intermediate)
+                    is_save_intermediate=is_save_intermediate,
+                    is_save_x0=is_save_x0)
                 x_dec_gen_info.append(x0_dec_gen)
                 x_dec_edit_info.append(x0_dec_edit)
             if callback: callback(i)
