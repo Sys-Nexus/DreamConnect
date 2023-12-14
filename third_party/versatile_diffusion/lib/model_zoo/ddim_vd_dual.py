@@ -685,8 +685,8 @@ class DDIMSampler_Dual(DDIMSampler):
                 sqrt_one_minus_at=sqrt_one_minus_at, 
                 a_t=a_t)
 
-                x_dec_gen_info.append(x0_dec_gen)
-                x_dec_edit_info.append(x0_dec_edit)
+            x_dec_gen_info.append(x0_dec_gen)
+            x_dec_edit_info.append(x0_dec_edit)
             if i >= coarse_spatial_steps: break
             if callback: callback(i)
         
