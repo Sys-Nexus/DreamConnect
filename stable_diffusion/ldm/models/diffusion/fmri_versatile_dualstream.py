@@ -292,10 +292,8 @@ class PreVersatileNetAdaptor(UNetModelVD):
             # import pdb; pdb.set_trace();
 
         outs = list(reversed(outs))
-        # import pdb; pdb.set_trace()
         if xtype == 'image':
-            # return final_out, outs
-            return denoised_x0, outs
+            return final_out, outs
         elif xtype == 'text':
             return self.unet_text.out(h).squeeze(-1).squeeze(-1), outs
 
@@ -378,11 +376,10 @@ class DualLDM(LatentDiffusion):
         sqrt_one_minus_at = torch.full(extended_shape, 1., device=x_noisy_gen.device, dtype=x_noisy_gen.dtype)
         for kk in range(b): sqrt_one_minus_at[kk] = sqrt_one_minus_alphas[t[kk]]
 
-        _, model_output = self.apply_model(x_noisy_gen, x_noisy_edit, t, cond, t_edit_in=t_edit, 
-                    is_save_x0=self.is_save_x0, sqrt_one_minus_at=sqrt_one_minus_at, a_t=a_t)
-        denoised_x = self.decode_first_stage(model_output)
-        import pdb; pdb.set_trace();
-        
+        _, model_output = self.apply_model(x_noisy_gen, x_noisy_edit, t, cond, t_edit_in=t_edit, is_save_x0=self.is_save_x0, sqrt_one_minus_at=sqrt_one_minus_at, a_t=a_t)
+        # denoised_x = self.decode_first_stage(denoised_z)
+        # import pdb; pdb.set_trace();
+
         loss_dict = {}
         prefix = 'train' if self.training else 'val'
         
@@ -807,27 +804,23 @@ class DualLDM(LatentDiffusion):
             c1 = torch.cat(new_cond["c_crossattn_1"]["text_emb"], 1)
             fmri_vae = torch.cat(new_cond["c_crossattn_1"]["fmri_vae"],1)
 
-            # import pdb; pdb.set_trace()
-            with torch.no_grad():
-                x_recon_gen, control_res = self.control_model.forward_dc(x=torch.cat([x_noisy_gen], dim=1), 
-                                                            # hint=fmri_vae,
-                                                            timesteps=t,
-                                                            c0=c0, c1=c1,
-                                                            xtype='image', c0_type='vision', 
-                                                            c1_type='prompt', mixed_ratio=0.6,
-                                                            is_save_intermediate=is_save_intermediate,
-                                                            is_save_x0=is_save_x0,
-                                                            sqrt_one_minus_at=sqrt_one_minus_at,
-                                                            a_t=a_t)
+            x_recon_gen, control_res = self.control_model.forward_dc(x=torch.cat([x_noisy_gen], dim=1), 
+                                                        timesteps=t,
+                                                        c0=c0, c1=c1,
+                                                        xtype='image', c0_type='vision', 
+                                                        c1_type='prompt', mixed_ratio=0.6,
+                                                        is_save_intermediate=is_save_intermediate,
+                                                        is_save_x0=is_save_x0,
+                                                        sqrt_one_minus_at=sqrt_one_minus_at,
+                                                        a_t=a_t)
             # control_res = [tt.detach().requires_grad_(True) for tt in control_res]
             new_cond.pop('c_crossattn_1')
             new_cond.pop('null_prompt_emb')
-            if len(self.control_scales) < len(control_res):
-                self.control_scales.extend([1.]*(len(control_res)-len(self.control_scales)))
+            
+            noisy_c_concat = control_res.pop(0)
             fmri_control = [c * scale for c, scale in zip(control_res, self.control_scales)]
             new_cond["control"] = fmri_control
-            x_recon_gen = x_recon_gen.requires_grad_(True)
-            # new_cond["noisy_c_concat"] = [x_recon_gen]
+            new_cond["noisy_c_concat"] = [noisy_c_concat]
             edit_t = t_edit_in if t_edit_in is not None else t
             x_recon_edit = self.model(x_noisy_edit, edit_t, **new_cond)
 
