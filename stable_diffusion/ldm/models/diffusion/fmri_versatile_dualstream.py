@@ -289,7 +289,7 @@ class PreVersatileNetAdaptor(UNetModelVD):
             denoised_x0 = (x - sqrt_one_minus_at * final_out) / a_t.sqrt()
             outs.append(self.x0_block_out(denoised_x0, emb))
             # outs.append(denoised_x0)
-            import pdb; pdb.set_trace();
+            # import pdb; pdb.set_trace();
 
         outs = list(reversed(outs))
         # import pdb; pdb.set_trace()
@@ -823,7 +823,7 @@ class DualLDM(LatentDiffusion):
             new_cond.pop('c_crossattn_1')
             new_cond.pop('null_prompt_emb')
             if len(self.control_scales) < len(control_res):
-                self.control_scales.extend([1.]*(len(control_res)-len(control_scales)))
+                self.control_scales.extend([1.]*(len(control_res)-len(self.control_scales)))
             fmri_control = [c * scale for c, scale in zip(control_res, self.control_scales)]
             new_cond["control"] = fmri_control
             x_recon_gen = x_recon_gen.requires_grad_(True)
