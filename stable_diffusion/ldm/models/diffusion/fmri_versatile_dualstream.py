@@ -185,6 +185,7 @@ class ControlledUnetModel(UNetModel):
     def forward(self, x, timesteps=None, context=None, control=None, only_mid_control=False, num_control_layers=1000, **kwargs):
         # print(x.shape, timesteps)
         if control is not None:
+            control.pop(0)
             # unmatched_layers = [2, 5, 8]
             hs = []
             with torch.no_grad():
