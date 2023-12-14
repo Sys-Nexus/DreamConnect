@@ -378,6 +378,7 @@ class DualLDM(LatentDiffusion):
 
         _, model_output = self.apply_model(x_noisy_gen, x_noisy_edit, t, cond, t_edit_in=t_edit, 
                     is_save_x0=self.is_save_x0, sqrt_one_minus_at=sqrt_one_minus_at, a_t=a_t)
+        denoised_x = self.decode_first_stage(model_output)
         import pdb; pdb.set_trace();
         
         loss_dict = {}
