@@ -516,8 +516,8 @@ class DDIMSampler_Dual(DDIMSampler):
         sqrt_one_minus_at = torch.full(extended_shape, sqrt_one_minus_alphas[index], device=device, dtype=x_edit.dtype)
 
         # current prediction for x_0
-        # import pdb; pdb.set_trace()
         pred_x0_gen = (x_gen - sqrt_one_minus_at * e_t_gen) / a_t.sqrt()
+        import pdb; pdb.set_trace()
         dir_xt_gen = (1. - a_prev - sigma_t**2).sqrt() * e_t_gen
         noise_gen = sigma_t * noise_like(x_gen, repeat_noise) * temperature
         if noise_dropout > 0.:
