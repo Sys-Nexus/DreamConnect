@@ -182,10 +182,9 @@ class FusionPriorUnetModel(UNetModel):
 
 
 class ControlledUnetModel(UNetModel):
-    def forward(self, x, timesteps=None, context=None, control=None, only_mid_control=False, num_control_layers=1000, **kwargs):
-        print(x.shape, control[0].shape, timesteps)
-        if control is not None:
-            control.pop(0)
+    def forward(self, x, timesteps=None, context=None, control=None, only_mid_control=False, 
+                        num_control_layers=1000, **kwargs):
+        if control is not None and len(control):
             # unmatched_layers = [2, 5, 8]
             hs = []
             with torch.no_grad():
@@ -193,14 +192,9 @@ class ControlledUnetModel(UNetModel):
                 emb = self.time_embed(t_emb.type(self.time_embed[0].weight.dtype))
                 h = x.type(self.dtype)
                 for i, module in enumerate(self.input_blocks):
-                    # print('gen: ', i, h.shape, 'context: ', context.shape)
                     h = module(h, emb, context)
                     hs.append(h)
-                # print('gen: ', i+1, h.shape, 'context: ', context.shape)
                 h = self.middle_block(h, emb, context)
-                # print('gen: ', i+2, h.shape, 'context: ', context.shape)
-
-            # import pdb; pdb.set_trace()
 
             if control is not None:
                 h += control.pop(0)
@@ -287,8 +281,8 @@ class PreVersatileNetAdaptor(UNetModelVD):
         if is_save_x0 is True:
             index = torch.ones_like(timesteps)
             denoised_x0 = (x - sqrt_one_minus_at * final_out) / a_t.sqrt()
-            outs.append(self.x0_block_out(denoised_x0, emb))
-            # outs.append(denoised_x0)
+            # outs.append(self.x0_block_out(denoised_x0, emb))
+            outs.append(denoised_x0)
             # import pdb; pdb.set_trace();
 
         outs = list(reversed(outs))
@@ -304,6 +298,7 @@ class DualLDM(LatentDiffusion):
         self.vd_clip = VDCLIP(clip_cfg)
 
         self.is_save_x0 = kwargs['is_save_x0']
+        self.is_save_intermediate = kwargs['is_save_intermediate']
         self.coarse_spatial_steps = kwargs['coarse_spatial_steps']
         pretrained_control_unet_path = kwargs['pretrained_control_unet_path']
         if pretrained_control_unet_path is not None and os.path.exists(pretrained_control_unet_path):
@@ -376,7 +371,9 @@ class DualLDM(LatentDiffusion):
         sqrt_one_minus_at = torch.full(extended_shape, 1., device=x_noisy_gen.device, dtype=x_noisy_gen.dtype)
         for kk in range(b): sqrt_one_minus_at[kk] = sqrt_one_minus_alphas[t[kk]]
 
-        _, model_output = self.apply_model(x_noisy_gen, x_noisy_edit, t, cond, t_edit_in=t_edit, is_save_x0=self.is_save_x0, sqrt_one_minus_at=sqrt_one_minus_at, a_t=a_t)
+        _, model_output = self.apply_model(x_noisy_gen, x_noisy_edit, t, cond, t_edit_in=t_edit, 
+                            is_save_x0=self.is_save_x0, is_save_intermediate=self.is_save_intermediate,
+                            sqrt_one_minus_at=sqrt_one_minus_at, a_t=a_t)
         # denoised_x = self.decode_first_stage(denoised_z)
         # import pdb; pdb.set_trace();
 
@@ -821,6 +818,7 @@ class DualLDM(LatentDiffusion):
             fmri_control = [c * scale for c, scale in zip(control_res, self.control_scales)]
             new_cond["control"] = fmri_control
             import pdb; pdb.set_trace();
+            ## this sentence will overwrite the obtained noisy_c_concat at inference time
             new_cond["noisy_c_concat"] = [noisy_c_concat]
             edit_t = t_edit_in if t_edit_in is not None else t
             x_recon_edit = self.model(x_noisy_edit, edit_t, **new_cond)
