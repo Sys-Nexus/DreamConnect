@@ -255,6 +255,7 @@ class PreVersatileNetAdaptor(UNetModelVD):
         t_emb = timestep_embedding(timesteps, self.model_channels, repeat_only=False)
         
         x=x.half()
+        x0=x.clone()
         emb = self.time_embed(t_emb.half())
 
         if xtype == 'text':
@@ -279,7 +280,7 @@ class PreVersatileNetAdaptor(UNetModelVD):
         final_out = self.unet_image.out(h)
         
         if is_save_x0 is True:
-            denoised_x0 = (x - sqrt_one_minus_at * final_out) / a_t.sqrt()
+            denoised_x0 = (x0 - sqrt_one_minus_at * final_out) / a_t.sqrt()
             # outs.append(self.x0_block_out(denoised_x0, emb))
             outs.append(denoised_x0)
             # print('denoised shape: ', denoised_x0.shape)
