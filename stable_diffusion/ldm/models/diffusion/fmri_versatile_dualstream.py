@@ -286,6 +286,7 @@ class PreVersatileNetAdaptor(UNetModelVD):
         if is_save_x0 is True:
             index = torch.ones_like(timesteps)
             denoised_x0 = (x - sqrt_one_minus_at * final_out) / a_t.sqrt()
+            import pdb; pdb.set_trace();
             outs.append(self.x0_block_out(denoised_x0))
 
         outs = list(reversed(outs))
@@ -361,16 +362,18 @@ class DualLDM(LatentDiffusion):
         noise_edit = default(noise_edit, lambda: torch.randn_like(x_start_edit))
         noise = noise_edit
 
-        t_edit = t if t_edit is not None else t_edit
+        t_edit = t if t_edit is not None else t.clone()
         x_noisy_edit = self.q_sample(x_start=x_start_edit, t=t_edit, noise=noise_edit)
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
         b = x_start_gen.shape[0]
         extended_shape = (b, 1, 1, 1)
         alphas = self.alphas_cumprod #if use_original_steps else self.ddim_alphas
-        index = torch.ones_like(t)
-        a_t = torch.full(extended_shape, alphas[index], device=x_noisy_gen.device, dtype=x_noisy_gen.dtype)
+        a_t = torch.full(extended_shape, 1., device=x_noisy_gen.device, dtype=x_noisy_gen.dtype)
+        for kk in range(b): a_t[kk] = alphas[t[kk]]
+
         sqrt_one_minus_alphas = self.sqrt_one_minus_alphas_cumprod
-        sqrt_one_minus_at = torch.full(extended_shape, sqrt_one_minus_alphas[index], device=device, dtype=x_noisy_gen.dtype)
+        sqrt_one_minus_at = torch.full(extended_shape, 1., device=x_noisy_gen.device, dtype=x_noisy_gen.dtype)
+        for kk in range(b): sqrt_one_minus_at[kk] = sqrt_one_minus_alphas[t[kk]]
 
         _, model_output = self.apply_model(x_noisy_gen, x_noisy_edit, t, cond, t_edit_in=t_edit, 
                     is_save_x0=self.is_save_x0, sqrt_one_minus_at=sqrt_one_minus_at, a_t=a_t)
@@ -799,7 +802,7 @@ class DualLDM(LatentDiffusion):
             c1 = torch.cat(new_cond["c_crossattn_1"]["text_emb"], 1)
             fmri_vae = torch.cat(new_cond["c_crossattn_1"]["fmri_vae"],1)
 
-            import pdb; pdb.set_trace()
+            # import pdb; pdb.set_trace()
             with torch.no_grad():
                 x_recon_gen, control_res = self.control_model.forward_dc(x=torch.cat([x_noisy_gen], dim=1), 
                                                             # hint=fmri_vae,
