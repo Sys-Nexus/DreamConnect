@@ -631,6 +631,17 @@ class DDIMSampler_Dual(DDIMSampler):
             if callback: callback(i)
         return x_dec
 
+    def get_al(self, x_dec_gen, index):
+        b = x_dec_gen.shape[0]
+        extended_shape = (b, 1, 1, 1)
+        alphas = self.ddim_alphas
+        a_t = torch.full(extended_shape, 1., device=x_dec_gen.device, dtype=x_dec_gen.dtype)
+        for kk in range(b): a_t[kk] = alphas[index]
+        sqrt_one_minus_alphas = self.ddim_sqrt_one_minus_alphas
+        sqrt_one_minus_at = torch.full(extended_shape, 1., device=x_dec_gen.device, dtype=x_dec_gen.dtype)
+        for kk in range(b): sqrt_one_minus_at[kk] = sqrt_one_minus_alphas[index]
+        return a_t, sqrt_one_minus_at
+
     @torch.no_grad()
     def decode_dual(self, x_latent_gen, x_latent_edit, t_start, cond_dict,
                unconditional_guidance_scale_gen=1.0, unconditional_guidance_scale_edit=1.0,
@@ -649,7 +660,6 @@ class DDIMSampler_Dual(DDIMSampler):
         iterator = tqdm(time_range, desc='Decoding image', total=total_steps)
         x_dec_gen, x_dec_edit = x_latent_gen.clone(), x_latent_edit.clone()
         x_dec_gen_info, x_dec_edit_info = [], []
-        # cond_dict['noisy_c_concat'] = torch.cat([x_dec_edit,]*3, dim=0) / 0.18215
         
         sqrt_one_minus_at, a_t = None, None
         ### first round to get a coarse spatial guidance
@@ -657,17 +667,6 @@ class DDIMSampler_Dual(DDIMSampler):
             index = total_steps - i - 1
             ts = torch.full((x_latent_edit.shape[0],), step, device=x_latent_edit.device, dtype=torch.long)
             # import pdb; pdb.set_trace()
-            b = x_dec_gen.shape[0]
-            extended_shape = (b, 1, 1, 1)
-            alphas = self.ddim_alphas
-
-            a_t = torch.full(extended_shape, 1., device=x_dec_gen.device, dtype=x_dec_gen.dtype)
-            for kk in range(b): a_t[kk] = alphas[index]
-
-            sqrt_one_minus_alphas = self.ddim_sqrt_one_minus_alphas
-            sqrt_one_minus_at = torch.full(extended_shape, 1., device=x_dec_gen.device, dtype=x_dec_gen.dtype)
-            for kk in range(b): sqrt_one_minus_at[kk] = sqrt_one_minus_alphas[index]
-
             x_dec_gen, x0_dec_gen, x_dec_edit, x0_dec_edit = self.p_sample_ddim_dual_cfg(
                 x_dec_gen, 
                 x_dec_edit,
@@ -702,31 +701,32 @@ class DDIMSampler_Dual(DDIMSampler):
             index = total_steps - i - 1
             gen_ts = torch.full((x_latent_edit.shape[0],), step, device=x_latent_edit.device, dtype=torch.long)
             edit_ts = torch.full((x_latent_edit.shape[0],), step+coarse_spatial_steps*20, device=x_latent_edit.device, dtype=torch.long)
-            if unconditional_guidance_scale_edit is None:
-                cond_dict['noisy_c_concat'] = torch.cat([x0_dec_gen]*3, dim=0) / 0.18215 # be consistent with instructDiffusion
-                # print('====', index, coarse_spatial_steps, i, step, '====')
-                x_dec_gen, x0_dec_gen, x_dec_edit, x0_dec_edit = self.asyn_p_sample_ddim_dual_cfg(
-                    x_dec_gen, 
-                    x_dec_edit,
-                    gen_ts,
-                    edit_ts,
-                    cond_dict,
-                    index, 
-                    offset=coarse_spatial_steps,
-                    unconditional_guidance_scale_gen=unconditional_guidance_scale_gen,
-                    unconditional_guidance_scale_text_edit=unconditional_guidance_scale_text_edit,
-                    unconditional_guidance_scale_image_edit=unconditional_guidance_scale_image_edit,
-                    use_original_steps=use_original_steps,
-                    noise_dropout=0,
-                    temperature=1,
-                    mixed_ratio=mixed_ratio,
-                    is_save_intermediate=is_save_intermediate,
-                    is_save_x0=is_save_x0,
-                    sqrt_one_minus_at=sqrt_one_minus_at, a_t=a_t)
-                x_dec_gen_info.append(x0_dec_gen)
-                x_dec_edit_info.append(x0_dec_edit)
-                
-                start_index, start_step = index, step
+            a_t, sqrt_one_minus_at = self.get_al(x_dec_gen, index)
+
+            # cond_dict['noisy_c_concat'] = torch.cat([x0_dec_gen]*3, dim=0) / 0.18215 # be consistent with instructDiffusion
+            # print('====', index, coarse_spatial_steps, i, step, '====')
+            x_dec_gen, x0_dec_gen, x_dec_edit, x0_dec_edit = self.asyn_p_sample_ddim_dual_cfg(
+                x_dec_gen, 
+                x_dec_edit,
+                gen_ts,
+                edit_ts,
+                cond_dict,
+                index, 
+                offset=coarse_spatial_steps,
+                unconditional_guidance_scale_gen=unconditional_guidance_scale_gen,
+                unconditional_guidance_scale_text_edit=unconditional_guidance_scale_text_edit,
+                unconditional_guidance_scale_image_edit=unconditional_guidance_scale_image_edit,
+                use_original_steps=use_original_steps,
+                noise_dropout=0,
+                temperature=1,
+                mixed_ratio=mixed_ratio,
+                is_save_intermediate=is_save_intermediate,
+                is_save_x0=is_save_x0,
+                sqrt_one_minus_at=sqrt_one_minus_at, a_t=a_t)
+            x_dec_gen_info.append(x0_dec_gen)
+            x_dec_edit_info.append(x0_dec_edit)
+            
+            start_index, start_step = index, step
 
             if callback: callback(i)
 
@@ -738,29 +738,29 @@ class DDIMSampler_Dual(DDIMSampler):
             # import pdb; pdb.set_trace()
             gen_ts = torch.full((x_latent_edit.shape[0],), start_step, device=x_latent_edit.device, dtype=torch.long)
             edit_ts = torch.full((x_latent_edit.shape[0],), step, device=x_latent_edit.device, dtype=torch.long)
-            if unconditional_guidance_scale_edit is None:
-                cond_dict['noisy_c_concat'] = torch.cat([x0_dec_gen]*3, dim=0) / 0.18215 # be consistent with instructDiffusion
-                # print('====', index, coarse_spatial_steps, i, step, '====')
-                x_dec_gen_, x0_dec_gen_, x_dec_edit, x0_dec_edit = self.asyn_p_sample_ddim_dual_cfg(
-                    x_dec_gen_, 
-                    x_dec_edit,
-                    gen_ts,
-                    edit_ts,
-                    cond_dict,
-                    index, 
-                    offset=coarse_spatial_steps,
-                    unconditional_guidance_scale_gen=unconditional_guidance_scale_gen,
-                    unconditional_guidance_scale_text_edit=unconditional_guidance_scale_text_edit,
-                    unconditional_guidance_scale_image_edit=unconditional_guidance_scale_image_edit,
-                    use_original_steps=use_original_steps,
-                    noise_dropout=0,
-                    temperature=1,
-                    mixed_ratio=mixed_ratio,
-                    is_save_intermediate=is_save_intermediate,
-                    is_save_x0=is_save_x0,
-                    sqrt_one_minus_at=sqrt_one_minus_at, a_t=a_t)
-                x_dec_gen_info.append(x0_dec_gen)
-                x_dec_edit_info.append(x0_dec_edit)
+            a_t, sqrt_one_minus_at = self.get_al(x_dec_gen, index)
+            # cond_dict['noisy_c_concat'] = torch.cat([x0_dec_gen]*3, dim=0) / 0.18215 # be consistent with instructDiffusion
+            # print('====', index, coarse_spatial_steps, i, step, '====')
+            x_dec_gen_, x0_dec_gen_, x_dec_edit, x0_dec_edit = self.asyn_p_sample_ddim_dual_cfg(
+                x_dec_gen_, 
+                x_dec_edit,
+                gen_ts,
+                edit_ts,
+                cond_dict,
+                index, 
+                offset=coarse_spatial_steps,
+                unconditional_guidance_scale_gen=unconditional_guidance_scale_gen,
+                unconditional_guidance_scale_text_edit=unconditional_guidance_scale_text_edit,
+                unconditional_guidance_scale_image_edit=unconditional_guidance_scale_image_edit,
+                use_original_steps=use_original_steps,
+                noise_dropout=0,
+                temperature=1,
+                mixed_ratio=mixed_ratio,
+                is_save_intermediate=is_save_intermediate,
+                is_save_x0=is_save_x0,
+                sqrt_one_minus_at=sqrt_one_minus_at, a_t=a_t)
+            x_dec_gen_info.append(x0_dec_gen)
+            x_dec_edit_info.append(x0_dec_edit)
             if callback: callback(i)
 
         if unconditional_guidance_scale_edit is not None:

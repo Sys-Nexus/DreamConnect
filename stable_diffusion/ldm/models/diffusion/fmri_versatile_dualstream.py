@@ -279,7 +279,6 @@ class PreVersatileNetAdaptor(UNetModelVD):
         final_out = self.unet_image.out(h)
         
         if is_save_x0 is True:
-            index = torch.ones_like(timesteps)
             denoised_x0 = (x - sqrt_one_minus_at * final_out) / a_t.sqrt()
             # outs.append(self.x0_block_out(denoised_x0, emb))
             outs.append(denoised_x0)
@@ -823,7 +822,7 @@ class DualLDM(LatentDiffusion):
             # import pdb; pdb.set_trace();
             ## this sentence will overwrite the obtained noisy_c_concat at inference time
             # new_cond["noisy_c_concat"] = noisy_c_concat
-            if 'noisy_c_concat' in new_cond: print('have')
+            # if 'noisy_c_concat' in new_cond: print('have')
             edit_t = t_edit_in if t_edit_in is not None else t
             x_recon_edit = self.model(x_noisy_edit, edit_t, **new_cond)
 
