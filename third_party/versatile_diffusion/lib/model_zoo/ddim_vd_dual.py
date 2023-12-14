@@ -736,7 +736,7 @@ class DDIMSampler_Dual(DDIMSampler):
         x_dec_gen_ = x_dec_gen.clone()
         for i, step in enumerate(tqdm(range(start_step+coarse_spatial_steps*20-20, -1, -20), desc='Decoding image', total=coarse_spatial_steps)):
             index = start_index - i
-            # print(i, step, index)
+            print(i, step, index)
             # import pdb; pdb.set_trace()
             gen_ts = torch.full((x_latent_edit.shape[0],), start_step, device=x_latent_edit.device, dtype=torch.long)
             edit_ts = torch.full((x_latent_edit.shape[0],), step, device=x_latent_edit.device, dtype=torch.long)
