@@ -286,8 +286,9 @@ class PreVersatileNetAdaptor(UNetModelVD):
         if is_save_x0 is True:
             index = torch.ones_like(timesteps)
             denoised_x0 = (x - sqrt_one_minus_at * final_out) / a_t.sqrt()
-            import pdb; pdb.set_trace();
-            outs.append(self.x0_block_out(denoised_x0))
+            # outs.append(self.x0_block_out(denoised_x0, emb))
+            outs.append(denoised_x0)
+            # import pdb; pdb.set_trace();
 
         outs = list(reversed(outs))
         # import pdb; pdb.set_trace()
@@ -377,7 +378,8 @@ class DualLDM(LatentDiffusion):
 
         _, model_output = self.apply_model(x_noisy_gen, x_noisy_edit, t, cond, t_edit_in=t_edit, 
                     is_save_x0=self.is_save_x0, sqrt_one_minus_at=sqrt_one_minus_at, a_t=a_t)
-
+        import pdb; pdb.set_trace();
+        
         loss_dict = {}
         prefix = 'train' if self.training else 'val'
         
@@ -832,4 +834,5 @@ class DualLDM(LatentDiffusion):
             # edit_t = t
             x_recon_edit = self.model(x_noisy_edit, edit_t, **new_cond)
 
-        return x_recon_gen, x_recon_edit
+        # return x_recon_gen, x_recon_edit
+        return x_recon_gen, control_res[0]
