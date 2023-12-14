@@ -396,7 +396,9 @@ class DDIMSampler_Dual(DDIMSampler):
                       temperature=1.,
                       mixed_ratio=0.5,
                       is_save_intermediate=True,
-                      is_save_x0=False):
+                      is_save_x0=False,
+                      sqrt_one_minus_at=None,
+                      a_t=None):
 
         b, *_, device = *x_edit.shape, self.model.model.diffusion_model.device
 
@@ -407,7 +409,9 @@ class DDIMSampler_Dual(DDIMSampler):
         e_t_gen_cat, e_t_edit_cat = self.model.apply_model(
                         x_gen_in, x_edit_in, t_in, cond_dict, 
                         is_save_intermediate=is_save_intermediate, 
-                        is_save_x0=is_save_x0)#.chunk(4)
+                        is_save_x0=is_save_x0,
+                        sqrt_one_minus_at=sqrt_one_minus_at,
+                        a_t=a_t)#.chunk(4)
 
         e_t_uncond_gen, _, e_t_gen_full = e_t_gen_cat.chunk(3)
         e_t_uncond_text_edit, e_t_uncond_image_edit, e_t_edit_full = e_t_edit_cat.chunk(3)
@@ -469,7 +473,9 @@ class DDIMSampler_Dual(DDIMSampler):
                       temperature=1.,
                       mixed_ratio=0.5,
                       is_save_intermediate=True,
-                      is_save_x0=False):
+                      is_save_x0=False,
+                      sqrt_one_minus_at=None,
+                      a_t=None):
 
         b, *_, device = *x_edit.shape, self.model.model.diffusion_model.device
 
@@ -479,7 +485,11 @@ class DDIMSampler_Dual(DDIMSampler):
         t_edit_in = torch.cat([t_edit] * 3)
         
         e_t_gen_cat, e_t_edit_cat = self.model.apply_model(
-            x_gen_in, x_edit_in, t_gen_in, cond_dict, t_edit_in=t_edit_in)#.chunk(4)
+            x_gen_in, x_edit_in, t_gen_in, cond_dict, t_edit_in=t_edit_in,
+                            is_save_intermediate=is_save_intermediate,
+                            is_save_x0=is_save_x0,
+                            sqrt_one_minus_at=sqrt_one_minus_at,
+                            a_t=a_t)#.chunk(4)
 
         e_t_uncond_gen, _, e_t_gen_full = e_t_gen_cat.chunk(3)
         e_t_uncond_text_edit, e_t_uncond_image_edit, e_t_edit_full = e_t_edit_cat.chunk(3)
@@ -641,41 +651,39 @@ class DDIMSampler_Dual(DDIMSampler):
         x_dec_gen_info, x_dec_edit_info = [], []
         # cond_dict['noisy_c_concat'] = torch.cat([x_dec_edit,]*3, dim=0) / 0.18215
         
+        sqrt_one_minus_at, a_t = None, None
         ### first round to get a coarse spatial guidance
         for i, step in enumerate(iterator):
             index = total_steps - i - 1
             ts = torch.full((x_latent_edit.shape[0],), step, device=x_latent_edit.device, dtype=torch.long)
-            # import pdb; pdb.set_trace()
-            if unconditional_guidance_scale_edit is not None:
-                x_dec_gen, _, x_dec_edit, _ = self.p_sample_ddim_dual(
-                    x_dec_gen, 
-                    x_dec_edit,
-                    ts,
-                    cond_dict,
-                    index, 
-                    unconditional_guidance_scale_gen=unconditional_guidance_scale_gen,
-                    unconditional_guidance_scale_edit=unconditional_guidance_scale_edit,
-                    use_original_steps=use_original_steps,
-                    noise_dropout=0,
-                    temperature=1,
-                    mixed_ratio=mixed_ratio,)
-            else:
-                # import pdb; pdb.set_trace()
-                x_dec_gen, x0_dec_gen, x_dec_edit, x0_dec_edit = self.p_sample_ddim_dual_cfg(
-                    x_dec_gen, 
-                    x_dec_edit,
-                    ts,
-                    cond_dict,
-                    index, 
-                    unconditional_guidance_scale_gen=unconditional_guidance_scale_gen,
-                    unconditional_guidance_scale_text_edit=unconditional_guidance_scale_text_edit,
-                    unconditional_guidance_scale_image_edit=unconditional_guidance_scale_image_edit,
-                    use_original_steps=use_original_steps,
-                    noise_dropout=0,
-                    temperature=1,
-                    mixed_ratio=mixed_ratio,
-                    is_save_intermediate=is_save_intermediate,
-                    is_save_x0=is_save_x0)
+            import pdb; pdb.set_trace()
+            extended_shape = (x_dec_gen.shape[0], 1, 1, 1)
+            alphas = self.ddim_alphas
+
+            a_t = torch.full(extended_shape, 1., device=x_dec_gen.device, dtype=x_dec_gen.dtype)
+            for kk in range(b): a_t[kk] = alphas[index]
+
+            sqrt_one_minus_alphas = self.ddim_sqrt_one_minus_alphas
+            sqrt_one_minus_at = torch.full(extended_shape, 1., device=x_dec_gen.device, dtype=x_dec_gen.dtype)
+            for kk in range(b): sqrt_one_minus_at[kk] = sqrt_one_minus_alphas[index]
+
+            x_dec_gen, x0_dec_gen, x_dec_edit, x0_dec_edit = self.p_sample_ddim_dual_cfg(
+                x_dec_gen, 
+                x_dec_edit,
+                ts,
+                cond_dict,
+                index, 
+                unconditional_guidance_scale_gen=unconditional_guidance_scale_gen,
+                unconditional_guidance_scale_text_edit=unconditional_guidance_scale_text_edit,
+                unconditional_guidance_scale_image_edit=unconditional_guidance_scale_image_edit,
+                use_original_steps=use_original_steps,
+                noise_dropout=0,
+                temperature=1,
+                mixed_ratio=mixed_ratio,
+                is_save_intermediate=is_save_intermediate,
+                is_save_x0=is_save_x0,
+                sqrt_one_minus_at=sqrt_one_minus_at, 
+                a_t=a_t)
 
                 x_dec_gen_info.append(x0_dec_gen)
                 x_dec_edit_info.append(x0_dec_edit)
@@ -712,7 +720,8 @@ class DDIMSampler_Dual(DDIMSampler):
                     temperature=1,
                     mixed_ratio=mixed_ratio,
                     is_save_intermediate=is_save_intermediate,
-                    is_save_x0=is_save_x0)
+                    is_save_x0=is_save_x0,
+                    sqrt_one_minus_at=sqrt_one_minus_at, a_t=a_t)
                 x_dec_gen_info.append(x0_dec_gen)
                 x_dec_edit_info.append(x0_dec_edit)
                 
@@ -747,7 +756,8 @@ class DDIMSampler_Dual(DDIMSampler):
                     temperature=1,
                     mixed_ratio=mixed_ratio,
                     is_save_intermediate=is_save_intermediate,
-                    is_save_x0=is_save_x0)
+                    is_save_x0=is_save_x0,
+                    sqrt_one_minus_at=sqrt_one_minus_at, a_t=a_t)
                 x_dec_gen_info.append(x0_dec_gen)
                 x_dec_edit_info.append(x0_dec_edit)
             if callback: callback(i)
