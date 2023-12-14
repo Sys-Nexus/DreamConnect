@@ -822,6 +822,8 @@ class DualLDM(LatentDiffusion):
             # control_res = [tt.detach().requires_grad_(True) for tt in control_res]
             new_cond.pop('c_crossattn_1')
             new_cond.pop('null_prompt_emb')
+            if len(self.control_scales) < len(control_res):
+                self.control_scales.extend([1.]*(len(control_res)-len(control_scales)))
             fmri_control = [c * scale for c, scale in zip(control_res, self.control_scales)]
             new_cond["control"] = fmri_control
             x_recon_gen = x_recon_gen.requires_grad_(True)
