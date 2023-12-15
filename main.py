@@ -510,7 +510,7 @@ def train_one_epoch(config, model, model_ema, data_loader, val_data_loader, opti
                         if model_wrap is not None:
                             model.log_images(batch, epoch, idx, val_idx, model_wrap, model_wrap_cfg, save_dir, 'val', cfg_text=cfg_text, cfg_fmri=2.5)
 
-                        if val_idx == 5:
+                        if val_idx == 1000:
                             break
                 else:
                     for val_idx, batch in enumerate(data_loader):
