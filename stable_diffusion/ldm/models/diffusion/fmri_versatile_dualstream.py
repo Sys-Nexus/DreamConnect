@@ -281,8 +281,8 @@ class PreVersatileNetAdaptor(UNetModelVD):
         
         if is_save_x0 is True:
             denoised_x0 = (x0 - sqrt_one_minus_at * final_out) / a_t.sqrt()
-            denoised_x0_fix = (self.x0_block_out(denoised_x0, emb) + denoised_x0) / 0.18215
-            # outs.append(self.x0_block_out(denoised_x0, emb))
+            # denoised_x0_fix = (self.x0_block_out(denoised_x0, emb) + denoised_x0) / 0.18215
+            denoised_x0_fix = denoised_x0 / 0.18215
             outs.append(denoised_x0_fix)
             # print('denoised shape: ', denoised_x0.shape)
             # import pdb; pdb.set_trace();
