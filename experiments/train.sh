@@ -3,7 +3,8 @@
 # jobname=${1:-'instru_tune_sideconv'}
 # jobname=${1:-'versatile_tune_sideconv'}
 
-jobname=${1:-'codi_dualstream_instruct_pre_post'}
+# jobname=${1:-'codi_dualstream_instruct_pre_post'}
+jobname=${1:-'versatile_dualstream_instruct_pre_post_w_x0'}
 # jobname=${1:-'versatile_dualstream'}
 filter_mode=${2:-'tune_sideconv'} #no_filter
 
@@ -20,8 +21,9 @@ filter_mode=${2:-'tune_sideconv'} #no_filter
 # filter_mode=${2:-'tune_sideconv'} #no_filter
 gpus=${3:-'3,'}
 master_port=${4:-'27699'}
-mode=${5:-'single'}
-vis=${6:-1}
+isTrain=${5:-1}
+mode=${6:-'single'}
+vis=${7:-1}
 
 
 num_nodes=1
@@ -52,4 +54,5 @@ CUDA_VISIBLE_DEVICES=${gpus} ${run_cmd} main.py --name ${exp_name} \
           --num_nodes $num_nodes \
           --filter_mode ${filter_mode} \
           --no-test True ${cmd_suffix} \
-          --vis ${vis}
+          --vis ${vis} \
+          --isTrain ${isTrain}
