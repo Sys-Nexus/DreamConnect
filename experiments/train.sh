@@ -55,4 +55,5 @@ CUDA_VISIBLE_DEVICES=${gpus} ${run_cmd} main.py --name ${exp_name} \
           --filter_mode ${filter_mode} \
           --no-test True ${cmd_suffix} \
           --vis ${vis} \
-          --isTrain ${isTrain}
+          --isTrain ${isTrain} \
+          --cfg_text 4.5
