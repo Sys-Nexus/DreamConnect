@@ -76,7 +76,7 @@ model:
     
     # pretrained_control_unet_zeroconv_path: logs/fmri_instruct_dualstream_tune_sideconv_fmri_instruct_dualstream_tune_sideconv_2023-10-09/checkpoints/ckpt_epoch_75/state.pth
     # pretrained_control_unet_zeroconv_path: logs/instru_tune_sideconv_instru_tune_sideconv_2023-10-25/checkpoints/ckpt_epoch_190/mp_rank_00_model_states.pt
-    pretrained_control_unet_zeroconv_path: logs/versatile_dualstream_instruct_pre_post_w_x0_versatile_dualstream_instruct_pre_post_w_x0_2023-12-15/checkpoints/ckpt_epoch_170/mp_rank_00_model_states.pt
+    # pretrained_control_unet_zeroconv_path: logs/versatile_dualstream_instruct_pre_post_w_x0_versatile_dualstream_instruct_pre_post_w_x0_2023-12-15/checkpoints/ckpt_epoch_170/mp_rank_00_model_states.pt
     pretrained_control_unet_path: 'third_party/versatile_diffusion/pretrained/vd-four-flow-v1-0-fp16-deprecated.pth'
     control_stage_config:
       target: ldm.models.diffusion.fmri_versatile_dualstream.PreVersatileNetAdaptor
