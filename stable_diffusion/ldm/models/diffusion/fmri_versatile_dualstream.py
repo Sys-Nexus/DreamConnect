@@ -577,7 +577,7 @@ class DualLDM(LatentDiffusion):
         uncond_c1 = torch.cat(c["c_crossattn_1"]["null_text_emb"], 1)
         null_prompt_emb = torch.cat(c["null_prompt_emb"], 1)
 
-        cfg_text_edit, cfg_image_edit = 2.5, 1.5
+        cfg_text_edit, cfg_image_edit = 4.5, 1.5
         unconditional_guidance_scale_edit = None
 
         if cfg_text_edit is not None and cfg_image_edit is not None:
