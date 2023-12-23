@@ -823,8 +823,8 @@ class DualLDM(LatentDiffusion):
             new_cond["control"] = fmri_control
             # import pdb; pdb.set_trace();
             ## this sentence will overwrite the obtained noisy_c_concat at inference time
-            # new_cond["noisy_c_concat"] = noisy_c_concat
-            new_cond["noisy_c_concat"] = new_cond['c_concat'][0]
+            new_cond["noisy_c_concat"] = noisy_c_concat
+            # new_cond["noisy_c_concat"] = new_cond['c_concat'][0]
             edit_t = t_edit_in if t_edit_in is not None else t
             x_recon_edit = self.model(x_noisy_edit, edit_t, **new_cond)
 

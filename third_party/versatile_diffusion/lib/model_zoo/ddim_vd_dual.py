@@ -1,5 +1,6 @@
 import torch
 import numpy as np
+import math
 from tqdm import tqdm
 from functools import partial
 
@@ -698,7 +699,10 @@ class DDIMSampler_Dual(DDIMSampler):
         iterator_2nd = tqdm(time_range, desc='Decoding image', total=total_steps)
         x_dec_edit = x_latent_edit.clone()
         start_index, start_step = None, None 
+
         for i, step in enumerate(iterator_2nd):
+            # print(i, unconditional_guidance_scale_text_edit)
+
             if i <= coarse_spatial_steps: continue
             index = total_steps - i - 1
             gen_ts = torch.full((x_latent_edit.shape[0],), step, device=x_latent_edit.device, dtype=torch.long)
@@ -733,6 +737,9 @@ class DDIMSampler_Dual(DDIMSampler):
             if callback: callback(i)
 
         ### third round to finalize the edited image
+        e = math.exp(1)
+        tscale = np.linspace(0,1,len(timesteps))
+        exp_tscale = (np.exp(tscale)-1)/(e-1)
         x_dec_gen_ = x_dec_gen.clone()
         for i, step in enumerate(tqdm(range(start_step+coarse_spatial_steps*20-20, -1, -20), desc='Decoding image', total=coarse_spatial_steps)):
             index = start_index - i
@@ -752,7 +759,7 @@ class DDIMSampler_Dual(DDIMSampler):
                 index, 
                 offset=coarse_spatial_steps,
                 unconditional_guidance_scale_gen=unconditional_guidance_scale_gen,
-                unconditional_guidance_scale_text_edit=unconditional_guidance_scale_text_edit,
+                unconditional_guidance_scale_text_edit=unconditional_guidance_scale_text_edit*exp_tscale,
                 unconditional_guidance_scale_image_edit=unconditional_guidance_scale_image_edit,
                 use_original_steps=use_original_steps,
                 noise_dropout=0,
