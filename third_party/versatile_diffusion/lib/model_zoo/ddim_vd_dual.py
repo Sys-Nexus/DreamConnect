@@ -759,7 +759,7 @@ class DDIMSampler_Dual(DDIMSampler):
                 index, 
                 offset=coarse_spatial_steps,
                 unconditional_guidance_scale_gen=unconditional_guidance_scale_gen,
-                unconditional_guidance_scale_text_edit=unconditional_guidance_scale_text_edit*exp_tscale,
+                unconditional_guidance_scale_text_edit=unconditional_guidance_scale_text_edit*exp_tscale[i],
                 unconditional_guidance_scale_image_edit=unconditional_guidance_scale_image_edit,
                 use_original_steps=use_original_steps,
                 noise_dropout=0,
