@@ -279,6 +279,7 @@ class PreVersatileNetAdaptor(UNetModelVD):
             h = self.mixed_run_dc(i_module, t_module, h, emb, c0, c1, xtype, c0_type, c1_type, mixed_ratio)
         final_out = self.unet_image.out(h)
         
+        import pdb; pdb.set_trace()
         if is_save_x0 is True:
             denoised_x0 = (x0 - sqrt_one_minus_at * final_out) / a_t.sqrt()
             # denoised_x0_fix = (self.x0_block_out(denoised_x0, emb) + denoised_x0) / 0.18215
