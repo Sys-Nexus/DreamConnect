@@ -183,9 +183,8 @@ class FusionPriorUnetModel(UNetModel):
 
 class ControlledUnetModel(UNetModel):
     def forward(self, x, timesteps=None, context=None, control=None, only_mid_control=False, 
-                        num_control_layers=1000, **kwargs):
+                        num_control_layers=1000, injected_features=None, **kwargs):
         if control is not None and len(control):
-            # unmatched_layers = [2, 5, 8]
             hs = []
             with torch.no_grad():
                 t_emb = timestep_embedding(timesteps, self.model_channels, repeat_only=False)
@@ -199,20 +198,19 @@ class ControlledUnetModel(UNetModel):
             if control is not None:
                 h += control.pop(0)
 
+            module_i = 0
             for i, module in enumerate(self.output_blocks):
-                # print(i, hs[-1].shape, control[0].shape)
-                # if i in unmatched_layers:
-                #     print('out i {}:'.format(i))
-                #     print(control[0].shape)
-                #     control.pop(0)
-
                 if only_mid_control or control is None or i > num_control_layers:# or i in unmatched_layers:
-                    # print(h.shape, hs[-1].shape)
                     h = torch.cat([h, hs.pop()], dim=1)
                 else:
-                    # print('insert: ', i, hs[-1].shape, control[0].shape)
                     h = torch.cat([h, hs.pop() + control.pop(0)], dim=1)
-                h = module(h, emb, context)
+
+                out_layers_feature_key = f'output_block_{module_i}_out_layers'
+                if injected_features is not None and out_layers_feature_key in injected_features:
+                    out_layers_injected = injected_features[out_layers_feature_key]
+
+                h = module(h, emb, context, out_layers_injected=out_layers_injected)
+                module_i += 1
 
             h = h.type(x.dtype)
             return self.out(h)
@@ -274,9 +272,15 @@ class PreVersatileNetAdaptor(UNetModelVD):
         if is_save_intermediate is True:
             outs.append(self.middle_block_out(h, emb))
 
+        block_idx = 0
         for i_module, t_module in zip(self.unet_image.output_blocks, self.unet_text.output_blocks):
             h = th.cat([h, hs.pop()], dim=1)
             h = self.mixed_run_dc(i_module, t_module, h, emb, c0, c1, xtype, c0_type, c1_type, mixed_ratio)
+            if block_idx == 4:
+                import pdb; pdb.set_trace()
+                outs.append(self.unet_image.output_blocks)
+            block_idx += 1
+
         final_out = self.unet_image.out(h)
         
         import pdb; pdb.set_trace()

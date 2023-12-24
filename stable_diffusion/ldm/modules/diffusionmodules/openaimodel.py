@@ -124,9 +124,11 @@ class TimestepEmbedSequential(nn.Sequential, TimestepBlock):
     support it as an extra input.
     """
 
-    def forward(self, x, emb, context=None):
+    def forward(self, x, emb, context=None, out_layers_injected=None):
         for layer in self:
-            if isinstance(layer, TimestepBlock):
+            if isinstance(layer, ResBlock):
+                x = layer(x, emb, out_layers_injected=out_layers_injected)
+            elif isinstance(layer, TimestepBlock):
                 x = layer(x, emb)
             elif isinstance(layer, SpatialTransformer):
                 x = layer(x, context)
@@ -293,22 +295,19 @@ class ResBlock(TimestepBlock):
         else:
             self.skip_connection = conv_nd(dims, channels, self.out_channels, 1)
 
-    def forward(self, x, emb):
+    def forward(self, x, emb, out_layers_injected=None):
         """
         Apply the block to a Tensor, conditioned on a timestep embedding.
         :param x: an [N x C x ...] Tensor of features.
         :param emb: an [N x emb_channels] Tensor of timestep embeddings.
         :return: an [N x C x ...] Tensor of outputs.
         """
-        # return checkpoint(
-        #     self._forward, (x, emb), self.use_checkpoint
-        # )
         return checkpoint(
-            self._forward, (x, emb), self.parameters(), self.use_checkpoint
+            self._forward, (x, emb, out_layers_injected), self.parameters(), self.use_checkpoint
         )
 
 
-    def _forward(self, x, emb):
+    def _forward(self, x, emb, out_layers_injected=None):
         x = x.type(self.emb_layers[1].weight.dtype)
         if self.updown:
             in_rest, in_conv = self.in_layers[:-1], self.in_layers[-1]
@@ -327,8 +326,16 @@ class ResBlock(TimestepBlock):
             h = out_norm(h) * (1 + scale) + shift
             h = out_rest(h)
         else:
-            h = h + emb_out
-            h = self.out_layers(h)
+            if out_layers_injected is not None:
+                # out_layers_injected_uncond, out_layers_injected_cond = out_layers_injected.chunk(2)
+                # b = x.shape[0] // 2
+                # h = th.cat([out_layers_injected_uncond]*b + [out_layers_injected_cond]*b)
+                h = out_layers_injected
+            else:
+                h = h + emb_out
+                h = self.out_layers(h)
+            self.out_layers_features = h
+
         return self.skip_connection(x) + h.type(self.emb_layers[1].weight.dtype)
 
 
