@@ -277,13 +277,12 @@ class PreVersatileNetAdaptor(UNetModelVD):
             h = th.cat([h, hs.pop()], dim=1)
             h = self.mixed_run_dc(i_module, t_module, h, emb, c0, c1, xtype, c0_type, c1_type, mixed_ratio)
             if block_idx == 4:
-                import pdb; pdb.set_trace()
-                outs.append(self.unet_image.output_blocks)
+                outs.append(self.unet_image.output_blocks[block_idx][0].out_layers_features)
             block_idx += 1
 
         final_out = self.unet_image.out(h)
         
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
         if is_save_x0 is True:
             denoised_x0 = (x0 - sqrt_one_minus_at * final_out) / a_t.sqrt()
             # denoised_x0_fix = (self.x0_block_out(denoised_x0, emb) + denoised_x0) / 0.18215
@@ -826,6 +825,9 @@ class DualLDM(LatentDiffusion):
             noisy_c_concat = control_res.pop(0)
             fmri_control = [c * scale for c, scale in zip(control_res, self.control_scales)]
             new_cond["control"] = fmri_control
+
+            out_layers_injected = f"output_block_4_out_layers_features"
+            new_cond["injected_features"] = out_layers_injected
             # import pdb; pdb.set_trace();
             ## this sentence will overwrite the obtained noisy_c_concat at inference time
             new_cond["noisy_c_concat"] = noisy_c_concat
