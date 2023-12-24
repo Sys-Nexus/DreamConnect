@@ -207,6 +207,7 @@ class ControlledUnetModel(UNetModel):
 
                 out_layers_feature_key = f'output_block_{module_i}_out_layers_features'
                 # import pdb; pdb.set_trace()
+                out_layers_injected = None
                 if injected_features is not None and out_layers_feature_key in injected_features:
                     out_layers_injected = injected_features[out_layers_feature_key]
 
