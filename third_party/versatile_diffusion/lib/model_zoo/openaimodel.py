@@ -2554,6 +2554,7 @@ class UNetModelVD(nn.Module):
         for i_module, t_module in zip(self.unet_image.output_blocks, self.unet_text.output_blocks):
             h = th.cat([h, hs.pop()], dim=1)
             h = self.mixed_run_dc(i_module, t_module, h, emb, c0, c1, xtype, c0_type, c1_type, mixed_ratio)
+        import pdb; pdb.set_trace()
         if xtype == 'image':
             return self.unet_image.out(h)
         elif xtype == 'text':
