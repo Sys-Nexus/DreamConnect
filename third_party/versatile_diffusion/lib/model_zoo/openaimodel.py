@@ -270,8 +270,15 @@ class ResBlock(TimestepBlock):
             h = out_norm(h) * (1 + scale) + shift
             h = out_rest(h)
         else:
-            h = h + emb_out
-            h = self.out_layers(h)
+            if out_layers_injected is not None:
+                out_layers_injected_uncond, out_layers_injected_cond = out_layers_injected.chunk(2)
+                b = x.shape[0] // 2
+                h = th.cat([out_layers_injected_uncond]*b + [out_layers_injected_cond]*b)
+            else:
+                h = h + emb_out
+                h = self.out_layers(h)
+            self.out_layers_features = h
+            import pdb; pdb.set_trace()
         return self.skip_connection(x) + h
 
 
