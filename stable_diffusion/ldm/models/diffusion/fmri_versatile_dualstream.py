@@ -823,8 +823,8 @@ class DualLDM(LatentDiffusion):
             new_cond.pop('null_prompt_emb')
             
             noisy_c_concat = control_res.pop(0)
-            fmri_control = [c * scale for c, scale in zip(control_res, self.control_scales)]
-            new_cond["control"] = fmri_control
+            # fmri_control = [c * scale for c, scale in zip(control_res, self.control_scales)]
+            # new_cond["control"] = fmri_control
 
             out_layers_injected = {f"output_block_4_out_layers_features": control_res.pop(0)}
             new_cond["injected_features"] = out_layers_injected
