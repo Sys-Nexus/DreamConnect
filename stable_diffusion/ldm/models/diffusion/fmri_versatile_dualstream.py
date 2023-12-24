@@ -184,7 +184,7 @@ class FusionPriorUnetModel(UNetModel):
 class ControlledUnetModel(UNetModel):
     def forward(self, x, timesteps=None, context=None, control=None, only_mid_control=False, 
                         num_control_layers=1000, injected_features=None, **kwargs):
-        if control is not None and len(control):
+        if (control is not None and len(control)) or injected_features is not None:
             hs = []
             with torch.no_grad():
                 t_emb = timestep_embedding(timesteps, self.model_channels, repeat_only=False)
@@ -215,6 +215,7 @@ class ControlledUnetModel(UNetModel):
 
             h = h.type(x.dtype)
             return self.out(h)
+
         else:
             # import pdb; pdb.set_trace();
             return super().forward(x, timesteps=timesteps, context=context, **kwargs)
