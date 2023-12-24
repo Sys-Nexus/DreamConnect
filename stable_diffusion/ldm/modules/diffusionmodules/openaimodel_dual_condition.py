@@ -294,7 +294,7 @@ class ResBlock(TimestepBlock):
         else:
             self.skip_connection = conv_nd(dims, channels, self.out_channels, 1)
 
-    def forward(self, x, emb):
+    def forward(self, x, emb, out_layers_injected=None):
         """
         Apply the block to a Tensor, conditioned on a timestep embedding.
         :param x: an [N x C x ...] Tensor of features.
@@ -305,11 +305,11 @@ class ResBlock(TimestepBlock):
         #     self._forward, (x, emb), self.use_checkpoint
         # )
         return checkpoint(
-            self._forward, (x, emb), self.parameters(), self.use_checkpoint
+            self._forward, (x, emb, out_layers_injected), self.parameters(), self.use_checkpoint
         )
 
 
-    def _forward(self, x, emb):
+    def _forward(self, x, emb, out_layers_injected=None):
         x = x.type(self.emb_layers[1].weight.dtype)
         if self.updown:
             in_rest, in_conv = self.in_layers[:-1], self.in_layers[-1]
