@@ -278,7 +278,7 @@ class ResBlock(TimestepBlock):
                 h = h + emb_out
                 h = self.out_layers(h)
             self.out_layers_features = h
-            import pdb; pdb.set_trace()
+            # import pdb; pdb.set_trace()
         return self.skip_connection(x) + h
 
 
