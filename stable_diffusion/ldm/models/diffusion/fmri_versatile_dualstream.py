@@ -209,6 +209,7 @@ class ControlledUnetModel(UNetModel):
                 # import pdb; pdb.set_trace()
                 out_layers_injected = None
                 if injected_features is not None and out_layers_feature_key in injected_features:
+                    print('out_layers_feature_key: ', out_layers_feature_key)
                     out_layers_injected = injected_features[out_layers_feature_key]
 
                 h = module(h, emb, context, out_layers_injected=out_layers_injected)
@@ -253,6 +254,7 @@ class PreVersatileNetAdaptor(UNetModelVD):
                     is_save_intermediate=True, is_save_x0=False, 
                     sqrt_one_minus_at=None, a_t=None):
         hs, outs = [], []
+        useful_block_idxes = [4, 5, 6, 7, 8]
         t_emb = timestep_embedding(timesteps, self.model_channels, repeat_only=False)
         
         x=x.half()
@@ -279,7 +281,7 @@ class PreVersatileNetAdaptor(UNetModelVD):
         for i_module, t_module in zip(self.unet_image.output_blocks, self.unet_text.output_blocks):
             h = th.cat([h, hs.pop()], dim=1)
             h = self.mixed_run_dc(i_module, t_module, h, emb, c0, c1, xtype, c0_type, c1_type, mixed_ratio)
-            if block_idx == 4:
+            if block_idx in useful_block_idxes:
                 outs.append(self.unet_image.output_blocks[block_idx][0].out_layers_features)
             block_idx += 1
 
@@ -828,8 +830,11 @@ class DualLDM(LatentDiffusion):
             noisy_c_concat = control_res.pop(0)
             # fmri_control = [c * scale for c, scale in zip(control_res, self.control_scales)]
             # new_cond["control"] = fmri_control
+            useful_block_idxes = [4, 5, 6, 7, 8]
+            out_layers_injected = {}
+            for useful_block_idx in useful_block_idxes:
+                out_layers_injected[f"output_block_{useful_block_idx}_out_layers_features"] = control_res.pop(0)
 
-            out_layers_injected = {f"output_block_4_out_layers_features": control_res.pop(0)}
             new_cond["injected_features"] = out_layers_injected
             # import pdb; pdb.set_trace();
             ## this sentence will overwrite the obtained noisy_c_concat at inference time
