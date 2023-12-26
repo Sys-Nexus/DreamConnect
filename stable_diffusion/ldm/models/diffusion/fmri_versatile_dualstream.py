@@ -71,7 +71,7 @@ class ControlledUnetModel(UNetModel):
                 # import pdb; pdb.set_trace()
                 out_layers_injected = None
                 if injected_features is not None and out_layers_feature_key in injected_features:
-                    print('out_layers_feature_key: ', out_layers_feature_key)
+                    # print('out_layers_feature_key: ', out_layers_feature_key)
                     out_layers_injected = injected_features[out_layers_feature_key]
 
                 h = module(h, emb, context, out_layers_injected=out_layers_injected)
