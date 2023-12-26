@@ -116,7 +116,8 @@ class PreVersatileNetAdaptor(UNetModelVD):
                     is_save_intermediate=True, is_save_x0=False, 
                     sqrt_one_minus_at=None, a_t=None):
         hs, outs = [], []
-        useful_block_idxes = [4, 5, 6, 7, 8]
+        # useful_block_idxes = [4, 5, 6, 7, 8] # this is too full
+        useful_block_idxes = [4, 5, 6] # 
         t_emb = timestep_embedding(timesteps, self.model_channels, repeat_only=False)
         
         x=x.half()
@@ -692,7 +693,8 @@ class DualLDM(LatentDiffusion):
             noisy_c_concat = control_res.pop(0)
             # fmri_control = [c * scale for c, scale in zip(control_res, self.control_scales)]
             # new_cond["control"] = fmri_control
-            useful_block_idxes = [4, 5, 6, 7, 8]
+            # useful_block_idxes = [4, 5, 6, 7, 8]
+            useful_block_idxes = [4, 5, 6]
             out_layers_injected = {}
             for useful_block_idx in reversed(useful_block_idxes):
                 out_layers_injected[f"output_block_{useful_block_idx}_out_layers_features"] = control_res.pop(0)
