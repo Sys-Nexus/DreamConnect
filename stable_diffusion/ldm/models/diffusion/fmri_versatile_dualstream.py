@@ -45,7 +45,8 @@ from ldm.util import default
 
 class ControlledUnetModel(UNetModel):
     def forward(self, x, timesteps=None, context=None, control=None, only_mid_control=False, 
-                        num_control_layers=1000, injected_features=None, is_return_x0=False, **kwargs):
+                        num_control_layers=1000, injected_features=None, is_return_x0=False, 
+                        sqrt_one_minus_at=None, a_t=None, **kwargs):
         if (control is not None and len(control)) or injected_features is not None:
             x0 = x.clone()
             hs = []
@@ -693,6 +694,8 @@ class DualLDM(LatentDiffusion):
             ## this sentence will overwrite the obtained noisy_c_concat at inference time
             new_cond["noisy_c_concat"] = noisy_c_concat
             new_cond["is_return_x0"] = is_return_x0
+            new_cond["sqrt_one_minus_at"] = sqrt_one_minus_at
+            new_cond["a_t"] = a_t
             # new_cond["noisy_c_concat"] = new_cond['c_concat'][0]
             edit_t = t_edit_in if t_edit_in is not None else t
             if is_return_x0 is False:
