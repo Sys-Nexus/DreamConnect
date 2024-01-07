@@ -565,7 +565,7 @@ class DualLDM(LatentDiffusion):
         # import pdb; pdb.set_trace()
 
     def apply_model(self, x_noisy_gen, x_noisy_edit, t, cond=None, t_edit_in=None, is_save_intermediate=True, is_save_x0=False, 
-                        is_return_x0=False, sqrt_one_minus_at=None, a_t=None, return_ids=False, is_return_x0=False):
+                        is_return_x0=False, sqrt_one_minus_at=None, a_t=None, return_ids=False):
         if isinstance(cond, dict):
             # hybrid case, cond is exptected to be a dict
             pass
