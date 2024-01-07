@@ -45,8 +45,9 @@ from ldm.util import default
 
 class ControlledUnetModel(UNetModel):
     def forward(self, x, timesteps=None, context=None, control=None, only_mid_control=False, 
-                        num_control_layers=1000, injected_features=None, **kwargs):
+                        num_control_layers=1000, injected_features=None, is_return_x0=False, **kwargs):
         if (control is not None and len(control)) or injected_features is not None:
+            x0 = x.clone()
             hs = []
             with torch.no_grad():
                 t_emb = timestep_embedding(timesteps, self.model_channels, repeat_only=False)
@@ -71,14 +72,20 @@ class ControlledUnetModel(UNetModel):
                 # import pdb; pdb.set_trace()
                 out_layers_injected = None
                 if injected_features is not None and out_layers_feature_key in injected_features:
-                    # print('out_layers_feature_key: ', out_layers_feature_key)
                     out_layers_injected = injected_features[out_layers_feature_key]
 
                 h = module(h, emb, context, out_layers_injected=out_layers_injected)
                 module_i += 1
 
             h = h.type(x.dtype)
-            return self.out(h)
+            final_out = self.out(h)
+            
+            if is_return_x0 is False:
+                return final_out
+            else:
+                denoised_x0 = (x0 - sqrt_one_minus_at * final_out) / a_t.sqrt()
+                denoised_x0_fix = denoised_x0 / 0.18215
+                return final_out, denoised_x0_fix
 
         else:
             # import pdb; pdb.set_trace();
@@ -153,10 +160,8 @@ class PreVersatileNetAdaptor(UNetModelVD):
         # import pdb; pdb.set_trace()
         if is_save_x0 is True:
             denoised_x0 = (x0 - sqrt_one_minus_at * final_out) / a_t.sqrt()
-            # denoised_x0_fix = (self.x0_block_out(denoised_x0, emb) + denoised_x0) / 0.18215
             denoised_x0_fix = denoised_x0 / 0.18215
             outs.append(denoised_x0_fix)
-            # print('denoised shape: ', denoised_x0.shape)
             # import pdb; pdb.set_trace();
 
         outs = list(reversed(outs))
@@ -224,7 +229,7 @@ class DualLDM(LatentDiffusion):
             print('vox2clip vclip: [unexpected] ', len(unexpected))
     
     ### TODO: what we should give to noise_edit
-    def p_losses(self, x_start_gen, x_start_edit, cond, t, noise=None, noise_edit=None, t_edit=None):
+    def p_losses(self, x_start_gen, x_start_edit, cond, t, noise=None, noise_edit=None, t_edit=None, is_return_x0=False):
         # import pdb; pdb.set_trace();
         noise_gen = default(noise, lambda: torch.randn_like(x_start_gen))
         x_noisy_gen = self.q_sample(x_start=x_start_gen, t=t, noise=noise_gen)
@@ -245,9 +250,14 @@ class DualLDM(LatentDiffusion):
         sqrt_one_minus_at = torch.full(extended_shape, 1., device=x_noisy_gen.device, dtype=x_noisy_gen.dtype)
         for kk in range(b): sqrt_one_minus_at[kk] = sqrt_one_minus_alphas[t[kk]]
 
-        _, model_output = self.apply_model(x_noisy_gen, x_noisy_edit, t, cond, t_edit_in=t_edit, 
+        if is_return_x0 is False:
+            _, model_output = self.apply_model(x_noisy_gen, x_noisy_edit, t, cond, t_edit_in=t_edit, 
                             is_save_x0=self.is_save_x0, is_save_intermediate=self.is_save_intermediate,
                             sqrt_one_minus_at=sqrt_one_minus_at, a_t=a_t)
+        else:
+            _, model_output, model_output_x0 = self.apply_model(x_noisy_gen, x_noisy_edit, t, cond, t_edit_in=t_edit, 
+                            is_save_x0=self.is_save_x0, is_save_intermediate=self.is_save_intermediate,
+                            sqrt_one_minus_at=sqrt_one_minus_at, a_t=a_t, is_return_x0=is_return_x0)
         # denoised_x = self.decode_first_stage(denoised_z)
         # import pdb; pdb.set_trace();
 
@@ -262,7 +272,11 @@ class DualLDM(LatentDiffusion):
         else:
             raise NotImplementedError()
 
-        loss_simple = self.get_loss(model_output, target, mean=False).mean([1, 2, 3])
+        import pdb; pdb.set_trace()
+        if is_return_x0 is False:
+            loss_simple = self.get_loss(model_output, target, mean=False).mean([1, 2, 3])
+        else:
+            loss_simple = self.get_loss(model_output_x0, x_start_edit, mean=False).mean([1, 2, 3])
         loss_dict.update({f'{prefix}/loss_simple': loss_simple.mean()})
 
         # additional_loss_type is in the format of min_snr_k
@@ -297,7 +311,10 @@ class DualLDM(LatentDiffusion):
 
         loss = self.l_simple_weight * loss.mean()
 
-        loss_vlb = self.get_loss(model_output, target, mean=False).mean(dim=(1, 2, 3))
+        if is_return_x0 is False:
+            loss_vlb = self.get_loss(model_output, target, mean=False).mean(dim=(1, 2, 3))
+        else:
+            loss_vlb = self.get_loss(model_output_x0, x_start_edit, mean=False).mean(dim=(1, 2, 3))
         loss_vlb = (self.lvlb_weights[t] * loss_vlb).mean()
         loss_dict.update({f'{prefix}/loss_vlb': loss_vlb})
         loss += (self.original_elbo_weight * loss_vlb)
@@ -520,34 +537,6 @@ class DualLDM(LatentDiffusion):
 
         x_gen = self.decode_first_stage(z_gen.half())
         x_edit = self.decode_first_stage(z_edit.half())
-        # save_path = os.path.join("debug", "images", "new",  
-        #         "all_iter-{:06}_ep-{:06}_bidx-{:06d}-{:06d}-{}.png".format(iter_n, epoch_n, batch_idx, s, instruct_cap))
-        # os.makedirs(os.path.dirname(save_path), exist_ok=True)
-        # torchvision.utils.save_image(x_edit*0.5+0.5, save_path)
-        # return 
-
-        # ######### another way to sampling ############
-        # steps_std = 50
-        # sigmas_std = model_wrap.get_sigmas(steps_std)
-        # z_pred_std = torch.randn_like(z_enc)
-        # # print('prompt_emb: ', prompt_emb.shape, 'null_prompt_emb:', null_prompt_emb.shape)
-        # cond_std = {"c_crossattn": [prompt_emb], "c_concat": c['c_concat']}
-        # uncond_std = {"c_crossattn": [null_prompt_emb], "c_concat": [torch.zeros_like(c['c_concat'][0])]}
-        # extra_args = {
-        #     "cond": cond_std,
-        #     "uncond": uncond_std,
-        #     "text_cfg_scale": cfg_text,
-        #     "fmri_cfg_scale": 0.0,
-        # }
-        # z_pred_std = K.sampling.sample_euler_ancestral(model_wrap_cfg, z_pred_std, sigmas_std, extra_args=extra_args)
-        # x_pred_std = self.decode_first_stage(z_pred_std)
-        # save_path = os.path.join("debug", "images", "ori",  
-        #         "all_iter-{:06}_ep-{:06}_bidx-{:06d}-{:06d}-{}.png".format(iter_n, epoch_n, batch_idx, s, instruct_cap))
-        # os.makedirs(os.path.dirname(save_path), exist_ok=True)
-        # torchvision.utils.save_image(x_pred_std*0.5+0.5, save_path)
-        # return 
-        # torchvision.utils.save_image(x_edit*0.5+0.5, 'x_edit.jpg')
-        # torchvision.utils.save_image(x_gen*0.5+0.5, 'x_gen.jpg')
 
         # import pdb; pdb.set_trace()
         x_instruct_txt = log_txt_as_img((x_gen.shape[2], x_gen.shape[3]), xc["c_crossattn"])
@@ -575,7 +564,7 @@ class DualLDM(LatentDiffusion):
         # import pdb; pdb.set_trace()
 
     def apply_model(self, x_noisy_gen, x_noisy_edit, t, cond=None, t_edit_in=None, is_save_intermediate=True, is_save_x0=False, 
-                            sqrt_one_minus_at=None, a_t=None, return_ids=False):
+                            sqrt_one_minus_at=None, a_t=None, return_ids=False, is_return_x0=False):
         if isinstance(cond, dict):
             # hybrid case, cond is exptected to be a dict
             pass
@@ -703,8 +692,12 @@ class DualLDM(LatentDiffusion):
             # import pdb; pdb.set_trace();
             ## this sentence will overwrite the obtained noisy_c_concat at inference time
             new_cond["noisy_c_concat"] = noisy_c_concat
+            new_cond["is_return_x0"] = is_return_x0
             # new_cond["noisy_c_concat"] = new_cond['c_concat'][0]
             edit_t = t_edit_in if t_edit_in is not None else t
-            x_recon_edit = self.model(x_noisy_edit, edit_t, **new_cond)
-
-        return x_recon_gen, x_recon_edit
+            if is_return_x0 is False:
+                x_recon_edit = self.model(x_noisy_edit, edit_t, **new_cond)
+                return x_recon_gen, x_recon_edit
+            else:
+                x_recon_edit, x0_recon_edit = self.model(x_noisy_edit, edit_t, **new_cond)
+                return x_recon_gen, x_recon_edit, x0_recon_edit
