@@ -140,21 +140,21 @@ class PreVersatileNetAdaptor(UNetModelVD):
 
         for i, (i_module, t_module, zero_conv) in enumerate(zip(self.unet_image.input_blocks, self.unet_text.input_blocks, self.zero_convs)):
             h = self.mixed_run_dc(i_module, t_module, h, emb, c0, c1, xtype, c0_type, c1_type, mixed_ratio)
-            # if is_save_intermediate is True:
-            #     outs.append(zero_conv(h, emb))
+            if is_save_intermediate is True:
+                outs.append(zero_conv(h, emb))
             hs.append(h)
 
         h = self.mixed_run_dc(self.unet_image.middle_block, self.unet_text.middle_block, 
                                 h, emb, c0, c1, xtype, c0_type, c1_type, mixed_ratio)
-        # if is_save_intermediate is True:
-        #     outs.append(self.middle_block_out(h, emb))
+        if is_save_intermediate is True:
+            outs.append(self.middle_block_out(h, emb))
 
         block_idx = 0
         for i_module, t_module in zip(self.unet_image.output_blocks, self.unet_text.output_blocks):
             h = th.cat([h, hs.pop()], dim=1)
             h = self.mixed_run_dc(i_module, t_module, h, emb, c0, c1, xtype, c0_type, c1_type, mixed_ratio)
-            if block_idx in useful_block_idxes:
-                outs.append(self.unet_image.output_blocks[block_idx][0].out_layers_features)
+            # if block_idx in useful_block_idxes:
+            #     outs.append(self.unet_image.output_blocks[block_idx][0].out_layers_features)
             block_idx += 1
 
         final_out = self.unet_image.out(h)
