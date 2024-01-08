@@ -124,7 +124,7 @@ class PreVersatileNetAdaptor(UNetModelVD):
                 #     self.zero_convs.append(self.make_zero_conv(ch, kernel_size=2, stride=2, out_channels=out_cs[stride_i]))
                 # else:
                 self.zero_convs.append(self.make_zero_conv(ch))
-                stride_i += 1
+                # stride_i += 1
 
         # import pdb; pdb.set_trace()
 
