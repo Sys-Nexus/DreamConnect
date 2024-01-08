@@ -107,12 +107,24 @@ class PreVersatileNetAdaptor(UNetModelVD):
         self.middle_block_out = self.make_zero_conv(ch)
         # self.x0_block_out = self.make_zero_conv(4)
 
-        for level, mult in enumerate(channel_mult):
-            for nr in range(self.num_noattn_blocks[level]):
+        ### for pre-feature extraction
+        # for level, mult in enumerate(channel_mult):
+        #     for nr in range(self.num_noattn_blocks[level]):
+        #         ch = mult * model_channels
+        #         self.zero_convs.append(self.make_zero_conv(ch))
+        #     if level != len(channel_mult) - 1:
+        #         self.zero_convs.append(self.make_zero_conv(ch))
+
+        ### for post-feature extraction
+        for level_idx, mult in list(enumerate(channel_mult))[::-1]:
+            for block_idx in range(self.num_noattn_blocks[level_idx] + 1):
                 ch = mult * model_channels
+                # print('ch: ', ch)
+                # if stride_i in unmatched_layers:
+                #     self.zero_convs.append(self.make_zero_conv(ch, kernel_size=2, stride=2, out_channels=out_cs[stride_i]))
+                # else:
                 self.zero_convs.append(self.make_zero_conv(ch))
-            if level != len(channel_mult) - 1:
-                self.zero_convs.append(self.make_zero_conv(ch))
+                stride_i += 1
 
         # import pdb; pdb.set_trace()
 
@@ -150,11 +162,15 @@ class PreVersatileNetAdaptor(UNetModelVD):
             outs.append(self.middle_block_out(h, emb))
 
         block_idx = 0
-        for i_module, t_module in zip(self.unet_image.output_blocks, self.unet_text.output_blocks):
+        for i, (i_module, t_module, zero_conv) in enumerate(zip(self.unet_image.output_blocks, self.unet_text.output_blocks, self.zero_convs)):
+            print('i: ', i)
             h = th.cat([h, hs.pop()], dim=1)
             h = self.mixed_run_dc(i_module, t_module, h, emb, c0, c1, xtype, c0_type, c1_type, mixed_ratio)
             if block_idx in useful_block_idxes:
-                outs.append(self.unet_image.output_blocks[block_idx][0].out_layers_features)
+                # outs.append(self.unet_image.output_blocks[block_idx][0].out_layers_features)
+                feat_i = self.unet_image.output_blocks[block_idx][0].out_layers_features
+                feat_i_transformed = zero_conv(feat_i, emb)
+                outs.append(feat_i_transformed)
             block_idx += 1
 
         final_out = self.unet_image.out(h)
