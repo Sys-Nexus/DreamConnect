@@ -236,7 +236,7 @@ class FrozenClipImageEmbedder(nn.Module):
 
     def forward(self, x):
         # x is assumed to be in range [-1,1]
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
         return self.model.encode_image(self.preprocess(x))
 
 
