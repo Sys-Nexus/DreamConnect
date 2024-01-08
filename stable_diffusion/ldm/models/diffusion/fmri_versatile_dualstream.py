@@ -85,7 +85,7 @@ class ControlledUnetModel(UNetModel):
             if is_return_x0 is False:
                 return final_out
             else:
-                import pdb; pdb.set_trace()
+                # import pdb; pdb.set_trace()
                 denoised_x0 = (x0 - sqrt_one_minus_at * final_out) / a_t.sqrt()
                 denoised_x0_fix = denoised_x0 / 0.18215
                 return final_out, denoised_x0_fix
@@ -234,8 +234,8 @@ class DualLDM(LatentDiffusion):
             print('vox2clip vclip: [unexpected] ', len(unexpected))
     
     def get_clip_loss(self, pred_image, gt_image):
-        pred_image_token = self.image_clip(pred_image)
-        gt_image_token = self.image_clip(gt_image)
+        pred_image_token = self.image_clip(pred_image.float())
+        gt_image_token = self.image_clip(gt_image.float())
         
         pred_image_emb = F.normalize(pred_image_token, p=2, dim=1)
         gt_image_emb = F.normalize(gt_image_token, p=2, dim=1)
@@ -268,8 +268,8 @@ class DualLDM(LatentDiffusion):
         sqrt_one_minus_at = torch.full(extended_shape, 1., device=x_noisy_gen.device, dtype=x_noisy_gen.dtype)
         for kk in range(b): sqrt_one_minus_at[kk] = sqrt_one_minus_alphas[t[kk]]
 
-        print('batch:  {}'.format(b))
-        import pdb; pdb.set_trace()
+        # print('batch:  {}'.format(b))
+        # import pdb; pdb.set_trace()
         if is_return_x0 is False:
             _, model_output = self.apply_model(x_noisy_gen, x_noisy_edit, t, cond, t_edit_in=t_edit, 
                             is_save_x0=self.is_save_x0, is_save_intermediate=self.is_save_intermediate,
