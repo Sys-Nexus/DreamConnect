@@ -40,7 +40,8 @@ model:
     unet_lr_ratio: 1e-9
     coarse_spatial_steps: 15
     is_save_x0: true
-    is_save_intermediate: false
+    # is_save_intermediate: false
+    is_save_intermediate: true
 
     scheduler_config: # 10000 warmup steps
       target: ldm.lr_scheduler.LambdaLinearScheduler
