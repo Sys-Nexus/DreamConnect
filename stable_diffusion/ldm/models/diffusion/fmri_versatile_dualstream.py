@@ -40,6 +40,7 @@ import k_diffusion as K
 
 from ldm.modules.diffusionmodules.openaimodel import UNetModel
 from ldm.modules.attention import SpatialTransformer
+from ldm.modules.encoders.modules import FrozenClipImageEmbedder
 from ldm.util import default
 
 
@@ -48,7 +49,7 @@ class ControlledUnetModel(UNetModel):
                         num_control_layers=1000, injected_features=None, is_return_x0=False, 
                         sqrt_one_minus_at=None, a_t=None, **kwargs):
         if (control is not None and len(control)) or injected_features is not None:
-            x0 = x.clone()
+            x0 = x.clone()[:,:4]
             hs = []
             with torch.no_grad():
                 t_emb = timestep_embedding(timesteps, self.model_channels, repeat_only=False)
@@ -213,6 +214,8 @@ class DualLDM(LatentDiffusion):
             self.fmri_vclip_pretrain_path = fmri_vclip_pretrain_path
             self.instantiate_fmri_vclip(fmri_vclip_cfg)
 
+        self.image_clip = FrozenClipImageEmbedder()
+
     def instantiate_fmri_vclip(self, config):
         model = instantiate_from_config(config)
         self.fmri_vclip = model.eval()
@@ -230,6 +233,19 @@ class DualLDM(LatentDiffusion):
             print('vox2clip vclip: [missing]', len(missing))
             print('vox2clip vclip: [unexpected] ', len(unexpected))
     
+    def get_clip_loss(self, pred_image, gt_image):
+        pred_image_token = self.image_clip(pred_image)
+        gt_image_token = self.image_clip(gt_image)
+        
+        pred_image_emb = F.normalize(pred_image_token, p=2, dim=1)
+        gt_image_emb = F.normalize(gt_image_token, p=2, dim=1)
+
+        cosine_sim = F.cosine_similarity(pred_image_emb, gt_image_emb)
+        cosine_loss = 1 - cosine_sim
+
+        l1_loss = nn.L1Loss()(pred_image_emb, gt_image_emb)
+        return cosine_loss, l1_loss
+
     ### TODO: what we should give to noise_edit
     def p_losses(self, x_start_gen, x_start_edit, cond, t, noise=None, noise_edit=None, t_edit=None, is_return_x0=True):
         # import pdb; pdb.set_trace();
@@ -276,12 +292,20 @@ class DualLDM(LatentDiffusion):
         else:
             raise NotImplementedError()
 
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
         if is_return_x0 is False:
             loss_simple = self.get_loss(model_output, target, mean=False).mean([1, 2, 3])
         else:
-            loss_simple = self.get_loss(model_output_x0, x_start_edit, mean=False).mean([1, 2, 3])
+            pred_image_x0 = self.decode_first_stage(model_output_x0)
+            gt_image_x0 = self.decode_first_stage(x_start_edit)
+            pred_gt = torch.cat([pred_image_x0, gt_image_x0], dim=2)
+            # torchvision.utils.save_image(pred_gt*0.5+0.5, 'pred_gt.jpg')
+            # loss_simple = self.get_loss(model_output_x0, x_start_edit, mean=False).mean([1, 2, 3])
+            loss_cosine, loss_l1 = self.get_clip_loss(pred_image_x0, gt_image_x0)
+            loss_simple = loss_cosine + loss_l1
         loss_dict.update({f'{prefix}/loss_simple': loss_simple.mean()})
+        loss_dict.update({f'{prefix}/loss_simple_cosine': loss_cosine.mean()})
+        loss_dict.update({f'{prefix}/loss_simple_l1': loss_l1.mean()})
 
         # additional_loss_type is in the format of min_snr_k
         if self.additional_loss_type is not None and isinstance(self.additional_loss_type, str) and self.additional_loss_type.startswith("min_snr_"):
@@ -318,7 +342,9 @@ class DualLDM(LatentDiffusion):
         if is_return_x0 is False:
             loss_vlb = self.get_loss(model_output, target, mean=False).mean(dim=(1, 2, 3))
         else:
-            loss_vlb = self.get_loss(model_output_x0, x_start_edit, mean=False).mean(dim=(1, 2, 3))
+            loss_cosine_vlb, loss_l1_vlb = self.get_clip_loss(pred_image_x0, gt_image_x0)
+            loss_vlb = loss_cosine_vlb + loss_l1_vlb
+            # loss_vlb = self.get_loss(model_output_x0, x_start_edit, mean=False).mean(dim=(1, 2, 3))
         loss_vlb = (self.lvlb_weights[t] * loss_vlb).mean()
         loss_dict.update({f'{prefix}/loss_vlb': loss_vlb})
         loss += (self.original_elbo_weight * loss_vlb)
