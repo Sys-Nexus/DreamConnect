@@ -234,8 +234,8 @@ class DualLDM(LatentDiffusion):
             print('vox2clip vclip: [unexpected] ', len(unexpected))
     
     def get_clip_loss(self, pred_image, gt_image):
-        pred_image_token = self.image_clip(pred_image.float())
-        gt_image_token = self.image_clip(gt_image.float())
+        pred_image_token = self.image_clip(pred_image.half())
+        gt_image_token = self.image_clip(gt_image.half())
         
         pred_image_emb = F.normalize(pred_image_token, p=2, dim=1)
         gt_image_emb = F.normalize(gt_image_token, p=2, dim=1)
