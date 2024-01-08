@@ -153,8 +153,8 @@ class PreVersatileNetAdaptor(UNetModelVD):
         for i_module, t_module in zip(self.unet_image.output_blocks, self.unet_text.output_blocks):
             h = th.cat([h, hs.pop()], dim=1)
             h = self.mixed_run_dc(i_module, t_module, h, emb, c0, c1, xtype, c0_type, c1_type, mixed_ratio)
-            # if block_idx in useful_block_idxes:
-            #     outs.append(self.unet_image.output_blocks[block_idx][0].out_layers_features)
+            if block_idx in useful_block_idxes:
+                outs.append(self.unet_image.output_blocks[block_idx][0].out_layers_features)
             block_idx += 1
 
         final_out = self.unet_image.out(h)
