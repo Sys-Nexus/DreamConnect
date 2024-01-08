@@ -333,7 +333,6 @@ class DualLDM(LatentDiffusion):
             loss = loss_simple / torch.exp(logvar_t) + logvar_t
         # loss = loss_simple / torch.exp(self.logvar) + self.logvar
         if self.learn_logvar:
-            import pdb; pdb.set_trace();
             loss_dict.update({f'{prefix}/loss_gamma': loss.mean()})
             loss_dict.update({'logvar': self.logvar.data.mean()})
 
@@ -349,7 +348,7 @@ class DualLDM(LatentDiffusion):
         loss_dict.update({f'{prefix}/loss_vlb': loss_vlb})
         loss += (self.original_elbo_weight * loss_vlb)
         loss_dict.update({f'{prefix}/loss': loss})
-
+        import pdb; pdb.set_trace();
         return loss, loss_dict
 
     def forward(self, batch, batch_idx, num_steps, *args, **kwargs):
