@@ -230,7 +230,7 @@ class DualLDM(LatentDiffusion):
             print('vox2clip vclip: [unexpected] ', len(unexpected))
     
     ### TODO: what we should give to noise_edit
-    def p_losses(self, x_start_gen, x_start_edit, cond, t, noise=None, noise_edit=None, t_edit=None, is_return_x0=False):
+    def p_losses(self, x_start_gen, x_start_edit, cond, t, noise=None, noise_edit=None, t_edit=None, is_return_x0=True):
         # import pdb; pdb.set_trace();
         noise_gen = default(noise, lambda: torch.randn_like(x_start_gen))
         x_noisy_gen = self.q_sample(x_start=x_start_gen, t=t, noise=noise_gen)
