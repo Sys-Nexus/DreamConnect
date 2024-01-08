@@ -84,6 +84,7 @@ class ControlledUnetModel(UNetModel):
             if is_return_x0 is False:
                 return final_out
             else:
+                import pdb; pdb.set_trace()
                 denoised_x0 = (x0 - sqrt_one_minus_at * final_out) / a_t.sqrt()
                 denoised_x0_fix = denoised_x0 / 0.18215
                 return final_out, denoised_x0_fix
