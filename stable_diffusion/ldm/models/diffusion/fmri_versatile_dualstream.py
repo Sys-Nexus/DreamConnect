@@ -348,7 +348,7 @@ class DualLDM(LatentDiffusion):
         loss_dict.update({f'{prefix}/loss_vlb': loss_vlb})
         loss += (self.original_elbo_weight * loss_vlb)
         loss_dict.update({f'{prefix}/loss': loss})
-        import pdb; pdb.set_trace();
+        # import pdb; pdb.set_trace();
         return loss, loss_dict
 
     def forward(self, batch, batch_idx, num_steps, *args, **kwargs):
