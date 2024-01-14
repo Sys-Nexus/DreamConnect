@@ -595,6 +595,12 @@ if __name__ == "__main__":
     nowname = f"{cfg_name}_{opt.name}"
     logdir = os.path.join(opt.logdir, nowname)
 
+    random_seed = 8866
+    torch.manual_seed(random_seed)
+    torch.cuda.manual_seed_all(random_seed)  # If you're using CUDA
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+
     if 'RANK' in os.environ and 'WORLD_SIZE' in os.environ:
         rank = int(os.environ["RANK"])
         world_size = int(os.environ['WORLD_SIZE'])
