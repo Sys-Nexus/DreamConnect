@@ -608,7 +608,7 @@ class DualLDM(LatentDiffusion):
         x_gen_filename = '{:06d}.png'.format(s)
         x_gen_path = os.path.join(root, x_gen_filename)
         os.makedirs(os.path.dirname(x_gen_path), exist_ok=True)
-        torchvision.utils.save_image(x_gen, x_gen_path)
+        torchvision.utils.save_image(x_gen*0.5+0.5, x_gen_path)
         self.model.train()
         # import pdb; pdb.set_trace()
 
