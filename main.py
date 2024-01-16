@@ -504,22 +504,22 @@ def train_one_epoch(config, model, model_ema, data_loader, val_data_loader, opti
         if (epoch * num_steps + idx) % 4000 == 0:
             with torch.no_grad():
                 # if random.uniform(0,1) > 0.5:
-                if True:
+                if False:
                     for val_idx, batch in enumerate(val_data_loader):
                         batch_size = batch['image'].shape[0]
                         if model_wrap is not None:
                             model.log_images(batch, epoch, idx, val_idx, model_wrap, model_wrap_cfg, save_dir, 'val', cfg_text=cfg_text, cfg_fmri=2.5)
 
-                        # if val_idx == 5:
-                        #     break
+                        if val_idx == 5:
+                            break
                 else:
                     for val_idx, batch in enumerate(data_loader):
                         batch_size = batch['image'].shape[0]
                         if model_wrap is not None:
                             model.log_images(batch, epoch, idx, val_idx, model_wrap, model_wrap_cfg, save_dir, 'train', cfg_text=cfg_text, cfg_fmri=2.5)
 
-                        if val_idx == 5:
-                            break
+                        # if val_idx == 5:
+                        #     break
         if idx == num_steps - 1:
             with torch.no_grad():
                 model_ema.store(model.parameters())
