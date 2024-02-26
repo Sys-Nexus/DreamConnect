@@ -446,7 +446,7 @@ class DualLDM(LatentDiffusion):
         fmri_cap = self.vd_clip.clip_encode_text(cap)
 
         # import pdb; pdb.set_trace();
-        xc["c_crossattn"] = ["a teddy walking in times square",]
+        # xc["c_crossattn"] = ["a teddy walking in times square",]
         cond["c_crossattn_1"] = {}
         if force_c_encode is False:
             cond["c_crossattn_1"]["image_emb"] = [torch.where(fmri_prompt_mask.bool(), fmri_null_x, fmri_x)]
@@ -741,11 +741,11 @@ class DualLDM(LatentDiffusion):
             # import pdb; pdb.set_trace();
             ## this sentence will overwrite the obtained noisy_c_concat at inference time
             
-            # new_cond["injected_features"] = out_layers_injected
-            # new_cond["noisy_c_concat"] = noisy_c_concat
+            new_cond["injected_features"] = out_layers_injected
+            new_cond["noisy_c_concat"] = noisy_c_concat
             
-            new_cond["noisy_c_concat"] = x_noisy_edit
-            new_cond["injected_features"] = None
+            # new_cond["injected_features"] = None
+            # new_cond["noisy_c_concat"] = x_noisy_edit
 
             new_cond["is_return_x0"] = is_return_x0
             new_cond["sqrt_one_minus_at"] = sqrt_one_minus_at
