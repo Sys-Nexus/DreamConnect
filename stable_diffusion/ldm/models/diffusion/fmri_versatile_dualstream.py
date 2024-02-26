@@ -445,7 +445,8 @@ class DualLDM(LatentDiffusion):
         fmri_x = self.vd_clip.clip_encode_vision(xc["c_concat"])
         fmri_cap = self.vd_clip.clip_encode_text(cap)
 
-        import pdb; pdb.set_trace();
+        # import pdb; pdb.set_trace();
+        xc["c_crossattn"] = ["a teddy walking in times square",]
         cond["c_crossattn_1"] = {}
         if force_c_encode is False:
             cond["c_crossattn_1"]["image_emb"] = [torch.where(fmri_prompt_mask.bool(), fmri_null_x, fmri_x)]
