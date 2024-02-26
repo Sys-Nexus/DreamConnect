@@ -738,11 +738,15 @@ class DualLDM(LatentDiffusion):
             for useful_block_idx in reversed(useful_block_idxes):
                 out_layers_injected[f"output_block_{useful_block_idx}_out_layers_features"] = control_res.pop(0)
 
-            new_cond["injected_features"] = out_layers_injected
             # import pdb; pdb.set_trace();
             ## this sentence will overwrite the obtained noisy_c_concat at inference time
+            
+            # new_cond["injected_features"] = out_layers_injected
             # new_cond["noisy_c_concat"] = noisy_c_concat
+            
             new_cond["noisy_c_concat"] = x_noisy_edit
+            new_cond["injected_features"] = None
+
             new_cond["is_return_x0"] = is_return_x0
             new_cond["sqrt_one_minus_at"] = sqrt_one_minus_at
             new_cond["a_t"] = a_t
@@ -750,10 +754,10 @@ class DualLDM(LatentDiffusion):
             edit_t = t_edit_in if t_edit_in is not None else t
             if is_return_x0 is False:
                 x_recon_edit = self.model(x_noisy_edit, edit_t, **new_cond)
-                import pdb; pdb.set_trace();
+                # import pdb; pdb.set_trace();
                 return x_recon_gen, x_recon_edit
             else:
                 x_recon_edit, x0_recon_edit = self.model(x_noisy_edit, edit_t, **new_cond)
-                import pdb; pdb.set_trace();
+                # import pdb; pdb.set_trace();
                 return x_recon_gen, x_recon_edit, x0_recon_edit
 
