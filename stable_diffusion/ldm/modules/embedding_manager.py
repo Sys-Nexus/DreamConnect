@@ -80,7 +80,8 @@ class EmbeddingManager(nn.Module):
         self.attention = TransformerBlock(dim=token_dim, n_heads=8, d_head=64, dropout = 0.1,dim_out=self.max_vectors_per_token*token_dim) 
         if per_image_tokens:
             placeholder_strings.extend(per_img_token_list)
-
+        
+        import pdb; pdb.set_trace()
         for idx, placeholder_string in enumerate(placeholder_strings):
             
             token = get_token_for_string(placeholder_string)
