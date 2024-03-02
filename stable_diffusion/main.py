@@ -456,7 +456,7 @@ if __name__ == "__main__":
     #           target: importpath
     #           params:
     #               key: value
-
+    import pdb; pdb.set_trace()
     now = datetime.datetime.now().strftime("%Y-%m-%dT%H-%M-%S")
 
     # add cwd for convenience and to make classes in this file available when
@@ -535,7 +535,7 @@ if __name__ == "__main__":
         model = instantiate_from_config(config.model)
         model.embedding_manager.load(opt.prospect_ckpt_path)
         import pdb; pdb.set_trace()
-        
+
         # trainer and callbacks
         trainer_kwargs = dict()
 
