@@ -3,7 +3,7 @@
 jobname=${1:-'versatile_dualstream_instruct_pre_post_w_x0_prospect'}
 filter_mode=${2:-'tune_sideconv'} #no_filter
 
-gpus=${3:-'3,'}
+gpus=${3:-'1,'}
 master_port=${4:-'27699'}
 isTrain=${5:-1}
 mode=${6:-'single'}
