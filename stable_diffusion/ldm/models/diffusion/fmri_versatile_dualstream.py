@@ -262,20 +262,7 @@ class DualLDM(LatentDiffusion):
             print('vox2clip vclip: [missing]', len(missing))
             print('vox2clip vclip: [unexpected] ', len(unexpected))
     
-    def get_learned_conditioning(self, c, prospect_words=None):
-        # import pdb; pdb.set_trace()
-        if self.cond_stage_forward is None:
-            if hasattr(self.cond_stage_model, 'encode') and callable(self.cond_stage_model.encode):
-                # c = self.cond_stage_model.encode(c)
-                c = self.cond_stage_model.encode(c,  prospect_words=prospect_words, embedding_manager=self.embedding_manager)
-                if isinstance(c, DiagonalGaussianDistribution):
-                    c = c.mode()
-            else:
-                c = self.cond_stage_model(c)
-        else:
-            assert hasattr(self.cond_stage_model, self.cond_stage_forward)
-            c = getattr(self.cond_stage_model, self.cond_stage_forward)(c)
-        return c
+
 
     def get_clip_loss(self, pred_image, gt_image):
         pred_image_token = self.image_clip(pred_image.half())
