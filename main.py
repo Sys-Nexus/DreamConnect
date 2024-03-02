@@ -247,6 +247,12 @@ def get_parser(**parser_kwargs):
         default=1,
         help="",
     )
+    parser.add_argument(
+        "--prospect_ckpt_path",
+        type=str,
+        default='',
+        help="",
+    )
     return parser
 
 
@@ -660,7 +666,10 @@ if __name__ == "__main__":
 
     # model
     model = instantiate_from_config(config.model)
-    model.embedding_manager.load(opt.prospect_ckpt_path)
+    if os.path.exist(opt.prospect_ckpt_path):
+        model.embedding_manager.load(opt.prospect_ckpt_path)
+    else:
+        print('{} not exist.'.format(opt.prospect_ckpt_path))
     # import pdb; pdb.set_trace()
 
     model_ema = LitEma(model, decay_resume=config.model.params.get('ema_resume', 0.9999))
