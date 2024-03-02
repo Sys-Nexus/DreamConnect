@@ -81,7 +81,7 @@ class EmbeddingManager(nn.Module):
         if per_image_tokens:
             placeholder_strings.extend(per_img_token_list)
         
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
         for idx, placeholder_string in enumerate(placeholder_strings):
             
             token = get_token_for_string(placeholder_string)
