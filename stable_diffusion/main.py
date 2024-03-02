@@ -533,6 +533,7 @@ if __name__ == "__main__":
 
         # model
         model = instantiate_from_config(config.model)
+        model.embedding_manager.load(opt.prospect_ckpt_path)
 
         # trainer and callbacks
         trainer_kwargs = dict()
