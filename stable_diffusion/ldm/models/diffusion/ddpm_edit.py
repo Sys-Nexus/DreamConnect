@@ -356,6 +356,7 @@ class LatentDiffusion(DDPM):
     def __init__(self,
                  first_stage_config,
                  cond_stage_config,
+                 personalization_config,
                  num_timesteps_cond=None,
                  cond_stage_key="image",
                  cond_stage_trainable=False,
@@ -401,6 +402,18 @@ class LatentDiffusion(DDPM):
             self.restarted_from_ckpt = True
 
         self.additional_loss_type = kwargs.pop("additional_loss_type", None)
+        self.embedding_manager = self.instantiate_embedding_manager(personalization_config, self.cond_stage_model)
+        for param in self.embedding_manager.embedding_parameters():
+            param.requires_grad = False
+        self.device = next(self.parameters()).device
+
+    def instantiate_embedding_manager(self, config, embedder):
+        model = instantiate_from_config(config, embedder=embedder)
+
+        if config.params.get("embedding_manager_ckpt", None): # do not load if missing OR empty string
+            model.load(config.params.embedding_manager_ckpt)
+        
+        return model
 
     def make_cond_schedule(self, ):
         self.cond_ids = torch.full(size=(self.num_timesteps,), fill_value=self.num_timesteps - 1, dtype=torch.long)

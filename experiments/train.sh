@@ -1,5 +1,6 @@
 
-jobname=${1:-'versatile_dualstream_instruct_pre_post_w_x0'}
+# jobname=${1:-'versatile_dualstream_instruct_pre_post_w_x0'}
+jobname=${1:-'versatile_dualstream_instruct_pre_post_w_x0_prospect'}
 filter_mode=${2:-'tune_sideconv'} #no_filter
 
 gpus=${3:-'3,'}

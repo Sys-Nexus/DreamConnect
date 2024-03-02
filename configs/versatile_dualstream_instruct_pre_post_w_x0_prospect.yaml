@@ -1,0 +1,207 @@
+# File modified by authors of InstructDiffusion from original (https://github.com/CompVis/stable-diffusion).
+# See more details in LICENSE.
+
+model:
+  base_learning_rate: 1.0e-04
+  weight_decay: 0.01
+  # target: ldm.models.diffusion.control_fmri_ddpm_edit.ControlLDM
+  # target: ldm.models.diffusion.fmri_versatile_edit.fMRIVersatileEdit
+  target: ldm.models.diffusion.fmri_versatile_dualstream.DualLDM
+  params:
+    fp16: True
+    deepspeed: 'deepspeed_1'
+    # fp16: False
+    # deepspeed: 'deepspeedfp32_1'
+    only_mid_control: False
+    control_key: 'fmri'
+    # deepspeed: ''
+    # ckpt_path: stable_diffusion/models/ldm/stable-diffusion-v1/v1-5-pruned-emaonly-adaption.ckpt
+    # ckpt_path: stable_diffusion/models/ldm/stable-diffusion-v1/v1-5-pruned-emaonly-adaption-task-humanalign.ckpt
+    ckpt_path: stable_diffusion/models/ldm/stable-diffusion-v1/v1-5-pruned-emaonly-adaption-task-humanalign.ckpt
+    linear_start: 0.00085
+    linear_end: 0.0120
+    num_timesteps_cond: 1
+    log_every_t: 200
+    timesteps: 1000
+    first_stage_key: edited
+    cond_stage_key: fmri_edit
+    fmri_cond_stage_key: fmri_edit
+    image_size: 32
+    channels: 4
+    cond_stage_trainable: false   # Note: different from the one we trained before
+    cond_stage_trainable_fmri: false   # Note: different from the one we trained before
+    unet_stage_trainable: true  # Note: different from the one we trained before
+    control_unet_stage_trainable: true  # Note: different from the one we trained before
+    # conditioning_key: hybrid
+    # conditioning_key: fmri_controlnet
+    conditioning_key: fmri_noisy_concat
+    monitor: val/loss_simple_ema
+    scale_factor: 0.18215
+    unet_lr_ratio: 1e-9
+    coarse_spatial_steps: 15
+    is_save_x0: true
+    is_save_intermediate: false
+    # is_save_intermediate: true
+
+    scheduler_config: # 10000 warmup steps
+      target: ldm.lr_scheduler.LambdaLinearScheduler
+      params:
+        warm_up_steps: [ 0 ]
+        cycle_lengths: [ 10000000000000 ] # incredibly large number to prevent corner cases
+        f_start: [ 1.e-6 ]
+        f_max: [ 1. ]
+        f_min: [ 1. ]
+
+    first_stage_config:
+      target: ldm.models.autoencoder.AutoencoderKL
+      params:
+        embed_dim: 4
+        monitor: val/rec_loss
+        ddconfig:
+          double_z: true
+          z_channels: 4
+          resolution: 256
+          in_channels: 3
+          out_ch: 3
+          ch: 128
+          ch_mult:
+          - 1
+          - 2
+          - 4
+          - 4
+          num_res_blocks: 2
+          attn_resolutions: []
+          dropout: 0.0
+        lossconfig:
+          target: torch.nn.Identity
+    
+    # pretrained_control_unet_zeroconv_path: logs/fmri_instruct_dualstream_tune_sideconv_fmri_instruct_dualstream_tune_sideconv_2023-10-09/checkpoints/ckpt_epoch_75/state.pth
+    # pretrained_control_unet_zeroconv_path: logs/instru_tune_sideconv_instru_tune_sideconv_2023-10-25/checkpoints/ckpt_epoch_190/mp_rank_00_model_states.pt
+    # pretrained_control_unet_zeroconv_path: logs/versatile_dualstream_instruct_pre_post_w_x0_versatile_dualstream_instruct_pre_post_w_x0_2023-12-15/checkpoints/ckpt_epoch_170/mp_rank_00_model_states.pt
+    pretrained_control_unet_path: 'third_party/versatile_diffusion/pretrained/vd-four-flow-v1-0-fp16-deprecated.pth'
+    control_stage_config:
+      target: ldm.models.diffusion.fmri_versatile_dualstream.PreVersatileNetAdaptor
+      params:
+        unet_image_cfg:
+          # target: third_party.versatile_diffusion.lib.model_zoo.openaimodel.UNetModel2D
+          type: openai_unet_2d
+          name: openai_unet_2d
+          args:
+          # params:
+            input_channels: 4
+            model_channels: 320
+            output_channels: 4
+            num_noattn_blocks: [ 2, 2, 2, 2 ]
+            channel_mult: [ 1, 2, 4, 4 ]
+            with_attn: [true, true, true, false]
+            num_heads: 8
+            context_dim: 768
+            use_checkpoint: True
+
+        unet_text_cfg:
+          # target: third_party.versatile_diffusion.lib.model_zoo.openaimodel.UNetModel0D_MultiDim
+          type: openai_unet_0dmd
+          name: openai_unet_0dmd
+          # params:
+          args:
+            input_channels: 768
+            model_channels: 320
+            output_channels: 768
+            num_noattn_blocks: [ 2, 2, 2, 2 ]
+            channel_mult: [ 1, 2, 4, 4 ]
+            second_dim: [ 4, 4, 4, 4 ]
+            with_attn: [true, true, true, false]
+            num_heads: 8
+            context_dim: 768
+            use_checkpoint: True
+
+    # cond_stage_config_fmri:
+    #   target: ldm.modules.encoders.fmri.FmriEmbedder
+    #   params:
+    #     force_type_convert: true
+    
+    personalization_config:
+      target: ldm.modules.embedding_manager.EmbeddingManager
+      params:
+        placeholder_strings: ["*"]
+        per_image_tokens: False
+        num_vectors_per_token: 10
+        progressive_words: False
+
+    unet_config:
+      # target: ldm.modules.diffusionmodules.openaimodel.UNetModel
+      # target: ldm.modules.diffusionmodules.openaimodel_dual_condition.UNetModel
+      # inherit from target: ldm.modules.diffusionmodules.openaimodel.UNetModel
+      target: ldm.models.diffusion.fmri_versatile_dualstream.ControlledUnetModel
+      # target: ldm.models.diffusion.fmri_versatile_dualstream.FusionPriorUnetModel
+      params:
+        image_size: 32 # unused
+        in_channels: 8
+        out_channels: 4
+        model_channels: 320
+        attention_resolutions: [ 4, 2, 1 ]
+        num_res_blocks: 2
+        channel_mult: [ 1, 2, 4, 4 ]
+        num_heads: 8
+        use_spatial_transformer: True
+        transformer_depth: 1
+        context_dim: 768
+        use_checkpoint: True
+        legacy: False
+        force_type_convert: True
+
+    cond_stage_config:
+      target: ldm.modules.encoders.modules.FrozenCLIPEmbedder
+
+    fmri_lowlevel_path: train_logs/autoencoder_subj01_4x_locont_no_reconst/epoch120.pth
+    fmri_lowlevel_config:
+      target: ldm.modules.encoders.fmri_nips23.Voxel2StableDiffusionModel
+      params: 
+        in_dim: 15724
+
+    clip_cfg:
+      symbol: clip
+      args: {}
+      name: clip_frozen
+      type: clip_frozen
+    
+    # fmri_vclip_pretrain_path: '/data/yashengsun/Proj/MMEdit/fMRI-reconstruction-NSD/train_logs/prior_257_final_subj01_bimixco_softclip_byol/last.pth'
+    # fmri_vclip_cfg:
+    #   target: third_party.fMRI_reconstruction_NSD.src.models.BrainNetwork
+    #   params:
+    #     in_dim: 15724
+    #     out_dim: 197376
+
+data:
+  target: main.DataModuleFromConfig
+  params:
+    batch_size: 4
+    # batch_size: 1
+    num_workers: 4
+    train:
+      target: third_party.StableDiffusionReconstruction.codes.utils.nsd_creater.NIPS23NSDDataset
+      params:
+        nsd_root: '/data/yashengsun/Proj/MMEdit/StableDiffusionReconstruction/nsd'
+        resolution: 320
+        split: 'train'
+        is_reconstruct_mode: False
+        url: 'nsd_data_dir/train_subj01_{0..17}.tar'
+        reconstruct_prob: 0.05
+
+    validation:
+      target: third_party.StableDiffusionReconstruction.codes.utils.nsd_creater.NIPS23NSDDataset
+      params:
+        nsd_root: '/data/yashengsun/Proj/MMEdit/StableDiffusionReconstruction/nsd'
+        resolution: 320
+        split: 'test'
+        is_reconstruct_mode: False
+        url: 'nsd_data_dir/test_subj01_{0..1}.tar'
+        reconstruct_prob: 0.05
+
+trainer:
+  initial_scale: 13
+  max_epochs: 200
+  save_freq: 5
+  accumulate_grad_batches: 1
+  clip_grad: 0.0
+  optimizer: adamw
