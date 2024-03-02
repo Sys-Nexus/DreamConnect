@@ -660,6 +660,9 @@ if __name__ == "__main__":
 
     # model
     model = instantiate_from_config(config.model)
+    model.embedding_manager.load(opt.prospect_ckpt_path)
+    # import pdb; pdb.set_trace()
+
     model_ema = LitEma(model, decay_resume=config.model.params.get('ema_resume', 0.9999))
 
     # data
