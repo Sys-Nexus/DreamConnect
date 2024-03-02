@@ -666,7 +666,7 @@ if __name__ == "__main__":
 
     # model
     model = instantiate_from_config(config.model)
-    if os.path.exist(opt.prospect_ckpt_path):
+    if os.path.exists(opt.prospect_ckpt_path):
         model.embedding_manager.load(opt.prospect_ckpt_path)
     else:
         print('{} not exist.'.format(opt.prospect_ckpt_path))
