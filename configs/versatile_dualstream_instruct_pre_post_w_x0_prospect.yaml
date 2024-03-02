@@ -151,7 +151,7 @@ model:
         force_type_convert: True
 
     cond_stage_config:
-      target: ldm.modules.encoders.modules.FrozenCLIPEmbedder
+      target: ldm.modules.encoders.modules.ExFrozenCLIPEmbedder
 
     fmri_lowlevel_path: train_logs/autoencoder_subj01_4x_locont_no_reconst/epoch120.pth
     fmri_lowlevel_config:
