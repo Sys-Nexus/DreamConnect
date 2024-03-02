@@ -26,6 +26,7 @@ export LD_LIBRARY_PATH=/usr/local/cuda-11.3/lib64:$LD_LIBRARY_PATH
 current_date=$(date +"%Y-%m-%d")
 exp_name=${jobname}"_"${current_date}
 
+prospect_ckpt_path='/data/yashengsun/Proj/MMEdit/fMRIInstructDiffusion/ProSpect/logs/apple2024-02-28T22-30-10_apple/checkpoints/embeddings.pt'
 CUDA_VISIBLE_DEVICES=${gpus} ${run_cmd} main.py --name ${exp_name} \
           --base configs/${jobname}.yaml \
           --train \
@@ -36,4 +37,5 @@ CUDA_VISIBLE_DEVICES=${gpus} ${run_cmd} main.py --name ${exp_name} \
           --no-test True \
           --vis ${vis} \
           --isTrain ${isTrain} \
-          --cfg_text 7.5 # this is for versatile diffusion, not for instruct_diffusion
+          --cfg_text 7.5 \
+          --prospect_ckpt_path ${prospect_ckpt_path}
