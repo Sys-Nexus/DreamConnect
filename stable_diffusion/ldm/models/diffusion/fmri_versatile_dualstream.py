@@ -231,6 +231,19 @@ class DualLDM(LatentDiffusion):
             self.instantiate_fmri_vclip(fmri_vclip_cfg)
 
         self.image_clip = FrozenClipImageEmbedder()
+        
+        self.embedding_manager = self.instantiate_embedding_manager(personalization_config, self.cond_stage_model)
+        for param in self.embedding_manager.embedding_parameters():
+            param.requires_grad = False
+        self.device = next(self.parameters()).device
+
+    def instantiate_embedding_manager(self, config, embedder):
+        model = instantiate_from_config(config, embedder=embedder)
+
+        if config.params.get("embedding_manager_ckpt", None): # do not load if missing OR empty string
+            model.load(config.params.embedding_manager_ckpt)
+        
+        return model
 
     def instantiate_fmri_vclip(self, config):
         model = instantiate_from_config(config)
@@ -249,6 +262,21 @@ class DualLDM(LatentDiffusion):
             print('vox2clip vclip: [missing]', len(missing))
             print('vox2clip vclip: [unexpected] ', len(unexpected))
     
+    def get_learned_conditioning(self, c, prospect_words=None):
+        # import pdb; pdb.set_trace()
+        if self.cond_stage_forward is None:
+            if hasattr(self.cond_stage_model, 'encode') and callable(self.cond_stage_model.encode):
+                # c = self.cond_stage_model.encode(c)
+                c = self.cond_stage_model.encode(c,  prospect_words=prospect_words, embedding_manager=self.embedding_manager)
+                if isinstance(c, DiagonalGaussianDistribution):
+                    c = c.mode()
+            else:
+                c = self.cond_stage_model(c)
+        else:
+            assert hasattr(self.cond_stage_model, self.cond_stage_forward)
+            c = getattr(self.cond_stage_model, self.cond_stage_forward)(c)
+        return c
+
     def get_clip_loss(self, pred_image, gt_image):
         pred_image_token = self.image_clip(pred_image.half())
         gt_image_token = self.image_clip(gt_image.half())

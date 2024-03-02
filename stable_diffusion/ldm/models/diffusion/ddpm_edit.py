@@ -402,18 +402,7 @@ class LatentDiffusion(DDPM):
             self.restarted_from_ckpt = True
 
         self.additional_loss_type = kwargs.pop("additional_loss_type", None)
-        self.embedding_manager = self.instantiate_embedding_manager(personalization_config, self.cond_stage_model)
-        for param in self.embedding_manager.embedding_parameters():
-            param.requires_grad = False
-        self.device = next(self.parameters()).device
 
-    def instantiate_embedding_manager(self, config, embedder):
-        model = instantiate_from_config(config, embedder=embedder)
-
-        if config.params.get("embedding_manager_ckpt", None): # do not load if missing OR empty string
-            model.load(config.params.embedding_manager_ckpt)
-        
-        return model
 
     def make_cond_schedule(self, ):
         self.cond_ids = torch.full(size=(self.num_timesteps,), fill_value=self.num_timesteps - 1, dtype=torch.long)
@@ -494,25 +483,10 @@ class LatentDiffusion(DDPM):
             raise NotImplementedError(f"encoder_posterior of type '{type(encoder_posterior)}' not yet implemented")
         return self.scale_factor * z
 
-    # def get_learned_conditioning(self, c):
-    #     if self.cond_stage_forward is None:
-    #         if hasattr(self.cond_stage_model, 'encode') and callable(self.cond_stage_model.encode):
-    #             c = self.cond_stage_model.encode(c)
-    #             if isinstance(c, DiagonalGaussianDistribution):
-    #                 c = c.mode()
-    #         else:
-    #             c = self.cond_stage_model(c)
-    #     else:
-    #         assert hasattr(self.cond_stage_model, self.cond_stage_forward)
-    #         c = getattr(self.cond_stage_model, self.cond_stage_forward)(c)
-    #     return c
-
-    def get_learned_conditioning(self, c, prospect_words=None):
-        # import pdb; pdb.set_trace()
+    def get_learned_conditioning(self, c):
         if self.cond_stage_forward is None:
             if hasattr(self.cond_stage_model, 'encode') and callable(self.cond_stage_model.encode):
-                # c = self.cond_stage_model.encode(c)
-                c = self.cond_stage_model.encode(c,  prospect_words=prospect_words, embedding_manager=self.embedding_manager)
+                c = self.cond_stage_model.encode(c)
                 if isinstance(c, DiagonalGaussianDistribution):
                     c = c.mode()
             else:
@@ -521,6 +495,8 @@ class LatentDiffusion(DDPM):
             assert hasattr(self.cond_stage_model, self.cond_stage_forward)
             c = getattr(self.cond_stage_model, self.cond_stage_forward)(c)
         return c
+
+
 
     def meshgrid(self, h, w):
         y = torch.arange(0, h).view(h, 1, 1).repeat(1, w, 1)
