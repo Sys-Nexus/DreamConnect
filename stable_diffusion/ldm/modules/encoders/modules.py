@@ -76,6 +76,14 @@ class BERTTokenizer(AbstractEncoder):
     def decode(self, text):
         return text
 
+def _build_causal_attention_mask(bsz, seq_len, dtype):
+        # lazily create causal attention mask, with full attention between the vision tokens
+        # pytorch uses additive attention mask; fill with -inf
+        mask = torch.empty(bsz, seq_len, seq_len, dtype=dtype)
+        mask.fill_(torch.tensor(torch.finfo(dtype).min))
+        mask.triu_(1)  # zero out the lower diagonal
+        mask = mask.unsqueeze(1)  # expand mask
+        return mask
 
 class BERTEmbedder(AbstractEncoder):
     """Uses the BERT tokenizr model and add some transformer encoder layers"""
