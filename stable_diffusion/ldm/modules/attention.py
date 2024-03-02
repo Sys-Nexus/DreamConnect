@@ -191,12 +191,12 @@ class CrossAttention(nn.Module):
 
         sim = einsum('b i d, b j d -> b i j', q, k) * self.scale
 
-        if self.prompt_to_prompt and is_self_attn:
-            # Unlike the original Prompt-to-Prompt which uses cross-attention layers, we copy attention maps for self-attention layers.
-            # There must be 4 elements in the batch: {conditional, unconditional} x {prompt 1, prompt 2}
-            assert x.size(0) == 4
-            sims = sim.chunk(4)
-            sim = torch.cat((sims[0], sims[0], sims[2], sims[2]))
+        # if self.prompt_to_prompt and is_self_attn:
+        #     # Unlike the original Prompt-to-Prompt which uses cross-attention layers, we copy attention maps for self-attention layers.
+        #     # There must be 4 elements in the batch: {conditional, unconditional} x {prompt 1, prompt 2}
+        #     assert x.size(0) == 4
+        #     sims = sim.chunk(4)
+        #     sim = torch.cat((sims[0], sims[0], sims[2], sims[2]))
 
         if exists(mask):
             mask = rearrange(mask, 'b ... -> b (...)')
