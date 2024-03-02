@@ -129,7 +129,7 @@ class EmbeddingManager(nn.Module):
             for i in range(self.max_vectors_per_token):
                 self.placeholder_embeddings.append(placeholder_embedding[i].view(1,768))
                 new_embedded_text = embedded_text.clone().to(device)
-                new_embedded_text[placeholder_idx] = placeholder_embedding[i].view(1,768).float()
+                new_embedded_text[placeholder_idx] = placeholder_embedding[i].view(1,768)#.float()
                 self.embedded_texts.append(new_embedded_text)
 
             if prospect_words is not None:
