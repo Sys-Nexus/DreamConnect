@@ -111,10 +111,10 @@ class EmbeddingManager(nn.Module):
 
         for placeholder_string, placeholder_token in self.string_to_token_dict.items():
             if self.initial_embeddings is None:
-                print('Working with NO IMGAE mode')
+                # print('Working with NO IMGAE mode')
                 placeholder_embedding = self.get_embedding_for_tkn('').unsqueeze(0).repeat(self.max_vectors_per_token, 1).to(device)
             else:
-                print('Working with IMGAE GUIDING mode')
+                # print('Working with IMGAE GUIDING mode')
                 placeholder_embedding = self.attention(self.initial_embeddings.view(b,1,768).to(device), 
                                                     self.initial_embeddings.view(b,1,768).to(device))[-1].view(self.max_vectors_per_token,768)  
             
