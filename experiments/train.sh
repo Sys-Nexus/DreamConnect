@@ -27,7 +27,7 @@ current_date=$(date +"%Y-%m-%d")
 exp_name=${jobname}"_"${current_date}
 
 prospect_ckpt_path='/data/yashengsun/Proj/MMEdit/ProSpect/logs/apple2024-02-28T22-30-10_apple/checkpoints/embeddings.pt'
-CUDA_VISIBLE_DEVICES=${gpus} ${run_cmd} main.py --name ${exp_name} \
+CUDA_LAUNCH_BLOCKING=1 CUDA_VISIBLE_DEVICES=${gpus} ${run_cmd} main.py --name ${exp_name} \
           --base configs/${jobname}.yaml \
           --train \
           --gpus ${gpus} \
