@@ -721,7 +721,7 @@ class DDIMSampler_Dual(DDIMSampler):
             
             if i == coarse_spatial_steps+1: 
                 x_dec_edit = self.stochastic_encode(x0=x_dec_edit_info[-1]*0.18215,
-                                                    t=torch.ones_like(edit_ts) * (index - coarse_spatial_steps),
+                                                    t=torch.ones_like(edit_ts) * (index + coarse_spatial_steps),
                                                     use_original_steps=use_original_steps)
                 # import pdb; pdb.set_trace()
             # import pdb; pdb.set_trace();
