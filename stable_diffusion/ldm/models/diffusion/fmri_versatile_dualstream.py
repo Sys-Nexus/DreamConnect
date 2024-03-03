@@ -727,7 +727,10 @@ class DualLDM(LatentDiffusion):
 
         else:
             ## only add this
-            new_cond = copy.deepcopy(cond)
+            # new_cond = copy.deepcopy(cond)
+            new_cond = {}
+            for k,v in cond.items():new_cond[k] = v
+
             new_cond["only_mid_control"] = self.only_mid_control
             c0 = torch.cat(new_cond["c_crossattn_1"]["image_emb"], 1)
             c1 = torch.cat(new_cond["c_crossattn_1"]["text_emb"], 1)
