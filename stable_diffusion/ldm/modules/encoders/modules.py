@@ -210,7 +210,7 @@ class ExFrozenCLIPEmbedder(AbstractEncoder):
 
             hidden_states = inputs_embeds
             for idx, encoder_layer in enumerate(self.layers):
-                print('self.layers', idx, encoder_layer)
+                # print('self.layers', idx, encoder_layer)
                 # import pdb; pdb.set_trace()
                 if output_hidden_states:
                     encoder_states = encoder_states + (hidden_states,)

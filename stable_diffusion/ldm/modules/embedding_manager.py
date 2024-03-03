@@ -107,7 +107,7 @@ class EmbeddingManager(nn.Module):
             prospect_words=None,
     ):
         b, n, device = *tokenized_text.shape, tokenized_text.device
-        print('batch',b)
+        # print('batch',b)
 
         for placeholder_string, placeholder_token in self.string_to_token_dict.items():
             if self.initial_embeddings is None:
