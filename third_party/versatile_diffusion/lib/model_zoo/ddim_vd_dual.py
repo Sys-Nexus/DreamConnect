@@ -651,7 +651,7 @@ class DDIMSampler_Dual(DDIMSampler):
                first_ctype='vision', second_ctype='prompt',
                use_original_steps=False, mixed_ratio=0.5, is_save_intermediate=True, 
                is_save_x0=True, callback=None, coarse_spatial_steps=15):
-        coarse_spatial_steps = 25
+        # coarse_spatial_steps = 25
         timesteps = np.arange(self.ddpm_num_timesteps) if use_original_steps else self.ddim_timesteps
         timesteps = timesteps[:t_start]
 
