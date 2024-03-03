@@ -720,7 +720,7 @@ class DDIMSampler_Dual(DDIMSampler):
             
             if i == coarse_spatial_steps: 
                 x_dec_edit = self.stochastic_encode(x0=x_dec_edit_info[-1], t=edit_ts, use_original_steps=use_original_steps)
-            import pdb; pdb.set_trace();
+            # import pdb; pdb.set_trace();
 
             x_dec_gen, x0_dec_gen, x_dec_edit, x0_dec_edit = self.asyn_p_sample_ddim_dual_cfg(
                 x_dec_gen, 
