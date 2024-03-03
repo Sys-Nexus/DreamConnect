@@ -717,10 +717,10 @@ class DDIMSampler_Dual(DDIMSampler):
 
             # cond_dict['noisy_c_concat'] = torch.cat([x0_dec_gen]*3, dim=0) / 0.18215 # be consistent with instructDiffusion
             print('====', index, coarse_spatial_steps, i, step, '====')
-            import pdb; pdb.set_trace();
             
             if i == coarse_spatial_steps: 
                 x_dec_edit = self.stochastic_encode(x0=x_dec_edit_info[-1], t=edit_ts, use_original_steps=use_original_steps)
+            import pdb; pdb.set_trace();
 
             x_dec_gen, x0_dec_gen, x_dec_edit, x0_dec_edit = self.asyn_p_sample_ddim_dual_cfg(
                 x_dec_gen, 
