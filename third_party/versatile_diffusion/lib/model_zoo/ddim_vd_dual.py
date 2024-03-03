@@ -607,6 +607,7 @@ class DDIMSampler_Dual(DDIMSampler):
 
         if noise is None:
             noise = torch.randn_like(x0)
+        import pdb; pdb.set_trace();
         return (extract_into_tensor(sqrt_alphas_cumprod, t, x0.shape) * x0 +
                 extract_into_tensor(sqrt_one_minus_alphas_cumprod, t, x0.shape) * noise)
 
