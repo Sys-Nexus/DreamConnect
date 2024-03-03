@@ -671,6 +671,7 @@ class DDIMSampler_Dual(DDIMSampler):
             a_t, sqrt_one_minus_at = self.get_al(x_dec_gen, index)
 
             # import pdb; pdb.set_trace()
+            print('====', index, coarse_spatial_steps, i, step, '====')
             x_dec_gen, x0_dec_gen, x_dec_edit, x0_dec_edit = self.p_sample_ddim_dual_cfg(
                 x_dec_gen, 
                 x_dec_edit,
@@ -715,7 +716,7 @@ class DDIMSampler_Dual(DDIMSampler):
             a_t, sqrt_one_minus_at = self.get_al(x_dec_gen, index)
 
             # cond_dict['noisy_c_concat'] = torch.cat([x0_dec_gen]*3, dim=0) / 0.18215 # be consistent with instructDiffusion
-            # print('====', index, coarse_spatial_steps, i, step, '====')
+            print('====', index, coarse_spatial_steps, i, step, '====')
             x_dec_gen, x0_dec_gen, x_dec_edit, x0_dec_edit = self.asyn_p_sample_ddim_dual_cfg(
                 x_dec_gen, 
                 x_dec_edit,
@@ -751,8 +752,7 @@ class DDIMSampler_Dual(DDIMSampler):
             edit_ts = torch.full((x_latent_edit.shape[0],), step, device=x_latent_edit.device, dtype=torch.long)
             a_t, sqrt_one_minus_at = self.get_al(x_dec_gen, 0)
             # cond_dict['noisy_c_concat'] = torch.cat([x0_dec_gen]*3, dim=0) / 0.18215 # be consistent with instructDiffusion
-            # print('====', index, coarse_spatial_steps, i, step, '====')
-            print(i, step)
+            print('====', index, coarse_spatial_steps, i, step, '====')
             import pdb; pdb.set_trace()
             x_dec_gen_, x0_dec_gen_, x_dec_edit, x0_dec_edit = self.asyn_p_sample_ddim_dual_cfg(
                 x_dec_gen_, 
