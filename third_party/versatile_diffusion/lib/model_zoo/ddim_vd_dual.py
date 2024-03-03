@@ -607,7 +607,7 @@ class DDIMSampler_Dual(DDIMSampler):
 
         if noise is None:
             noise = torch.randn_like(x0)
-        import pdb; pdb.set_trace();
+        # import pdb; pdb.set_trace();
         return (extract_into_tensor(sqrt_alphas_cumprod, t, x0.shape) * x0 +
                 extract_into_tensor(sqrt_one_minus_alphas_cumprod, t, x0.shape) * noise)
 
@@ -720,8 +720,10 @@ class DDIMSampler_Dual(DDIMSampler):
             print('====', index, coarse_spatial_steps, i, step, '====')
             
             if i == coarse_spatial_steps+1: 
-                x_dec_edit = self.stochastic_encode(x0=x_dec_edit_info[-1]*0.18215, t=edit_ts, use_original_steps=use_original_steps)
-                import pdb; pdb.set_trace()
+                x_dec_edit = self.stochastic_encode(x0=x_dec_edit_info[-1]*0.18215,
+                                                    t=torch.ones_like(edit_ts) * (index - coarse_spatial_steps),
+                                                    use_original_steps=use_original_steps)
+                # import pdb; pdb.set_trace()
             # import pdb; pdb.set_trace();
 
             x_dec_gen, x0_dec_gen, x_dec_edit, x0_dec_edit = self.asyn_p_sample_ddim_dual_cfg(
