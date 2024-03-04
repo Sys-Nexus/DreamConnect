@@ -459,7 +459,7 @@ class DualLDM(LatentDiffusion):
         else:
             cond["c_crossattn_1"]["image_emb"] = [fmri_x]
             cond["c_crossattn_1"]["text_emb"] = [fmri_cap]
-            import pdb; pdb.set_trace();
+            # import pdb; pdb.set_trace();
             if prospect_words is not None:
                 cond["c_crossattn"] = [self.get_learned_conditioning(['*'], prospect_words=prospect_words)[0].detach()]
             else:
