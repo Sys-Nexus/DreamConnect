@@ -6,8 +6,10 @@ filter_mode=${2:-'tune_sideconv'} #no_filter
 gpus=${3:-'1,'}
 master_port=${4:-'27699'}
 isTrain=${5:-1}
-mode=${6:-'single'}
-vis=${7:-1}
+# cfg_text=${6:-7.5}
+cfg_text=${6:-10.0}
+mode=${7:-'single'}
+vis=${8:-1}
 
 num_nodes=1
 if [[ ${mode} == 'single' ]]; then
@@ -38,5 +40,5 @@ CUDA_LAUNCH_BLOCKING=1 CUDA_VISIBLE_DEVICES=${gpus} ${run_cmd} main.py --name ${
           --no-test True \
           --vis ${vis} \
           --isTrain ${isTrain} \
-          --cfg_text 7.5 \
+          --cfg_text ${cfg_text} \
           --prospect_ckpt_path ${prospect_ckpt_path}
