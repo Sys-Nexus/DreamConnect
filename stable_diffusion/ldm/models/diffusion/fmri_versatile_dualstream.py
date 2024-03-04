@@ -399,7 +399,8 @@ class DualLDM(LatentDiffusion):
         return loss, loss_dict
 
     def get_input(self, batch, k, return_first_stage_outputs=False, force_c_encode=False,
-                  cond_key=None, return_original_cond=False, bs=None, uncond=0.075, sz=256):
+                  cond_key=None, return_original_cond=False, bs=None, uncond=0.075, sz=256,
+                  prospect_words=None):
         x = DDPM.get_input(self, batch, k)
         if bs is not None:
             x = x[:bs]
@@ -445,34 +446,23 @@ class DualLDM(LatentDiffusion):
         null_cap = ['' for _ in range(len(cap))]
         
         # import pdb; pdb.set_trace();
-        # # _, fmri_null_x = self.fmri_vclip(torch.zeros_like(voxel).half())
-        # fmri_null_x = self.vd_clip.clip_encode_vision(null_x)
-        # fmri_null_cap = self.vd_clip.clip_encode_text(null_cap)
-
-        # # _, fmri_x = self.fmri_vclip(voxel.half())
-        # fmri_x = self.vd_clip.clip_encode_vision(x)
-        # fmri_cap = self.vd_clip.clip_encode_text(cap)
-        # import pdb; pdb.set_trace();
         fmri_null_x = self.vd_clip.clip_encode_vision(null_x)
         fmri_null_cap = self.vd_clip.clip_encode_text(null_cap)
-        # fmri_x = batch['nsd_clipvision'][:null_x.shape[0]].to(fmri_null_x)
-        # fmri_cap = batch['nsd_cliptext'][:null_x.shape[0]].to(fmri_null_x)
         fmri_x = self.vd_clip.clip_encode_vision(xc["c_concat"])
         fmri_cap = self.vd_clip.clip_encode_text(cap)
 
-        # import pdb; pdb.set_trace();
-        # xc["c_crossattn"] = ["a teddy walking in times square",]
         cond["c_crossattn_1"] = {}
         if force_c_encode is False:
             cond["c_crossattn_1"]["image_emb"] = [torch.where(fmri_prompt_mask.bool(), fmri_null_x, fmri_x)]
             cond["c_crossattn_1"]["text_emb"] = [torch.where(fmri_prompt_mask.bool(), fmri_null_cap, fmri_cap)]
             cond["c_crossattn"] = [torch.where(prompt_mask, null_prompt[0].detach(), self.get_learned_conditioning(xc["c_crossattn"])[0].detach())]
-            # import pdb; pdb.set_trace();
-            # cond["c_crossattn"] = [torch.where(prompt_mask, null_prompt, self.get_learned_conditioning(xc["c_crossattn"]))]
         else:
             cond["c_crossattn_1"]["image_emb"] = [fmri_x]
             cond["c_crossattn_1"]["text_emb"] = [fmri_cap]
             cond["c_crossattn"] = [self.get_learned_conditioning(xc["c_crossattn"])[0].detach()]
+            import pdb; pdb.set_trace();
+            if prospect_words is not None:
+                cond["c_crossattn"] = [self.get_learned_conditioning(['*'], prospect_words=prospect_words)[0].detach()]
 
         cond["c_crossattn_1"]["fmri_vae"] = [fmri_vae]
 
@@ -504,14 +494,16 @@ class DualLDM(LatentDiffusion):
                    delay_t=None,
                    N=1, n_row=4, sample=True, 
                    steps=100, ddim_eta=1., return_keys=None,
-                   quantize_denoised=True, inpaint=False):
+                   quantize_denoised=True, inpaint=False,
+                   prospect_words=None):
         self.model.eval()
         s = batch['s'][0]
 
         N = min(batch['image'].shape[0], N)
         z_gt, c, x, xrec, xc = self.get_input(batch, self.first_stage_key, force_c_encode=True,
                                                bs=N, uncond=0, return_original_cond=True, 
-                                               return_first_stage_outputs=True)
+                                               return_first_stage_outputs=True,
+                                               prospect_words=prospect_words)
         # import pdb; pdb.set_trace();
         init_latent = torch.cat(c["c_crossattn_1"]["fmri_vae"],dim=0)
 

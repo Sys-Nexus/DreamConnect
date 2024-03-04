@@ -379,14 +379,16 @@ class DataModuleFromConfig():
                           num_workers=self.num_workers, worker_init_fn=init_fn, persistent_workers=True)
 
 def test_one_epoch(config, model, model_ema, data_loader, val_data_loader, optimizer, epoch, 
-        lr_scheduler, scaler, model_wrap, model_wrap_cfg, save_dir, cfg_text):
+        lr_scheduler, scaler, model_wrap, model_wrap_cfg, save_dir, cfg_text, prospect_words=None):
     model.eval()
     epoch, idx = 999999, 999999
     with torch.no_grad():
         for val_idx, batch in enumerate(val_data_loader):
             batch_size = batch['image'].shape[0]
             if model_wrap is not None:
-                model.log_images(batch, epoch, idx, val_idx, model_wrap, model_wrap_cfg, save_dir, 'val', cfg_text=cfg_text, cfg_fmri=2.5)
+                model.log_images(batch, epoch, idx, val_idx, model_wrap, model_wrap_cfg, 
+                                 save_dir, 'val', cfg_text=cfg_text, cfg_fmri=2.5,
+                                 prospect_words=prospect_words)
     model.train()
 
 def train_one_epoch(config, model, model_ema, data_loader, val_data_loader, optimizer, epoch, 
@@ -721,24 +723,6 @@ if __name__ == "__main__":
         scaler = amp.GradScaler()
         param_groups = filter_optimized_params(model, opt)
 
-        # param_groups = model.parameters()
-        # param_groups = [param for name, param in model.named_parameters() if param.requires_grad is True]
-        # param_groups = [name for name, param in model.named_parameters() if param.requires_grad is True]
-        # param_groups = [param for name, param in model.named_parameters() if 'diffusion_model' not in name]
-        # import pdb; pdb.set_trace();
-
-
-        # param_groups = [param for name, param in model.named_parameters() if param.requires_grad is True]
-        # main_params = [param for name, param in model.named_parameters() if 'diffusion_model.' in name]
-        # other_names = [name for name, param in model.named_parameters() if param.requires_grad is True and ('diffusion_model.' not in name or 'time_embed_condtion' in name)]
-        # import pdb; pdb.set_trace();
-
-        # other_params = [param for name, param in model.named_parameters() if param.requires_grad is True and ('diffusion_model.' not in name or 'time_embed_condtion' in name)]
-        # param_groups = [{'params': other_params, 'lr': model.learning_rate}]
-        # param_groups = [{'params': other_params, 'lr':model.learning_rate}, {'params': main_params, 'lr':config.model.params.unet_lr_ratio*model.learning_rate}]
-        # print('optimized main branch with {} learning rate of other components.'.format(config.model.params.unet_lr_ratio))
-
-
     if config.model.params.deepspeed != '':
         model, optimizer, _, _ = deepspeed.initialize(
             args=config,
@@ -788,8 +772,10 @@ if __name__ == "__main__":
                 save_checkpoint(ckptdir, config, epoch, model_without_ddp, model_ema, 0., optimizer, lr_scheduler, scaler, logger)
     else:
         epoch = 999999
+        prospect_words = ['Change the picture to * style.'] #* 10
         test_one_epoch(config, model, model_ema, data_loader_train, data_loader_val, 
-                        optimizer, epoch, lr_scheduler, scaler, model_wrap, model_wrap_cfg, visdir, cfg_text=opt.cfg_text)
+                        optimizer, epoch, lr_scheduler, scaler, model_wrap, model_wrap_cfg, visdir, 
+                        cfg_text=opt.cfg_text, prospect_words=prospect_words)
 
     total_time = time.time() - start_time
     total_time_str = str(datetime.timedelta(seconds=int(total_time)))
