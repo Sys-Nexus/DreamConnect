@@ -265,6 +265,12 @@ def get_parser(**parser_kwargs):
         default=7.5,
         help="",
     )
+    parser.add_argument(
+        "--layout_path",
+        type=str,
+        default='',
+        help="",
+    )
     return parser
 
 
