@@ -499,7 +499,7 @@ class DDIMSampler_Dual(DDIMSampler):
         e_t_edit = 0.5 * (e_t_uncond_text_edit + e_t_uncond_image_edit) + \
                         unconditional_guidance_scale_text_edit * (e_t_edit_full - e_t_uncond_text_edit) + \
                         unconditional_guidance_scale_image_edit * (e_t_edit_full - e_t_uncond_image_edit)
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
 
         alphas = self.model.alphas_cumprod if use_original_steps else self.ddim_alphas
         alphas_prev = self.model.alphas_cumprod_prev if use_original_steps else self.ddim_alphas_prev
@@ -727,7 +727,7 @@ class DDIMSampler_Dual(DDIMSampler):
                                                     t=torch.ones_like(edit_ts) * (index + coarse_spatial_steps),
                                                     use_original_steps=use_original_steps)
                 # import pdb; pdb.set_trace()
-            import pdb; pdb.set_trace();
+            # import pdb; pdb.set_trace();
 
             x_dec_gen, x0_dec_gen, x_dec_edit, x0_dec_edit = self.asyn_p_sample_ddim_dual_cfg(
                 x_dec_gen, 
