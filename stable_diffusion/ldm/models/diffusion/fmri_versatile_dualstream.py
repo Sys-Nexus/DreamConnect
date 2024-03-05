@@ -472,8 +472,8 @@ class DualLDM(LatentDiffusion):
         cond["null_prompt_emb"] = [null_prompt[0].expand(len(cap),-1,-1)]
 
         c_concat = F.interpolate(xc["c_concat"], (sz,sz)) if sz is not None else xc["c_concat"]
-        import pdb; pdb.set_trace()
-        print(c_concat.shape, c_concat.max(), c_concat.min())
+        # import pdb; pdb.set_trace()
+        # print(c_concat.shape, c_concat.max(), c_concat.min())
         cond["c_concat"] = [self.encode_first_stage(c_concat).mode().detach()]
         out = [z, cond]
         if return_first_stage_outputs:
@@ -506,7 +506,8 @@ class DualLDM(LatentDiffusion):
         if layout_in is not None:
             sz = 512
             layout_in = F.interpolate(layout_in, (sz,sz))
-            layout_concat = [self.encode_first_stage(layout_in).mode().detach()]
+            print(layout_in.max(), layout_in.min())
+            layout_concat = self.encode_first_stage(layout_in).mode().detach()
 
         # import pdb; pdb.set_trace();
         init_latent = torch.cat(c["c_crossattn_1"]["fmri_vae"],dim=0)
