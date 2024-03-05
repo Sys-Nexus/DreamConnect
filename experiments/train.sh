@@ -7,7 +7,7 @@ gpus=${3:-'1,'}
 master_port=${4:-'27699'}
 isTrain=${5:-1}
 # cfg_text=${6:-7.5}
-cfg_text=${6:-10.0}
+cfg_text=${6:-20.0}
 mode=${7:-'single'}
 vis=${8:-1}
 
