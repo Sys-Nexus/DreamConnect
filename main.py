@@ -253,6 +253,12 @@ def get_parser(**parser_kwargs):
         default='',
         help="",
     )
+    parser.add_argument(
+        "--is_inst_edit",
+        type=bool,
+        default=False,
+        help="",
+    )
     return parser
 
 
@@ -379,16 +385,22 @@ class DataModuleFromConfig():
                           num_workers=self.num_workers, worker_init_fn=init_fn, persistent_workers=True)
 
 def test_one_epoch(config, model, model_ema, data_loader, val_data_loader, optimizer, epoch, 
-        lr_scheduler, scaler, model_wrap, model_wrap_cfg, save_dir, cfg_text, prospect_words=None):
+        lr_scheduler, scaler, model_wrap, model_wrap_cfg, save_dir, cfg_text, 
+        prospect_words=None, is_inst_edit=False):
     model.eval()
     epoch, idx = 999999, 999999
     with torch.no_grad():
         for val_idx, batch in enumerate(val_data_loader):
             batch_size = batch['image'].shape[0]
             if model_wrap is not None:
-                model.log_images(batch, epoch, idx, val_idx, model_wrap, model_wrap_cfg, 
+                if is_inst_edit is True:
+                    model.log_images(batch, epoch, idx, val_idx, model_wrap, model_wrap_cfg, 
                                  save_dir, 'val', cfg_text=cfg_text, cfg_fmri=2.5,
-                                 prospect_words=prospect_words)
+                                 prospect_words=prospect_words, is_inst_edit=is_inst_edit)
+                else:
+                    model.log_images(batch, epoch, idx, val_idx, model_wrap, model_wrap_cfg, 
+                                 save_dir, 'val', cfg_text=cfg_text, cfg_fmri=2.5,
+                                 prospect_words=prospect_words, is_inst_edit=is_inst_edit)
     model.train()
 
 def train_one_epoch(config, model, model_ema, data_loader, val_data_loader, optimizer, epoch, 
@@ -775,7 +787,7 @@ if __name__ == "__main__":
         prospect_words = ['Change the picture to * style.'] #* 10
         test_one_epoch(config, model, model_ema, data_loader_train, data_loader_val, 
                         optimizer, epoch, lr_scheduler, scaler, model_wrap, model_wrap_cfg, visdir, 
-                        cfg_text=opt.cfg_text, prospect_words=prospect_words)
+                        cfg_text=opt.cfg_text, prospect_words=prospect_words, is_inst_edit=args.is_inst_edit)
 
     total_time = time.time() - start_time
     total_time_str = str(datetime.timedelta(seconds=int(total_time)))
