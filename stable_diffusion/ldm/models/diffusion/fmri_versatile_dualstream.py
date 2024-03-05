@@ -469,15 +469,11 @@ class DualLDM(LatentDiffusion):
 
         cond["c_crossattn_1"]["null_image_emb"] = [fmri_null_x]
         cond["c_crossattn_1"]["null_text_emb"] = [fmri_null_cap]
-        # import pdb; pdb.set_trace()
         cond["null_prompt_emb"] = [null_prompt[0].expand(len(cap),-1,-1)]
 
-        # if self.is_fmri_input is True:
-        #     cond["c_concat"] = [input_mask * self.fmri2visual_model((xc["c_concat"])).detach()]
-        # else:
-            # cond["c_concat"] = [input_mask * self.encode_first_stage((xc["c_concat"])).mode().detach()]
         c_concat = F.interpolate(xc["c_concat"], (sz,sz)) if sz is not None else xc["c_concat"]
-        # c_concat = F.interpolate(xc["c_concat"], (256,256))
+        import pdb; pdb.set_trace()
+        print(c_concat.shape, c_concat.max(), c_concat.min())
         cond["c_concat"] = [self.encode_first_stage(c_concat).mode().detach()]
         out = [z, cond]
         if return_first_stage_outputs:
@@ -496,7 +492,8 @@ class DualLDM(LatentDiffusion):
                    N=1, n_row=4, sample=True, 
                    steps=100, ddim_eta=1., return_keys=None,
                    quantize_denoised=True, inpaint=False,
-                   prospect_words=None, is_inst_edit=False):
+                   prospect_words=None, is_inst_edit=False,
+                   layout_in=None):
         self.model.eval()
         s = batch['s'][0]
 
@@ -505,6 +502,12 @@ class DualLDM(LatentDiffusion):
                                                bs=N, uncond=0, return_original_cond=True, 
                                                return_first_stage_outputs=True,
                                                prospect_words=prospect_words)
+        
+        if layout_in is not None:
+            sz = 512
+            layout_in = F.interpolate(layout_in, (sz,sz))
+            layout_concat = [self.encode_first_stage(layout_in).mode().detach()]
+
         # import pdb; pdb.set_trace();
         init_latent = torch.cat(c["c_crossattn_1"]["fmri_vae"],dim=0)
 
@@ -531,16 +534,22 @@ class DualLDM(LatentDiffusion):
             c_w_uncond["c_crossattn_1"]["image_emb"] = [torch.cat([uncond_c0, c0, c0], 0)]
             c_w_uncond["c_crossattn_1"]["text_emb"] = [torch.cat([uncond_c1, c1, c1], 0)]
             c_w_uncond["c_crossattn"] = [torch.cat([null_prompt_emb, prompt_emb, prompt_emb], 0)]
-            c_concat = F.interpolate(xc["c_concat"], (512, 512))
-            c_concat = self.encode_first_stage(c_concat).mode().detach()
-            c_w_uncond["c_concat"] = [torch.cat([c_concat, torch.zeros_like(c_concat), c_concat], 0)]
+            if layout_in is None:
+                c_concat = F.interpolate(xc["c_concat"], (512, 512))
+                c_concat = self.encode_first_stage(c_concat).mode().detach()
+                c_w_uncond["c_concat"] = [torch.cat([c_concat, torch.zeros_like(c_concat), c_concat], 0)]
+            else:
+                c_w_uncond["c_concat"] = [torch.cat([layout_concat, torch.zeros_like(layout_concat), layout_concat], 0)]
         else:
             c_w_uncond["c_crossattn_1"]["image_emb"] = [torch.cat([uncond_c0, c0], 0)]
             c_w_uncond["c_crossattn_1"]["text_emb"] = [torch.cat([uncond_c1, c1], 0)]
             c_w_uncond["c_crossattn"] = [torch.cat([null_prompt_emb, prompt_emb], 0)]
-            c_concat = F.interpolate(xc["c_concat"], (512, 512))
-            c_concat = self.encode_first_stage(c_concat).mode().detach()
-            c_w_uncond["c_concat"] = [torch.cat([c_concat,]*2, 0)]
+            if layout_in is None:
+                c_concat = F.interpolate(xc["c_concat"], (512, 512))
+                c_concat = self.encode_first_stage(c_concat).mode().detach()
+                c_w_uncond["c_concat"] = [torch.cat([c_concat, torch.zeros_like(c_concat), c_concat], 0)]
+            else:
+                c_w_uncond["c_concat"] = [torch.cat([layout_concat, torch.zeros_like(layout_concat), layout_concat], 0)]
 
         # z_enc = self.sampler.stochastic_encode(init_latent, torch.tensor([self.t_enc]).to(z_gt.device))
         # z_enc_gen = z_enc_edit = z_enc

@@ -392,7 +392,7 @@ class DataModuleFromConfig():
 
 def test_one_epoch(config, model, model_ema, data_loader, val_data_loader, optimizer, epoch, 
         lr_scheduler, scaler, model_wrap, model_wrap_cfg, save_dir, cfg_text, cfg_text_edit,
-        prospect_words=None, is_inst_edit=False):
+        prospect_words=None, is_inst_edit=False, layout_in=None):
     model.eval()
     epoch, idx = 999999, 999999
     with torch.no_grad():
@@ -403,6 +403,10 @@ def test_one_epoch(config, model, model_ema, data_loader, val_data_loader, optim
                     model.log_images(batch, epoch, idx, val_idx, model_wrap, model_wrap_cfg, 
                                  save_dir, 'val', cfg_text=cfg_text, cfg_text_edit=cfg_text_edit, cfg_fmri=2.5,
                                  prospect_words=prospect_words, is_inst_edit=is_inst_edit)
+                elif layout_in is not None:
+                    model.log_images(batch, epoch, idx, val_idx, model_wrap, model_wrap_cfg, 
+                                 save_dir, 'val', cfg_text=cfg_text, cfg_text_edit=cfg_text_edit, cfg_fmri=2.5,
+                                 prospect_words=prospect_words, is_inst_edit=is_inst_edit, layout_in=layout_in)
                 else:
                     model.log_images(batch, epoch, idx, val_idx, model_wrap, model_wrap_cfg, 
                                  save_dir, 'val', cfg_text=cfg_text, cfg_text_edit=cfg_text_edit, cfg_fmri=2.5,
@@ -791,10 +795,16 @@ if __name__ == "__main__":
     else:
         epoch = 999999
         prospect_words = ['Change the picture to * style.'] #* 10
+        from PIL import Image
+        from torchvision import transforms
+        layout_pil = Image.open(opt.layout_path)
+        layout_tensor = transforms.ToTensor()(layout_pil).unsqueeze(0) 
+        
         test_one_epoch(config, model, model_ema, data_loader_train, data_loader_val, 
                         optimizer, epoch, lr_scheduler, scaler, model_wrap, model_wrap_cfg, visdir, 
                         cfg_text=opt.cfg_text, cfg_text_edit=opt.cfg_text_edit,
-                        prospect_words=prospect_words, is_inst_edit=opt.is_inst_edit)
+                        prospect_words=prospect_words, is_inst_edit=opt.is_inst_edit,
+                        layout_in=layout_in)
 
     total_time = time.time() - start_time
     total_time_str = str(datetime.timedelta(seconds=int(total_time)))

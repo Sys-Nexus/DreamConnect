@@ -32,6 +32,8 @@ exp_name=${jobname}"_"${current_date}
 # prospect_ckpt_path='/data/yashengsun/Proj/MMEdit/ProSpect/logs/panda2024-02-29T05-29-09_panda/checkpoints/embeddings.pt'
 # prospect_ckpt_path='/data/yashengsun/Proj/MMEdit/ProSpect/logs_backup0305/panda2024-02-29T05-29-09_panda/checkpoints/embeddings.pt'
 prospect_ckpt_path='/data/yashengsun/Proj/MMEdit/ProSpect/logs_backup0305/kanagawa2024-02-29T06-01-27_kanagawa/checkpoints/embeddings.pt'
+layout_path='/data/yashengsun/Proj/MMEdit/ProSpect/images4prospect/layout_collections/baozi/baozi.jpg'
+
 CUDA_LAUNCH_BLOCKING=1 CUDA_VISIBLE_DEVICES=${gpus} ${run_cmd} main.py --name ${exp_name} \
           --base configs/${jobname}.yaml \
           --train \
@@ -44,5 +46,6 @@ CUDA_LAUNCH_BLOCKING=1 CUDA_VISIBLE_DEVICES=${gpus} ${run_cmd} main.py --name ${
           --isTrain ${isTrain} \
           --cfg_text ${cfg_text} \
           --prospect_ckpt_path ${prospect_ckpt_path} \
-          --is_inst_edit True \
-          --cfg_text_edit ${cfg_text_edit}
+          --cfg_text_edit ${cfg_text_edit} \
+          --layout_path ${layout_path}
+          # --is_inst_edit True \
