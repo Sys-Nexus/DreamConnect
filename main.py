@@ -391,7 +391,7 @@ class DataModuleFromConfig():
                           num_workers=self.num_workers, worker_init_fn=init_fn, persistent_workers=True)
 
 def test_one_epoch(config, model, model_ema, data_loader, val_data_loader, optimizer, epoch, 
-        lr_scheduler, scaler, model_wrap, model_wrap_cfg, save_dir, cfg_text, 
+        lr_scheduler, scaler, model_wrap, model_wrap_cfg, save_dir, cfg_text, cfg_text_edit,
         prospect_words=None, is_inst_edit=False):
     model.eval()
     epoch, idx = 999999, 999999
@@ -401,11 +401,11 @@ def test_one_epoch(config, model, model_ema, data_loader, val_data_loader, optim
             if model_wrap is not None:
                 if is_inst_edit is True:
                     model.log_images(batch, epoch, idx, val_idx, model_wrap, model_wrap_cfg, 
-                                 save_dir, 'val', cfg_text=cfg_text, cfg_fmri=2.5,
+                                 save_dir, 'val', cfg_text=cfg_text, cfg_text_edit=cfg_text_edit, cfg_fmri=2.5,
                                  prospect_words=prospect_words, is_inst_edit=is_inst_edit)
                 else:
                     model.log_images(batch, epoch, idx, val_idx, model_wrap, model_wrap_cfg, 
-                                 save_dir, 'val', cfg_text=cfg_text, cfg_fmri=2.5,
+                                 save_dir, 'val', cfg_text=cfg_text, cfg_text_edit=cfg_text_edit, cfg_fmri=2.5,
                                  prospect_words=None, is_inst_edit=is_inst_edit)
     model.train()
 
