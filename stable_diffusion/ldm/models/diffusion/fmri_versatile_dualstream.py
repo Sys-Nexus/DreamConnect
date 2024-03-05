@@ -531,7 +531,7 @@ class DualLDM(LatentDiffusion):
         cfg_image_edit = 1.5 if cfg_image_edit is None else cfg_image_edit
         unconditional_guidance_scale_edit = None
 
-        import pdb; pdb.set_trace();
+        # import pdb; pdb.set_trace();
         if cfg_text_edit is not None and cfg_image_edit is not None:
             c_w_uncond["c_crossattn_1"]["image_emb"] = [torch.cat([uncond_c0, c0, c0], 0)]
             c_w_uncond["c_crossattn_1"]["text_emb"] = [torch.cat([uncond_c1, c1, c1], 0)]
@@ -769,7 +769,7 @@ class DualLDM(LatentDiffusion):
             for useful_block_idx in reversed(useful_block_idxes):
                 out_layers_injected[f"output_block_{useful_block_idx}_out_layers_features"] = control_res.pop(0)
 
-            # import pdb; pdb.set_trace();
+            import pdb; pdb.set_trace();
             ## this sentence will overwrite the obtained noisy_c_concat at inference time
             
             new_cond["injected_features"] = out_layers_injected
