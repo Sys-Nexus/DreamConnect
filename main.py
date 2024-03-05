@@ -259,6 +259,12 @@ def get_parser(**parser_kwargs):
         default=False,
         help="",
     )
+    parser.add_argument(
+        "--cfg_text_edit",
+        type=float,
+        default=7.5,
+        help="",
+    )
     return parser
 
 
@@ -787,7 +793,8 @@ if __name__ == "__main__":
         prospect_words = ['Change the picture to * style.'] #* 10
         test_one_epoch(config, model, model_ema, data_loader_train, data_loader_val, 
                         optimizer, epoch, lr_scheduler, scaler, model_wrap, model_wrap_cfg, visdir, 
-                        cfg_text=opt.cfg_text, prospect_words=prospect_words, is_inst_edit=opt.is_inst_edit)
+                        cfg_text=opt.cfg_text, cfg_text_edit=opt.cfg_text_edit,
+                        prospect_words=prospect_words, is_inst_edit=opt.is_inst_edit)
 
     total_time = time.time() - start_time
     total_time_str = str(datetime.timedelta(seconds=int(total_time)))

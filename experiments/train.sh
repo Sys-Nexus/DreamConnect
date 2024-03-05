@@ -6,8 +6,8 @@ filter_mode=${2:-'tune_sideconv'} #no_filter
 gpus=${3:-'1,'}
 master_port=${4:-'27699'}
 isTrain=${5:-1}
-# cfg_text=${6:-7.5}
-cfg_text=${6:-20.0}
+cfg_text=${6:-7.5}
+cfg_text_edit=${6:-20.0}
 mode=${7:-'single'}
 vis=${8:-1}
 
@@ -44,4 +44,5 @@ CUDA_LAUNCH_BLOCKING=1 CUDA_VISIBLE_DEVICES=${gpus} ${run_cmd} main.py --name ${
           --isTrain ${isTrain} \
           --cfg_text ${cfg_text} \
           --prospect_ckpt_path ${prospect_ckpt_path} \
-          --is_inst_edit True
+          --is_inst_edit True \
+          --cfg_text_edit ${cfg_text_edit}
