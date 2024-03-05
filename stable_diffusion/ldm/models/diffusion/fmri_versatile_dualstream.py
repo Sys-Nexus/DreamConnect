@@ -541,7 +541,8 @@ class DualLDM(LatentDiffusion):
                 c_concat = self.encode_first_stage(c_concat).mode().detach()
                 c_w_uncond["c_concat"] = [torch.cat([c_concat, torch.zeros_like(c_concat), c_concat], 0)]
             else:
-                c_w_uncond["c_crossattn"] = [torch.cat([null_prompt_emb, null_prompt_emb, null_prompt_emb], 0)]
+                # c_w_uncond["c_crossattn"] = [torch.cat([null_prompt_emb, null_prompt_emb, null_prompt_emb], 0)]
+                c_w_uncond["c_crossattn"] = [torch.cat([null_prompt_emb, c1, c1], 0)]
                 c_w_uncond["layout_concat"] = [torch.cat([layout_concat, torch.zeros_like(layout_concat), layout_concat], 0)]
         else:
             c_w_uncond["c_crossattn_1"]["image_emb"] = [torch.cat([uncond_c0, c0], 0)]
