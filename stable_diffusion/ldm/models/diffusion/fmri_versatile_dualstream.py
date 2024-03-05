@@ -506,7 +506,7 @@ class DualLDM(LatentDiffusion):
         if layout_in is not None:
             sz = 512
             layout_in = F.interpolate(layout_in, (sz,sz))
-            print(layout_in.max(), layout_in.min())
+            # print(layout_in.max(), layout_in.min())
             layout_concat = self.encode_first_stage(layout_in).mode().detach()
 
         # import pdb; pdb.set_trace();
@@ -536,6 +536,7 @@ class DualLDM(LatentDiffusion):
             c_w_uncond["c_crossattn_1"]["text_emb"] = [torch.cat([uncond_c1, c1, c1], 0)]
             c_w_uncond["c_crossattn"] = [torch.cat([null_prompt_emb, prompt_emb, prompt_emb], 0)]
             if layout_in is None:
+                c_w_uncond["c_crossattn"] = [torch.cat([null_prompt_emb, null_prompt_emb, null_prompt_emb], 0)]
                 c_concat = F.interpolate(xc["c_concat"], (512, 512))
                 c_concat = self.encode_first_stage(c_concat).mode().detach()
                 c_w_uncond["c_concat"] = [torch.cat([c_concat, torch.zeros_like(c_concat), c_concat], 0)]
@@ -546,6 +547,7 @@ class DualLDM(LatentDiffusion):
             c_w_uncond["c_crossattn_1"]["text_emb"] = [torch.cat([uncond_c1, c1], 0)]
             c_w_uncond["c_crossattn"] = [torch.cat([null_prompt_emb, prompt_emb], 0)]
             if layout_in is None:
+                c_w_uncond["c_crossattn"] = [torch.cat([null_prompt_emb, prompt_emb], 0)]
                 c_concat = F.interpolate(xc["c_concat"], (512, 512))
                 c_concat = self.encode_first_stage(c_concat).mode().detach()
                 c_w_uncond["c_concat"] = [torch.cat([c_concat, torch.zeros_like(c_concat), c_concat], 0)]
