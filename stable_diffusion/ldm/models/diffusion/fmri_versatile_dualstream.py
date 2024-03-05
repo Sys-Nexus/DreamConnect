@@ -777,6 +777,7 @@ class DualLDM(LatentDiffusion):
             
             if 'layout_concat' in new_cond.keys():
                 new_cond['noisy_c_concat'] = new_cond['layout_concat'][0]
+                new_cond.pop('layout_concat')
             # new_cond["injected_features"] = None
             # new_cond["noisy_c_concat"] = x_noisy_edit
 
