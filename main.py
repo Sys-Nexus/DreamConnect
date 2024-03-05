@@ -804,7 +804,7 @@ if __name__ == "__main__":
         from PIL import Image
         from torchvision import transforms
         layout_pil = Image.open(opt.layout_path)
-        layout_tensor = transforms.ToTensor()(layout_pil).unsqueeze(0) 
+        layout_in = transforms.ToTensor()(layout_pil).unsqueeze(0) 
         
         test_one_epoch(config, model, model_ema, data_loader_train, data_loader_val, 
                         optimizer, epoch, lr_scheduler, scaler, model_wrap, model_wrap_cfg, visdir, 
