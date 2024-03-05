@@ -769,12 +769,14 @@ class DualLDM(LatentDiffusion):
             for useful_block_idx in reversed(useful_block_idxes):
                 out_layers_injected[f"output_block_{useful_block_idx}_out_layers_features"] = control_res.pop(0)
 
-            import pdb; pdb.set_trace();
+            # import pdb; pdb.set_trace();
             ## this sentence will overwrite the obtained noisy_c_concat at inference time
             
             new_cond["injected_features"] = out_layers_injected
             new_cond["noisy_c_concat"] = noisy_c_concat
             
+            if 'layout_concat' in new_cond.keys():
+                new_cond['noisy_c_concat'] = new_cond['layout_concat'][0]
             # new_cond["injected_features"] = None
             # new_cond["noisy_c_concat"] = x_noisy_edit
 
