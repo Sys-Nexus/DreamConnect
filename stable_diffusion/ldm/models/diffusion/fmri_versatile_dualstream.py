@@ -496,7 +496,7 @@ class DualLDM(LatentDiffusion):
                    N=1, n_row=4, sample=True, 
                    steps=100, ddim_eta=1., return_keys=None,
                    quantize_denoised=True, inpaint=False,
-                   prospect_words=None):
+                   prospect_words=None, is_inst_edit=False):
         self.model.eval()
         s = batch['s'][0]
 
@@ -552,7 +552,7 @@ class DualLDM(LatentDiffusion):
 
         instruct_cap = batch['fmri_edit']['c_crossattn'][0]
         ######### designed dual-stream diffusion sampling ##########
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
         if unconditional_guidance_scale_edit is not None:
             z_gen, z_edit = self.sampler.decode_dual(
                 x_latent_gen=z_enc_gen,
@@ -564,6 +564,7 @@ class DualLDM(LatentDiffusion):
                 unconditional_guidance_scale_text_edit=None,
                 unconditional_guidance_scale_image_edit=None,
                 mixed_ratio=(1-self.mixing), 
+                is_inst_edit=is_inst_edit,
             )
         else:
             z_gen, z_edit, z0_gen_info, z0_edit_info = self.sampler.decode_dual(
@@ -578,7 +579,8 @@ class DualLDM(LatentDiffusion):
                 delay_t=delay_t,
                 mixed_ratio=(1-self.mixing),
                 is_save_intermediate=self.is_save_intermediate,
-                is_save_x0=self.is_save_x0
+                is_save_x0=self.is_save_x0,
+                is_inst_edit=is_inst_edit,
             )
             # import pdb; pdb.set_trace()
             x0_gen_info, x0_edit_info = [], []

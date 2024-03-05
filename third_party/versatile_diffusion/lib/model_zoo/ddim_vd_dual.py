@@ -652,7 +652,8 @@ class DDIMSampler_Dual(DDIMSampler):
                delay_t=None, unconditional_conditioning=None, xtype='image', 
                first_ctype='vision', second_ctype='prompt',
                use_original_steps=False, mixed_ratio=0.5, is_save_intermediate=True, 
-               is_save_x0=True, callback=None, coarse_spatial_steps=15):
+               is_save_x0=True, callback=None, coarse_spatial_steps=15,
+               is_inst_edit=False):
         # coarse_spatial_steps = 25
         timesteps = np.arange(self.ddpm_num_timesteps) if use_original_steps else self.ddim_timesteps
         timesteps = timesteps[:t_start]
@@ -707,6 +708,7 @@ class DDIMSampler_Dual(DDIMSampler):
         e = math.exp(1)
         tscale = np.linspace(0,1,len(timesteps))
         exp_tscale = (np.exp(tscale)-1) / (e-1)
+        if is_inst_edit: exp_tscale = np.ones_like(exp_tscale)
 
         for i, step in enumerate(iterator_2nd):
             # print(i, unconditional_guidance_scale_text_edit)
@@ -725,7 +727,7 @@ class DDIMSampler_Dual(DDIMSampler):
                                                     t=torch.ones_like(edit_ts) * (index + coarse_spatial_steps),
                                                     use_original_steps=use_original_steps)
                 # import pdb; pdb.set_trace()
-            # import pdb; pdb.set_trace();
+            import pdb; pdb.set_trace();
 
             x_dec_gen, x0_dec_gen, x_dec_edit, x0_dec_edit = self.asyn_p_sample_ddim_dual_cfg(
                 x_dec_gen, 
