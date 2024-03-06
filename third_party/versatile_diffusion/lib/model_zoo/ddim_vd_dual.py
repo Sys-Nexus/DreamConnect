@@ -412,7 +412,8 @@ class DDIMSampler_Dual(DDIMSampler):
                         is_save_intermediate=is_save_intermediate, 
                         is_save_x0=is_save_x0,
                         sqrt_one_minus_at=sqrt_one_minus_at,
-                        a_t=a_t)#.chunk(4)
+                        a_t=a_t,
+                        mixed_ratio=mixed_ratio)#.chunk(4)
 
         e_t_uncond_gen, _, e_t_gen_full = e_t_gen_cat.chunk(3)
         e_t_uncond_text_edit, e_t_uncond_image_edit, e_t_edit_full = e_t_edit_cat.chunk(3)
@@ -490,7 +491,8 @@ class DDIMSampler_Dual(DDIMSampler):
                             is_save_intermediate=is_save_intermediate,
                             is_save_x0=is_save_x0,
                             sqrt_one_minus_at=sqrt_one_minus_at,
-                            a_t=a_t)#.chunk(4)
+                            a_t=a_t,
+                            mixed_ratio=mixed_ratio)#.chunk(4)
 
         e_t_uncond_gen, _, e_t_gen_full = e_t_gen_cat.chunk(3)
         e_t_uncond_text_edit, e_t_uncond_image_edit, e_t_edit_full = e_t_edit_cat.chunk(3)
