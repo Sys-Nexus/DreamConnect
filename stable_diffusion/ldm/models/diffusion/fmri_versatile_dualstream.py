@@ -513,11 +513,12 @@ class DualLDM(LatentDiffusion):
         # import pdb; pdb.set_trace();
         c0 = torch.cat(c["c_crossattn_1"]["image_emb"], 1)
         if is_inst_gen is True:
+            self.mixing = 0.0
             c1 = [self.get_learned_conditioning(['*'],prospect_words=['*']*10)[0].detach()]
             c1 = torch.cat(c1, 1)
         else:
             # cond["c_crossattn"] = [self.get_learned_conditioning(['*'], prospect_words=prospect_words)[0].detach()]
-            c1 = torch.cat(c["c_crossattn_1"]["text_emb"], 1)            
+            c1 = torch.cat(c["c_crossattn_1"]["text_emb"], 1)
 
         prompt_emb = torch.cat(c["c_crossattn"], 1)
         uncond_c0 = torch.cat(c["c_crossattn_1"]["null_image_emb"], 1)
