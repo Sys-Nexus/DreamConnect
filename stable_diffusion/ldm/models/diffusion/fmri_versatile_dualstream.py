@@ -519,7 +519,7 @@ class DualLDM(LatentDiffusion):
             self.mixing = 1.0 # all text
             # self.mixing = 0.0 # all image
             # c1 = [self.get_learned_conditioning(['*'],prospect_words=['*']*10)[0].detach()]
-            c1 = self.get_learned_conditioning(['A bird'])
+            c1 = self.get_learned_conditioning(['A bird'])[0].detach()
             # import pdb; pdb.set_trace();
             c1 = torch.cat(c1, 1)
             z_enc_gen = torch.randn_like(z_enc_gen)
