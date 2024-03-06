@@ -503,11 +503,14 @@ class DualLDM(LatentDiffusion):
 
         # import pdb; pdb.set_trace();
         init_latent = torch.cat(c["c_crossattn_1"]["fmri_vae"],dim=0)
-
+        
         self.device = z_gt.device
         self.sampler.model.model.diffusion_model.device = z_gt.device
         self.sampler.make_schedule(ddim_num_steps=self.ddim_steps, ddim_eta=self.ddim_eta, verbose=False)
 
+        z_enc_gen = self.sampler.stochastic_encode(init_latent, torch.tensor([int(0.75*self.ddim_steps)]).to(z_gt.device))
+        z_enc_edit = torch.randn_like(init_latent)
+        
         c_w_uncond = copy.deepcopy(c)
 
         # import pdb; pdb.set_trace();
@@ -516,6 +519,8 @@ class DualLDM(LatentDiffusion):
             self.mixing = 0.0
             c1 = [self.get_learned_conditioning(['*'],prospect_words=['*']*10)[0].detach()]
             c1 = torch.cat(c1, 1)
+            z_enc_gen = torch.randn_like(z_enc_gen)
+            import pdb; pdb.set_trace();
         else:
             # cond["c_crossattn"] = [self.get_learned_conditioning(['*'], prospect_words=prospect_words)[0].detach()]
             c1 = torch.cat(c["c_crossattn_1"]["text_emb"], 1)
@@ -554,17 +559,8 @@ class DualLDM(LatentDiffusion):
             else:
                 c_w_uncond["c_crossattn"] = [torch.cat([null_prompt_emb, null_prompt_emb], 0)]
                 c_w_uncond["layout_concat"] = [torch.cat([layout_concat, torch.zeros_like(layout_concat), layout_concat], 0)]
-
-        # z_enc = self.sampler.stochastic_encode(init_latent, torch.tensor([self.t_enc]).to(z_gt.device))
-        # z_enc_gen = z_enc_edit = z_enc
-        # self.t_enc = t_enc
-        z_enc_gen = self.sampler.stochastic_encode(init_latent, torch.tensor([int(0.75*self.ddim_steps)]).to(z_gt.device))
-        # z_enc_edit = torch.randn_like(init_latent) #* self.scale_factor
-        # z_enc_edit = self.sampler.stochastic_encode(torch.randn_like(init_latent), torch.tensor([int(0.75*50)]).to(z_gt.device))
-        z_enc_edit = torch.randn_like(init_latent)
-        # import pdb; pdb.set_trace()
+        
         t_enc = 49
-
         instruct_cap = batch['fmri_edit']['c_crossattn'][0]
         ######### designed dual-stream diffusion sampling ##########
         # import pdb; pdb.set_trace()

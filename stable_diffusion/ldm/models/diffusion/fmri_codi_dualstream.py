@@ -367,9 +367,6 @@ class DualLDM(LatentDiffusion):
         z_enc = self.sampler.stochastic_encode(init_latent, torch.tensor([self.t_enc]).to(z_gt.device))
         z_enc_gen = z_enc_edit = z_enc
 
-        # z_enc_edit = torch.randn_like(z_enc)
-        # z_enc_gen = torch.randn_like(z_gt)
-
         instruct_cap = batch['fmri_edit']['c_crossattn'][0]
         ######### designed dual-stream diffusion sampling ##########
         z_gen, z_edit = self.sampler.decode_dual(
