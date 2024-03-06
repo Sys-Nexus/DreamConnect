@@ -655,7 +655,7 @@ class DDIMSampler_Dual(DDIMSampler):
                is_save_x0=True, callback=None, coarse_spatial_steps=15,
                is_inst_edit=False):
         # coarse_spatial_steps = 25
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
         timesteps = np.arange(self.ddpm_num_timesteps) if use_original_steps else self.ddim_timesteps
         timesteps = timesteps[:t_start]
 
