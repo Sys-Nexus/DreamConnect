@@ -516,8 +516,8 @@ class DualLDM(LatentDiffusion):
         # import pdb; pdb.set_trace();
         c0 = torch.cat(c["c_crossattn_1"]["image_emb"], 1)
         if is_inst_gen is True:
-            # self.mixing = 0.0
-            self.mixing = 0.0
+            self.mixing = 1.0 # all text
+            # self.mixing = 0.0 # all image
             # c1 = [self.get_learned_conditioning(['*'],prospect_words=['*']*10)[0].detach()]
             # c1 = torch.cat(c1, 1)
             # z_enc_gen = torch.randn_like(z_enc_gen)
