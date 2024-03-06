@@ -47,5 +47,6 @@ CUDA_LAUNCH_BLOCKING=1 CUDA_VISIBLE_DEVICES=${gpus} ${run_cmd} main.py --name ${
           --cfg_text ${cfg_text} \
           --prospect_ckpt_path ${prospect_ckpt_path} \
           --cfg_text_edit ${cfg_text_edit} \
-          --layout_path ${layout_path}
+          --layout_path ${layout_path} \
+          --is_inst_gen True
           # --is_inst_edit True \

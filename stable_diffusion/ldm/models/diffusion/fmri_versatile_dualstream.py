@@ -104,16 +104,6 @@ class PreVersatileNetAdaptor(UNetModelVD):
 
         ch = channel_mult[-1] * model_channels
         self.middle_block_out = self.make_zero_conv(ch)
-        # self.x0_block_out = self.make_zero_conv(4)
-
-        ### for pre-feature extraction
-        # self.zero_convs = nn.ModuleList([self.make_zero_conv(model_channels)]) # different from postversatilenetadaptor
-        # for level, mult in enumerate(channel_mult):
-        #     for nr in range(self.num_noattn_blocks[level]):
-        #         ch = mult * model_channels
-        #         self.zero_convs.append(self.make_zero_conv(ch))
-        #     if level != len(channel_mult) - 1:
-        #         self.zero_convs.append(self.make_zero_conv(ch))
 
         ### for post-feature extraction
         self.zero_convs = nn.ModuleList([])
@@ -492,7 +482,9 @@ class DualLDM(LatentDiffusion):
                    N=1, n_row=4, sample=True, 
                    steps=100, ddim_eta=1., return_keys=None,
                    quantize_denoised=True, inpaint=False,
-                   prospect_words=None, is_inst_edit=False,
+                   prospect_words=None, 
+                   is_inst_edit=False,
+                   is_inst_gen=False,
                    layout_in=None):
         self.model.eval()
         s = batch['s'][0]
@@ -518,9 +510,14 @@ class DualLDM(LatentDiffusion):
 
         c_w_uncond = copy.deepcopy(c)
 
-        # import pdb; pdb.set_trace();
+        import pdb; pdb.set_trace();
         c0 = torch.cat(c["c_crossattn_1"]["image_emb"], 1)
-        c1 = torch.cat(c["c_crossattn_1"]["text_emb"], 1)
+        if is_inst_gen is True:
+            c1 = [self.get_learned_conditioning(['*'],prospect_words=['*']*10)[0].detach()]
+        else:
+            # cond["c_crossattn"] = [self.get_learned_conditioning(['*'], prospect_words=prospect_words)[0].detach()]
+            c1 = torch.cat(c["c_crossattn_1"]["text_emb"], 1)            
+
         prompt_emb = torch.cat(c["c_crossattn"], 1)
         uncond_c0 = torch.cat(c["c_crossattn_1"]["null_image_emb"], 1)
         uncond_c1 = torch.cat(c["c_crossattn_1"]["null_text_emb"], 1)
@@ -643,7 +640,7 @@ class DualLDM(LatentDiffusion):
         # import pdb; pdb.set_trace()
 
     def apply_model(self, x_noisy_gen, x_noisy_edit, t, cond=None, t_edit_in=None, is_save_intermediate=True, is_save_x0=False, 
-                        is_return_x0=False, sqrt_one_minus_at=None, a_t=None, return_ids=False):
+                        is_return_x0=False, sqrt_one_minus_at=None, a_t=None, return_ids=False, mixed_ratio=0.6):
         if isinstance(cond, dict):
             # hybrid case, cond is exptected to be a dict
             pass
@@ -752,7 +749,7 @@ class DualLDM(LatentDiffusion):
                                                         timesteps=t,
                                                         c0=c0, c1=c1,
                                                         xtype='image', c0_type='vision', 
-                                                        c1_type='prompt', mixed_ratio=0.6,
+                                                        c1_type='prompt', mixed_ratio=mixed_ratio,
                                                         is_save_intermediate=is_save_intermediate,
                                                         is_save_x0=is_save_x0,
                                                         sqrt_one_minus_at=sqrt_one_minus_at,

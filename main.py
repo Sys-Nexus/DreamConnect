@@ -260,6 +260,12 @@ def get_parser(**parser_kwargs):
         help="",
     )
     parser.add_argument(
+        "--is_inst_gen",
+        type=bool,
+        default=False,
+        help="",
+    )
+    parser.add_argument(
         "--cfg_text_edit",
         type=float,
         default=7.5,
@@ -398,25 +404,25 @@ class DataModuleFromConfig():
 
 def test_one_epoch(config, model, model_ema, data_loader, val_data_loader, optimizer, epoch, 
         lr_scheduler, scaler, model_wrap, model_wrap_cfg, save_dir, cfg_text, cfg_text_edit,
-        prospect_words=None, is_inst_edit=False, layout_in=None):
+        prospect_words=None, is_inst_edit=False, is_inst_gen=False, layout_in=None):
     model.eval()
     epoch, idx = 999999, 999999
     with torch.no_grad():
         for val_idx, batch in enumerate(val_data_loader):
             batch_size = batch['image'].shape[0]
             if model_wrap is not None:
-                if is_inst_edit is True:
+                if is_inst_edit is True or is_inst_gen is True:
                     model.log_images(batch, epoch, idx, val_idx, model_wrap, model_wrap_cfg, 
                                  save_dir, 'val', cfg_text=cfg_text, cfg_text_edit=cfg_text_edit, cfg_fmri=2.5,
-                                 prospect_words=prospect_words, is_inst_edit=is_inst_edit)
-                elif layout_in is not None:
-                    model.log_images(batch, epoch, idx, val_idx, model_wrap, model_wrap_cfg, 
-                                 save_dir, 'val', cfg_text=cfg_text, cfg_text_edit=cfg_text_edit, cfg_fmri=2.5,
-                                 prospect_words=None, is_inst_edit=is_inst_edit, layout_in=layout_in)
+                                 prospect_words=prospect_words, is_inst_edit=is_inst_edit, is_inst_gen=is_inst_gen)
+                # elif layout_in is not None:
+                #     model.log_images(batch, epoch, idx, val_idx, model_wrap, model_wrap_cfg, 
+                #                  save_dir, 'val', cfg_text=cfg_text, cfg_text_edit=cfg_text_edit, cfg_fmri=2.5,
+                #                  prospect_words=None, is_inst_edit=False, layout_in=layout_in)
                 else:
                     model.log_images(batch, epoch, idx, val_idx, model_wrap, model_wrap_cfg, 
                                  save_dir, 'val', cfg_text=cfg_text, cfg_text_edit=cfg_text_edit, cfg_fmri=2.5,
-                                 prospect_words=None, is_inst_edit=is_inst_edit)
+                                 prospect_words=None, is_inst_edit=False, is_inst_gen=False)
     model.train()
 
 def train_one_epoch(config, model, model_ema, data_loader, val_data_loader, optimizer, epoch, 
@@ -809,7 +815,9 @@ if __name__ == "__main__":
         test_one_epoch(config, model, model_ema, data_loader_train, data_loader_val, 
                         optimizer, epoch, lr_scheduler, scaler, model_wrap, model_wrap_cfg, visdir, 
                         cfg_text=opt.cfg_text, cfg_text_edit=opt.cfg_text_edit,
-                        prospect_words=prospect_words, is_inst_edit=opt.is_inst_edit,
+                        prospect_words=prospect_words, 
+                        is_inst_edit=opt.is_inst_edit,
+                        is_inst_gen=opt.is_inst_gen,
                         layout_in=layout_in)
 
     total_time = time.time() - start_time
