@@ -518,10 +518,10 @@ class DualLDM(LatentDiffusion):
         if is_inst_gen is True:
             self.mixing = 1.0 # all text
             # self.mixing = 0.0 # all image
-            # c1 = [self.get_learned_conditioning(['*'],prospect_words=['*']*10)[0].detach()]
-            # c1 = torch.cat(c1, 1)
-            # z_enc_gen = torch.randn_like(z_enc_gen)
-            c1 = torch.cat(c["c_crossattn_1"]["text_emb"], 1)
+            c1 = [self.get_learned_conditioning(['*'],prospect_words=['*']*10)[0].detach()]
+            c1 = torch.cat(c1, 1)
+            z_enc_gen = torch.randn_like(z_enc_gen)
+            # c1 = torch.cat(c["c_crossattn_1"]["text_emb"], 1)
             # import pdb; pdb.set_trace();
         else:
             # cond["c_crossattn"] = [self.get_learned_conditioning(['*'], prospect_words=prospect_words)[0].detach()]
