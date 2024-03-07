@@ -510,8 +510,8 @@ class DDIMSampler_Dual(DDIMSampler):
             select_cond_dict = copy.deepcopy(cond_dict)
             select_cond_dict['c_crossattn_1']['text_emb'] = [cond_dict['c_crossattn_1']['text_emb'][t_select]]
             if t_select < 7: mixed_ratio = 0.6
-            print('t_select: ', t_select)
-            import pdb; pdb.set_trace()
+            # print('t_select: ', t_select)
+            # import pdb; pdb.set_trace()
         
             e_t_gen_cat, e_t_edit_cat = self.model.apply_model(
                 x_gen_in, x_edit_in, t_gen_in, select_cond_dict, t_edit_in=t_edit_in,
