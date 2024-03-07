@@ -504,6 +504,7 @@ class DDIMSampler_Dual(DDIMSampler):
         t_gen_in = torch.cat([t_gen] * 3)
         t_edit_in = torch.cat([t_edit] * 3)
         
+        import pdb; pdb.set_trace()
         if len(cond_dict['c_crossattn_1']['text_emb']) > 1:
             t_select = int(t.item()*self.prospect_stages/1000)
             select_cond_dict = copy.deepcopy(cond_dict)
