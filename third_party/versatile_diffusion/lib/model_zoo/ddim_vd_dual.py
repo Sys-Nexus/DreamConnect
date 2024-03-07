@@ -407,6 +407,8 @@ class DDIMSampler_Dual(DDIMSampler):
         x_edit_in = torch.cat([x_edit] * 3)
         t_in = torch.cat([t] * 3)
         
+        print('t_in: ', t_in)
+        import pdb; pdb.set_trace()
         e_t_gen_cat, e_t_edit_cat = self.model.apply_model(
                         x_gen_in, x_edit_in, t_in, cond_dict, 
                         is_save_intermediate=is_save_intermediate, 
