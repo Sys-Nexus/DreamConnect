@@ -226,6 +226,7 @@ class DualLDM(LatentDiffusion):
         for param in self.embedding_manager.embedding_parameters():
             param.requires_grad = False
         self.device = next(self.parameters()).device
+        self.prospect_stages = 10
 
     def instantiate_embedding_manager(self, config, embedder):
         model = instantiate_from_config(config, embedder=embedder)
@@ -544,7 +545,11 @@ class DualLDM(LatentDiffusion):
         # import pdb; pdb.set_trace();
         if cfg_text_edit is not None and cfg_image_edit is not None:
             c_w_uncond["c_crossattn_1"]["image_emb"] = [torch.cat([uncond_c0, c0, c0], 0)]
-            c_w_uncond["c_crossattn_1"]["text_emb"] = [torch.cat([uncond_c1, c1, c1], 0)]
+            if is_inst_gen is True:
+                new_c1 = torch.cat(c["c_crossattn_1"]["text_emb"], 1)
+                c_w_uncond["c_crossattn_1"]["text_emb"] = [torch.cat([uncond_c1, new_c1, new_c1], 0)]*7 + [torch.cat([uncond_c1, c1, c1], 0)]*3
+            else:
+                c_w_uncond["c_crossattn_1"]["text_emb"] = [torch.cat([uncond_c1, c1, c1], 0)]
             c_w_uncond["c_crossattn"] = [torch.cat([null_prompt_emb, prompt_emb, prompt_emb], 0)]
             if layout_in is None:
                 c_concat = F.interpolate(xc["c_concat"], (512, 512))

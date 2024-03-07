@@ -407,15 +407,28 @@ class DDIMSampler_Dual(DDIMSampler):
         x_edit_in = torch.cat([x_edit] * 3)
         t_in = torch.cat([t] * 3)
         
-        print('t_in: ', t_in)
-        import pdb; pdb.set_trace()
-        e_t_gen_cat, e_t_edit_cat = self.model.apply_model(
-                        x_gen_in, x_edit_in, t_in, cond_dict, 
-                        is_save_intermediate=is_save_intermediate, 
-                        is_save_x0=is_save_x0,
-                        sqrt_one_minus_at=sqrt_one_minus_at,
-                        a_t=a_t,
-                        mixed_ratio=mixed_ratio)#.chunk(4)
+        # print('t_in: ', t_in)
+        # import pdb; pdb.set_trace()
+        if len(cond_dict['c_crossattn_1']['text_emb']) > 1:
+            t_select = int(t.item()*self.prospect_stages/1000)
+            select_cond_dict = copy.deepcopy(cond_dict)
+            select_cond_dict['c_crossattn_1']['text_emb'] = [cond_dict['c_crossattn_1']['text_emb'][t_select]]
+            if t_select < 7: mixed_ratio = 0.6
+            e_t_gen_cat, e_t_edit_cat = self.model.apply_model(
+                            x_gen_in, x_edit_in, t_in, select_cond_dict, 
+                            is_save_intermediate=is_save_intermediate, 
+                            is_save_x0=is_save_x0,
+                            sqrt_one_minus_at=sqrt_one_minus_at,
+                            a_t=a_t,
+                            mixed_ratio=mixed_ratio)#.chunk(4)
+        else:
+            e_t_gen_cat, e_t_edit_cat = self.model.apply_model(
+                            x_gen_in, x_edit_in, t_in, cond_dict, 
+                            is_save_intermediate=is_save_intermediate, 
+                            is_save_x0=is_save_x0,
+                            sqrt_one_minus_at=sqrt_one_minus_at,
+                            a_t=a_t,
+                            mixed_ratio=mixed_ratio)#.chunk(4)
 
         e_t_uncond_gen, _, e_t_gen_full = e_t_gen_cat.chunk(3)
         e_t_uncond_text_edit, e_t_uncond_image_edit, e_t_edit_full = e_t_edit_cat.chunk(3)

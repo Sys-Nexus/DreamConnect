@@ -14,6 +14,7 @@ class DDIMSampler(object):
         self.model = model
         self.ddpm_num_timesteps = model.num_timesteps
         self.schedule = schedule
+        self.prospect_stages=model.prospect_stages
 
     def register_buffer(self, name, attr):
         if type(attr) == torch.Tensor:
