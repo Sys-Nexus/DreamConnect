@@ -513,7 +513,7 @@ class DualLDM(LatentDiffusion):
         
         c_w_uncond = copy.deepcopy(c)
 
-        import pdb; pdb.set_trace();
+        # import pdb; pdb.set_trace();
         c0 = torch.cat(c["c_crossattn_1"]["image_emb"], 1)
         if is_inst_gen is True:
             self.mixing = 1.0 # all text
@@ -522,6 +522,17 @@ class DualLDM(LatentDiffusion):
             # c1 = self.get_learned_conditioning(['A bird'])[0].detach()
             c1 = self.vd_clip.clip_encode_text(['A cat.'])
             # import pdb; pdb.set_trace();
+
+
+
+
+
+
+
+
+
+
+
             # c1 = torch.cat(c1, 1)
             z_enc_gen = torch.randn_like(z_enc_gen)
             # c1 = torch.cat(c["c_crossattn_1"]["text_emb"], 1)
