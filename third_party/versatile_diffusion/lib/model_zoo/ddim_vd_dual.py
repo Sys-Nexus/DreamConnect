@@ -409,12 +409,14 @@ class DDIMSampler_Dual(DDIMSampler):
         t_in = torch.cat([t] * 3)
         
         # print('t_in: ', t_in)
-        # import pdb; pdb.set_trace()
         if len(cond_dict['c_crossattn_1']['text_emb']) > 1:
             t_select = int(t.item()*self.prospect_stages/1000)
             select_cond_dict = copy.deepcopy(cond_dict)
             select_cond_dict['c_crossattn_1']['text_emb'] = [cond_dict['c_crossattn_1']['text_emb'][t_select]]
             if t_select < 7: mixed_ratio = 0.6
+            print('t_select: ', t_select)
+            import pdb; pdb.set_trace()
+
             e_t_gen_cat, e_t_edit_cat = self.model.apply_model(
                             x_gen_in, x_edit_in, t_in, select_cond_dict, 
                             is_save_intermediate=is_save_intermediate, 
