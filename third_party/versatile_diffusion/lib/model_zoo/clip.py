@@ -116,7 +116,7 @@ class FrozenCLIP(AbstractEncoder):
         z = self.model.text_projection(outputs.last_hidden_state)
         z_pooled = self.model.text_projection(outputs.pooler_output)
         z = z / torch.norm(z_pooled.unsqueeze(1), dim=-1, keepdim=True)
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
         return z
 
     def encode_vision(self, images):
