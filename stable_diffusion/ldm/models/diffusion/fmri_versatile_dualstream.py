@@ -198,7 +198,8 @@ class DualLDM(LatentDiffusion):
             print('clip missing {} params.'.format(len(missing)))
             print('clip missing: ', missing)
             print('clip unexpected {} params.'.format(len(unexpected)))
-
+        
+        self.prospect_stages = 10
         self.sampler = DDIMSampler_Dual(self)
 
         # ddim_steps = 50
@@ -226,7 +227,6 @@ class DualLDM(LatentDiffusion):
         for param in self.embedding_manager.embedding_parameters():
             param.requires_grad = False
         self.device = next(self.parameters()).device
-        self.prospect_stages = 10
 
     def instantiate_embedding_manager(self, config, embedder):
         model = instantiate_from_config(config, embedder=embedder)
