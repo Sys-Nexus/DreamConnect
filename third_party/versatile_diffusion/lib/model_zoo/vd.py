@@ -395,6 +395,7 @@ class VD(DDPM):
         swap_type = self.clip.encode_type
         self.clip.encode_type = encode_type
         embedding = self.clip.encode(text)
+        import pdb; pdb.set_trace()
         self.clip.encode_type = swap_type
         return embedding
 
