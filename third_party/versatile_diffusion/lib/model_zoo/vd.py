@@ -223,7 +223,7 @@ class VDCLIP(nn.Module):
         self.clip.encode_type = encode_type
         embedding = self.clip.encode(text)
         self.clip.encode_type = swap_type
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
         return embedding
 
     @torch.no_grad()
