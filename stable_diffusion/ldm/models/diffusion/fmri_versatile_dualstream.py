@@ -42,6 +42,7 @@ from ldm.modules.diffusionmodules.openaimodel import UNetModel
 from ldm.modules.attention import SpatialTransformer
 from ldm.modules.encoders.modules import FrozenClipImageEmbedder
 from ldm.util import default
+from ldm.models.diffusion.alignblock import align_block
 
 
 class ControlledUnetModel(UNetModel):
@@ -181,7 +182,7 @@ class PreVersatileNetAdaptor(UNetModelVD):
 
 
 class DualLDM(LatentDiffusion):
-    def __init__(self, clip_cfg, fmri_vclip_cfg=None, fmri_vclip_pretrain_path=None, personalization_config=None, *args, **kwargs):
+    def __init__(self, clip_cfg, fmri2clip_cfg=None, fmri_vclip_cfg=None, fmri_vclip_pretrain_path=None, personalization_config=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.vd_clip = VDCLIP(clip_cfg)
 
@@ -217,6 +218,9 @@ class DualLDM(LatentDiffusion):
         self.mixing = mixing
 
         # import pdb; pdb.set_trace();
+        if fmri2clip_cfg is not None:
+            self.instantiate_fmri2clip(fmri2clip_cfg)
+
         if fmri_vclip_cfg is not None:
             self.fmri_vclip_pretrain_path = fmri_vclip_pretrain_path
             self.instantiate_fmri_vclip(fmri_vclip_cfg)
@@ -227,6 +231,11 @@ class DualLDM(LatentDiffusion):
         for param in self.embedding_manager.embedding_parameters():
             param.requires_grad = False
         self.device = next(self.parameters()).device
+
+    def instantiate_fmri2clip(self, config):
+        model = instantiate_from_config(config)
+        import pdb; pdb.set_trace()
+        return model
 
     def instantiate_embedding_manager(self, config, embedder):
         model = instantiate_from_config(config, embedder=embedder)
