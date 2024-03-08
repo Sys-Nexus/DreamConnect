@@ -165,7 +165,7 @@ model:
       name: clip_frozen
       type: clip_frozen
     
-    fmri2clip_pretrain_path: '/data/yashengsun/Proj/MMEdit/fMRIInstructDiffusion/checkpoints/bohan_recon/'
+    fmri2clip_pretrain_path: '/data/yashengsun/Proj/MMEdit/fMRIInstructDiffusion/checkpoints/bohan_recon/state.pth'
     fmri2clip_cfg:
       target: ldm.models.diffusion.alignblock.align_block
       params:
