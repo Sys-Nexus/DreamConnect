@@ -33,6 +33,7 @@ def load_checkpoint(file_name, config, model, model_ema, optimizer, lr_scheduler
     else:        
         logger.info(f"==============> Resuming form {file_name}....................")
         checkpoint = torch.load(file_name, map_location='cpu')
+        import pdb; pdb.set_trace()
         msg = model.load_state_dict(checkpoint['model'], strict=False)
         logger.info(msg)
         max_accuracy = 0.0
