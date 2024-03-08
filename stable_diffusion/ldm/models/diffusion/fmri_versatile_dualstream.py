@@ -182,7 +182,8 @@ class PreVersatileNetAdaptor(UNetModelVD):
 
 
 class DualLDM(LatentDiffusion):
-    def __init__(self, clip_cfg, fmri2clip_cfg=None, fmri_vclip_cfg=None, fmri_vclip_pretrain_path=None, personalization_config=None, *args, **kwargs):
+    def __init__(self, clip_cfg, fmri2clip_cfg=None, fmri2clip_pretrain_path=None,
+                fmri_vclip_cfg=None, fmri_vclip_pretrain_path=None, personalization_config=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.vd_clip = VDCLIP(clip_cfg)
 
@@ -220,6 +221,7 @@ class DualLDM(LatentDiffusion):
         # import pdb; pdb.set_trace();
         if fmri2clip_cfg is not None:
             self.instantiate_fmri2clip(fmri2clip_cfg)
+            self.fmri2clip_pretrain_path = fmri2clip_pretrain_path
 
         if fmri_vclip_cfg is not None:
             self.fmri_vclip_pretrain_path = fmri_vclip_pretrain_path
@@ -234,6 +236,7 @@ class DualLDM(LatentDiffusion):
 
     def instantiate_fmri2clip(self, config):
         model = instantiate_from_config(config)
+        ckpt = torch.load(self.fmri2clip_pretrain_path)
         import pdb; pdb.set_trace()
         return model
 
