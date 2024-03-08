@@ -220,8 +220,8 @@ class DualLDM(LatentDiffusion):
 
         # import pdb; pdb.set_trace();
         if fmri2clip_cfg is not None:
-            self.instantiate_fmri2clip(fmri2clip_cfg)
             self.fmri2clip_pretrain_path = fmri2clip_pretrain_path
+            self.instantiate_fmri2clip(fmri2clip_cfg)
 
         if fmri_vclip_cfg is not None:
             self.fmri_vclip_pretrain_path = fmri_vclip_pretrain_path
