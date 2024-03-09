@@ -219,9 +219,11 @@ class DualLDM(LatentDiffusion):
         self.mixing = mixing
 
         # import pdb; pdb.set_trace();
+        self.fmri2clip_model = None
         if fmri2clip_cfg is not None:
             self.fmri2clip_pretrain_path = fmri2clip_pretrain_path
-            self.instantiate_fmri2clip(fmri2clip_cfg)
+            self.fmri2clip_model = self.instantiate_fmri2clip(fmri2clip_cfg)
+            self.fmri2clip_model.eval()
 
         if fmri_vclip_cfg is not None:
             self.fmri_vclip_pretrain_path = fmri_vclip_pretrain_path
@@ -236,8 +238,12 @@ class DualLDM(LatentDiffusion):
 
     def instantiate_fmri2clip(self, config):
         model = instantiate_from_config(config)
-        ckpt = torch.load(self.fmri2clip_pretrain_path)
-        import pdb; pdb.set_trace()
+        state_dict = torch.load(self.fmri2clip_pretrain_path)['module']
+        filter_state_dict = {k.replace('align_model.',''):v for k,v in state_dict.items() if 'align_model.' in k}
+        missing, unexpected = model.load_state_dict(filter_state_dict, strict=False)
+        print('missing: ', missing)
+        print('unexpected: ', unexpected)
+        # import pdb; pdb.set_trace()
         return model
 
     def instantiate_embedding_manager(self, config, embedder):
@@ -419,6 +425,14 @@ class DualLDM(LatentDiffusion):
             if voxel.shape[1] == 3: voxel = voxel.mean(dim=1)
             self.fmri2lowlevel = self.fmri2lowlevel.float()
             lowlevel_vae = self.fmri2lowlevel(voxel).half()
+
+        if self.fmri2clip_model is not None:
+            with torch.no_grad():
+                voxel = batch['fmri'].to(z)
+                if bs is not None: voxel = voxel[:bs]
+                if voxel.shape[1] == 3: voxel = voxel.mean(dim=1)
+                pred_image_emb, pred_text_emb = self.fmri2clip_model(voxel)
+                import pdb; pdb.set_trace()
 
         cond_key = cond_key or self.cond_stage_key
 
