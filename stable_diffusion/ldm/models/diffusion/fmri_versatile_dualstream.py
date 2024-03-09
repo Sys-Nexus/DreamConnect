@@ -426,6 +426,7 @@ class DualLDM(LatentDiffusion):
             self.fmri2lowlevel = self.fmri2lowlevel.float()
             lowlevel_vae = self.fmri2lowlevel(voxel).half()
 
+        pred_image_emb, pred_text_emb = None, None
         if self.fmri2clip_model is not None:
             with torch.no_grad():
                 voxel = batch['fmri'].to(z)
@@ -433,7 +434,7 @@ class DualLDM(LatentDiffusion):
                 if voxel.shape[1] == 3: voxel = voxel.mean(dim=1)
                 self.fmri2clip_model = self.fmri2clip_model.float()
                 pred_image_emb, pred_text_emb = self.fmri2clip_model(voxel)
-                import pdb; pdb.set_trace()
+                # import pdb; pdb.set_trace()
 
         cond_key = cond_key or self.cond_stage_key
 
@@ -468,6 +469,9 @@ class DualLDM(LatentDiffusion):
         fmri_null_cap = self.vd_clip.clip_encode_text(null_cap)
         fmri_x = self.vd_clip.clip_encode_vision(xc["c_concat"])
         fmri_cap = self.vd_clip.clip_encode_text(cap)
+
+        if pred_image_emb is not None:
+            fmri_x, fmri_cap = pred_image_emb, pred_text_emb
 
         cond["c_crossattn_1"] = {}
         if force_c_encode is False:
