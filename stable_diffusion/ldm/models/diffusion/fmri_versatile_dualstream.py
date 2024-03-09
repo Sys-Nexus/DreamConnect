@@ -469,9 +469,9 @@ class DualLDM(LatentDiffusion):
         fmri_x = self.vd_clip.clip_encode_vision(xc["c_concat"])
         fmri_cap = self.vd_clip.clip_encode_text(cap)
 
-        import pdb; pdb.set_trace();
+        # import pdb; pdb.set_trace();
         if pred_image_emb is not None:
-            fmri_x, fmri_cap = pred_image_emb, pred_text_emb
+            fmri_x, fmri_cap = pred_image_emb.half(), pred_text_emb.half()
 
         cond["c_crossattn_1"] = {}
         if force_c_encode is False:
