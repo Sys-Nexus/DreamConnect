@@ -809,9 +809,11 @@ if __name__ == "__main__":
         prospect_words = ['Change the picture to * style.'] #* 10
         from PIL import Image
         from torchvision import transforms
-        layout_pil = Image.open(opt.layout_path)
-        layout_in = transforms.ToTensor()(layout_pil).unsqueeze(0)*2. - 1.0
-        
+        if os.path.exists(opt.layout_path):
+            layout_pil = Image.open(opt.layout_path)
+            layout_in = transforms.ToTensor()(layout_pil).unsqueeze(0)*2. - 1.0
+        else:
+            layout_in = None
         test_one_epoch(config, model, model_ema, data_loader_train, data_loader_val, 
                         optimizer, epoch, lr_scheduler, scaler, model_wrap, model_wrap_cfg, visdir, 
                         cfg_text=opt.cfg_text, cfg_text_edit=opt.cfg_text_edit,
