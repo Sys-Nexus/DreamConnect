@@ -431,6 +431,7 @@ class DualLDM(LatentDiffusion):
                 voxel = batch['fmri'].to(z)
                 if bs is not None: voxel = voxel[:bs]
                 if voxel.shape[1] == 3: voxel = voxel.mean(dim=1)
+                self.fmri2clip_model = self.fmri2clip_model.float()
                 pred_image_emb, pred_text_emb = self.fmri2clip_model(voxel)
                 import pdb; pdb.set_trace()
 
