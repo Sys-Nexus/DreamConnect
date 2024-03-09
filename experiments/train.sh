@@ -40,7 +40,7 @@ CUDA_LAUNCH_BLOCKING=1 CUDA_VISIBLE_DEVICES=${gpus} ${run_cmd} main.py --name ${
           --base configs/${jobname}.yaml \
           --train \
           --gpus ${gpus} \
-          --resume ${resume_path} \
+          --resume '' \
           --num_nodes ${num_nodes} \
           --filter_mode ${filter_mode} \
           --no-test True \
