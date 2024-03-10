@@ -82,6 +82,7 @@ model:
     control_stage_config:
       target: ldm.models.diffusion.fmri_versatile_dualstream.PreVersatileNetAdaptor
       params:
+        train_feat_adaptor: False
         unet_image_cfg:
           # target: third_party.versatile_diffusion.lib.model_zoo.openaimodel.UNetModel2D
           type: openai_unet_2d

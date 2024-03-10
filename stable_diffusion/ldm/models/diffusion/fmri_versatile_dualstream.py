@@ -101,7 +101,7 @@ class PreVersatileNetAdaptor(UNetModelVD):
         dims = self.dims = 2
         model_channels = self.model_channels
         channel_mult = self.channel_mult
-
+        self.train_feat_adaptor = kwargs['train_feat_adaptor']
 
         ch = channel_mult[-1] * model_channels
         self.middle_block_out = self.make_zero_conv(ch)
@@ -161,8 +161,10 @@ class PreVersatileNetAdaptor(UNetModelVD):
                 # outs.append(self.unet_image.output_blocks[block_idx][0].out_layers_features)
                 feat_i = self.unet_image.output_blocks[block_idx][0].out_layers_features
                 import pdb; pdb.set_trace()
-                # feat_i_transformed = zero_conv(feat_i, emb)
-                feat_i_transformed = feat_i
+                if self.train_feat_adaptor is True:
+                    feat_i_transformed = zero_conv(feat_i, emb) + feat_i
+                else:
+                    feat_i_transformed = feat_i
                 outs.append(feat_i_transformed)
             block_idx += 1
 
