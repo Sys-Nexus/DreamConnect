@@ -2,6 +2,7 @@ import os
 import sys
 import glob
 import torch
+import torchvision
 from torchvision import transforms
 from PIL import Image
 
@@ -26,7 +27,7 @@ def main():
     for image_path in image_files:
         # Open the image using PIL (or you can use cv2.imread() from OpenCV)
         image = Image.open(image_path)
-        image_crop = image.crop((0, 512*4, 512, 512*5))
+        image_crop = image.crop((0, 512*3, 512, 512*4))
         # Apply transformations
         image = transform(image_crop)
         # Append the image to the list
@@ -34,7 +35,7 @@ def main():
 
     # Convert list of images to a tensor
     images = torch.stack(images)
-    import pdb; pdb.set_trace()
+    # import pdb; pdb.set_trace()
     # Save the tensor of images as a PyTorch checkpoint
     torch.save(images, 'pred_images.pt')
 
