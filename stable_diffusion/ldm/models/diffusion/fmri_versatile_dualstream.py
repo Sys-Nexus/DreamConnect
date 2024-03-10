@@ -96,12 +96,12 @@ class ControlledUnetModel(UNetModel):
             return super().forward(x, timesteps=timesteps, context=context, **kwargs)
 
 class PreVersatileNetAdaptor(UNetModelVD):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, train_feat_adaptor=False, *args, **kwargs):
         super().__init__(*args, **kwargs)
         dims = self.dims = 2
         model_channels = self.model_channels
         channel_mult = self.channel_mult
-        self.train_feat_adaptor = kwargs['train_feat_adaptor']
+        self.train_feat_adaptor = train_feat_adaptor
 
         ch = channel_mult[-1] * model_channels
         self.middle_block_out = self.make_zero_conv(ch)
