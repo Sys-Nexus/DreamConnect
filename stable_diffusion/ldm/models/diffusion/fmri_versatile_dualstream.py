@@ -291,14 +291,14 @@ class DualLDM(LatentDiffusion):
 
     ### TODO: what we should give to noise_edit
     def p_losses(self, x_start_gen, x_start_edit, cond, t, noise=None, noise_edit=None, t_edit=None, is_return_x0=True):
-        import pdb; pdb.set_trace();
+        # import pdb; pdb.set_trace();
         noise_gen = default(noise, lambda: torch.randn_like(x_start_gen))
         x_noisy_gen = self.q_sample(x_start=x_start_gen, t=t, noise=noise_gen)
 
         noise_edit = default(noise_edit, lambda: torch.randn_like(x_start_edit))
         noise = noise_edit
 
-        t_edit = t if t_edit is not None else t.clone()
+        t_edit = t.clone() if t_edit is None else t_edit
         x_noisy_edit = self.q_sample(x_start=x_start_edit, t=t_edit, noise=noise_edit)
 
         b = x_start_gen.shape[0]
@@ -343,6 +343,7 @@ class DualLDM(LatentDiffusion):
             gt_image_x0 = self.decode_first_stage(x_start_edit)
             pred_gt = torch.cat([pred_image_x0, gt_image_x0], dim=2)
             torchvision.utils.save_image(pred_gt*0.5+0.5, 'pred_gt.jpg')
+            import pdb; pdb.set_trace()
             # loss_simple = self.get_loss(model_output_x0, x_start_edit, mean=False).mean([1, 2, 3])
             loss_cosine, loss_l1 = self.get_clip_loss(pred_image_x0, gt_image_x0)
             loss_simple = loss_cosine + loss_l1
