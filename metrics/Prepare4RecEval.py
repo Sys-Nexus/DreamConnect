@@ -26,16 +26,15 @@ def main():
     for image_path in image_files:
         # Open the image using PIL (or you can use cv2.imread() from OpenCV)
         image = Image.open(image_path)
-        
+        image_crop = image.crop((0, 512*4, 512, 512*5))
         # Apply transformations
-        image = transform(image)
-        import pdb; pdb.set_trace()
+        image = transform(image_crop)
         # Append the image to the list
         images.append(image)
 
     # Convert list of images to a tensor
     images = torch.stack(images)
-
+    import pdb; pdb.set_trace()
     # Save the tensor of images as a PyTorch checkpoint
     torch.save(images, 'pred_images.pt')
 
