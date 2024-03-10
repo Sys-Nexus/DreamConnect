@@ -324,12 +324,12 @@ class DualLDM(LatentDiffusion):
             _, model_output = self.apply_model(x_noisy_gen, x_noisy_edit, t, cond, t_edit_in=t_edit, 
                             is_save_x0=self.is_save_x0, is_save_intermediate=self.is_save_intermediate,
                             sqrt_one_minus_at=sqrt_one_minus_at, a_t=a_t,
-                            sqrt_one_minus_at=sqrt_one_minus_at_offset, a_t=a_t_offset)
+                            sqrt_one_minus_at_offset=sqrt_one_minus_at_offset, a_t_offset=a_t_offset)
         else:
             _, model_output, model_output_x0 = self.apply_model(x_noisy_gen, x_noisy_edit, t, cond, t_edit_in=t_edit, 
                             is_save_x0=self.is_save_x0, is_save_intermediate=self.is_save_intermediate,
                             sqrt_one_minus_at=sqrt_one_minus_at, a_t=a_t, 
-                            sqrt_one_minus_at=sqrt_one_minus_at_offset, a_t=a_t_offset, 
+                            sqrt_one_minus_at_offset=sqrt_one_minus_at_offset, a_t_offset=a_t_offset, 
                             is_return_x0=is_return_x0)
         # denoised_x = self.decode_first_stage(denoised_z)
         # import pdb; pdb.set_trace();
