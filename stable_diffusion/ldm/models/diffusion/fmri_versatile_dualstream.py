@@ -311,16 +311,26 @@ class DualLDM(LatentDiffusion):
         sqrt_one_minus_at = torch.full(extended_shape, 1., device=x_noisy_gen.device, dtype=x_noisy_gen.dtype)
         for kk in range(b): sqrt_one_minus_at[kk] = sqrt_one_minus_alphas[t[kk]]
 
+        offset = (t_edit.item()-t.item())//20
+        a_t_offset = torch.full(extended_shape, 1., device=device, dtype=x_noisy_gen.dtype)
+        for kk in range(b): a_t_offset[kk] = alpahs[t[kk]+offset]
+
+        sqrt_one_minus_at_offset = torch.full(extended_shape, 1., device=x_noisy_gen.device, dypte=x_noisy_gen.dtype)
+        for kk in range(b): sqrt_one_minus_at_offset[kk] = sqrt_one_minus_alphas[t[kk]+index]
+        
         # print('batch:  {}'.format(b))
         # import pdb; pdb.set_trace()
         if is_return_x0 is False:
             _, model_output = self.apply_model(x_noisy_gen, x_noisy_edit, t, cond, t_edit_in=t_edit, 
                             is_save_x0=self.is_save_x0, is_save_intermediate=self.is_save_intermediate,
-                            sqrt_one_minus_at=sqrt_one_minus_at, a_t=a_t)
+                            sqrt_one_minus_at=sqrt_one_minus_at, a_t=a_t,
+                            sqrt_one_minus_at=sqrt_one_minus_at_offset, a_t=a_t_offset)
         else:
             _, model_output, model_output_x0 = self.apply_model(x_noisy_gen, x_noisy_edit, t, cond, t_edit_in=t_edit, 
                             is_save_x0=self.is_save_x0, is_save_intermediate=self.is_save_intermediate,
-                            sqrt_one_minus_at=sqrt_one_minus_at, a_t=a_t, is_return_x0=is_return_x0)
+                            sqrt_one_minus_at=sqrt_one_minus_at, a_t=a_t, 
+                            sqrt_one_minus_at=sqrt_one_minus_at_offset, a_t=a_t_offset, 
+                            is_return_x0=is_return_x0)
         # denoised_x = self.decode_first_stage(denoised_z)
         # import pdb; pdb.set_trace();
 
@@ -684,7 +694,7 @@ class DualLDM(LatentDiffusion):
         # import pdb; pdb.set_trace()
 
     def apply_model(self, x_noisy_gen, x_noisy_edit, t, cond=None, t_edit_in=None, is_save_intermediate=True, is_save_x0=False, 
-                        is_return_x0=False, sqrt_one_minus_at=None, a_t=None, return_ids=False, mixed_ratio=0.6):
+                        is_return_x0=False, sqrt_one_minus_at=None, a_t=None, sqrt_one_minus_at_offset=None, a_t_offset=None, return_ids=False, mixed_ratio=0.6):
         if isinstance(cond, dict):
             # hybrid case, cond is exptected to be a dict
             pass
@@ -824,8 +834,8 @@ class DualLDM(LatentDiffusion):
             # new_cond["noisy_c_concat"] = x_noisy_edit
 
             new_cond["is_return_x0"] = is_return_x0
-            new_cond["sqrt_one_minus_at"] = sqrt_one_minus_at
-            new_cond["a_t"] = a_t
+            new_cond["sqrt_one_minus_at"] = sqrt_one_minus_at_offset
+            new_cond["a_t"] = a_t_offset
             # new_cond["noisy_c_concat"] = new_cond['c_concat'][0]
             edit_t = t_edit_in if t_edit_in is not None else t
             if is_return_x0 is False:
