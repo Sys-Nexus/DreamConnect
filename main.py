@@ -405,7 +405,7 @@ class DataModuleFromConfig():
 def test_one_epoch(config, model, model_ema, data_loader, val_data_loader, optimizer, epoch, 
         lr_scheduler, scaler, model_wrap, model_wrap_cfg, save_dir, cfg_text, cfg_text_edit,
         prospect_words=None, is_inst_edit=False, is_inst_gen=False, layout_in=None):
-    import pdb; pdb.set_trace()
+    # import pdb; pdb.set_trace()
     model.eval()
     epoch, idx = 999999, 999999
     with torch.no_grad():
