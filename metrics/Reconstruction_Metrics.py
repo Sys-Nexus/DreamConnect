@@ -344,7 +344,7 @@ gt = gt.reshape(len(gt),-1).cpu().numpy()
 fake = swav_model(preprocess(all_brain_recons))['avgpool']
 fake = fake.reshape(len(fake),-1).cpu().numpy()
 
-swav = np.array([sp.spatial.distance.correlation(gt[i],fake[i]) for i in range(len(gt))]).mean()
+swav = np.array([sp.spatial.distance.correlation(gt[i],fake[i]) for i in range(len(fake))]).mean()
 print("Distance:",swav)
 
 
