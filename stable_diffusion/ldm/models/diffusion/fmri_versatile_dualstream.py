@@ -312,7 +312,7 @@ class DualLDM(LatentDiffusion):
         for kk in range(b): sqrt_one_minus_at[kk] = sqrt_one_minus_alphas[t[kk]]
 
         offset = (t_edit.item()-t.item())//20
-        a_t_offset = torch.full(extended_shape, 1., device=device, dtype=x_noisy_gen.dtype)
+        a_t_offset = torch.full(extended_shape, 1., device=x_noisy_gen.device, dtype=x_noisy_gen.dtype)
         for kk in range(b): a_t_offset[kk] = alpahs[t[kk]+offset]
 
         sqrt_one_minus_at_offset = torch.full(extended_shape, 1., device=x_noisy_gen.device, dypte=x_noisy_gen.dtype)
