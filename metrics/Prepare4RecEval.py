@@ -20,6 +20,7 @@ def main():
     image_files = glob.glob(os.path.join(image_directory, 'all_iter-*.png'))
     # Create a list to store images
     images = []
+    import pdb; pdb.set_trace()
 
     # Iterate over the image files
     for image_path in image_files:
