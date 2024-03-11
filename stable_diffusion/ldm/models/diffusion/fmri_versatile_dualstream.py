@@ -46,7 +46,7 @@ from ldm.models.diffusion.alignblock import align_block
 
 
 class ControlledUnetModel(UNetModel):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, train_feat_adaptor=False, *args, **kwargs):
         super().__init__(*args, **kwargs)
         channel_mult = self.channel_mult
         num_res_blocks = self.num_res_blocks
@@ -60,32 +60,31 @@ class ControlledUnetModel(UNetModel):
         context_dim = self.context_dim
         transformer_depth = self.transformer_depth
         force_type_convert = self.force_type_convert
+        self.train_feat_adaptor = train_feat_adaptor
 
-        # input_block_chans = [model_channels]
-        # ch = model_channels
-        ds = 8
-        layers = []
-        self.adaptor_blocks = nn.ModuleList([])
-        for level, mult in list(enumerate(channel_mult))[::-1]:
-            for i in range(num_res_blocks + 1):
-                ch = mult * model_channels
-                if ds in attention_resolutions:
-                    if num_head_channels == -1:
-                        dim_head = ch // num_heads
-                    else:
-                        num_heads = ch // num_head_channels
-                        dim_head = num_head_channels
-                    if legacy:
-                        #num_heads = 1
-                        dim_head = ch // num_heads if use_spatial_transformer else num_head_channels
-                    self.adaptor_blocks.append(SpatialTransformer(
-                            ch, num_heads, dim_head, default_eps=default_eps, force_type_convert=force_type_convert, depth=transformer_depth, context_dim=context_dim
-                        ))
-                    # input_block_chans.append(ch)
-                if level and i == num_res_blocks:
-                    out_ch = ch
-                    ds //= 2
-        import pdb; pdb.set_trace()
+        if train_feat_adaptor is True:
+            ds = 8
+            layers = []
+            self.adaptor_blocks = nn.ModuleList([])
+            for level, mult in list(enumerate(channel_mult))[::-1]:
+                for i in range(num_res_blocks + 1):
+                    ch = mult * model_channels
+                    if ds in attention_resolutions:
+                        if num_head_channels == -1:
+                            dim_head = ch // num_heads
+                        else:
+                            num_heads = ch // num_head_channels
+                            dim_head = num_head_channels
+                        if legacy:
+                            #num_heads = 1
+                            dim_head = ch // num_heads if use_spatial_transformer else num_head_channels
+                        self.adaptor_blocks.append(SpatialTransformer(
+                                ch, num_heads, dim_head, default_eps=default_eps, force_type_convert=force_type_convert, depth=transformer_depth, context_dim=context_dim
+                            ))
+                        # input_block_chans.append(ch)
+                    if level and i == num_res_blocks:
+                        out_ch = ch
+                        ds //= 2
 
     def forward(self, x, timesteps=None, context=None, control=None, only_mid_control=False, 
                         num_control_layers=1000, injected_features=None, is_return_x0=False, 
@@ -120,13 +119,13 @@ class ControlledUnetModel(UNetModel):
                 if injected_features is not None and out_layers_feature_key in injected_features:
                     out_layers_injected = injected_features[out_layers_feature_key]
 
-                # h = module(h, emb, context, out_layers_injected=out_layers_injected)
+                h = module(h, emb, context, out_layers_injected=out_layers_injected)
 
-                if i in useful_block_idxes:
-                    h = module(h, emb, context)
-                    h = self.adaptor_blocks[cnt](h, emb, out_layers_injected)
-                    cnt += 1
-                    import pdb; pdb.set_trace();
+                # if i in useful_block_idxes:
+                #     h = module(h, emb, context)
+                #     h = self.adaptor_blocks[cnt](h, emb, out_layers_injected)
+                #     cnt += 1
+                #     import pdb; pdb.set_trace();
                 module_i += 1
 
             h = h.type(x.dtype)
@@ -166,7 +165,7 @@ class PreVersatileNetAdaptor(UNetModelVD):
                 # else:
                 self.zero_convs.append(self.make_zero_conv(ch))
 
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
 
     def make_zero_conv(self, channels, kernel_size=1, stride=1, out_channels=None):
         if out_channels is None:
@@ -202,14 +201,15 @@ class PreVersatileNetAdaptor(UNetModelVD):
             outs.append(self.middle_block_out(h, emb))
 
         block_idx = 0
+        ## layer 2, 5, 8 include upsampling: (1280, 1280, 640)
         for i, (i_module, t_module, zero_conv) in enumerate(zip(self.unet_image.output_blocks, self.unet_text.output_blocks, self.zero_convs)):
             # print('i: ', i)
             h = th.cat([h, hs.pop()], dim=1)
             h = self.mixed_run_dc(i_module, t_module, h, emb, c0, c1, xtype, c0_type, c1_type, mixed_ratio)
             if block_idx in useful_block_idxes:
                 # outs.append(self.unet_image.output_blocks[block_idx][0].out_layers_features)
-                feat_i = self.unet_image.output_blocks[block_idx][0].out_layers_features
-                import pdb; pdb.set_trace()
+                feat_i = self.unet_image.output_blocks[block_idx][0].out_layers_features  ## resnet features
+                # import pdb; pdb.set_trace()
                 if self.train_feat_adaptor is True:
                     feat_i_transformed = zero_conv(feat_i, emb) + feat_i
                 else:
@@ -407,7 +407,7 @@ class DualLDM(LatentDiffusion):
             pred_image_x0 = self.decode_first_stage(model_output_x0*0.1825)
             gt_image_x0 = self.decode_first_stage(x_start_edit)
             pred_gt = torch.cat([pred_image_x0, gt_image_x0], dim=2)
-            torchvision.utils.save_image(pred_gt*0.5+0.5, 'pred_gt.jpg')
+            torchvision.utils.save_image(pred_gt*0.5+0.5, 'pred_gt_cat.jpg')
             import pdb; pdb.set_trace()
             # loss_simple = self.get_loss(model_output_x0, x_start_edit, mean=False).mean([1, 2, 3])
             loss_cosine, loss_l1 = self.get_clip_loss(pred_image_x0, gt_image_x0)
