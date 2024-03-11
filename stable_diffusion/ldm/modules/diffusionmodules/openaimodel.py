@@ -732,6 +732,7 @@ class UNetModel(nn.Module):
                             ch, num_heads, dim_head, default_eps=default_eps, force_type_convert=force_type_convert, depth=transformer_depth, context_dim=context_dim
                         )
                     )
+                    import pdb; pdb.set_trace()
                 if level and i == num_res_blocks:
                     out_ch = ch
                     layers.append(
