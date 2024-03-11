@@ -74,8 +74,8 @@ class ControlledUnetModel(UNetModel):
                 out_layers_feature_key = f'output_block_{module_i}_out_layers_features'
                 # import pdb; pdb.set_trace()
                 out_layers_injected = None
-                # if injected_features is not None and out_layers_feature_key in injected_features:
-                #     out_layers_injected = injected_features[out_layers_feature_key]
+                if injected_features is not None and out_layers_feature_key in injected_features:
+                    out_layers_injected = injected_features[out_layers_feature_key]
 
                 h = module(h, emb, context, out_layers_injected=out_layers_injected)
                 module_i += 1
@@ -361,7 +361,8 @@ class DualLDM(LatentDiffusion):
             import pdb; pdb.set_trace()
             # loss_simple = self.get_loss(model_output_x0, x_start_edit, mean=False).mean([1, 2, 3])
             loss_cosine, loss_l1 = self.get_clip_loss(pred_image_x0, gt_image_x0)
-            loss_simple = loss_cosine + loss_l1
+            # loss_simple = loss_cosine + loss_l1
+            loss_simple = loss_cosine
         loss_dict.update({f'{prefix}/loss_simple': loss_simple.mean()})
         loss_dict.update({f'{prefix}/loss_simple_cosine': loss_cosine.mean()})
         loss_dict.update({f'{prefix}/loss_simple_l1': loss_l1.mean()})
@@ -401,7 +402,7 @@ class DualLDM(LatentDiffusion):
             loss_vlb = self.get_loss(model_output, target, mean=False).mean(dim=(1, 2, 3))
         else:
             loss_cosine_vlb, loss_l1_vlb = self.get_clip_loss(pred_image_x0, gt_image_x0)
-            loss_vlb = loss_cosine_vlb + loss_l1_vlb
+            loss_vlb = loss_cosine_vlb #+ loss_l1_vlb
             # loss_vlb = self.get_loss(model_output_x0, x_start_edit, mean=False).mean(dim=(1, 2, 3))
         loss_vlb = (self.lvlb_weights[t] * loss_vlb).mean()
         loss_dict.update({f'{prefix}/loss_vlb': loss_vlb})
