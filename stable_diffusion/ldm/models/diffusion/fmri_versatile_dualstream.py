@@ -46,6 +46,47 @@ from ldm.models.diffusion.alignblock import align_block
 
 
 class ControlledUnetModel(UNetModel):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        channel_mult = self.channel_mult
+        num_res_blocks = self.num_res_blocks
+        model_channels = self.model_channels
+        attention_resolutions = self.attention_resolutions
+        use_spatial_transformer = self.use_spatial_transformer
+        num_head_channels = self.num_head_channels
+        num_heads = self.num_heads
+        legacy = self.legacy
+        default_eps = self.default_eps
+        context_dim = self.context_dim
+        transformer_depth = self.transformer_depth
+        force_type_convert = self.force_type_convert
+
+        input_block_chans = [model_channels]
+        ch = model_channels
+        ds = 1
+        layers = []
+        self.adaptor_blocks = nn.ModuleList([])
+        for level, mult in list(enumerate(channel_mult))[::-1]:
+            for i in range(num_res_blocks + 1):
+                ich = input_block_chans.pop()
+                ch = mult * model_channels
+                if ds in attention_resolutions:
+                    if num_head_channels == -1:
+                        dim_head = ch // num_heads
+                    else:
+                        num_heads = ch // num_head_channels
+                        dim_head = num_head_channels
+                    if legacy:
+                        #num_heads = 1
+                        dim_head = ch // num_heads if use_spatial_transformer else num_head_channels
+                    layers.append(SpatialTransformer(
+                            ch, num_heads, dim_head, default_eps=default_eps, force_type_convert=force_type_convert, depth=transformer_depth, context_dim=context_dim
+                        ))
+                if level and i == num_res_blocks:
+                    out_ch = ch
+                    ds //= 2
+        import pdb; pdb.set_trace()
+
     def forward(self, x, timesteps=None, context=None, control=None, only_mid_control=False, 
                         num_control_layers=1000, injected_features=None, is_return_x0=False, 
                         sqrt_one_minus_at=None, a_t=None, **kwargs):
