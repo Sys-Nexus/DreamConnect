@@ -320,7 +320,7 @@ class DualLDM(LatentDiffusion):
         
         # print('batch:  {}'.format(b))
         # import pdb; pdb.set_trace()
-        noisy_c_concat4train = x_start_gen.clone() / 0.18215 ## theoretically speaking, should be the first add noise 15 steps and use first stream network to denoise.
+        noisy_c_concat4train = x_start_gen.clone() #/ 0.18215 ## theoretically speaking, should be the first add noise 15 steps and use first stream network to denoise.
         if is_return_x0 is False:
             _, model_output = self.apply_model(x_noisy_gen, x_noisy_edit, t, cond, t_edit_in=t_edit, 
                             is_save_x0=self.is_save_x0, is_save_intermediate=self.is_save_intermediate,
