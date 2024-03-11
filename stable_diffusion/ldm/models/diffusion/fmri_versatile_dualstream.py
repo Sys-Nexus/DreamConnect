@@ -354,7 +354,7 @@ class DualLDM(LatentDiffusion):
         if is_return_x0 is False:
             loss_simple = self.get_loss(model_output, target, mean=False).mean([1, 2, 3])
         else:
-            pred_image_x0 = self.decode_first_stage(model_output_x0)
+            pred_image_x0 = self.decode_first_stage(model_output_x0*0.1825)
             gt_image_x0 = self.decode_first_stage(x_start_edit)
             pred_gt = torch.cat([pred_image_x0, gt_image_x0], dim=2)
             torchvision.utils.save_image(pred_gt*0.5+0.5, 'pred_gt.jpg')
