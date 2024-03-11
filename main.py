@@ -563,7 +563,7 @@ def train_one_epoch(config, model, model_ema, data_loader, val_data_loader, opti
 
         #                 if val_idx == 5:
         #                     break
-        
+
         if idx == num_steps - 1:
             with torch.no_grad():
                 model_ema.store(model.parameters())
@@ -686,6 +686,7 @@ if __name__ == "__main__":
 
     if dist.get_rank() == 0:
         run = wandb.init(
+            offline=True,
             id=nowname,
             name=nowname,
             project='readoutpose',
