@@ -106,7 +106,7 @@ class ControlledUnetModel(UNetModel):
                 h += control.pop(0)
 
             module_i = 0
-            cnt += 1
+            cnt = 0
             for i, module in enumerate(self.output_blocks):
                 if only_mid_control or control is None or i > num_control_layers:# or i in unmatched_layers:
                     h = torch.cat([h, hs.pop()], dim=1)
