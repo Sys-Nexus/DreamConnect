@@ -61,9 +61,9 @@ class ControlledUnetModel(UNetModel):
         transformer_depth = self.transformer_depth
         force_type_convert = self.force_type_convert
 
-        input_block_chans = [model_channels]
-        ch = model_channels
-        ds = 1
+        # input_block_chans = [model_channels]
+        # ch = model_channels
+        ds = 8
         layers = []
         self.adaptor_blocks = nn.ModuleList([])
         for level, mult in list(enumerate(channel_mult))[::-1]:
@@ -81,7 +81,7 @@ class ControlledUnetModel(UNetModel):
                     layers.append(SpatialTransformer(
                             ch, num_heads, dim_head, default_eps=default_eps, force_type_convert=force_type_convert, depth=transformer_depth, context_dim=context_dim
                         ))
-                    input_block_chans.append(ch)
+                    # input_block_chans.append(ch)
                 if level and i == num_res_blocks:
                     out_ch = ch
                     ds //= 2
