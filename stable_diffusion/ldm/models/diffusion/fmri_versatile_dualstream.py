@@ -320,17 +320,22 @@ class DualLDM(LatentDiffusion):
         
         # print('batch:  {}'.format(b))
         # import pdb; pdb.set_trace()
+        noisy_c_concat4train = x_start_gen.clone() ## theoretically speaking, should be the first add noise 15 steps and use first stream network to denoise.
         if is_return_x0 is False:
             _, model_output = self.apply_model(x_noisy_gen, x_noisy_edit, t, cond, t_edit_in=t_edit, 
                             is_save_x0=self.is_save_x0, is_save_intermediate=self.is_save_intermediate,
                             sqrt_one_minus_at=sqrt_one_minus_at, a_t=a_t,
-                            sqrt_one_minus_at_offset=sqrt_one_minus_at_offset, a_t_offset=a_t_offset)
+                            sqrt_one_minus_at_offset=sqrt_one_minus_at_offset, 
+                            a_t_offset=a_t_offset,
+                            noisy_c_concat4train=noisy_c_concat4train)
         else:
             _, model_output, model_output_x0 = self.apply_model(x_noisy_gen, x_noisy_edit, t, cond, t_edit_in=t_edit, 
                             is_save_x0=self.is_save_x0, is_save_intermediate=self.is_save_intermediate,
                             sqrt_one_minus_at=sqrt_one_minus_at, a_t=a_t, 
-                            sqrt_one_minus_at_offset=sqrt_one_minus_at_offset, a_t_offset=a_t_offset, 
-                            is_return_x0=is_return_x0)
+                            sqrt_one_minus_at_offset=sqrt_one_minus_at_offset, 
+                            a_t_offset=a_t_offset, 
+                            is_return_x0=is_return_x0,
+                            noisy_c_concat4train=noisy_c_concat4train)
         # denoised_x = self.decode_first_stage(denoised_z)
         # import pdb; pdb.set_trace();
 
@@ -694,7 +699,9 @@ class DualLDM(LatentDiffusion):
         # import pdb; pdb.set_trace()
 
     def apply_model(self, x_noisy_gen, x_noisy_edit, t, cond=None, t_edit_in=None, is_save_intermediate=True, is_save_x0=False, 
-                        is_return_x0=False, sqrt_one_minus_at=None, a_t=None, sqrt_one_minus_at_offset=None, a_t_offset=None, return_ids=False, mixed_ratio=0.6):
+                        is_return_x0=False, sqrt_one_minus_at=None, a_t=None, sqrt_one_minus_at_offset=None, a_t_offset=None, 
+                        noisy_c_concat4train=None,
+                        return_ids=False, mixed_ratio=0.6):
         if isinstance(cond, dict):
             # hybrid case, cond is exptected to be a dict
             pass
@@ -825,7 +832,7 @@ class DualLDM(LatentDiffusion):
             ## this sentence will overwrite the obtained noisy_c_concat at inference time
             
             new_cond["injected_features"] = out_layers_injected
-            new_cond["noisy_c_concat"] = noisy_c_concat
+            new_cond["noisy_c_concat"] = noisy_c_concat if noisy_c_concat4train is None else noisy_c_concat4train
             
             if 'layout_concat' in new_cond.keys():
                 new_cond['noisy_c_concat'] = new_cond['layout_concat'][0]
