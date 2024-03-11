@@ -78,7 +78,7 @@ class ControlledUnetModel(UNetModel):
                     if legacy:
                         #num_heads = 1
                         dim_head = ch // num_heads if use_spatial_transformer else num_head_channels
-                    layers.append(SpatialTransformer(
+                    self.adaptor_blocks.append(SpatialTransformer(
                             ch, num_heads, dim_head, default_eps=default_eps, force_type_convert=force_type_convert, depth=transformer_depth, context_dim=context_dim
                         ))
                     # input_block_chans.append(ch)
@@ -90,6 +90,7 @@ class ControlledUnetModel(UNetModel):
     def forward(self, x, timesteps=None, context=None, control=None, only_mid_control=False, 
                         num_control_layers=1000, injected_features=None, is_return_x0=False, 
                         sqrt_one_minus_at=None, a_t=None, **kwargs):
+        useful_block_idxes = [4, 5, 6] # must be consistent with below class
         if (control is not None and len(control)) or injected_features is not None:
             x0 = x.clone()[:,:4]
             hs = []
@@ -106,6 +107,7 @@ class ControlledUnetModel(UNetModel):
                 h += control.pop(0)
 
             module_i = 0
+            cnt += 1
             for i, module in enumerate(self.output_blocks):
                 if only_mid_control or control is None or i > num_control_layers:# or i in unmatched_layers:
                     h = torch.cat([h, hs.pop()], dim=1)
@@ -118,7 +120,13 @@ class ControlledUnetModel(UNetModel):
                 if injected_features is not None and out_layers_feature_key in injected_features:
                     out_layers_injected = injected_features[out_layers_feature_key]
 
-                h = module(h, emb, context, out_layers_injected=out_layers_injected)
+                # h = module(h, emb, context, out_layers_injected=out_layers_injected)
+
+                if i in useful_block_idxes:
+                    h = module(h, emb, context)
+                    h = self.adaptor_blocks[cnt](h, emb, out_layers_injected)
+                    cnt += 1
+                    import pdb; pdb.set_trace();
                 module_i += 1
 
             h = h.type(x.dtype)
