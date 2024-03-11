@@ -708,7 +708,8 @@ if __name__ == "__main__":
     # model
     model = instantiate_from_config(config.model)
     if os.path.exists(opt.prospect_ckpt_path):
-        model.embedding_manager.load(opt.prospect_ckpt_path)
+        if model.embedding_manager is not None:
+            model.embedding_manager.load(opt.prospect_ckpt_path)
     else:
         print('{} not exist.'.format(opt.prospect_ckpt_path))
     # import pdb; pdb.set_trace()
