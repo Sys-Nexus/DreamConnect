@@ -37,7 +37,7 @@ layout_path='/data/yashengsun/Proj/MMEdit/ProSpect/images4prospect/layout_collec
 # resume_path='/data/yashengsun/Proj/MMEdit/fMRIInstructDiffusion/checkpoints/bohan_recon/'
 resume_path=''
 
-${HOME}/.local/bin/wandb login 56d149bd571b8312fbca5e3802d7859909ea00c1
+# ${HOME}/.local/bin/wandb login 56d149bd571b8312fbca5e3802d7859909ea00c1
 
 CUDA_LAUNCH_BLOCKING=1 CUDA_VISIBLE_DEVICES=${gpus} ${run_cmd} main.py --name ${exp_name} \
           --base configs/${jobname}.yaml \
