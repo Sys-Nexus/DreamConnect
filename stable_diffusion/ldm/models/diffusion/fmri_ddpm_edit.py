@@ -663,8 +663,10 @@ class LatentDiffusion(DDPM):
         # import pdb; pdb.set_trace()
         if self.cond_stage_forward is None:
             if hasattr(self.cond_stage_model, 'encode') and callable(self.cond_stage_model.encode):
-                # c = self.cond_stage_model.encode(c)
-                c = self.cond_stage_model.encode(c,  prospect_words=prospect_words, embedding_manager=self.embedding_manager)
+                if self.embedding_manager is not None:
+                    c = self.cond_stage_model.encode(c,  prospect_words=prospect_words, embedding_manager=self.embedding_manager)
+                else:
+                    c = self.cond_stage_model.encode(c)
                 if isinstance(c, DiagonalGaussianDistribution):
                     c = c.mode()
             else:
