@@ -685,8 +685,10 @@ if __name__ == "__main__":
         create_ds_config(opt, config, cfgdir)
 
     if dist.get_rank() == 0:
+        os.environ["WANDB_MODE"] = "offline"
+
         run = wandb.init(
-            offline=True,
+            # offline=True,
             id=nowname,
             name=nowname,
             project='readoutpose',
