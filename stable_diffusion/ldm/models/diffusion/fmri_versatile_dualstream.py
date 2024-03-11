@@ -320,7 +320,7 @@ class DualLDM(LatentDiffusion):
         
         # print('batch:  {}'.format(b))
         # import pdb; pdb.set_trace()
-        noisy_c_concat4train = x_start_gen.clone() ## theoretically speaking, should be the first add noise 15 steps and use first stream network to denoise.
+        noisy_c_concat4train = x_start_gen.clone() / 0.18215 ## theoretically speaking, should be the first add noise 15 steps and use first stream network to denoise.
         if is_return_x0 is False:
             _, model_output = self.apply_model(x_noisy_gen, x_noisy_edit, t, cond, t_edit_in=t_edit, 
                             is_save_x0=self.is_save_x0, is_save_intermediate=self.is_save_intermediate,
@@ -828,7 +828,7 @@ class DualLDM(LatentDiffusion):
             for useful_block_idx in reversed(useful_block_idxes):
                 out_layers_injected[f"output_block_{useful_block_idx}_out_layers_features"] = control_res.pop(0)
 
-            import pdb; pdb.set_trace();
+            # import pdb; pdb.set_trace();
             ## this sentence will overwrite the obtained noisy_c_concat at inference time
             
             new_cond["injected_features"] = out_layers_injected
