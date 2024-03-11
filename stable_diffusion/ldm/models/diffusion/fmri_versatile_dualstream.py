@@ -283,10 +283,12 @@ class DualLDM(LatentDiffusion):
             self.instantiate_fmri_vclip(fmri_vclip_cfg)
 
         self.image_clip = FrozenClipImageEmbedder()
-        
-        self.embedding_manager = self.instantiate_embedding_manager(personalization_config, self.cond_stage_model)
-        for param in self.embedding_manager.embedding_parameters():
-            param.requires_grad = False
+        self.embedding_manager = None
+        if personalization_config:
+            self.embedding_manager = self.instantiate_embedding_manager(personalization_config, self.cond_stage_model)
+        if self.embedding_manager:
+            for param in self.embedding_manager.embedding_parameters():
+                param.requires_grad = False
         self.device = next(self.parameters()).device
 
     def instantiate_fmri2clip(self, config):
