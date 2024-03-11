@@ -82,6 +82,7 @@ class ControlledUnetModel(UNetModel):
                     layers.append(SpatialTransformer(
                             ch, num_heads, dim_head, default_eps=default_eps, force_type_convert=force_type_convert, depth=transformer_depth, context_dim=context_dim
                         ))
+                    input_block_chans.append(ch)
                 if level and i == num_res_blocks:
                     out_ch = ch
                     ds //= 2
