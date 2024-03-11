@@ -121,13 +121,13 @@ model:
     #   params:
     #     force_type_convert: true
     
-    personalization_config:
-      target: ldm.modules.embedding_manager.EmbeddingManager
-      params:
-        placeholder_strings: ["*"]
-        per_image_tokens: False
-        num_vectors_per_token: 10
-        progressive_words: False
+    # personalization_config:
+    #   target: ldm.modules.embedding_manager.EmbeddingManager
+    #   params:
+    #     placeholder_strings: ["*"]
+    #     per_image_tokens: False
+    #     num_vectors_per_token: 10
+    #     progressive_words: False
 
     unet_config:
       # target: ldm.modules.diffusionmodules.openaimodel.UNetModel
@@ -152,7 +152,8 @@ model:
         force_type_convert: True
 
     cond_stage_config:
-      target: ldm.modules.encoders.modules.ExFrozenCLIPEmbedder
+      # target: ldm.modules.encoders.modules.ExFrozenCLIPEmbedder
+      target: ldm.modules.encoders.modules.FrozenCLIPEmbedder
 
     fmri_lowlevel_path: train_logs/autoencoder_subj01_4x_locont_no_reconst/epoch120.pth
     fmri_lowlevel_config:
