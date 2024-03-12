@@ -84,8 +84,11 @@ class ControlledUnetModel(UNetModel):
                             dim_head = ch // num_heads if use_spatial_transformer else num_head_channels
                         if cnt in self.use_adaptor_layers:
                             self.adaptor_blocks.append(
-                                TimestepEmbedSequential(SpatialTransformer(
-                                    ch, num_heads, dim_head, default_eps=default_eps, force_type_convert=force_type_convert, depth=transformer_depth, context_dim=context_dim)))
+                                SpatialTransformer(
+                                    ch, num_heads, dim_head, default_eps=default_eps, force_type_convert=force_type_convert, depth=transformer_depth, context_dim=context_dim))
+                            # self.adaptor_blocks.append(
+                            #     TimestepEmbedSequential(SpatialTransformer(
+                            #         ch, num_heads, dim_head, default_eps=default_eps, force_type_convert=force_type_convert, depth=transformer_depth, context_dim=context_dim)))
                         cnt += 1
                         # input_block_chans.append(ch)
                     if level and i == num_res_blocks:
@@ -130,7 +133,7 @@ class ControlledUnetModel(UNetModel):
                 if i in self.use_adaptor_layers:
                     import pdb; pdb.set_trace();
                     # h = module(h, emb, context)
-                    h = self.adaptor_blocks[cnt](h, emb, context)
+                    h = self.adaptor_blocks[cnt](h, context)
                     cnt += 1
                 module_i += 1
                 print('controlled h: ', i, h.shape)
@@ -227,7 +230,7 @@ class PreVersatileNetAdaptor(UNetModelVD):
             block_idx += 1
             print('pre extracted h: ', i, h.shape)
         
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
         final_out = self.unet_image.out(h)
         
         # import pdb; pdb.set_trace()
