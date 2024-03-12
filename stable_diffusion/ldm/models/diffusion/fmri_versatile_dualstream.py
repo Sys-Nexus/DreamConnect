@@ -63,6 +63,9 @@ class ControlledUnetModel(UNetModel):
         self.train_feat_adaptor = train_feat_adaptor
         
         # import pdb; pdb.set_trace()
+        # there are a total of 12 blocks in the model where first 3 of them have no spatiotransformer
+        cnt = 3
+        self.use_adaptor_layers = [4, 6, 7]
         if train_feat_adaptor is True:
             ds = 8
             layers = []
@@ -79,9 +82,11 @@ class ControlledUnetModel(UNetModel):
                         if legacy:
                             #num_heads = 1
                             dim_head = ch // num_heads if use_spatial_transformer else num_head_channels
-                        self.adaptor_blocks.append(SpatialTransformer(
-                                ch, num_heads, dim_head, default_eps=default_eps, force_type_convert=force_type_convert, depth=transformer_depth, context_dim=context_dim
-                            ))
+                        if cnt in use_adaptor_layers:
+                            self.adaptor_blocks.append(SpatialTransformer(
+                                    ch, num_heads, dim_head, default_eps=default_eps, force_type_convert=force_type_convert, depth=transformer_depth, context_dim=context_dim
+                                ))
+                        cnt += 1
                         # input_block_chans.append(ch)
                     if level and i == num_res_blocks:
                         out_ch = ch
@@ -122,11 +127,11 @@ class ControlledUnetModel(UNetModel):
 
                 h = module(h, emb, context, out_layers_injected=out_layers_injected)
 
-                # if i in useful_block_idxes:
-                #     h = module(h, emb, context)
-                #     h = self.adaptor_blocks[cnt](h, emb, out_layers_injected)
-                #     cnt += 1
-                #     import pdb; pdb.set_trace();
+                if i in self.use_adaptor_layers:
+                    import pdb; pdb.set_trace();
+                    h = module(h, emb, context)
+                    h = self.adaptor_blocks[cnt](h, emb, out_layers_injected)
+                    cnt += 1
                 module_i += 1
                 print('controlled h: ', i, h.shape)
 
