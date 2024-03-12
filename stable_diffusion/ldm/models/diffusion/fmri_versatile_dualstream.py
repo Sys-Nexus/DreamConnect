@@ -911,10 +911,11 @@ class DualLDM(LatentDiffusion):
             useful_ctx_idxes = [4, 6, 7]
             injected_contexts = []
             for kk, ctx_feature in enumerate(control_ctx):
+                if kk not in useful_ctx_idxes: continue
                 injected_contexts.append(ctx_feature)
             new_cond['injected_contexts'] = injected_contexts
-            import pdb; pdb.set_trace()
-            
+            # import pdb; pdb.set_trace()
+
             ## this sentence will overwrite the obtained noisy_c_concat at inference time            
             new_cond["injected_features"] = out_layers_injected
             new_cond["noisy_c_concat"] = noisy_c_concat if noisy_c_concat4train is None else noisy_c_concat4train
