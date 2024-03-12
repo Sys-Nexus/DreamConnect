@@ -61,7 +61,7 @@ class ControlledUnetModel(UNetModel):
         transformer_depth = self.transformer_depth
         force_type_convert = self.force_type_convert
         self.train_feat_adaptor = train_feat_adaptor
-
+        import pdb; pdb.set_trace()
         if train_feat_adaptor is True:
             ds = 8
             layers = []
