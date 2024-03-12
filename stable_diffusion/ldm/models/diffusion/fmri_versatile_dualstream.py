@@ -85,6 +85,7 @@ class ControlledUnetModel(UNetModel):
                             #num_heads = 1
                             dim_head = ch // num_heads if use_spatial_transformer else num_head_channels
                         if cnt in self.use_adaptor_layers:
+                            ##### In this setting, I do not include timesteps as condition
                             self.adaptor_blocks.append(
                                 SpatialTransformer(
                                     ch, num_heads, dim_head, default_eps=default_eps, force_type_convert=force_type_convert, depth=transformer_depth, context_dim=context_dims[cnt]))
@@ -98,8 +99,8 @@ class ControlledUnetModel(UNetModel):
                         ds //= 2
 
     def forward(self, x, timesteps=None, context=None, control=None, only_mid_control=False, 
-                        num_control_layers=1000, injected_features=None, is_return_x0=False, 
-                        sqrt_one_minus_at=None, a_t=None, **kwargs):
+                        num_control_layers=1000, injected_features=None, injected_contexts=None, 
+                        is_return_x0=False, sqrt_one_minus_at=None, a_t=None, **kwargs):
         useful_block_idxes = [4, 5, 6] # must be consistent with below class
         if (control is not None and len(control)) or injected_features is not None:
             x0 = x.clone()[:,:4]
@@ -132,14 +133,15 @@ class ControlledUnetModel(UNetModel):
 
                 h = module(h, emb, context, out_layers_injected=out_layers_injected)
 
-                if i in self.use_adaptor_layers:
-                    import pdb; pdb.set_trace();
-                    # h = module(h, emb, context)
+                if injected_contexts is not None and i in self.use_adaptor_layers:
+                    # import pdb; pdb.set_trace();
+                    inject_context = injected_contexts[cnt]
                     inject_context = rearrange(inject_context, 'b c h w -> b (h w) c').contiguous()
                     h = self.adaptor_blocks[cnt](h, inject_context)
                     cnt += 1
+                
                 module_i += 1
-                print('controlled h: ', i, h.shape)
+                # print('controlled h: ', i, h.shape)
 
             import pdb; pdb.set_trace()
             h = h.type(x.dtype)
@@ -215,6 +217,7 @@ class PreVersatileNetAdaptor(UNetModelVD):
             outs.append(self.middle_block_out(h, emb))
 
         block_idx = 0
+        contexts = []
         ## layer 2, 5, 8 include upsampling: (1280, 1280, 640)
         for i, (i_module, t_module, zero_conv) in enumerate(zip(self.unet_image.output_blocks, self.unet_text.output_blocks, self.zero_convs)):
             # print('i: ', i)
@@ -231,8 +234,9 @@ class PreVersatileNetAdaptor(UNetModelVD):
                 
                 outs.append(feat_i_transformed)
             block_idx += 1
-            print('pre extracted h: ', i, h.shape)
-        
+            contexts.append(h)
+            # print('pre extracted h: ', i, h.shape)
+
         # import pdb; pdb.set_trace()
         final_out = self.unet_image.out(h)
         
@@ -245,9 +249,9 @@ class PreVersatileNetAdaptor(UNetModelVD):
 
         outs = list(reversed(outs))
         if xtype == 'image':
-            return final_out, outs
+            return final_out, outs, contexts
         elif xtype == 'text':
-            return self.unet_text.out(h).squeeze(-1).squeeze(-1), outs
+            return self.unet_text.out(h).squeeze(-1).squeeze(-1), outs, contexts
 
 
 class DualLDM(LatentDiffusion):
@@ -882,7 +886,7 @@ class DualLDM(LatentDiffusion):
             c1 = torch.cat(new_cond["c_crossattn_1"]["text_emb"], 1)
             fmri_vae = torch.cat(new_cond["c_crossattn_1"]["fmri_vae"],1)
 
-            x_recon_gen, control_res = self.control_model.forward_dc(x=torch.cat([x_noisy_gen], dim=1), 
+            x_recon_gen, control_res, control_ctx = self.control_model.forward_dc(x=torch.cat([x_noisy_gen], dim=1), 
                                                         timesteps=t,
                                                         c0=c0, c1=c1,
                                                         xtype='image', c0_type='vision', 
@@ -898,15 +902,20 @@ class DualLDM(LatentDiffusion):
             noisy_c_concat = control_res.pop(0)
             # fmri_control = [c * scale for c, scale in zip(control_res, self.control_scales)]
             # new_cond["control"] = fmri_control
-            # useful_block_idxes = [4, 5, 6, 7, 8]
+
             useful_block_idxes = [4, 5, 6]
             out_layers_injected = {}
             for useful_block_idx in reversed(useful_block_idxes):
                 out_layers_injected[f"output_block_{useful_block_idx}_out_layers_features"] = control_res.pop(0)
 
-            # import pdb; pdb.set_trace();
-            ## this sentence will overwrite the obtained noisy_c_concat at inference time
+            useful_ctx_idxes = [4, 6, 7]
+            injected_contexts = []
+            for kk, ctx_feature in enumerate(control_ctx):
+                injected_contexts.append(ctx_feature)
+            new_cond['injected_contexts'] = injected_contexts
+            import pdb; pdb.set_trace()
             
+            ## this sentence will overwrite the obtained noisy_c_concat at inference time            
             new_cond["injected_features"] = out_layers_injected
             new_cond["noisy_c_concat"] = noisy_c_concat if noisy_c_concat4train is None else noisy_c_concat4train
             
