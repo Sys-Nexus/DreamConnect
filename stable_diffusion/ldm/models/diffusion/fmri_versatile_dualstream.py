@@ -45,6 +45,7 @@ from ldm.util import default
 from ldm.models.diffusion.alignblock import align_block
 
 
+
 class ControlledUnetModel(UNetModel):
     def __init__(self, train_feat_adaptor=False, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -65,6 +66,7 @@ class ControlledUnetModel(UNetModel):
         # import pdb; pdb.set_trace()
         # there are a total of 12 blocks in the model where first 3 of them have no spatiotransformer
         cnt = 3
+        context_dims = [1280,]*6 + [640,]*3 + [320,]*3
         self.use_adaptor_layers = [4, 6, 7]
         if train_feat_adaptor is True:
             ds = 8
@@ -85,7 +87,7 @@ class ControlledUnetModel(UNetModel):
                         if cnt in self.use_adaptor_layers:
                             self.adaptor_blocks.append(
                                 SpatialTransformer(
-                                    ch, num_heads, dim_head, default_eps=default_eps, force_type_convert=force_type_convert, depth=transformer_depth, context_dim=context_dim))
+                                    ch, num_heads, dim_head, default_eps=default_eps, force_type_convert=force_type_convert, depth=transformer_depth, context_dim=context_dims[cnt]))
                             # self.adaptor_blocks.append(
                             #     TimestepEmbedSequential(SpatialTransformer(
                             #         ch, num_heads, dim_head, default_eps=default_eps, force_type_convert=force_type_convert, depth=transformer_depth, context_dim=context_dim)))
@@ -133,7 +135,8 @@ class ControlledUnetModel(UNetModel):
                 if i in self.use_adaptor_layers:
                     import pdb; pdb.set_trace();
                     # h = module(h, emb, context)
-                    h = self.adaptor_blocks[cnt](h, context)
+                    inject_context = rearrange(inject_context, 'b c h w -> b (h w) c').contiguous()
+                    h = self.adaptor_blocks[cnt](h, inject_context)
                     cnt += 1
                 module_i += 1
                 print('controlled h: ', i, h.shape)
