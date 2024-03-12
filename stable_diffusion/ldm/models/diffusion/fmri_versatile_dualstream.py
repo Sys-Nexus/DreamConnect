@@ -363,8 +363,8 @@ class DualLDM(LatentDiffusion):
         sqrt_one_minus_at = torch.full(extended_shape, 1., device=x_noisy_gen.device, dtype=x_noisy_gen.dtype)
         for kk in range(b): sqrt_one_minus_at[kk] = sqrt_one_minus_alphas[t[kk]]
 
-        import pdb; pdb.set_trace();
-        print(t_edit.shape[0])
+        # import pdb; pdb.set_trace();
+        # print(t_edit.shape[0])
         offset = (t_edit[0].item()-t[0].item())//20
         a_t_offset = torch.full(extended_shape, 1., device=x_noisy_gen.device, dtype=x_noisy_gen.dtype)
         for kk in range(b): a_t_offset[kk] = alphas[t[kk]+offset*20]
@@ -410,9 +410,9 @@ class DualLDM(LatentDiffusion):
         else:
             pred_image_x0 = self.decode_first_stage(model_output_x0*0.1825)
             gt_image_x0 = self.decode_first_stage(x_start_edit)
-            pred_gt = torch.cat([pred_image_x0, gt_image_x0], dim=2)
-            torchvision.utils.save_image(pred_gt*0.5+0.5, 'pred_gt_cat.jpg')
-            import pdb; pdb.set_trace()
+            # pred_gt = torch.cat([pred_image_x0, gt_image_x0], dim=2)
+            # torchvision.utils.save_image(pred_gt*0.5+0.5, 'pred_gt_cat.jpg')
+            # import pdb; pdb.set_trace()
             # loss_simple = self.get_loss(model_output_x0, x_start_edit, mean=False).mean([1, 2, 3])
             loss_cosine, loss_l1 = self.get_clip_loss(pred_image_x0, gt_image_x0)
             loss_simple = loss_cosine + loss_l1
