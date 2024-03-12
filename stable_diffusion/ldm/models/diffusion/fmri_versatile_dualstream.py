@@ -82,7 +82,7 @@ class ControlledUnetModel(UNetModel):
                         if legacy:
                             #num_heads = 1
                             dim_head = ch // num_heads if use_spatial_transformer else num_head_channels
-                        if cnt in use_adaptor_layers:
+                        if cnt in self.use_adaptor_layers:
                             self.adaptor_blocks.append(SpatialTransformer(
                                     ch, num_heads, dim_head, default_eps=default_eps, force_type_convert=force_type_convert, depth=transformer_depth, context_dim=context_dim
                                 ))
