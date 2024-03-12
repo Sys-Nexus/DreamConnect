@@ -128,7 +128,7 @@ class ControlledUnetModel(UNetModel):
                 #     cnt += 1
                 #     import pdb; pdb.set_trace();
                 module_i += 1
-                print('h: ', h.shape)
+                print('controlled h: ', i, h.shape)
 
             import pdb; pdb.set_trace()
             h = h.type(x.dtype)
@@ -220,7 +220,9 @@ class PreVersatileNetAdaptor(UNetModelVD):
                 
                 outs.append(feat_i_transformed)
             block_idx += 1
-
+            print('pre extracted h: ', i, h.shape)
+        
+        import pdb; pdb.set_trace()
         final_out = self.unet_image.out(h)
         
         # import pdb; pdb.set_trace()
