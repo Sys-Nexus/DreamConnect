@@ -61,6 +61,7 @@ class ControlledUnetModel(UNetModel):
         transformer_depth = self.transformer_depth
         force_type_convert = self.force_type_convert
         self.train_feat_adaptor = train_feat_adaptor
+        
         import pdb; pdb.set_trace()
         if train_feat_adaptor is True:
             ds = 8
@@ -127,7 +128,9 @@ class ControlledUnetModel(UNetModel):
                 #     cnt += 1
                 #     import pdb; pdb.set_trace();
                 module_i += 1
+                print('h: ', h.shape)
 
+            import pdb; pdb.set_trace()
             h = h.type(x.dtype)
             final_out = self.out(h)
             
