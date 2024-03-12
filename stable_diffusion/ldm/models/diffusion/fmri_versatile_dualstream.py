@@ -143,7 +143,7 @@ class ControlledUnetModel(UNetModel):
                 module_i += 1
                 # print('controlled h: ', i, h.shape)
 
-            import pdb; pdb.set_trace()
+            # import pdb; pdb.set_trace()
             h = h.type(x.dtype)
             final_out = self.out(h)
             
@@ -172,16 +172,11 @@ class PreVersatileNetAdaptor(UNetModelVD):
 
         ### for post-feature extraction
         self.zero_convs = nn.ModuleList([])
-        for level_idx, mult in list(enumerate(channel_mult))[::-1]:
-            for block_idx in range(self.num_noattn_blocks[level_idx] + 1):
-                ch = mult * model_channels
-                # print('ch: ', ch)
-                # if stride_i in unmatched_layers:
-                #     self.zero_convs.append(self.make_zero_conv(ch, kernel_size=2, stride=2, out_channels=out_cs[stride_i]))
-                # else:
-                self.zero_convs.append(self.make_zero_conv(ch))
-
-        # import pdb; pdb.set_trace()
+        if self.train_feat_adaptor is True:
+            for level_idx, mult in list(enumerate(channel_mult))[::-1]:
+                for block_idx in range(self.num_noattn_blocks[level_idx] + 1):
+                    ch = mult * model_channels
+                    self.zero_convs.append(self.make_zero_conv(ch))
 
     def make_zero_conv(self, channels, kernel_size=1, stride=1, out_channels=None):
         if out_channels is None:
@@ -430,9 +425,9 @@ class DualLDM(LatentDiffusion):
         else:
             pred_image_x0 = self.decode_first_stage(model_output_x0*0.1825)
             gt_image_x0 = self.decode_first_stage(x_start_edit)
-            # pred_gt = torch.cat([pred_image_x0, gt_image_x0], dim=2)
-            # torchvision.utils.save_image(pred_gt*0.5+0.5, 'pred_gt_cat.jpg')
-            # import pdb; pdb.set_trace()
+            pred_gt = torch.cat([pred_image_x0, gt_image_x0], dim=2)
+            torchvision.utils.save_image(pred_gt*0.5+0.5, 'pred_gt_cat2.jpg')
+            import pdb; pdb.set_trace()
             # loss_simple = self.get_loss(model_output_x0, x_start_edit, mean=False).mean([1, 2, 3])
             loss_cosine, loss_l1 = self.get_clip_loss(pred_image_x0, gt_image_x0)
             loss_simple = loss_cosine + loss_l1
