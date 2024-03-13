@@ -251,7 +251,7 @@ class PreVersatileNetAdaptor(UNetModelVD):
 
 
 class DualLDM(LatentDiffusion):
-    def __init__(self, clip_cfg, use_styleclip_loss=False, fmri2clip_cfg=None, fmri2clip_pretrain_path=None,
+    def __init__(self, clip_cfg, fmri2clip_cfg=None, fmri2clip_pretrain_path=None,
                 fmri_vclip_cfg=None, fmri_vclip_pretrain_path=None, personalization_config=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.vd_clip = VDCLIP(clip_cfg)
