@@ -509,6 +509,7 @@ class DualLDM(LatentDiffusion):
                   cond_key=None, return_original_cond=False, bs=None, uncond=0.075, sz=256,
                   prospect_words=None):
         x = DDPM.get_input(self, batch, k)
+        import pdb; pdb.set_trace();
         if bs is not None:
             x = x[:bs]
         if sz is not None:
