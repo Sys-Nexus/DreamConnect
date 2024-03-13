@@ -150,3 +150,52 @@ class align_block(nn.Module):
         predict_cap  = self.cap_branch8(predict_cap).view(B, self.out_spatial2, self.out_channel)#.permute(0,2,1)
 
         return  predict_x, predict_cap
+
+
+# class align_block(nn.Module):
+#     def __init__(self, input_dim=None, out_dim1=None, out_dim2=None, inner_dim=512, out_channel=768):
+#         super(align_block, self).__init__()
+#         self.inner_dim = 4096
+#         self.first_channel = 4096
+
+#         self.input_dim = input_dim
+#         self.out_dim1 = out_dim1*out_channel
+#         self.out_dim2 = out_dim2*out_channel
+#         self.out_channel = out_channel
+#         self.out_spatial1 = out_dim1
+#         self.out_spatial2 = out_dim2
+        
+
+#         self.encoder1 = nn.Linear(self.first_channel, self.inner_dim)  ##  15724  192
+#         self.encoder3 = nn.Linear( self.inner_dim, self.inner_dim)
+#         self.encoder5 = nn.Linear( self.inner_dim, self.inner_dim)
+
+#         self.x_branch1 =  nn.Linear(self.inner_dim, self.out_dim1)
+
+#         self.cap_branch1 = nn.Linear(self.inner_dim, self.out_dim2)
+
+        
+#     def forward(self, x):
+        
+#         # print( x.shape)
+#         if len(x.shape)>2:
+#             x = torch.mean(x, dim=1)
+#         else:
+#             x = x
+#         B, feature = x.shape
+
+#         x = F.interpolate(x.unsqueeze(1), size=(self.first_channel), mode='linear').squeeze(1)
+#         # x = x.unsqueeze(1)
+#         distributions = self.encoder1(x)
+
+#         distributions = self.encoder3(distributions)
+
+#         distributions = self.encoder5(distributions)
+
+
+#         predict_x = self.x_branch1(distributions).view(B, self.out_spatial1, self.out_channel)#.permute(0,2,1)
+
+
+#         predict_cap  = self.cap_branch1(distributions).view(B, self.out_spatial2, self.out_channel)#.permute(0,2,1)
+
+#         return  predict_x, predict_cap
