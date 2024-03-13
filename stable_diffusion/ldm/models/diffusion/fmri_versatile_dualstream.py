@@ -502,7 +502,7 @@ class DualLDM(LatentDiffusion):
                 c = self.q_sample(x_start=c, t=tc, noise=torch.randn_like(c.float()))
         # import pdb; pdb.set_trace();
         output = batch['fmri_edit']['output']
-        loss, loss_dict = self.p_losses(c['c_concat'][0], x, c, t, t_edit=t.clone()+self.coarse_spatial_steps*ratio, output, *args, **kwargs)
+        loss, loss_dict = self.p_losses(c['c_concat'][0], x, c, t, output, t_edit=t.clone()+self.coarse_spatial_steps*ratio, *args, **kwargs)
 
         return loss, loss_dict
 
