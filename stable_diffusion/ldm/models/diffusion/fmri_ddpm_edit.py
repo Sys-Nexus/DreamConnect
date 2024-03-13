@@ -1002,7 +1002,6 @@ class LatentDiffusion(DDPM):
             if self.shorten_cond_schedule:  # TODO: drop this option
                 tc = self.cond_ids[t]
                 c = self.q_sample(x_start=c, t=tc, noise=torch.randn_like(c.float()))
-        output = batch['fmri_edit']['output']
         loss, loss_dict = self.p_losses(c['c_concat'][0], x, c, t, output, *args, **kwargs)
             
         return loss, loss_dict
