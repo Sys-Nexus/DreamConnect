@@ -433,16 +433,19 @@ class DualLDM(LatentDiffusion):
             gt_image_x0 = self.decode_first_stage(x_start_edit)
             # pred_gt = torch.cat([pred_image_x0, gt_image_x0], dim=2)
             # torchvision.utils.save_image(pred_gt*0.5+0.5, 'pred_gt_cat2.jpg')
-            import pdb; pdb.set_trace()
+            # import pdb; pdb.set_trace()
             # loss_simple = self.get_loss(model_output_x0, x_start_edit, mean=False).mean([1, 2, 3])
             loss_cosine, loss_l1 = self.get_clip_loss(pred_image_x0, gt_image_x0)
-            # if self.use_styleclip_loss is True:
-            #     loss_styleclip = self.styleclip_loss(pred_image_x0, )
-            loss_simple = loss_cosine + loss_l1
+            if self.use_styleclip_loss is True:
+                import clip
+                output_ids = torch.cat([clip.tokenize(output)]).to(pred_image_x0.device)
+                loss_styleclip = self.styleclip_loss(pred_image_x0, output_ids) * 0.1
+            loss_simple = loss_cosine + loss_l1 + loss_styleclip
             # loss_simple = loss_cosine
         loss_dict.update({f'{prefix}/loss_simple': loss_simple.mean()})
         loss_dict.update({f'{prefix}/loss_simple_cosine': loss_cosine.mean()})
         loss_dict.update({f'{prefix}/loss_simple_l1': loss_l1.mean()})
+        loss_dict.update({f'{prefix}/loss_simple_styleclip': loss_styleclip.mean()})
 
         # additional_loss_type is in the format of min_snr_k
         if self.additional_loss_type is not None and isinstance(self.additional_loss_type, str) and self.additional_loss_type.startswith("min_snr_"):
@@ -479,8 +482,12 @@ class DualLDM(LatentDiffusion):
             loss_vlb = self.get_loss(model_output, target, mean=False).mean(dim=(1, 2, 3))
         else:
             loss_cosine_vlb, loss_l1_vlb = self.get_clip_loss(pred_image_x0, gt_image_x0)
-            # loss_vlb = loss_cosine_vlb #+ loss_l1_vlb
-            loss_vlb = loss_cosine_vlb + loss_l1_vlb
+            if self.use_styleclip_loss is True:
+                import clip
+                output_ids_vlb = torch.cat([clip.tokenize(output)]).to(pred_image_x0.device)
+                loss_styleclip_vlb = self.styleclip_loss(pred_image_x0, output_ids_vlb) * 0.1
+            loss_vlb = loss_cosine_vlb + loss_l1_vlb + loss_styleclip_vlb
+
             # loss_vlb = self.get_loss(model_output_x0, x_start_edit, mean=False).mean(dim=(1, 2, 3))
         loss_vlb = (self.lvlb_weights[t] * loss_vlb).mean()
         loss_dict.update({f'{prefix}/loss_vlb': loss_vlb})
