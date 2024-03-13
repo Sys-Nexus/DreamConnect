@@ -1,6 +1,5 @@
 
-# jobname=${1:-'versatile_dualstream_instruct_pre_post_w_x0'}
-jobname=${1:-'versatile_dualstream_instruct_pre_post_w_x0_prospect'}
+jobname=${1:-'wo_prospect_ctx_adaptor_bs4'}
 filter_mode=${2:-'tune_sideconv'} #no_filter
 
 gpus=${3:-'1,'}
@@ -40,7 +39,7 @@ resume_path=''
 # ${HOME}/.local/bin/wandb login 56d149bd571b8312fbca5e3802d7859909ea00c1
 
 CUDA_LAUNCH_BLOCKING=1 CUDA_VISIBLE_DEVICES=${gpus} ${run_cmd} main.py --name ${exp_name} \
-          --base configs/${jobname}.yaml \
+          --base configs/train/${jobname}.yaml \
           --train \
           --gpus ${gpus} \
           --resume '' \
