@@ -8,6 +8,7 @@ model:
   # target: ldm.models.diffusion.fmri_versatile_edit.fMRIVersatileEdit
   target: ldm.models.diffusion.fmri_versatile_dualstream.DualLDM
   params:
+    use_styleclip_loss: True
     fp16: True
     deepspeed: 'deepspeed_1'
     # fp16: False

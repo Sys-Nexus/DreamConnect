@@ -251,11 +251,12 @@ class PreVersatileNetAdaptor(UNetModelVD):
 
 
 class DualLDM(LatentDiffusion):
-    def __init__(self, clip_cfg, fmri2clip_cfg=None, fmri2clip_pretrain_path=None,
+    def __init__(self, clip_cfg, use_styleclip_loss=False, fmri2clip_cfg=None, fmri2clip_pretrain_path=None,
                 fmri_vclip_cfg=None, fmri_vclip_pretrain_path=None, personalization_config=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.vd_clip = VDCLIP(clip_cfg)
 
+        self.use_styleclip_loss = kwargs['use_styleclip_loss']
         self.is_save_x0 = kwargs['is_save_x0']
         self.is_save_intermediate = kwargs['is_save_intermediate']
         self.coarse_spatial_steps = kwargs['coarse_spatial_steps']
@@ -297,6 +298,10 @@ class DualLDM(LatentDiffusion):
         if fmri_vclip_cfg is not None:
             self.fmri_vclip_pretrain_path = fmri_vclip_pretrain_path
             self.instantiate_fmri_vclip(fmri_vclip_cfg)
+
+        if self.use_styleclip_loss is True:
+            from ldm.modules.losses.clip_loss import CLIPLoss
+            self.styleclip_loss = CLIPLoss()
 
         self.image_clip = FrozenClipImageEmbedder()
         self.embedding_manager = None
@@ -431,6 +436,8 @@ class DualLDM(LatentDiffusion):
             import pdb; pdb.set_trace()
             # loss_simple = self.get_loss(model_output_x0, x_start_edit, mean=False).mean([1, 2, 3])
             loss_cosine, loss_l1 = self.get_clip_loss(pred_image_x0, gt_image_x0)
+            if self.use_styleclip_loss is True:
+                loss_styleclip = self.styleclip_loss(pred_image_x0, )
             loss_simple = loss_cosine + loss_l1
             # loss_simple = loss_cosine
         loss_dict.update({f'{prefix}/loss_simple': loss_simple.mean()})
