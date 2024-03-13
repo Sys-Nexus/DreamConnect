@@ -122,7 +122,7 @@ class NIPS23NSDDataset(Dataset):
         nsd_root = os.path.dirname(os.path.abspath(__file__))
         nsd_coco_caption_path = os.path.join(nsd_root, 'misc/nsd_coco_caption.pkl')
         self.caps, self.keys, self.cap_dict = read_pkl(nsd_coco_caption_path)
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
         self.edited_root = '/data/yashengsun/Proj/Diffusion/InstructDiffusion/nsd_coco_output'
         self.meta_info = read_edit_json(os.path.join(nsd_root, 'misc'), self.keys)
         self.valid_do_nothing_ops = [' ']
@@ -160,7 +160,8 @@ class NIPS23NSDDataset(Dataset):
             if len(chosen_pool) and s in self.meta_info and 'edit' in self.meta_info[s] and max(chosen_pool) < len(self.meta_info[s]['edit']):
                 chosen_i = random.choice(chosen_pool)
                 instruction_text = self.meta_info[s]['edit'][chosen_i]
-                nsd_dict['fmri_edit'] = {'c_concat': init_image[0], 'c_crossattn': instruction_text, 'c_crossattn_1': fmri_norm}
+                output_text = self.meta_info[s]['output'][chosen_i]
+                nsd_dict['fmri_edit'] = {'c_concat': init_image[0], 'output': output_text, 'c_crossattn': instruction_text, 'c_crossattn_1': fmri_norm}
                 edited_path = os.path.join(self.edited_root, '{:06d}'.format(s), 'output_{:06d}_seed93151_id{}.jpg'.format(s,chosen_i))
                 nsd_dict['edited'] = load_img_from_string(edited_path, self.resolution)[0] # TODO
             # except:
@@ -170,7 +171,7 @@ class NIPS23NSDDataset(Dataset):
                 ## If the triplet pairs do not exist, use do nothing operation
             else:
                 instruction_text = random.choice(self.valid_do_nothing_ops)
-                nsd_dict['fmri_edit'] = {'c_concat': init_image[0], 'c_crossattn': instruction_text, 'c_crossattn_1': fmri_norm}
+                nsd_dict['fmri_edit'] = {'c_concat': init_image[0], 'output': nsd_dict['cap'], 'c_crossattn': instruction_text, 'c_crossattn_1': fmri_norm}
                 nsd_dict['edited'] = init_image[0]
         # print(nsd_dict['cap'], nsd_dict['fmri_edit']['c_crossattn'])
         return nsd_dict
