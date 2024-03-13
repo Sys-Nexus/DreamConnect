@@ -122,6 +122,7 @@ class NIPS23NSDDataset(Dataset):
         nsd_root = os.path.dirname(os.path.abspath(__file__))
         nsd_coco_caption_path = os.path.join(nsd_root, 'misc/nsd_coco_caption.pkl')
         self.caps, self.keys, self.cap_dict = read_pkl(nsd_coco_caption_path)
+        import pdb; pdb.set_trace()
         self.edited_root = '/data/yashengsun/Proj/Diffusion/InstructDiffusion/nsd_coco_output'
         self.meta_info = read_edit_json(os.path.join(nsd_root, 'misc'), self.keys)
         self.valid_do_nothing_ops = [' ']
