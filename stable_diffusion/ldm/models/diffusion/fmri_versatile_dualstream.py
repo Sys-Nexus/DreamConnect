@@ -274,8 +274,9 @@ class DualLDM(LatentDiffusion):
         ctx_adaptor_ckpt_path = kwargs['ctx_adaptor_ckpt_path']
         if ctx_adaptor_ckpt_path is not None and os.path.exists(ctx_adaptor_ckpt_path):
             pretrained_state_dict = torch.load(ctx_adaptor_ckpt_path, map_location="cpu")
-            import pdb; pdb.set_trace()
-            ctx_pretrained_state_dict = {k.replace('diffusion.adaptor_blocks.',''): v for k,v in pretrained_state_dict['module'].items() if 'diffsion_model.adaptor_blocks.' in k}
+            # import pdb; pdb.set_trace()
+            ctx_pretrained_state_dict = {k.replace('model.diffusion_model.adaptor_blocks.',''): v for k,v in pretrained_state_dict['module'].items() if 'model.diffusion_model.adaptor_blocks.' in k}
+            # ctx_pretrained_state_dict = {k for k,v in pretrained_state_dict['module'].items() if 'adaptor_blocks.' in k}
             missing, unexpected = self.model.diffusion_model.adaptor_blocks.load_state_dict(ctx_pretrained_state_dict, strict=False)
 
         self.prospect_stages = 10
