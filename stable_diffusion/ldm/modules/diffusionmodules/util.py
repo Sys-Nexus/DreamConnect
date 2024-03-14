@@ -150,7 +150,7 @@ class CheckpointFunction(torch.autograd.Function):
     def backward(ctx, *output_grads):
         # import pdb; pdb.set_trace()
         # ctx.input_tensors = [x.detach().requires_grad_(True) for x in ctx.input_tensors]
-        ctx.input_tensors = [x.detach().requires_grad_(True) for x in ctx.input_tensors if x is not None]
+        ctx.input_tensors = [x.detach().requires_grad_(True) for x in ctx.input_tensors if x is not None else None]
         with torch.enable_grad():
             # Fixes a bug where the first op in run_function modifies the
             # Tensor storage in place, which is not allowed for detach()'d
