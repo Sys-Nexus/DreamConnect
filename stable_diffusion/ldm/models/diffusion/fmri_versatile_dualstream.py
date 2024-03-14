@@ -88,7 +88,9 @@ class ControlledUnetModel(UNetModel):
                             ##### In this setting, I do not include timesteps as condition
                             self.adaptor_blocks.append(
                                 SpatialTransformer(
-                                    ch, num_heads, dim_head, default_eps=default_eps, force_type_convert=force_type_convert, depth=transformer_depth, context_dim=context_dims[cnt]))
+                                    ch, num_heads, dim_head, default_eps=default_eps, force_type_convert=force_type_convert,
+                                            depth=transformer_depth, context_dim=context_dims[cnt],
+                                            use_checkpoint=True))
                             # self.adaptor_blocks.append(
                             #     TimestepEmbedSequential(SpatialTransformer(
                             #         ch, num_heads, dim_head, default_eps=default_eps, force_type_convert=force_type_convert, depth=transformer_depth, context_dim=context_dim)))
