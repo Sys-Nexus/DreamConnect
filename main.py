@@ -444,11 +444,10 @@ def train_one_epoch(config, model, model_ema, data_loader, val_data_loader, opti
     end = time.time()
     for idx, batch in enumerate(data_loader):
         batch_size = batch['image'].shape[0]
-        import pdb; pdb.set_trace()
         if config.model.params.deepspeed != '':
             loss, _ = model(batch, idx, accumul_steps)
-            # import pdb; pdb.set_trace()
             model.backward(loss)
+            import pdb; pdb.set_trace()
 
             model.step()
             loss_scale = optimizer.cur_scale
