@@ -1,6 +1,6 @@
 
 jobname=${1:-'wo_prospect_ctx_adaptor_bs4'}
-filter_mode=${2:-'tune_sideconv'} #no_filter
+filter_mode=${2:-'tune_controlunet'} #no_filter
 
 gpus=${3:-'1,'}
 master_port=${4:-'27699'}
