@@ -302,7 +302,7 @@ class ResBlock(TimestepBlock):
         :param emb: an [N x emb_channels] Tensor of timestep embeddings.
         :return: an [N x C x ...] Tensor of outputs.
         """
-        if out_layers_injected is not None:
+        if out_layers_injected is None:
             return checkpoint(self._forward, (x, emb), self.parameters(), self.use_checkpoint)
         else:
             return checkpoint(
