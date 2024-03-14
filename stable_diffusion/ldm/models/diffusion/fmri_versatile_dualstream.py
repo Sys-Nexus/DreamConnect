@@ -423,8 +423,6 @@ class DualLDM(LatentDiffusion):
                             a_t_offset=a_t_offset, 
                             is_return_x0=is_return_x0,
                             noisy_c_concat4train=noisy_c_concat4train)
-        # denoised_x = self.decode_first_stage(denoised_z)
-        # import pdb; pdb.set_trace();
 
         loss_dict = {}
         prefix = 'train' if self.training else 'val'
@@ -441,8 +439,10 @@ class DualLDM(LatentDiffusion):
         if is_return_x0 is False:
             loss_simple = self.get_loss(model_output, target, mean=False).mean([1, 2, 3])
         else:
-            pred_image_x0 = self.decode_first_stage(model_output_x0*0.1825)
-            gt_image_x0 = self.decode_first_stage(x_start_edit)
+            # pred_image_x0 = self.decode_first_stage(model_output_x0*0.1825)
+            # gt_image_x0 = self.decode_first_stage(x_start_edit)
+            pred_image_x0 = self.differentiable_decode_first_stage(model_output_x0*0.1825)
+            gt_image_x0 = self.differentiable_decode_first_stage(x_start_edit)
             # pred_gt = torch.cat([pred_image_x0, gt_image_x0], dim=2)
             # torchvision.utils.save_image(pred_gt*0.5+0.5, 'pred_gt_cat2.jpg')
             # import pdb; pdb.set_trace()
