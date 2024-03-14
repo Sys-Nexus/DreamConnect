@@ -165,13 +165,13 @@ class CheckpointFunction(torch.autograd.Function):
             # Tensors.
             # shallow_copies = [x.view_as(x) for x in ctx.input_tensors]
             yyyyy = []
-            for x in shallow_copies:
+            for x in ctx.input_tensors:
                 if x is not None:
                     yyyyy.append(x.view_as(x))
                 else:
                     yyyyy.append(None)
             shallow_copies = yyyyy
-            
+
             output_tensors = ctx.run_function(*shallow_copies)
         input_grads = torch.autograd.grad(
             output_tensors,
