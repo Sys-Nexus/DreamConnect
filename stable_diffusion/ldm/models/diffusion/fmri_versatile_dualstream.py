@@ -137,8 +137,10 @@ class ControlledUnetModel(UNetModel):
                     # import pdb; pdb.set_trace();
                     inject_context = injected_contexts[cnt]
                     inject_context = rearrange(inject_context, 'b c h w -> b (h w) c').contiguous()
-                    h = self.adaptor_blocks[cnt](h, inject_context)
-                    import pdb; pdb.set_trace()
+                    res_h = self.adaptor_blocks[cnt](h, inject_context)
+                    # import pdb; pdb.set_trace()
+                    print('res_h diff h: ', torch.sum(torch.abs(res_h)-torch.abs(h)))
+                    h = res_h
                     cnt += 1
                 
                 module_i += 1
@@ -274,9 +276,10 @@ class DualLDM(LatentDiffusion):
         ctx_adaptor_ckpt_path = kwargs['ctx_adaptor_ckpt_path']
         if ctx_adaptor_ckpt_path is not None and os.path.exists(ctx_adaptor_ckpt_path):
             pretrained_state_dict = torch.load(ctx_adaptor_ckpt_path, map_location="cpu")
-            import pdb; pdb.set_trace()
+            # import pdb; pdb.set_trace()
             ctx_pretrained_state_dict = {k.replace('model.diffusion_model.adaptor_blocks.',''): v for k,v in pretrained_state_dict['module'].items() if 'model.diffusion_model.adaptor_blocks.' in k}
             missing, unexpected = self.model.diffusion_model.adaptor_blocks.load_state_dict(ctx_pretrained_state_dict, strict=False)
+            print('ctx missing: ', len(missing))
 
         self.prospect_stages = 10
         self.sampler = DDIMSampler_Dual(self)
