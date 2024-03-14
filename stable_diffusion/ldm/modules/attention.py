@@ -411,7 +411,15 @@ class SpatialTransformer(nn.Module):
             self.proj_out = zero_module(nn.Linear(in_channels, inner_dim))
         self.use_linear = use_linear
 
+
+
     def forward(self, x, context=None):
+        if context is not None:
+            return checkpoint(self._forward, (x, context), self.parameters(), self.checkpoint)
+        else:
+            return checkpoint(self._forward, (x,), self.parameters(), self.checkpoint)
+
+    def _forward(self, x, context=None):
         # note: if no context is given, cross-attention defaults to self-attention
         if not isinstance(context, list):
             context = [context]
@@ -435,3 +443,29 @@ class SpatialTransformer(nn.Module):
         if not self.use_linear:
             x = self.proj_out(x)
         return x + x_in
+
+
+    # def forward(self, x, context=None):
+    #     # note: if no context is given, cross-attention defaults to self-attention
+    #     if not isinstance(context, list):
+    #         context = [context]
+    #     b, c, h, w = x.shape
+    #     x_in = x
+    #     if self.force_type_convert:
+    #         x = self.norm.float()(x.float())
+    #         x = x.half()
+    #     else:
+    #         x = self.norm(x)
+    #     if not self.use_linear:
+    #         x = self.proj_in(x)
+    #     x = rearrange(x, 'b c h w -> b (h w) c').contiguous()
+    #     if self.use_linear:
+    #         x = self.proj_in(x)
+    #     for i, block in enumerate(self.transformer_blocks):
+    #         x = block(x, context=context[i])
+    #     if self.use_linear:
+    #         x = self.proj_out(x)
+    #     x = rearrange(x, 'b (h w) c -> b c h w', h=h, w=w).contiguous()
+    #     if not self.use_linear:
+    #         x = self.proj_out(x)
+    #     return x + x_in
