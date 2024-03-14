@@ -137,6 +137,7 @@ class ControlledUnetModel(UNetModel):
                     # import pdb; pdb.set_trace();
                     inject_context = injected_contexts[cnt]
                     inject_context = rearrange(inject_context, 'b c h w -> b (h w) c').contiguous()
+                    inject_context = inject_context.detach().requires_grad_(True)
                     res_h = self.adaptor_blocks[cnt](h, inject_context)
                     # import pdb; pdb.set_trace()
                     print('res_h diff h: ', torch.sum(torch.abs(res_h)-torch.abs(h)))
