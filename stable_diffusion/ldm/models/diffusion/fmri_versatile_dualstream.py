@@ -267,10 +267,15 @@ class DualLDM(LatentDiffusion):
             pretrained_state_dict = {k:v for k,v in pretrained_state_dict.items() if 'clip.' in k}
             missing, unexpected = self.vd_clip.load_state_dict(pretrained_state_dict, strict=False)
 
-            print('clip missing {} params.'.format(len(missing)))
-            print('clip missing: ', missing)
-            print('clip unexpected {} params.'.format(len(unexpected)))
+            print('versatile clip missing {} params.'.format(len(missing)))
+            print('versatile clip missing: ', missing)
+            print('versatile clip unexpected {} params.'.format(len(unexpected)))
         
+        ctx_adaptor_ckpt_path = kwargs['ctx_adaptor_ckpt_path']
+        if ctx_adaptor_ckpt_path is not None and os.path.exists(ctx_adaptor_ckpt_path):
+            pretrained_state_dict = torch.load(ctx_adaptor_ckpt_path, map_location="cpu")
+            import pdb; pdb.set_trace()
+
         self.prospect_stages = 10
         self.sampler = DDIMSampler_Dual(self)
 
