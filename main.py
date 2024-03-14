@@ -447,7 +447,7 @@ def train_one_epoch(config, model, model_ema, data_loader, val_data_loader, opti
         if config.model.params.deepspeed != '':
             loss, _ = model(batch, idx, accumul_steps)
             model.backward(loss)
-            import pdb; pdb.set_trace()
+            # import pdb; pdb.set_trace()
 
             model.step()
             loss_scale = optimizer.cur_scale
