@@ -444,7 +444,7 @@ def train_one_epoch(config, model, model_ema, data_loader, val_data_loader, opti
     end = time.time()
     for idx, batch in enumerate(data_loader):
         batch_size = batch['image'].shape[0]
-        
+        import pdb; pdb.set_trace()
         if config.model.params.deepspeed != '':
             loss, _ = model(batch, idx, accumul_steps)
             # import pdb; pdb.set_trace()
@@ -788,6 +788,7 @@ if __name__ == "__main__":
         optimizer, lr_scheduler = model.configure_optimizers()
         model = torch.nn.parallel.DistributedDataParallel(model, device_ids=[opt.local_rank], broadcast_buffers=False)
         model_without_ddp = model.module
+
     # print(optimizer.param_groups[1])
     if opt.resume != '':
         resume_file = opt.resume
