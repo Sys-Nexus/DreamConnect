@@ -148,7 +148,7 @@ class CheckpointFunction(torch.autograd.Function):
     @staticmethod
     @torch.cuda.amp.custom_bwd # add this
     def backward(ctx, *output_grads):
-        # import pdb; pdb.set_trace()
+        import pdb; pdb.set_trace()
         # ctx.input_tensors = [x.detach().requires_grad_(True) for x in ctx.input_tensors]
         # ctx.input_tensors = [x.detach().requires_grad_(True) for x in ctx.input_tensors if x is not None else None]
         ctx.input_tensors = []
