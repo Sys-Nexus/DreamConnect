@@ -410,7 +410,7 @@ class SpatialTransformer(nn.Module):
         else:
             self.proj_out = zero_module(nn.Linear(in_channels, inner_dim))
         self.use_linear = use_linear
-
+        self.checkpoint = checkpoint
 
 
     def forward(self, x, context=None):
