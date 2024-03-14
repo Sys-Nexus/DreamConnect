@@ -273,7 +273,8 @@ class DualLDM(LatentDiffusion):
             print('versatile clip missing: ', missing)
             print('versatile clip unexpected {} params.'.format(len(unexpected)))
         
-        ctx_adaptor_ckpt_path = kwargs['ctx_adaptor_ckpt_path']
+        ctx_adaptor_ckpt_path = kwargs.get('ctx_adaptor_ckpt_path', None)
+        # ctx_adaptor_ckpt_path = kwargs['ctx_adaptor_ckpt_path']
         if ctx_adaptor_ckpt_path is not None and os.path.exists(ctx_adaptor_ckpt_path):
             pretrained_state_dict = torch.load(ctx_adaptor_ckpt_path, map_location="cpu")
             # import pdb; pdb.set_trace()
