@@ -138,7 +138,7 @@ class ControlledUnetModel(UNetModel):
                     inject_context = injected_contexts[cnt]
                     inject_context = rearrange(inject_context, 'b c h w -> b (h w) c').contiguous()
                     h = self.adaptor_blocks[cnt](h, inject_context)
-                    # import pdb; pdb.set_trace()
+                    import pdb; pdb.set_trace()
                     cnt += 1
                 
                 module_i += 1
