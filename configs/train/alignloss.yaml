@@ -2,7 +2,7 @@
 # See more details in LICENSE.
 
 model:
-  base_learning_rate: 1.0e-02
+  base_learning_rate: 1.0e-03
   weight_decay: 0.01
   # target: ldm.models.diffusion.control_fmri_ddpm_edit.ControlLDM
   # target: ldm.models.diffusion.fmri_versatile_edit.fMRIVersatileEdit
