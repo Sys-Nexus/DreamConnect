@@ -523,9 +523,9 @@ class DualLDM(LatentDiffusion):
             if self.shorten_cond_schedule:  # TODO: drop this option
                 tc = self.cond_ids[t]
                 c = self.q_sample(x_start=c, t=tc, noise=torch.randn_like(c.float()))
-        import pdb; pdb.set_trace();
+        # import pdb; pdb.set_trace();
         output_text = batch['fmri_edit']['output']
-        edit_text = batch['fmri_edit']['edit']
+        edit_text = batch['fmri_edit']['c_crossattn']
         loss, loss_dict = self.p_losses(c['c_concat'][0], x, c, t, output_text, edit_text, t_edit=t.clone()+self.coarse_spatial_steps*ratio, *args, **kwargs)
 
         return loss, loss_dict
