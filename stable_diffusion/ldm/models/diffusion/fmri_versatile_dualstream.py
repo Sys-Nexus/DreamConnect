@@ -528,7 +528,7 @@ class DualLDM(LatentDiffusion):
         output_text = batch['fmri_edit']['output']
         edit_text = batch['fmri_edit']['c_crossattn']
         if self.only_align_loss is True:
-            loss, loss_dict = self.align_losses(c *args, **kwargs)
+            loss, loss_dict = self.align_losses(c, *args, **kwargs)
         else:
             loss, loss_dict = self.p_losses(c['c_concat'][0], x, c, t, output_text, edit_text, t_edit=t.clone()+self.coarse_spatial_steps*ratio, *args, **kwargs)
 
