@@ -536,10 +536,10 @@ class DualLDM(LatentDiffusion):
     
     def align_losses(self, cond):
         # import pdb; pdb.set_trace();
-        gt_image_emb = cond["c_crossattn_1"]["gt_image_emb"]
-        gt_text_emb = cond["c_crossattn_1"]["gt_text_emb"]
-        pred_image_emb = cond["c_crossattn_1"]["image_emb"]
-        pred_text_emb = cond["c_crossattn_1"]["text_emb"]
+        gt_image_emb = cond["c_crossattn_1"]["gt_image_emb"][0]
+        gt_text_emb = cond["c_crossattn_1"]["gt_text_emb"][0]
+        pred_image_emb = cond["c_crossattn_1"]["image_emb"][0]
+        pred_text_emb = cond["c_crossattn_1"]["text_emb"][0]
 
         loss = F.mse_loss(pred_image_emb, gt_image_emb) + F.mse_loss(pred_text_emb, gt_text_emb)
         loss_dict = {}
