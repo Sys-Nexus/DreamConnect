@@ -59,7 +59,7 @@ def freeze_params(model):
 class DDPM(nn.Module):
     # classic DDPM with Gaussian diffusion, in image space
     def __init__(self,
-                 unet_config,
+                 unet_config=None,
                  timesteps=1000,
                  beta_schedule="linear",
                  loss_type="l2",
@@ -99,7 +99,7 @@ class DDPM(nn.Module):
         self.image_size = image_size  # try conv?
         self.channels = channels
         self.use_positional_encodings = use_positional_encodings
-        self.model = DiffusionWrapper(unet_config, conditioning_key)
+        self.model = DiffusionWrapper(unet_config, conditioning_key) if unet_config is not None else None
         count_params(self.model, verbose=True)
 
         self.use_scheduler = scheduler_config is not None
