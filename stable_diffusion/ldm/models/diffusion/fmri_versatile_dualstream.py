@@ -377,7 +377,7 @@ class DualLDM(LatentDiffusion):
         return cosine_loss, l1_loss
 
     ### TODO: what we should give to noise_edit
-    def p_losses(self, x_start_gen, x_start_edit, cond, t, output, noise=None, noise_edit=None, t_edit=None, is_return_x0=True):
+    def p_losses(self, x_start_gen, x_start_edit, cond, t, output_text, edit_text, noise=None, noise_edit=None, t_edit=None, is_return_x0=True):
         # import pdb; pdb.set_trace();
         noise_gen = default(noise, lambda: torch.randn_like(x_start_gen))
         x_noisy_gen = self.q_sample(x_start=x_start_gen, t=t, noise=noise_gen)
@@ -447,14 +447,15 @@ class DualLDM(LatentDiffusion):
             gt_image_x0 = self.differentiable_decode_first_stage(x_start_edit)
             # pred_gt = torch.cat([pred_image_x0, gt_image_x0], dim=2)
             # torchvision.utils.save_image(pred_gt*0.5+0.5, 'pred_gt_cat2.jpg')
-            import pdb; pdb.set_trace()
+            # import pdb; pdb.set_trace()
             # loss_simple = self.get_loss(model_output_x0, x_start_edit, mean=False).mean([1, 2, 3])
             loss_cosine, loss_l1 = self.get_clip_loss(pred_image_x0, gt_image_x0)
             if self.use_styleclip_loss is True:
                 import clip
-                output_ids = torch.cat([clip.tokenize(output)]).to(pred_image_x0.device)
+                output_ids = torch.cat([clip.tokenize(output_text)]).to(pred_image_x0.device)
                 loss_styleclip = self.styleclip_loss(pred_image_x0, output_ids) * 0.1
-            loss_simple = loss_cosine + loss_l1 + loss_styleclip
+            # loss_simple = loss_cosine + loss_l1 + loss_styleclip
+            loss_simple = loss_l1
             # loss_simple = loss_cosine
         loss_dict.update({f'{prefix}/loss_simple': loss_simple.mean()})
         loss_dict.update({f'{prefix}/loss_simple_cosine': loss_cosine.mean()})
@@ -500,7 +501,8 @@ class DualLDM(LatentDiffusion):
                 import clip
                 output_ids_vlb = torch.cat([clip.tokenize(output)]).to(pred_image_x0.device)
                 loss_styleclip_vlb = self.styleclip_loss(pred_image_x0, output_ids_vlb) * 0.1
-            loss_vlb = loss_cosine_vlb + loss_l1_vlb + loss_styleclip_vlb
+            # loss_vlb = loss_cosine_vlb + loss_l1_vlb + loss_styleclip_vlb
+            loss_vlb = loss_l1_vlb
 
             # loss_vlb = self.get_loss(model_output_x0, x_start_edit, mean=False).mean(dim=(1, 2, 3))
         loss_vlb = (self.lvlb_weights[t] * loss_vlb).mean()
@@ -521,9 +523,10 @@ class DualLDM(LatentDiffusion):
             if self.shorten_cond_schedule:  # TODO: drop this option
                 tc = self.cond_ids[t]
                 c = self.q_sample(x_start=c, t=tc, noise=torch.randn_like(c.float()))
-        import pdb; pdb.set_trace();
-        output = batch['fmri_edit']['output']
-        loss, loss_dict = self.p_losses(c['c_concat'][0], x, c, t, output, t_edit=t.clone()+self.coarse_spatial_steps*ratio, *args, **kwargs)
+        # import pdb; pdb.set_trace();
+        output_text = batch['fmri_edit']['output']
+        edit_text = batch['fmri_edit']['edit']
+        loss, loss_dict = self.p_losses(c['c_concat'][0], x, c, t, output_text, edit_text, t_edit=t.clone()+self.coarse_spatial_steps*ratio, *args, **kwargs)
 
         return loss, loss_dict
 
