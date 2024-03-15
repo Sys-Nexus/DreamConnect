@@ -573,6 +573,7 @@ class DualLDM(LatentDiffusion):
         pred_image_emb, pred_text_emb = None, None
         if self.fmri2clip_model is not None:
             if self.only_align_loss is True:
+                self.fmri2clip_model.train()
                 voxel = batch['fmri'].to(z)
                 if bs is not None: voxel = voxel[:bs]
                 if voxel.shape[1] == 3: voxel = voxel.mean(dim=1)
