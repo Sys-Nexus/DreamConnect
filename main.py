@@ -592,7 +592,7 @@ def filter_optimized_params(model, args):
         filtered_params = [param for name, param in model.named_parameters() if param.requires_grad is True]
         filtered_names = [name for name, param in model.named_parameters() if param.requires_grad is True]
         param_groups = [{'params': filtered_params, 'lr': model.learning_rate}]
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
     elif args.filter_mode == 'tune_controlunet':
         filtered_params = [param for name, param in model.named_parameters() if param.requires_grad is True and 'model.diffusion_model.adaptor_blocks' in name ]
         filtered_names = [name for name, param in model.named_parameters() if param.requires_grad is True and 'model.diffusion_model.adaptor_blocks' in name]
