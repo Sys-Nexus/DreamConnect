@@ -447,7 +447,7 @@ class DualLDM(LatentDiffusion):
             gt_image_x0 = self.differentiable_decode_first_stage(x_start_edit)
             # pred_gt = torch.cat([pred_image_x0, gt_image_x0], dim=2)
             # torchvision.utils.save_image(pred_gt*0.5+0.5, 'pred_gt_cat2.jpg')
-            # import pdb; pdb.set_trace()
+            import pdb; pdb.set_trace()
             # loss_simple = self.get_loss(model_output_x0, x_start_edit, mean=False).mean([1, 2, 3])
             loss_cosine, loss_l1 = self.get_clip_loss(pred_image_x0, gt_image_x0)
             if self.use_styleclip_loss is True:
