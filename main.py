@@ -588,7 +588,11 @@ def train_one_epoch(config, model, model_ema, data_loader, val_data_loader, opti
 ## this is to control which paramters are needed to be optimized
 def filter_optimized_params(model, args):
     if args.filter_mode == 'no_filter':
-        param_groups = model.parameters()
+        # param_groups = model.parameters()
+        filtered_params = [param for name, param in model.named_parameters() if param.requires_grad is True]
+        filtered_names = [name for name, param in model.named_parameters() if param.requires_grad is True]
+        param_groups = [{'params': filtered_params, 'lr': model.learning_rate}]
+        import pdb; pdb.set_trace()
     elif args.filter_mode == 'tune_controlunet':
         filtered_params = [param for name, param in model.named_parameters() if param.requires_grad is True and 'model.diffusion_model.adaptor_blocks' in name ]
         filtered_names = [name for name, param in model.named_parameters() if param.requires_grad is True and 'model.diffusion_model.adaptor_blocks' in name]
