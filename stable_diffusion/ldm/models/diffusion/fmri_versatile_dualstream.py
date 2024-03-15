@@ -535,15 +535,15 @@ class DualLDM(LatentDiffusion):
         return loss, loss_dict
     
     def align_losses(self, cond):
-        gt_image_emb = cond["c_crossattn_1"]["gt_image_emb"]
-        gt_text_emb = cond["c_crossattn_1"]["gt_text_emb"]
-        pred_image_emb = cond["c_crossattn_1"]["image_emb"]
-        pred_text_emb = cond["c_crossattn_1"]["text_emb"]
+        gt_image_emb = cond["c_crossattn"]["gt_image_emb"]
+        gt_text_emb = cond["c_crossattn"]["gt_text_emb"]
+        pred_image_emb = cond["c_crossattn"]["image_emb"]
+        pred_text_emb = cond["c_crossattn"]["text_emb"]
 
         loss = F.mse_loss(pred_image_emb, gt_image_emb) + F.mse_loss(pred_text_emb, gt_text_emb)
         loss_dict = {}
         loss_dict.update({'loss_align': loss})
-        
+
         return loss, loss_dict
 
     def get_input(self, batch, k, return_first_stage_outputs=False, force_c_encode=False,
@@ -617,8 +617,8 @@ class DualLDM(LatentDiffusion):
         fmri_cap = self.vd_clip.clip_encode_text(cap)
 
         if self.only_align_loss is True:
-            cond["c_crossattn_1"]["gt_image_emb"] = [fmri_x.detach().requires_grad_(True)]
-            cond["c_crossattn_1"]["gt_text_emb"] = [fmri_cap.detach().requires_grad_(True)]
+            cond["c_crossattn"]["gt_image_emb"] = [fmri_x.detach().requires_grad_(True)]
+            cond["c_crossattn"]["gt_text_emb"] = [fmri_cap.detach().requires_grad_(True)]
 
         # import pdb; pdb.set_trace();
         if pred_image_emb is not None:
