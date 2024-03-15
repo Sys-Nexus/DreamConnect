@@ -331,12 +331,15 @@ class DualLDM(LatentDiffusion):
 
     def instantiate_fmri2clip(self, config):
         model = instantiate_from_config(config)
-        state_dict = torch.load(self.fmri2clip_pretrain_path)['module']
-        filter_state_dict = {k.replace('align_model.',''):v for k,v in state_dict.items() if 'align_model.' in k}
-        missing, unexpected = model.load_state_dict(filter_state_dict, strict=False)
-        print('missing: ', missing)
-        print('unexpected: ', unexpected)
-        # import pdb; pdb.set_trace()
+        if os.path.exist(self.fmri2clip_pretrain_path):
+            state_dict = torch.load(self.fmri2clip_pretrain_path)['module']
+            filter_state_dict = {k.replace('align_model.',''):v for k,v in state_dict.items() if 'align_model.' in k}
+            missing, unexpected = model.load_state_dict(filter_state_dict, strict=False)
+            print('missing: ', missing)
+            print('unexpected: ', unexpected)
+            # import pdb; pdb.set_trace()
+        else:
+            print('fmri2clip_pretrain_path not exist.')
         return model
 
     def instantiate_embedding_manager(self, config, embedder):
