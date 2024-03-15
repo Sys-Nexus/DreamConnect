@@ -318,7 +318,9 @@ class DualLDM(LatentDiffusion):
             from ldm.modules.losses.clip_loss import CLIPLoss
             self.styleclip_loss = CLIPLoss()
 
-        self.image_clip = FrozenClipImageEmbedder()
+        if not self.only_align_loss:
+            self.image_clip = FrozenClipImageEmbedder()
+
         self.embedding_manager = None
         if personalization_config:
             self.embedding_manager = self.instantiate_embedding_manager(personalization_config, self.cond_stage_model)
