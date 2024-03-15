@@ -10,10 +10,10 @@ model:
   params:
     only_align_loss: True
     use_styleclip_loss: False
-    # fp16: True
-    # deepspeed: 'deepspeed_1'
-    fp16: False
-    deepspeed: 'deepspeedfp32_1'
+    fp16: True
+    deepspeed: 'deepspeed_1'
+    # fp16: False
+    # deepspeed: 'deepspeedfp32_1'
     only_mid_control: False
     control_key: 'fmri'
     # deepspeed: ''
