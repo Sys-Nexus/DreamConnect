@@ -514,7 +514,10 @@ class DualLDM(LatentDiffusion):
         return loss, loss_dict
 
     def forward(self, batch, batch_idx, num_steps, *args, **kwargs):
-        x, c = self.get_input(batch, self.first_stage_key)
+        if self.only_align_loss is True:
+            x, c = self.get_input(batch, self.first_stage_key, force_c_encode=True)
+        else:
+            x, c = self.get_input(batch, self.first_stage_key)
         ratio = self.num_timesteps // self.ddim_steps
         t = torch.randint(0, self.num_timesteps-self.coarse_spatial_steps*ratio, (x.shape[0],), device=x.device).long()
         if self.model.conditioning_key is not None:
