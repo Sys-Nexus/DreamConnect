@@ -318,7 +318,7 @@ class DualLDM(LatentDiffusion):
             from ldm.modules.losses.clip_loss import CLIPLoss
             self.styleclip_loss = CLIPLoss()
 
-        if not self.only_align_loss:
+        if self.only_align_loss is False:
             self.image_clip = FrozenClipImageEmbedder()
 
         self.embedding_manager = None
