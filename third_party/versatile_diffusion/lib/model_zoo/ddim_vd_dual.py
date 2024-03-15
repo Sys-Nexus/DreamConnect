@@ -792,37 +792,38 @@ class DDIMSampler_Dual(DDIMSampler):
             if callback: callback(i)
 
         ### third round to finalize the edited image
-        x_dec_gen_ = x_dec_gen.clone()
-        for i, step in enumerate(tqdm(range(start_step+coarse_spatial_steps*20-20, -1, -20), desc='Decoding image', total=coarse_spatial_steps)):
-            index = start_index - i
-            # print(i, step, index)
-            # import pdb; pdb.set_trace()
-            gen_ts = torch.full((x_latent_edit.shape[0],), start_step, device=x_latent_edit.device, dtype=torch.long)
-            edit_ts = torch.full((x_latent_edit.shape[0],), step, device=x_latent_edit.device, dtype=torch.long)
-            a_t, sqrt_one_minus_at = self.get_al(x_dec_gen, 0)
-            # print('====', index, coarse_spatial_steps, i, step, '====')
-            # import pdb; pdb.set_trace()
-            x_dec_gen_, x0_dec_gen_, x_dec_edit, x0_dec_edit = self.asyn_p_sample_ddim_dual_cfg(
-                x_dec_gen_, 
-                x_dec_edit,
-                gen_ts,
-                edit_ts,
-                cond_dict,
-                index, 
-                offset=coarse_spatial_steps,
-                unconditional_guidance_scale_gen=unconditional_guidance_scale_gen,
-                unconditional_guidance_scale_text_edit=unconditional_guidance_scale_text_edit,
-                unconditional_guidance_scale_image_edit=unconditional_guidance_scale_image_edit,
-                use_original_steps=use_original_steps,
-                noise_dropout=0,
-                temperature=1,
-                mixed_ratio=mixed_ratio,
-                is_save_intermediate=is_save_intermediate,
-                is_save_x0=is_save_x0,
-                sqrt_one_minus_at=sqrt_one_minus_at, a_t=a_t)
-            x_dec_gen_info.append(x0_dec_gen)
-            x_dec_edit_info.append(x0_dec_edit)
-            if callback: callback(i)
+        if False:
+            x_dec_gen_ = x_dec_gen.clone()
+            for i, step in enumerate(tqdm(range(start_step+coarse_spatial_steps*20-20, -1, -20), desc='Decoding image', total=coarse_spatial_steps)):
+                index = start_index - i
+                # print(i, step, index)
+                # import pdb; pdb.set_trace()
+                gen_ts = torch.full((x_latent_edit.shape[0],), start_step, device=x_latent_edit.device, dtype=torch.long)
+                edit_ts = torch.full((x_latent_edit.shape[0],), step, device=x_latent_edit.device, dtype=torch.long)
+                a_t, sqrt_one_minus_at = self.get_al(x_dec_gen, 0)
+                # print('====', index, coarse_spatial_steps, i, step, '====')
+                # import pdb; pdb.set_trace()
+                x_dec_gen_, x0_dec_gen_, x_dec_edit, x0_dec_edit = self.asyn_p_sample_ddim_dual_cfg(
+                    x_dec_gen_, 
+                    x_dec_edit,
+                    gen_ts,
+                    edit_ts,
+                    cond_dict,
+                    index, 
+                    offset=coarse_spatial_steps,
+                    unconditional_guidance_scale_gen=unconditional_guidance_scale_gen,
+                    unconditional_guidance_scale_text_edit=unconditional_guidance_scale_text_edit,
+                    unconditional_guidance_scale_image_edit=unconditional_guidance_scale_image_edit,
+                    use_original_steps=use_original_steps,
+                    noise_dropout=0,
+                    temperature=1,
+                    mixed_ratio=mixed_ratio,
+                    is_save_intermediate=is_save_intermediate,
+                    is_save_x0=is_save_x0,
+                    sqrt_one_minus_at=sqrt_one_minus_at, a_t=a_t)
+                x_dec_gen_info.append(x0_dec_gen)
+                x_dec_edit_info.append(x0_dec_edit)
+                if callback: callback(i)
 
         if unconditional_guidance_scale_edit is not None:
             return x_dec_gen, x_dec_edit
