@@ -90,7 +90,7 @@ for attribute_name in vars(args).keys():
 
 all_brain_recons = torch.load(f'{recon_path}')
 all_images = torch.load(f'{all_images_path}')
-import pdb; pdb.set_trace();
+# import pdb; pdb.set_trace();
 print(all_images.shape)
 print(all_brain_recons.shape)
 
