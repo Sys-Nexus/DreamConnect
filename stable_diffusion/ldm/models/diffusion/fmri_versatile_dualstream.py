@@ -517,7 +517,6 @@ class DualLDM(LatentDiffusion):
         if self.only_align_loss is True:
             x, c = self.get_input(batch, self.first_stage_key, force_c_encode=True)
             loss, loss_dict = self.align_losses(c, *args, **kwargs)
-            return loss, loss_dict
         else:
             x, c = self.get_input(batch, self.first_stage_key)
             ratio = self.num_timesteps // self.ddim_steps
