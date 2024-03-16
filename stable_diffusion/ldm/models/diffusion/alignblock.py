@@ -120,7 +120,7 @@ class align_block(nn.Module):
         self.out_spatial1 = out_dim1
         self.out_spatial2 = out_dim2
         
-        self.encoder1 = nn.Linear(1024, self.inner_dim)  ##  15724  192
+        self.encoder1 = nn.Linear(8096, self.inner_dim)  ##  15724  192
         self.encoder3 = nn.Linear( self.inner_dim, self.inner_dim)
         self.encoder5 = nn.Linear( self.inner_dim, self.inner_dim)
         
@@ -138,7 +138,7 @@ class align_block(nn.Module):
             x = x
         B, feature = x.shape
 
-        x = F.interpolate(x.unsqueeze(1), size=(1024), mode='linear').squeeze(1)
+        x = F.interpolate(x.unsqueeze(1), size=(8096), mode='linear').squeeze(1)
         distributions = self.encoder1(x)
         distributions = self.encoder3(distributions)
         distributions = self.encoder5(distributions)
