@@ -170,14 +170,14 @@ model:
       type: clip_frozen
     
     # fmri2clip_pretrain_path: '/data/yashengsun/Proj/MMEdit/fMRIInstructDiffusion/checkpoints/bohan_recon/state.pth'
-    fmri2clip_pretrain_path: '/data/yashengsun/Proj/MMEdit/fMRIInstructDiffusion/checkpoints/bohan_recon/mp_rank_00_model_states.pt'
-    fmri2clip_cfg:
-      target: ldm.models.diffusion.alignblock.align_block
-      params:
-        input_dim: 15724
-        out_dim1: 257
-        out_dim2: 77
-        out_channel: 768
+    # fmri2clip_pretrain_path: '/data/yashengsun/Proj/MMEdit/fMRIInstructDiffusion/checkpoints/bohan_recon/mp_rank_00_model_states.pt'
+    # fmri2clip_cfg:
+    #   target: ldm.models.diffusion.alignblock.align_block
+    #   params:
+    #     input_dim: 15724
+    #     out_dim1: 257
+    #     out_dim2: 77
+    #     out_channel: 768
     
     # fmri_vclip_pretrain_path: '/data/yashengsun/Proj/MMEdit/fMRI-reconstruction-NSD/train_logs/prior_257_final_subj01_bimixco_softclip_byol/last.pth'
     # fmri_vclip_cfg:
