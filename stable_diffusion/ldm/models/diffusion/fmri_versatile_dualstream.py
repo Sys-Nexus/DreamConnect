@@ -470,8 +470,8 @@ class DualLDM(LatentDiffusion):
             # loss_simple = loss_cosine
         loss_dict.update({f'{prefix}/loss_simple': loss_simple.mean()})
         # loss_dict.update({f'{prefix}/loss_simple_cosine': loss_cosine.mean()})
-        loss_dict.update({f'{prefix}/loss_simple_l1': loss_l1.mean()})
-        loss_dict.update({f'{prefix}/loss_simple_styleclip': loss_styleclip.mean()})
+        # loss_dict.update({f'{prefix}/loss_simple_l1': loss_l1.mean()})
+        # loss_dict.update({f'{prefix}/loss_simple_styleclip': loss_styleclip.mean()})
 
         # additional_loss_type is in the format of min_snr_k
         if self.additional_loss_type is not None and isinstance(self.additional_loss_type, str) and self.additional_loss_type.startswith("min_snr_"):
