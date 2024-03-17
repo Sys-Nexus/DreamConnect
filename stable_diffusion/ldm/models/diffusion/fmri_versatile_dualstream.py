@@ -469,7 +469,7 @@ class DualLDM(LatentDiffusion):
             loss_simple = loss_simple_ori
             # loss_simple = loss_cosine
         loss_dict.update({f'{prefix}/loss_simple': loss_simple.mean()})
-        loss_dict.update({f'{prefix}/loss_simple_cosine': loss_cosine.mean()})
+        # loss_dict.update({f'{prefix}/loss_simple_cosine': loss_cosine.mean()})
         loss_dict.update({f'{prefix}/loss_simple_l1': loss_l1.mean()})
         loss_dict.update({f'{prefix}/loss_simple_styleclip': loss_styleclip.mean()})
 
