@@ -393,7 +393,8 @@ class DualLDM(LatentDiffusion):
 
         t_edit = t.clone() if t_edit is None else t_edit
         x_noisy_edit = self.q_sample(x_start=x_start_edit, t=t_edit, noise=noise_edit)
-
+        import pdb; pdb.set_trace();
+        
         b = x_start_gen.shape[0]
         extended_shape = (b, 1, 1, 1)
         alphas = self.alphas_cumprod #if use_original_steps else self.ddim_alphas
