@@ -418,14 +418,14 @@ class DualLDM(LatentDiffusion):
         # import pdb; pdb.set_trace()
         noisy_c_concat4train = x_start_gen.clone() #/ 0.18215 ## theoretically speaking, should be the first add noise 15 steps and use first stream network to denoise.
         if is_return_x0 is False:
-            _, model_output = self.apply_model(x_noisy_gen, x_noisy_edit, t, cond, t_edit_in=t_edit, 
+            model_output_gen, model_output = self.apply_model(x_noisy_gen, x_noisy_edit, t, cond, t_edit_in=t_edit, 
                             is_save_x0=self.is_save_x0, is_save_intermediate=self.is_save_intermediate,
                             sqrt_one_minus_at=sqrt_one_minus_at, a_t=a_t,
                             sqrt_one_minus_at_offset=sqrt_one_minus_at_offset, 
                             a_t_offset=a_t_offset,
                             noisy_c_concat4train=noisy_c_concat4train)
         else:
-            _, model_output, model_output_x0 = self.apply_model(x_noisy_gen, x_noisy_edit, t, cond, t_edit_in=t_edit, 
+            model_output_gen, model_output, model_output_x0 = self.apply_model(x_noisy_gen, x_noisy_edit, t, cond, t_edit_in=t_edit, 
                             is_save_x0=self.is_save_x0, is_save_intermediate=self.is_save_intermediate,
                             sqrt_one_minus_at=sqrt_one_minus_at, a_t=a_t, 
                             sqrt_one_minus_at_offset=sqrt_one_minus_at_offset, 
@@ -433,6 +433,8 @@ class DualLDM(LatentDiffusion):
                             is_return_x0=is_return_x0,
                             noisy_c_concat4train=noisy_c_concat4train)
 
+            model_output_gen_x0 = (x_noisy_gen - sqrt_one_minus_at * model_output_gen) / a_t.sqrt()
+            model_output_gen_x0 = model_output_gen_x0 / 0.18215
         loss_dict = {}
         prefix = 'train' if self.training else 'val'
         
@@ -448,15 +450,15 @@ class DualLDM(LatentDiffusion):
         if is_return_x0 is False:
             loss_simple = self.get_loss(model_output, target, mean=False).mean([1, 2, 3])
         else:
-            # pred_image_x0 = self.decode_first_stage(model_output_x0*0.1825)
-            # gt_image_x0 = self.decode_first_stage(x_start_edit)
+
             self.first_stage_model = self.first_stage_model.float()
-            pred_image_x0 = self.differentiable_decode_first_stage(model_output_x0*0.1825)
+            pred_image_x0 = self.differentiable_decode_first_stage(model_output_x0*0.18215)
+            gen_image_x0 = self.decode_first_stage(model_output_gen_x0*0.18215)
             gt_image_x0 = self.decode_first_stage(x_start_edit).detach().requires_grad_(True)
             # print(pred_image_x0.dtype, gt_image_x0.dtype)
             # import pdb; pdb.set_trace();
-            # pred_gt = torch.cat([pred_image_x0, gt_image_x0], dim=2)
-            # torchvision.utils.save_image(pred_gt*0.5+0.5, 'pred_gt_cat2.jpg')
+            pred_gt = torch.cat([pred_image_x0, gt_image_x0, gen_image_x0], dim=2)
+            torchvision.utils.save_image(pred_gt*0.5+0.5, 'pred_gt_cat3.jpg')
             # import pdb; pdb.set_trace()
 
             # loss_cosine, loss_l1 = self.get_clip_loss(pred_image_x0, gt_image_x0)
