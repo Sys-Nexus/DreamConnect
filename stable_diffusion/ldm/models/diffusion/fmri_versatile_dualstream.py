@@ -394,7 +394,7 @@ class DualLDM(LatentDiffusion):
         t_edit = t.clone() if t_edit is None else t_edit
         x_noisy_edit = self.q_sample(x_start=x_start_edit, t=t_edit, noise=noise_edit)
         import pdb; pdb.set_trace();
-        
+
         b = x_start_gen.shape[0]
         extended_shape = (b, 1, 1, 1)
         alphas = self.alphas_cumprod #if use_original_steps else self.ddim_alphas
@@ -546,7 +546,7 @@ class DualLDM(LatentDiffusion):
             # import pdb; pdb.set_trace();
             output_text = batch['fmri_edit']['output']
             edit_text = batch['fmri_edit']['c_crossattn']
-            loss, loss_dict = self.p_losses(c['c_concat'][0], x, c, t, output_text, edit_text, t_edit=t.clone()+self.coarse_spatial_steps*ratio, *args, **kwargs)
+            loss, loss_dict = self.p_losses(c['c_concat'][0]*0.18215, x, c, t, output_text, edit_text, t_edit=t.clone()+self.coarse_spatial_steps*ratio, *args, **kwargs)
 
         return loss, loss_dict
     
