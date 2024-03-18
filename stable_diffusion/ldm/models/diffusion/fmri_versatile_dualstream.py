@@ -453,12 +453,12 @@ class DualLDM(LatentDiffusion):
 
             self.first_stage_model = self.first_stage_model.float()
             pred_image_x0 = self.differentiable_decode_first_stage(model_output_x0*0.18215)
-            gen_image_x0 = self.decode_first_stage(model_output_gen_x0*0.18215)
+            # gen_image_x0 = self.decode_first_stage(model_output_gen_x0*0.18215)
             gt_image_x0 = self.decode_first_stage(x_start_edit).detach().requires_grad_(True)
             # print(pred_image_x0.dtype, gt_image_x0.dtype)
             # import pdb; pdb.set_trace();
-            pred_gt = torch.cat([pred_image_x0, gt_image_x0, gen_image_x0], dim=2)
-            torchvision.utils.save_image(pred_gt*0.5+0.5, 'pred_gt_cat3.jpg')
+            # pred_gt = torch.cat([pred_image_x0, gt_image_x0, gen_image_x0], dim=2)
+            # torchvision.utils.save_image(pred_gt*0.5+0.5, 'pred_gt_cat3.jpg')
             # import pdb; pdb.set_trace()
 
             # loss_cosine, loss_l1 = self.get_clip_loss(pred_image_x0, gt_image_x0)
