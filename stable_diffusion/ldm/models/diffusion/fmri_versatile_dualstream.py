@@ -79,13 +79,20 @@ class ZeroConvControlledUnetModel(UNetModel):
                             #num_heads = 1
                             dim_head = ch // num_heads if use_spatial_transformer else num_head_channels
                         self.adaptor_blocks.append(
-                            None)
+                            self.make_zero_conv(channels=ch, out_channels=out_ch))
                     if level and i == num_res_blocks:
                         out_ch = ch
                         ds //= 2
                         self.adaptor_blocks.append(
-                            None)
+                            self.make_zero_conv(channels=ch, out_channels=out_ch))
         import pdb; pdb.set_trace()
+
+    def make_zero_conv(self, channels, kernel_size=1, stride=1, out_channels=None):
+        if out_channels is None:
+            return TimestepEmbedSequential(zero_module(conv_nd(self.dims, channels, channels, kernel_size, stride=stride, padding=0)))
+        else:
+            return TimestepEmbedSequential(zero_module(conv_nd(self.dims, channels, out_channels, kernel_size, stride=stride, padding=0)))
+
 
 class ControlledUnetModel(UNetModel):
     def __init__(self, train_feat_adaptor=False, *args, **kwargs):
