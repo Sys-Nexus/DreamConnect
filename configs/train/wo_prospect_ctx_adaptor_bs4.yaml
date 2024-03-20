@@ -9,7 +9,7 @@ model:
   target: ldm.models.diffusion.fmri_versatile_dualstream.DualLDM
   params:
     use_styleclip_loss: True
-    useful_ctx_idxes: [4, 5, 6]
+    useful_ctx_idxes: [4, 6, 7]
     fp16: True
     deepspeed: 'deepspeed_1'
     # fp16: False
