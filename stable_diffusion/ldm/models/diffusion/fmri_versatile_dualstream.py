@@ -45,6 +45,48 @@ from ldm.util import default
 from ldm.models.diffusion.alignblock import align_block
 
 
+class ZeroConvControlledUnetModel(UNetModel):
+    def __init__(self, train_feat_adaptor=False, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        channel_mult = self.channel_mult
+        num_res_blocks = self.num_res_blocks
+        model_channels = self.model_channels
+        attention_resolutions = self.attention_resolutions
+        use_spatial_transformer = self.use_spatial_transformer
+        num_head_channels = self.num_head_channels
+        num_heads = self.num_heads
+        legacy = self.legacy
+        default_eps = self.default_eps
+        context_dim = self.context_dim
+        transformer_depth = self.transformer_depth
+        force_type_convert = self.force_type_convert
+        self.train_feat_adaptor = train_feat_adaptor
+        
+        if train_feat_adaptor is True:
+            ds = 8
+            layers = []
+            self.adaptor_blocks = nn.ModuleList([])
+            for level, mult in list(enumerate(channel_mult))[::-1]:
+                for i in range(num_res_blocks + 1):
+                    ch = mult * model_channels
+                    if ds in attention_resolutions:
+                        if num_head_channels == -1:
+                            dim_head = ch // num_heads
+                        else:
+                            num_heads = ch // num_head_channels
+                            dim_head = num_head_channels
+                        if legacy:
+                            #num_heads = 1
+                            dim_head = ch // num_heads if use_spatial_transformer else num_head_channels
+                        self.adaptor_blocks.append(
+                            SpatialTransformer(
+                                ch, num_heads, dim_head, default_eps=default_eps, force_type_convert=force_type_convert,
+                                        depth=transformer_depth, context_dim=context_dims[cnt],
+                                        use_checkpoint=True))
+                    if level and i == num_res_blocks:
+                        out_ch = ch
+                        ds //= 2
+        import pdb; pdb.set_trace()
 
 class ControlledUnetModel(UNetModel):
     def __init__(self, train_feat_adaptor=False, *args, **kwargs):
