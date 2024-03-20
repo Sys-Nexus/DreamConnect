@@ -469,8 +469,8 @@ class DualLDM(LatentDiffusion):
                 loss_styleclip = self.styleclip_loss(pred_image_x0, output_ids) * 0.1
             # loss_simple = loss_cosine + loss_l1 + loss_styleclip
             # loss_simple = loss_l1 + loss_simple_ori
-            # loss_simple = loss_simple_ori
-            loss_simple = loss_styleclip
+            loss_simple = loss_simple_ori
+            # loss_simple = loss_styleclip
             # loss_simple = loss_cosine
         loss_dict.update({f'{prefix}/loss_simple': loss_simple.mean()})
         # loss_dict.update({f'{prefix}/loss_simple_cosine': loss_cosine.mean()})
@@ -519,8 +519,8 @@ class DualLDM(LatentDiffusion):
             # loss_vlb = loss_cosine_vlb + loss_l1_vlb + loss_styleclip_vlb
             loss_vlb_ori = self.get_loss(model_output, target, mean=False).mean(dim=(1, 2, 3))
             # loss_vlb = loss_l1_vlb + loss_vlb_ori
-            # loss_vlb = loss_vlb_ori
-            loss_vlb = loss_styleclip_vlb
+            loss_vlb = loss_vlb_ori
+            # loss_vlb = loss_styleclip_vlb
 
             # loss_vlb = self.get_loss(model_output_x0, x_start_edit, mean=False).mean(dim=(1, 2, 3))
         loss_vlb = (self.lvlb_weights[t] * loss_vlb).mean()
