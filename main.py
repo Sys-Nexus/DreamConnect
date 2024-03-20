@@ -543,7 +543,7 @@ def train_one_epoch(config, model, model_ema, data_loader, val_data_loader, opti
         # print(epoch * num_steps + idx)
         # import pdb; pdb.set_trace();
         save_dir = visdir
-        if (epoch * num_steps + idx + 5) % 4000 == 0:
+        if (epoch * num_steps + idx) % 4000 == 0:
             with torch.no_grad():
                 # if random.uniform(0,1) > 0.5:
                 if False:
