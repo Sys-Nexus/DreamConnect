@@ -125,7 +125,7 @@ class ZeroConvControlledUnetModel(UNetModel):
                 else:
                     h = torch.cat([h, hs.pop() + control.pop(0)], dim=1)
 
-                h = module(h, emb, context, out_layers_injected=out_layers_injected)
+                h = module(h, emb, context)
 
                 if injected_contexts is not None:
                     inject_context = injected_contexts[cnt]
