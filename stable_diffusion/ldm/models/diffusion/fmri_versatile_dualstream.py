@@ -69,8 +69,9 @@ class ZeroConvControlledUnetModel(UNetModel):
             self.adaptor_blocks = nn.ModuleList([])
             for level, mult in list(enumerate(channel_mult))[::-1]:
                 for i in range(num_res_blocks + 1):
-                    print(i, ch, out_ch)
                     ch = mult * model_channels
+                    print(i, ch, out_ch)
+
                     if ds in attention_resolutions:
                         if num_head_channels == -1:
                             dim_head = ch // num_heads
