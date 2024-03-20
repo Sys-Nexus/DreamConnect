@@ -83,7 +83,7 @@ class ZeroConvControlledUnetModel(UNetModel):
                             #num_heads = 1
                             dim_head = ch // num_heads if use_spatial_transformer else num_head_channels
                         self.adaptor_blocks.append(
-                            self.make_zero_conv(channels=out_ch, out_channels=out_ch))
+                            self.make_zero_conv(channels=ch, out_channels=ch))
                     if level and i == num_res_blocks:
                         out_ch = ch
                         ds //= 2
