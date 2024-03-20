@@ -61,6 +61,7 @@ class ZeroConvControlledUnetModel(UNetModel):
         transformer_depth = self.transformer_depth
         force_type_convert = self.force_type_convert
         self.train_feat_adaptor = train_feat_adaptor
+        self.dims = 2
         
         if train_feat_adaptor is True:
             ds = 8
