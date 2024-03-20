@@ -792,8 +792,8 @@ class DDIMSampler_Dual(DDIMSampler):
             if callback: callback(i)
 
         ### third round to finalize the edited image
-        # if False:
-        if True:
+        if False:
+        # if True:
             x_dec_gen_ = x_dec_gen.clone()
             for i, step in enumerate(tqdm(range(start_step+coarse_spatial_steps*20-20, -1, -20), desc='Decoding image', total=coarse_spatial_steps)):
                 index = start_index - i
