@@ -46,7 +46,7 @@ from ldm.models.diffusion.alignblock import align_block
 
 
 class ZeroConvControlledUnetModel(UNetModel):
-    def __init__(self, train_feat_adaptor=False, *args, **kwargs):
+    def __init__(self, train_feat_adaptor=False, conditioning_scale=1.0, *args, **kwargs):
         super().__init__(*args, **kwargs)
         channel_mult = self.channel_mult
         num_res_blocks = self.num_res_blocks
@@ -62,7 +62,7 @@ class ZeroConvControlledUnetModel(UNetModel):
         force_type_convert = self.force_type_convert
         self.train_feat_adaptor = train_feat_adaptor
         self.dims = 2
-        
+
         if train_feat_adaptor is True:
             ds = 8
             layers = []
@@ -86,13 +86,73 @@ class ZeroConvControlledUnetModel(UNetModel):
                         ds //= 2
                         self.adaptor_blocks.append(
                             self.make_zero_conv(channels=ch, out_channels=out_ch))
+        
+        scales = torch.logspace(0, -1, len(self.adaptor_blocks))  # 0.1 to 1.0
+        scales = scales * conditioning_scale
+        self.scales = scales
         import pdb; pdb.set_trace()
+
 
     def make_zero_conv(self, channels, kernel_size=1, stride=1, out_channels=None):
         if out_channels is None:
             return TimestepEmbedSequential(zero_module(conv_nd(self.dims, channels, channels, kernel_size, stride=stride, padding=0)))
         else:
             return TimestepEmbedSequential(zero_module(conv_nd(self.dims, channels, out_channels, kernel_size, stride=stride, padding=0)))
+
+    def forward(self, x, timesteps=None, context=None, control=None, only_mid_control=False, 
+                        num_control_layers=1000, injected_features=None, injected_contexts=None, 
+                        is_return_x0=False, sqrt_one_minus_at=None, a_t=None, **kwargs):
+        if (control is not None and len(control)) or injected_features is not None:
+            x0 = x.clone()[:,:4]
+            hs = []
+            with torch.no_grad():
+                t_emb = timestep_embedding(timesteps, self.model_channels, repeat_only=False)
+                emb = self.time_embed(t_emb.type(self.time_embed[0].weight.dtype))
+                h = x.type(self.dtype)
+                for i, module in enumerate(self.input_blocks):
+                    h = module(h, emb, context)
+                    hs.append(h)
+                h = self.middle_block(h, emb, context)
+
+            if control is not None:
+                h += control.pop(0)
+
+            module_i = 0
+            cnt = 0
+            for i, module in enumerate(self.output_blocks):
+                if only_mid_control or control is None or i > num_control_layers:# or i in unmatched_layers:
+                    h = torch.cat([h, hs.pop()], dim=1)
+                else:
+                    h = torch.cat([h, hs.pop() + control.pop(0)], dim=1)
+
+                h = module(h, emb, context, out_layers_injected=out_layers_injected)
+
+                if injected_contexts is not None:
+                    inject_context = injected_contexts[cnt]
+                    inject_context = inject_context.detach().requires_grad_(True)
+                    res_h = self.adaptor_blocks[i](inject_context, context)
+                    h = h + res_h * self.scales[i]
+                    cnt += 1
+                    print('i: ', i, 'h.shape: ', h.shape)
+
+                module_i += 1
+                # print('controlled h: ', i, h.shape)
+
+            # import pdb; pdb.set_trace()
+            h = h.type(x.dtype)
+            final_out = self.out(h)
+            
+            if is_return_x0 is False:
+                return final_out
+            else:
+                # import pdb; pdb.set_trace()
+                denoised_x0 = (x0 - sqrt_one_minus_at * final_out) / a_t.sqrt()
+                denoised_x0_fix = denoised_x0 / 0.18215
+                return final_out, denoised_x0_fix
+
+        else:
+            # import pdb; pdb.set_trace();
+            return super().forward(x, timesteps=timesteps, context=context, **kwargs)
 
 
 class ControlledUnetModel(UNetModel):
