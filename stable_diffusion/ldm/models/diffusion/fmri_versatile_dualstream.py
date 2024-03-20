@@ -72,7 +72,7 @@ class ZeroConvControlledUnetModel(UNetModel):
             for level, mult in list(enumerate(channel_mult))[::-1]:
                 for i in range(num_res_blocks + 1):
                     ch = mult * model_channels
-                    print(i, ch, out_ch)
+                    # print(i, ch, out_ch)
 
                     if ds in attention_resolutions:
                         if num_head_channels == -1:
@@ -139,7 +139,7 @@ class ZeroConvControlledUnetModel(UNetModel):
                     res_h = self.adaptor_blocks[i](inject_context, context)
                     h = h + res_h * self.scales[i]
                     cnt += 1
-                    print('i: ', i, 'h.shape: ', h.shape)
+                    # print('i: ', i, 'h.shape: ', h.shape)
 
                 module_i += 1
                 # print('controlled h: ', i, h.shape)
