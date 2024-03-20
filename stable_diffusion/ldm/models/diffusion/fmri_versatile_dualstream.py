@@ -90,7 +90,7 @@ class ZeroConvControlledUnetModel(UNetModel):
         scales = torch.logspace(0, -1, len(self.adaptor_blocks))  # 0.1 to 1.0
         scales = scales * conditioning_scale
         self.scales = scales
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
 
 
     def make_zero_conv(self, channels, kernel_size=1, stride=1, out_channels=None):
@@ -1098,10 +1098,10 @@ class DualLDM(LatentDiffusion):
             for useful_block_idx in reversed(useful_block_idxes):
                 out_layers_injected[f"output_block_{useful_block_idx}_out_layers_features"] = control_res.pop(0)
 
-            useful_ctx_idxes = [4, 6, 7]
+            # useful_ctx_idxes = [4, 6, 7]
             injected_contexts = []
             for kk, ctx_feature in enumerate(control_ctx):
-                if kk not in useful_ctx_idxes: continue
+                # if kk not in useful_ctx_idxes: continue
                 injected_contexts.append(ctx_feature)
             new_cond['injected_contexts'] = injected_contexts
             # import pdb; pdb.set_trace()
