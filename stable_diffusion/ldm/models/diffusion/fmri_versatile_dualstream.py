@@ -83,6 +83,8 @@ class ZeroConvControlledUnetModel(UNetModel):
                     if level and i == num_res_blocks:
                         out_ch = ch
                         ds //= 2
+                        self.adaptor_blocks.append(
+                            None)
         import pdb; pdb.set_trace()
 
 class ControlledUnetModel(UNetModel):
