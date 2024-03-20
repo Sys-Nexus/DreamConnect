@@ -370,6 +370,7 @@ class DualLDM(LatentDiffusion):
         super().__init__(*args, **kwargs)
         self.vd_clip = VDCLIP(clip_cfg)
 
+        self.useful_ctx_idxes = kwargs.get('useful_ctx_idxes', None)
         self.only_align_loss = kwargs.get('only_align_loss', False)
         self.use_styleclip_loss = kwargs['use_styleclip_loss']
         self.is_save_x0 = kwargs['is_save_x0']
@@ -1098,10 +1099,10 @@ class DualLDM(LatentDiffusion):
             for useful_block_idx in reversed(useful_block_idxes):
                 out_layers_injected[f"output_block_{useful_block_idx}_out_layers_features"] = control_res.pop(0)
 
-            # useful_ctx_idxes = [4, 6, 7]
+            useful_ctx_idxes = self.useful_ctx_idxes
             injected_contexts = []
             for kk, ctx_feature in enumerate(control_ctx):
-                # if kk not in useful_ctx_idxes: continue
+                if useful_ctx_idxes is not None and kk not in useful_ctx_idxes: continue
                 injected_contexts.append(ctx_feature)
             new_cond['injected_contexts'] = injected_contexts
             # import pdb; pdb.set_trace()
