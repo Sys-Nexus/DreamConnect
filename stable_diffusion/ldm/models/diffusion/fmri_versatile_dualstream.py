@@ -70,7 +70,6 @@ class ZeroConvControlledUnetModel(UNetModel):
             for level, mult in list(enumerate(channel_mult))[::-1]:
                 for i in range(num_res_blocks + 1):
                     ch = mult * model_channels
-                    print(i, ch, out_ch)
 
                     if ds in attention_resolutions:
                         if num_head_channels == -1:
@@ -88,7 +87,8 @@ class ZeroConvControlledUnetModel(UNetModel):
                         ds //= 2
                         self.adaptor_blocks.append(
                             self.make_zero_conv(channels=ch, out_channels=ch))
-        
+                    print(i, ch, out_ch)
+
         scales = torch.logspace(0, -1, len(self.adaptor_blocks))  # 0.1 to 1.0
         scales = scales * conditioning_scale
         self.scales = scales
