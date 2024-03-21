@@ -136,7 +136,8 @@ class ZeroConvControlledUnetModel(UNetModel):
                 if injected_contexts is not None and i < len(self.adaptor_blocks):
                     inject_context = injected_contexts[cnt]
                     inject_context = inject_context.detach().requires_grad_(True)
-                    res_h = self.adaptor_blocks[i](inject_context, context)
+                    res_h = self.adaptor_blocks[i](inject_context, emb)
+                    print('res_h', torch.sum(torch.abs(res_h)), 'scale: ', self.scales[i])
                     h = h + res_h * self.scales[i]
                     cnt += 1
                     # print('i: ', i, 'h.shape: ', h.shape)
