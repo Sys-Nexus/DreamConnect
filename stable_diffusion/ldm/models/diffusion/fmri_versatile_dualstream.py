@@ -343,7 +343,7 @@ class PreVersatileNetAdaptor(UNetModelVD):
             if block_idx in useful_block_idxes:
                 # outs.append(self.unet_image.output_blocks[block_idx][0].out_layers_features)
                 feat_i = self.unet_image.output_blocks[block_idx][0].out_layers_features  ## resnet features
-                # import pdb; pdb.set_trace()
+                import pdb; pdb.set_trace()
                 if self.train_feat_adaptor is True:
                     feat_i_transformed = zero_conv(feat_i, emb) + feat_i
                 else:
