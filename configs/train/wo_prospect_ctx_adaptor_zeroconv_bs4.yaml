@@ -8,7 +8,7 @@ model:
   # target: ldm.models.diffusion.fmri_versatile_edit.fMRIVersatileEdit
   target: ldm.models.diffusion.fmri_versatile_dualstream.DualLDM
   params:
-    use_styleclip_loss: True
+    use_styleclip_loss: False
     fp16: True
     deepspeed: 'deepspeed_1'
     # fp16: False
@@ -189,7 +189,7 @@ model:
 data:
   target: main.DataModuleFromConfig
   params:
-    batch_size: 2
+    batch_size: 4
     # batch_size: 1
     num_workers: 4
     train:
