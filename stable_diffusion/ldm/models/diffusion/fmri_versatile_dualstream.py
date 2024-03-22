@@ -107,8 +107,8 @@ class ZeroConvControlledUnetModel(UNetModel):
 
     def forward(self, x, timesteps=None, context=None, control=None, only_mid_control=False, 
                         num_control_layers=1000, injected_features=None, injected_contexts=None, 
-                        is_return_x0=False, sqrt_one_minus_at=None, a_t=None, **kwargs):
-        if (control is not None and len(control)) or injected_features is not None:
+                        injected_attn_qkv=None, is_return_x0=False, sqrt_one_minus_at=None, a_t=None, **kwargs):
+        if (control is not None and len(control)) or injected_features is not None or injected_attn_qkv is not None:
             x0 = x.clone()[:,:4]
             hs = []
             with torch.no_grad():
@@ -123,26 +123,35 @@ class ZeroConvControlledUnetModel(UNetModel):
             if control is not None:
                 h += control.pop(0)
 
-            module_i = 0
-            cnt = 0
+            # module_i = 0
+            context_cnt, attn_cnt = 0, 0
             for i, module in enumerate(self.output_blocks):
                 if only_mid_control or control is None or i > num_control_layers:# or i in unmatched_layers:
                     h = torch.cat([h, hs.pop()], dim=1)
                 else:
                     h = torch.cat([h, hs.pop() + control.pop(0)], dim=1)
 
-                h = module(h, emb, context)
+                injected_attn_q, injected_attn_k, injected_attn_v = None, None, None
+                if injected_attn_qkv is not None:
+                    injected_attn_q, injected_attn_k, injected_attn_v = \
+                            injected_attn_qkv[0][attn_cnt], injected_attn_qkv[1][attn_cnt], injected_attn_qkv[2][attn_cnt]
+                    attn_cnt += 1
+                
+                h = module(h, emb, context,
+                            self_attn_q_injected=injected_attn_q,
+                            self_attn_k_injected=injected_attn_k,
+                            self_attn_v_injected=injected_attn_v)
 
-                if injected_contexts is not None and i < len(self.adaptor_blocks):
-                    inject_context = injected_contexts[cnt]
+                if injected_contexts is not None and context_cnt < len(self.adaptor_blocks):
+                    inject_context = injected_contexts[context_cnt]
                     inject_context = inject_context.detach().requires_grad_(True)
                     res_h = self.adaptor_blocks[i](inject_context, emb)
                     # print('res_h', torch.sum(torch.abs(res_h)), 'scale: ', self.scales[i])
                     h = h + res_h * self.scales[i]
-                    cnt += 1
+                    context_cnt += 1
                     # print('i: ', i, 'h.shape: ', h.shape)
-
-                module_i += 1
+                
+                # module_i += 1
                 # print('controlled h: ', i, h.shape)
 
             # import pdb; pdb.set_trace()
@@ -335,6 +344,7 @@ class PreVersatileNetAdaptor(UNetModelVD):
 
         block_idx = 0
         contexts = []
+        attn_qs, attn_ks, attn_vs = [], [], []
         ## layer 2, 5, 8 include upsampling: (1280, 1280, 640)
         for i, (i_module, t_module, zero_conv) in enumerate(zip(self.unet_image.output_blocks, self.unet_text.output_blocks, self.zero_convs)):
             # print('i: ', i)
@@ -343,20 +353,27 @@ class PreVersatileNetAdaptor(UNetModelVD):
             if block_idx in useful_block_idxes:
                 # outs.append(self.unet_image.output_blocks[block_idx][0].out_layers_features)
                 feat_i = self.unet_image.output_blocks[block_idx][0].out_layers_features  ## resnet features
-                import pdb; pdb.set_trace()
+                attn_q = self.unet_image.output_blocks[block_idx][1].transformer_blocks[0].attn1.q
+                attn_k = self.unet_image.output_blocks[block_idx][1].transformer_blocks[0].attn1.k
+                attn_v = self.unet_image.output_blocks[block_idx][1].transformer_blocks[0].attn1.v
+                # import pdb; pdb.set_trace()
                 if self.train_feat_adaptor is True:
                     feat_i_transformed = zero_conv(feat_i, emb) + feat_i
                 else:
                     feat_i_transformed = feat_i
                 
                 outs.append(feat_i_transformed)
+                attn_qs.append(attn_q)
+                attn_ks.append(attn_k)
+                attn_vs.append(attn_v)
+
             block_idx += 1
             contexts.append(h)
             # print('pre extracted h: ', i, h.shape)
 
-        # import pdb; pdb.set_trace()
+        attn_info = [attn_qs, attn_ks, attn_vs]
         final_out = self.unet_image.out(h)
-        
+
         # import pdb; pdb.set_trace()
         if is_save_x0 is True:
             denoised_x0 = (x0 - sqrt_one_minus_at * final_out) / a_t.sqrt()
@@ -366,7 +383,7 @@ class PreVersatileNetAdaptor(UNetModelVD):
 
         outs = list(reversed(outs))
         if xtype == 'image':
-            return final_out, outs, contexts
+            return final_out, outs, contexts, attn_info
         elif xtype == 'text':
             return self.unet_text.out(h).squeeze(-1).squeeze(-1), outs, contexts
 
@@ -1084,7 +1101,7 @@ class DualLDM(LatentDiffusion):
             c1 = torch.cat(new_cond["c_crossattn_1"]["text_emb"], 1)
             fmri_vae = torch.cat(new_cond["c_crossattn_1"]["fmri_vae"],1)
 
-            x_recon_gen, control_res, control_ctx = self.control_model.forward_dc(x=torch.cat([x_noisy_gen], dim=1), 
+            x_recon_gen, control_res, control_ctx, control_attn_qkv = self.control_model.forward_dc(x=torch.cat([x_noisy_gen], dim=1), 
                                                         timesteps=t,
                                                         c0=c0, c1=c1,
                                                         xtype='image', c0_type='vision', 
@@ -1112,6 +1129,7 @@ class DualLDM(LatentDiffusion):
                 if useful_ctx_idxes is not None and kk not in useful_ctx_idxes: continue
                 injected_contexts.append(ctx_feature)
             new_cond['injected_contexts'] = injected_contexts
+            new_cond['injected_attn_qkv'] = control_attn_qkv
             # import pdb; pdb.set_trace()
 
             ## this sentence will overwrite the obtained noisy_c_concat at inference time            

@@ -1417,7 +1417,8 @@ class DiffusionWrapper(nn.Module):
         assert self.conditioning_key in [None, 'concat', 'crossattn', 'hybrid', 'adm', 'fmri_hybrid', 'fmri_controlnet', 'fmri_noisy_concat']
 
     def forward(self, x, t, c_concat: list = None, noisy_c_concat: list = None, c_crossattn: list = None,  c_crossattn_1: list = None, 
-                control = None, only_mid_control=False, injected_features=None, injected_contexts=None, is_return_x0=False, sqrt_one_minus_at=None, a_t=None):
+                control = None, only_mid_control=False, injected_features=None, injected_contexts=None, injected_attn_qkv=None,
+                is_return_x0=False, sqrt_one_minus_at=None, a_t=None):
         if self.conditioning_key is None:
             out = self.diffusion_model(x, t)
         elif self.conditioning_key == 'concat':
@@ -1442,7 +1443,9 @@ class DiffusionWrapper(nn.Module):
                 xc = torch.cat([x] + [noisy_c_concat], dim=1)
             cc = torch.cat(c_crossattn, 1)
             out = self.diffusion_model(xc, t, context=cc, control=control, only_mid_control=only_mid_control, 
-                                injected_features=injected_features, injected_contexts=injected_contexts, is_return_x0=is_return_x0, 
+                                injected_features=injected_features, injected_contexts=injected_contexts, 
+                                injected_attn_qkv=injected_attn_qkv,
+                                is_return_x0=is_return_x0, 
                                 sqrt_one_minus_at=sqrt_one_minus_at, a_t=a_t)
         elif self.conditioning_key == 'adm':
             cc = c_crossattn[0]
