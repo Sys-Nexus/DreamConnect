@@ -620,7 +620,7 @@ class DualLDM(LatentDiffusion):
                     self.fmri2clip_model = self.fmri2clip_model.float()
                     # pred_image_emb, pred_text_emb = self.fmri2clip_model(voxel)
                     pred_image_emb = self.fmri2clip_model(voxel)
-                    # import pdb; pdb.set_trace()
+                    import pdb; pdb.set_trace()
             # import pdb; pdb.set_trace();
             pred_image_emb = pred_image_emb.reshape(pred_image_emb.shape[0], -1, 768)
 
