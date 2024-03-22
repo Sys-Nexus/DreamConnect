@@ -136,11 +136,11 @@ class ZeroConvControlledUnetModel(UNetModel):
                     injected_attn_q, injected_attn_k, injected_attn_v = \
                             injected_attn_qkv[0][attn_cnt], injected_attn_qkv[1][attn_cnt], injected_attn_qkv[2][attn_cnt]
                     attn_cnt += 1
-                
+                import pdb; pdb.set_trace();
                 h = module(h, emb, context,
-                            self_attn_q_injected=injected_attn_q,
                             self_attn_k_injected=injected_attn_k,
                             self_attn_v_injected=injected_attn_v)
+                import pdb; pdb.set_trace();
 
                 if injected_contexts is not None and context_cnt < len(self.adaptor_blocks):
                     inject_context = injected_contexts[context_cnt]
