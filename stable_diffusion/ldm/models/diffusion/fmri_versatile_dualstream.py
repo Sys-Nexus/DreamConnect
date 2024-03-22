@@ -743,8 +743,8 @@ class DualLDM(LatentDiffusion):
         # import pdb; pdb.set_trace();
         c0 = torch.cat(c["c_crossattn_1"]["image_emb"], 1)
         if is_inst_gen is True:
-            self.mixing = 1.0 # all text
-            # self.mixing = 0.0 # all image
+            # self.mixing = 1.0 # all text
+            self.mixing = 0.0 # all image
             # c1 = [self.get_learned_conditioning(['*'],prospect_words=['*']*10)[0].detach()]
             # c1 = self.get_learned_conditioning(['A bird'])[0].detach()
             # c1 = self.vd_clip.clip_encode_text(['A cat.'])
@@ -801,7 +801,7 @@ class DualLDM(LatentDiffusion):
         t_enc = 49
         instruct_cap = batch['fmri_edit']['c_crossattn'][0]
         ######### designed dual-stream diffusion sampling ##########
-        # import pdb; pdb.set_trace()
+        import pdb; pdb.set_trace()
         if unconditional_guidance_scale_edit is not None:
             z_gen, z_edit = self.sampler.decode_dual(
                 x_latent_gen=z_enc_gen,
