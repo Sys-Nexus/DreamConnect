@@ -170,7 +170,7 @@ model:
       type: clip_frozen
     
         
-    fmri2clip_pretrain_path: 'logs/alignloss_alignloss_2024-03-22/checkpoints/ckpt_epoch_55/zero_pp_rank_0_mp_rank_00_optim_states.pt'
+    fmri2clip_pretrain_path: 'logs/alignloss_alignloss_2024-03-22/checkpoints/ckpt_epoch_55/mp_rank_00_model_states.pt'
     fmri2clip_cfg:
       target: ldm.models.diffusion.alignblock.align_block
       params:
