@@ -720,6 +720,7 @@ class DualLDM(LatentDiffusion):
                    is_inst_edit=False,
                    is_inst_gen=False,
                    layout_in=None):
+        if self.model is None: return
         self.model.eval()
         s = batch['s'][0]
 
