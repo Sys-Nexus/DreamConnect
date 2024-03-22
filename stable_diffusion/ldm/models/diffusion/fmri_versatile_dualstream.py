@@ -136,7 +136,7 @@ class ZeroConvControlledUnetModel(UNetModel):
                     injected_attn_q, injected_attn_k, injected_attn_v = \
                             injected_attn_qkv[0][attn_cnt], injected_attn_qkv[1][attn_cnt], injected_attn_qkv[2][attn_cnt]
                     attn_cnt += 1
-                import pdb; pdb.set_trace();
+                # import pdb; pdb.set_trace();
                 h = module(h, emb, context,
                             self_attn_k_injected=injected_attn_k,
                             self_attn_v_injected=injected_attn_v)
