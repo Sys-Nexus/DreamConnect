@@ -571,11 +571,12 @@ class DualLDM(LatentDiffusion):
     def align_losses(self, cond):
         # import pdb; pdb.set_trace();
         gt_image_emb = cond["c_crossattn_1"]["gt_image_emb"][0]
-        gt_text_emb = cond["c_crossattn_1"]["gt_text_emb"][0]
+        # gt_text_emb = cond["c_crossattn_1"]["gt_text_emb"][0]
         pred_image_emb = cond["c_crossattn_1"]["image_emb"][0]
-        pred_text_emb = cond["c_crossattn_1"]["text_emb"][0]
+        # pred_text_emb = cond["c_crossattn_1"]["text_emb"][0]
 
-        loss = F.mse_loss(pred_image_emb, gt_image_emb) + F.mse_loss(pred_text_emb, gt_text_emb)
+        # loss = F.mse_loss(pred_image_emb, gt_image_emb) + F.mse_loss(pred_text_emb, gt_text_emb)
+        loss = F.mse_loss(pred_image_emb, gt_image_emb) #+ F.mse_loss(pred_text_emb, gt_text_emb)
         loss_dict = {}
         loss_dict.update({'loss_align': loss})
 
@@ -609,15 +610,19 @@ class DualLDM(LatentDiffusion):
                 if bs is not None: voxel = voxel[:bs]
                 if voxel.shape[1] == 3: voxel = voxel.mean(dim=1)
                 self.fmri2clip_model = self.fmri2clip_model.float()
-                pred_image_emb, pred_text_emb = self.fmri2clip_model(voxel)
+                # pred_image_emb, pred_text_emb = self.fmri2clip_model(voxel)
+                pred_image_emb = self.fmri2clip_model(voxel)
             else:
                 with torch.no_grad():
                     voxel = batch['fmri'].to(z)
                     if bs is not None: voxel = voxel[:bs]
                     if voxel.shape[1] == 3: voxel = voxel.mean(dim=1)
                     self.fmri2clip_model = self.fmri2clip_model.float()
-                    pred_image_emb, pred_text_emb = self.fmri2clip_model(voxel)
+                    # pred_image_emb, pred_text_emb = self.fmri2clip_model(voxel)
+                    pred_image_emb = self.fmri2clip_model(voxel)
                     # import pdb; pdb.set_trace()
+            import pdb; pdb.set_trace();
+            pred_image_emb = pred_image_emb.reshape(pred_image_emb.shape[0], -1, 768)
 
         cond_key = cond_key or self.cond_stage_key
 
@@ -662,9 +667,11 @@ class DualLDM(LatentDiffusion):
 
         if pred_image_emb is not None:
             if self.only_align_loss is True:
-                fmri_x, fmri_cap = pred_image_emb, pred_text_emb
+                # fmri_x, fmri_cap = pred_image_emb, pred_text_emb
+                fmri_x = pred_image_emb
             else:
-                fmri_x, fmri_cap = pred_image_emb.half(), pred_text_emb.half()
+                # fmri_x, fmri_cap = pred_image_emb.half(), pred_text_emb.half()
+                fmri_x = pred_image_emb.half()
 
         if force_c_encode is False:
             cond["c_crossattn_1"]["image_emb"] = [torch.where(fmri_prompt_mask.bool(), fmri_null_x, fmri_x)]
@@ -801,7 +808,7 @@ class DualLDM(LatentDiffusion):
         t_enc = 49
         instruct_cap = batch['fmri_edit']['c_crossattn'][0]
         ######### designed dual-stream diffusion sampling ##########
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
         if unconditional_guidance_scale_edit is not None:
             z_gen, z_edit = self.sampler.decode_dual(
                 x_latent_gen=z_enc_gen,
