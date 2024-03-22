@@ -132,7 +132,7 @@ class ZeroConvControlledUnetModel(UNetModel):
                     h = torch.cat([h, hs.pop() + control.pop(0)], dim=1)
 
                 injected_attn_q, injected_attn_k, injected_attn_v = None, None, None
-                if injected_attn_qkv is not None:
+                if injected_attn_qkv is not None and attn_cnt < len(injected_attn_qkv[0]):
                     injected_attn_q, injected_attn_k, injected_attn_v = \
                             injected_attn_qkv[0][attn_cnt], injected_attn_qkv[1][attn_cnt], injected_attn_qkv[2][attn_cnt]
                     attn_cnt += 1
