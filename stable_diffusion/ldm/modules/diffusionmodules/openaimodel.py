@@ -124,14 +124,14 @@ class TimestepEmbedSequential(nn.Sequential, TimestepBlock):
     support it as an extra input.
     """
 
-    def forward(self, x, emb, context=None, out_layers_injected=None):
+    def forward(self, x, emb, context=None, out_layers_injected=None, self_attn_k_injected=None, self_attn_v_injected=None):
         for layer in self:
             if isinstance(layer, ResBlock):
                 x = layer(x, emb, out_layers_injected=out_layers_injected)
             elif isinstance(layer, TimestepBlock):
                 x = layer(x, emb)
             elif isinstance(layer, SpatialTransformer):
-                x = layer(x, context)
+                x = layer(x, context, self_attn_k_injected=self_attn_k_injected, self_attn_v_injected=self_attn_v_injected)
             else:
                 if isinstance(layer, Downsample) or isinstance(layer, Upsample):
                     x = layer(x)
