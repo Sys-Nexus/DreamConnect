@@ -167,6 +167,10 @@ class CrossAttention(nn.Module):
             nn.Dropout(dropout)
         )
 
+        self.q = None
+        self.k = None
+        self.v = None
+
     def forward(self, x, context=None, mask=None):
         h = self.heads
 
@@ -176,6 +180,10 @@ class CrossAttention(nn.Module):
         v = self.to_v(context)
 
         q, k, v = map(lambda t: rearrange(t, 'b n (h d) -> (b h) n d', h=h), (q, k, v))
+
+        self.q = q
+        self.k = k
+        self.v = v
 
         sim = einsum('b i d, b j d -> b i j', q, k) * self.scale
 
