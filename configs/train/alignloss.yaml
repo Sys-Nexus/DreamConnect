@@ -77,83 +77,8 @@ model:
         lossconfig:
           target: torch.nn.Identity
     
-    # pretrained_control_unet_zeroconv_path: logs/fmri_instruct_dualstream_tune_sideconv_fmri_instruct_dualstream_tune_sideconv_2023-10-09/checkpoints/ckpt_epoch_75/state.pth
-    # pretrained_control_unet_zeroconv_path: logs/instru_tune_sideconv_instru_tune_sideconv_2023-10-25/checkpoints/ckpt_epoch_190/mp_rank_00_model_states.pt
-    # pretrained_control_unet_zeroconv_path: logs/versatile_dualstream_instruct_pre_post_w_x0_versatile_dualstream_instruct_pre_post_w_x0_2023-12-15/checkpoints/ckpt_epoch_170/mp_rank_00_model_states.pt
     pretrained_control_unet_path: 'third_party/versatile_diffusion/pretrained/vd-four-flow-v1-0-fp16-deprecated.pth'
-    # control_stage_config:
-    #   target: ldm.models.diffusion.fmri_versatile_dualstream.PreVersatileNetAdaptor
-    #   params:
-    #     train_feat_adaptor: True
-    #     unet_image_cfg:
-    #       # target: third_party.versatile_diffusion.lib.model_zoo.openaimodel.UNetModel2D
-    #       type: openai_unet_2d
-    #       name: openai_unet_2d
-    #       args:
-    #       # params:
-    #         input_channels: 4
-    #         model_channels: 320
-    #         output_channels: 4
-    #         num_noattn_blocks: [ 2, 2, 2, 2 ]
-    #         channel_mult: [ 1, 2, 4, 4 ]
-    #         with_attn: [true, true, true, false]
-    #         num_heads: 8
-    #         context_dim: 768
-    #         use_checkpoint: True
-
-    #     unet_text_cfg:
-    #       # target: third_party.versatile_diffusion.lib.model_zoo.openaimodel.UNetModel0D_MultiDim
-    #       type: openai_unet_0dmd
-    #       name: openai_unet_0dmd
-    #       # params:
-    #       args:
-    #         input_channels: 768
-    #         model_channels: 320
-    #         output_channels: 768
-    #         num_noattn_blocks: [ 2, 2, 2, 2 ]
-    #         channel_mult: [ 1, 2, 4, 4 ]
-    #         second_dim: [ 4, 4, 4, 4 ]
-    #         with_attn: [true, true, true, false]
-    #         num_heads: 8
-    #         context_dim: 768
-    #         use_checkpoint: True
-
-    # cond_stage_config_fmri:
-    #   target: ldm.modules.encoders.fmri.FmriEmbedder
-    #   params:
-    #     force_type_convert: true
     
-    # personalization_config:
-    #   target: ldm.modules.embedding_manager.EmbeddingManager
-    #   params:
-    #     placeholder_strings: ["*"]
-    #     per_image_tokens: False
-    #     num_vectors_per_token: 10
-    #     progressive_words: False
-
-    # unet_config:
-    #   # target: ldm.modules.diffusionmodules.openaimodel.UNetModel
-    #   # target: ldm.modules.diffusionmodules.openaimodel_dual_condition.UNetModel
-    #   # inherit from target: ldm.modules.diffusionmodules.openaimodel.UNetModel
-    #   target: ldm.models.diffusion.fmri_versatile_dualstream.ControlledUnetModel
-    #   # target: ldm.models.diffusion.fmri_versatile_dualstream.FusionPriorUnetModel
-    #   params:
-    #     image_size: 32 # unused
-    #     in_channels: 8
-    #     out_channels: 4
-    #     model_channels: 320
-    #     attention_resolutions: [ 4, 2, 1 ]
-    #     num_res_blocks: 2
-    #     channel_mult: [ 1, 2, 4, 4 ]
-    #     num_heads: 8
-    #     use_spatial_transformer: True
-    #     transformer_depth: 1
-    #     context_dim: 768
-    #     use_checkpoint: True
-    #     legacy: False
-    #     force_type_convert: True
-    #     train_feat_adaptor: True
-
     cond_stage_config:
       # target: ldm.modules.encoders.modules.ExFrozenCLIPEmbedder
       target: ldm.modules.encoders.modules.FrozenCLIPEmbedder
@@ -187,7 +112,7 @@ data:
   target: main.DataModuleFromConfig
   params:
     # batch_size: 64
-    batch_size: 256
+    batch_size: 64
     # batch_size: 1
     num_workers: 4
     train:
