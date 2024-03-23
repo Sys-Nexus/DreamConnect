@@ -669,13 +669,13 @@ class DualLDM(LatentDiffusion):
             cond["c_crossattn_1"]["gt_image_emb"] = [fmri_x.float().detach().requires_grad_(True)]
             cond["c_crossattn_1"]["gt_text_emb"] = [fmri_cap.float().detach().requires_grad_(True)]
 
-        if pred_image_emb is not None:
-            if self.only_align_loss is True:
-                # fmri_x, fmri_cap = pred_image_emb, pred_text_emb
-                fmri_x = pred_image_emb
-            else:
-                # fmri_x, fmri_cap = pred_image_emb.half(), pred_text_emb.half()
-                fmri_x = pred_image_emb.half()
+        # if pred_image_emb is not None:
+        #     if self.only_align_loss is True:
+        #         # fmri_x, fmri_cap = pred_image_emb, pred_text_emb
+        #         fmri_x = pred_image_emb
+        #     else:
+        #         # fmri_x, fmri_cap = pred_image_emb.half(), pred_text_emb.half()
+        #         fmri_x = pred_image_emb.half()
 
         if force_c_encode is False:
             cond["c_crossattn_1"]["image_emb"] = [torch.where(fmri_prompt_mask.bool(), fmri_null_x, fmri_x)]
