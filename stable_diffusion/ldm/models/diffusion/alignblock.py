@@ -18,7 +18,7 @@ from functools import partial
 
 
 class align_block(nn.Module):
-    def __init__(self, out_dim=768, in_dim=15724, clip_size=768, h=4096, n_blocks=4, norm_type='ln', act_first=False, use_projector=False):
+    def __init__(self, out_dim=768, out_dim1=None, in_dim=15724, clip_size=768, h=4096, n_blocks=4, norm_type='ln', act_first=False, use_projector=False):
         super(align_block, self).__init__()
         norm_func = partial(nn.BatchNorm1d, num_features=h) if norm_type == 'bn' else partial(nn.LayerNorm, normalized_shape=h)
         act_fn = partial(nn.ReLU, inplace=True) if norm_type == 'bn' else nn.GELU
@@ -37,6 +37,9 @@ class align_block(nn.Module):
             ) for _ in range(n_blocks)
         ])
         self.lin1 = nn.Linear(h, out_dim, bias=True)
+        self.out_dim1 = out_dim1
+        if out_dim1 is not None: self.lin2 = nn.Linear(h, out_dim1, bias=True)
+
         self.n_blocks = n_blocks
         self.clip_size = clip_size
         
@@ -69,6 +72,10 @@ class align_block(nn.Module):
             residual = x
         x = x.reshape(len(x), -1)
         x = self.lin1(x)
-        if self.use_projector:
-            return x, self.projector(x.reshape(len(x), -1, self.clip_size))
-        return x
+        # if self.use_projector:
+        #     return x, self.projector(x.reshape(len(x), -1, self.clip_size))
+        if self.out_dim1 is not None:
+            x1 = self.lin2(x)
+            return x, x1
+        else:
+            return x
