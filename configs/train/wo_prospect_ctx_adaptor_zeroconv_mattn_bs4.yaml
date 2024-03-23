@@ -174,7 +174,7 @@ model:
       target: ldm.models.diffusion.alignblock.align_block
       params:
         out_dim: 197376
-
+        out_dim1: 768
     # fmri2clip_pretrain_path: '/data/yashengsun/Proj/MMEdit/fMRIInstructDiffusion/checkpoints/bohan_recon/state.pth'
     # fmri2clip_pretrain_path: '/data/yashengsun/Proj/MMEdit/fMRIInstructDiffusion/checkpoints/bohan_recon/mp_rank_00_model_states.pt'
     # fmri2clip_cfg:
