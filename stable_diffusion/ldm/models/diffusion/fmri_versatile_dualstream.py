@@ -627,7 +627,8 @@ class DualLDM(LatentDiffusion):
                     # import pdb; pdb.set_trace()
             # import pdb; pdb.set_trace();
             pred_image_emb = pred_image_emb.reshape(pred_image_emb.shape[0], -1, 768)
-
+            pred_text_emb = pred_text_emb.reshape(pred_text_emb.shape[0], -1, 768)
+            
         cond_key = cond_key or self.cond_stage_key
 
         xc = DDPM.get_input(self, batch, cond_key)
