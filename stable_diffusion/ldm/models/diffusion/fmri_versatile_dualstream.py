@@ -138,8 +138,11 @@ class ZeroConvControlledUnetModel(UNetModel):
                     attn_cnt += 1
                 # import pdb; pdb.set_trace();
                 h = module(h, emb, context,
-                            self_attn_k_injected=injected_attn_k,
-                            self_attn_v_injected=injected_attn_v)
+                            self_attn_k_injected=None,
+                            self_attn_v_injected=None)
+                # h = module(h, emb, context,
+                #             self_attn_k_injected=injected_attn_k,
+                #             self_attn_v_injected=injected_attn_v)
                 # import pdb; pdb.set_trace();
 
                 if injected_contexts is not None and context_cnt < len(self.adaptor_blocks):
@@ -658,7 +661,7 @@ class DualLDM(LatentDiffusion):
         fmri_x = self.vd_clip.clip_encode_vision(xc["c_concat"])
         fmri_cap = self.vd_clip.clip_encode_text(cap)
 
-        import pdb; pdb.set_trace();
+        # import pdb; pdb.set_trace();
 
         cond["c_crossattn_1"] = {}
 
