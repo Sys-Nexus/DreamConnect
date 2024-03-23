@@ -71,11 +71,11 @@ class align_block(nn.Module):
             x += residual
             residual = x
         x = x.reshape(len(x), -1)
-        x = self.lin1(x)
+        x0 = self.lin1(x)
         # if self.use_projector:
         #     return x, self.projector(x.reshape(len(x), -1, self.clip_size))
         if self.out_dim1 is not None:
             x1 = self.lin2(x)
-            return x, x1
+            return x0, x1
         else:
-            return x
+            return x0
