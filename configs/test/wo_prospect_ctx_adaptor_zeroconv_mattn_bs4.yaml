@@ -176,7 +176,7 @@ model:
       target: ldm.models.diffusion.alignblock.align_block
       params:
         out_dim: 197376
-        out_dim1: 5852
+        out_dim1: 59136
     # fmri_vclip_pretrain_path: '/data/yashengsun/Proj/MMEdit/fMRI-reconstruction-NSD/train_logs/prior_257_final_subj01_bimixco_softclip_byol/last.pth'
     # fmri_vclip_cfg:
     #   target: third_party.fMRI_reconstruction_NSD.src.models.BrainNetwork
