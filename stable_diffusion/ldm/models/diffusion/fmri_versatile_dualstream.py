@@ -348,7 +348,7 @@ class DualLDM(LatentDiffusion):
     def instantiate_fmri2clip(self, config):
         model = instantiate_from_config(config)
         if self.fmri2clip_pretrain_path and os.path.exists(self.fmri2clip_pretrain_path):
-            # import pdb; pdb.set_trace()
+            import pdb; pdb.set_trace()
             state_dict = torch.load(self.fmri2clip_pretrain_path)['module']
             filter_state_dict = {k.replace('align_model.',''):v for k,v in state_dict.items() if 'align_model.' in k}
             missing, unexpected = model.load_state_dict(filter_state_dict, strict=False)
@@ -621,7 +621,7 @@ class DualLDM(LatentDiffusion):
                     self.fmri2clip_model = self.fmri2clip_model.float()
                     # pred_image_emb, pred_text_emb = self.fmri2clip_model(voxel)
                     pred_image_emb = self.fmri2clip_model(voxel)
-                    import pdb; pdb.set_trace()
+                    # import pdb; pdb.set_trace()
             # import pdb; pdb.set_trace();
             pred_image_emb = pred_image_emb.reshape(pred_image_emb.shape[0], -1, 768)
 
