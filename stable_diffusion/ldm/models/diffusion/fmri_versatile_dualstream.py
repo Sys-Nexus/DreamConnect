@@ -348,9 +348,9 @@ class DualLDM(LatentDiffusion):
     def instantiate_fmri2clip(self, config):
         model = instantiate_from_config(config)
         if self.fmri2clip_pretrain_path and os.path.exists(self.fmri2clip_pretrain_path):
-            import pdb; pdb.set_trace()
+            # import pdb; pdb.set_trace()
             state_dict = torch.load(self.fmri2clip_pretrain_path)['module']
-            filter_state_dict = {k.replace('align_model.',''):v for k,v in state_dict.items() if 'align_model.' in k}
+            filter_state_dict = {k.replace('fmri2clip_model.',''):v for k,v in state_dict.items() if 'fmri2clip_model.' in k}
             missing, unexpected = model.load_state_dict(filter_state_dict, strict=False)
             print('missing: ', missing)
             print('unexpected: ', unexpected)
@@ -658,7 +658,7 @@ class DualLDM(LatentDiffusion):
         fmri_x = self.vd_clip.clip_encode_vision(xc["c_concat"])
         fmri_cap = self.vd_clip.clip_encode_text(cap)
 
-        # import pdb; pdb.set_trace();
+        import pdb; pdb.set_trace();
 
         cond["c_crossattn_1"] = {}
 
