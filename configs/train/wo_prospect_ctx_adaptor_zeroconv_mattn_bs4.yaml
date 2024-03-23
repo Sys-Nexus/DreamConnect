@@ -168,7 +168,6 @@ model:
       args: {}
       name: clip_frozen
       type: clip_frozen
-    
         
     fmri2clip_pretrain_path: 'logs/alignloss_alignloss_2024-03-22/checkpoints/ckpt_epoch_55/mp_rank_00_model_states.pt'
     fmri2clip_cfg:
