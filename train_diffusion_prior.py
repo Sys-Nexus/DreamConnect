@@ -258,8 +258,8 @@ def main():
             num_tokens = 1,
             learned_query_mode="pos_emb"
         )
-    import pdb; pdb.set_trace();
-    prior_network = prior_mult.to(torch.device("cuda"))
+    # import pdb; pdb.set_trace();
+    prior_network = prior_network.to(torch.device("cuda"))
 
     # clip text to emotion latent model
     clip_size = args.clip_size
