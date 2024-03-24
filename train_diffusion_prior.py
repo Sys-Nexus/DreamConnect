@@ -248,7 +248,7 @@ def main():
     clip_size = args.clip_size
     out_dim = clip_size * 257
     heads = clip_size//16
-    import pdb; pdb.set_trace();
+    # import pdb; pdb.set_trace();
     prior_network = VersatileDiffusionPriorNetwork(
             dim=out_dim,
             depth=depth,
