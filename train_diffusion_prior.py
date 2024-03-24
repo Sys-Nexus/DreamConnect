@@ -31,10 +31,12 @@ img_augment = AugmentationSequential(
 )
 
 def prepare_train_data(batch_dict, vd_clip, use_image_aug=True):
-    import pdb; pdb.set_trace();
+    voxel = batch_dict['fmri'].cuda()
+    image = batch_dict['image'].cuda()
     if use_image_aug:
         image = img_augment(image)
-    clip_target = clip_extractor.embed_image(image).float()   
+    clip_target = vd_clip.clip_encode_vision(image)
+    import pdb; pdb.set_trace();
 
     return voxel, clip_target
 
