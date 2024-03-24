@@ -181,8 +181,8 @@ def prepare_train_data(batch_dict, vd_clip, use_image_aug=True):
     vd_clip.clip.fp16 = False
     vd_clip.clip.cuda()
     clip_target = vd_clip.clip_encode_vision(image)
-    import pdb; pdb.set_trace();
-    clip_target = clip_target.cuda()
+    # import pdb; pdb.set_trace();
+    # clip_target = clip_target.cuda()
     return voxel, clip_target
 
 
