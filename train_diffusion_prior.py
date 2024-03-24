@@ -103,6 +103,8 @@ def main():
     parser.add_argument('--ckpt_path', type=str, default='dummy')
     
     parser.add_argument('--batch_size', type=int, default=16)
+    parser.add_argument('--clip_size', type=int, default=768)
+    parser.add_argument('--use_projector', type=bool, default=True)
     
     args = parser.parse_args()
 
@@ -146,7 +148,40 @@ def main():
     diffusion_prior = None
     vd_clip = None
     optimizer = None
+    prior_network = None
+
+    # clip text to emotion latent model
+    clip_size = args.clip_size
+    out_dim = clip_size * 257
+    voxel2clip_kwargs = dict(in_dim=768,out_dim=clip_size,clip_size=clip_size,use_projector=args.use_projector)
+    voxel2clip = BrainNetwork(**voxel2clip_kwargs)
+
+    # use dalle interface to include prior model and clip text-to-emotion models
+    timesteps = 100
+    diffusion_prior = InstructDiffusionPrior(
+        net=prior_network,
+        image_embed_dim=out_dim,
+        condition_on_text_encodings=False,
+        timesteps=timesteps,
+        cond_drop_prob=0.2,
+        image_embed_scale=None,
+        voxel2clip=voxel2clip,)
+    assert torch.cuda.is_available()
+    diffusion_prior = diffusion_prior.to(torch.device("cuda"))
+
+    ## optimizer
+    max_lr = args.max_lr
+    no_decay = ['bias', 'LayerNorm.bias', 'LayerNorm.weight']
+    opt_grouped_parameters = [
+        {'params': [p for n, p in diffusion_prior.net.named_parameters() if not any(nd in n for nd in no_decay)], 'weight_decay': 1e-2},
+        {'params': [p for n, p in diffusion_prior.net.named_parameters() if any(nd in n for nd in no_decay)], 'weight_decay': 0.0},
+        {'params': [p for n, p in diffusion_prior.voxel2clip.named_parameters() if not any(nd in n for nd in no_decay)], 'weight_decay': 1e-2},
+        {'params': [p for n, p in diffusion_prior.voxel2clip.named_parameters() if any(nd in n for nd in no_decay)], 'weight_decay': 0.0}
+    ]
+    optimizer = torch.optim.AdamW(opt_grouped_parameters, lr=max_lr)
+
     trainer(args, train_dl, val_dl, diffusion_prior, vd_clip, optimizer, distributed=False)
+
 
 
 if __name__ == '__main__':
