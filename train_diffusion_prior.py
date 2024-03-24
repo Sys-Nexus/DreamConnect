@@ -244,7 +244,7 @@ def main():
 
     clip_cfg = EasyDict(clip_cfg)
     vd_clip = VDCLIP(clip_cfg)
-
+ Toyota timing cover not me
     dataset_cfg_str = """
     train:
       target: third_party.StableDiffusionReconstruction.codes.utils.nsd_creater.NIPS23NSDDataset
