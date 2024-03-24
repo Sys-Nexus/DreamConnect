@@ -410,7 +410,7 @@ def main():
     parser.add_argument('--is_test', type=bool, default=False)
     parser.add_argument('--ckpt_path', type=str, default='dummy')
     
-    parser.add_argument('--batch_size', type=int, default=32)
+    parser.add_argument('--batch_size', type=int, default=24)
     parser.add_argument('--use_projector', type=bool, default=True)
     parser.add_argument("--epoch", type=int, default=0, help='number of epochs')
     parser.add_argument("--log_loss_steps", type=int, default=5)
