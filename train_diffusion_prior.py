@@ -141,6 +141,11 @@ def main():
     train_dl = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True)
     val_dl = DataLoader(val_dataset, batch_size=args.batch_size, shuffle=False)
 
+    diffusion_prior = None
+    vd_clip = None
+    optimizer = None
+    trainer(args, train_dl, val_dl, diffusion_prior, vd_clip, optimizer, distributed=False)
+
 
 if __name__ == '__main__':
     main()
