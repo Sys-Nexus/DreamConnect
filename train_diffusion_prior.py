@@ -363,6 +363,40 @@ def trainer(args, train_dl, val_dl, diffusion_prior, vd_clip, optimizer, distrib
                 # print('data: ', data_t, ' forward: ', forward_t, ' loss:', loss.item())
                 # import pdb; pdb.set_trace()
 
+            if local_rank==0:
+                # ckpt_saving = (train_iter % 100 == 0)
+                # if (not save_at_end and ckpt_saving) or (save_at_end and epoch == num_epochs - 1):
+                #     # save best model
+                #     val_loss = np.mean(val_losses[-(val_i+1):])
+                #     if val_loss < best_val_loss:
+                #         best_val_loss = val_loss
+                #         save_ckpt('best', outdir, epoch, diffusion_prior, optimizer, lr_scheduler, losses, val_losses, lrs)
+                #     else:
+                #         print(f'not best - val_loss: {val_loss:.3f}, best_val_loss: {best_val_loss:.3f}')
+                        
+                # # if utils.is_interactive():
+                # #     clear_output(wait=True)
+                    
+                # logs = {"train/loss": np.mean(losses[-(train_i+1):]),
+                #     "val/loss": np.mean(val_losses[-(val_i+1):]),
+                #     "train/lr": lrs[-1],
+                #     "train/num_steps": len(losses),
+                #     "val/num_steps": len(val_losses),
+                #     "train/cosine_sim_base": sims_base / (train_i + 1),
+                #     "val/cosine_sim_base": val_sims_base / (val_i + 1),
+                #     "train/fwd_pct_correct": fwd_percent_correct / (train_i + 1),
+                #     "train/bwd_pct_correct": bwd_percent_correct / (train_i + 1),
+                #     "val/val_fwd_pct_correct": val_fwd_percent_correct / (val_i + 1),
+                #     "val/val_bwd_pct_correct": val_bwd_percent_correct / (val_i + 1),
+                #     "train/loss_nce": loss_nce_sum / (train_i + 1),
+                #     "train/loss_prior": loss_prior_sum / (train_i + 1),
+                #     "val/loss_nce": val_loss_nce_sum / (val_i + 1),
+                #     "val/loss_prior": val_loss_prior_sum / (val_i + 1)}
+                # progress_bar.set_postfix(**logs)
+
+                # Save model checkpoint and reconstruct
+                save_ckpt(f'last', outdir, epoch, diffusion_prior, optimizer, lr_scheduler, losses, val_losses, lrs)
+                import pdb; pdb.set_trace()
 
 def main():
     parser = argparse.ArgumentParser()
