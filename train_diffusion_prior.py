@@ -1,3 +1,4 @@
+from types import SimpleNamespace
 import sys
 sys.path.append('third_party/versatile_diffusion')
 from lib.model_zoo.vd import VDCLIP
@@ -8,6 +9,7 @@ def main():
                 'args': {},
                 'name': 'clip_frozen',
                 'type': 'clip_frozen'}
+    clip_cfg = SimpleNamespace(**clip_cfg)    
     vd_clip = VDCLIP(clip_cfg)
 
 
