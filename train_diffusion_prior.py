@@ -100,12 +100,12 @@ def trainer(args, train_dl, val_dl, diffusion_prior, vd_clip, optimizer, distrib
             val_loss_nce_sum = 0.
             val_loss_prior_sum = 0.
 
-            import pdb; pdb.set_trace();
+            # import pdb; pdb.set_trace();
             for train_i, batch_dict in tqdm(enumerate(train_dl)):
                 train_iter = train_i + len(train_dl)*epoch
                 t = time.time()
-                import pdb; pdb.set_trace();
-                samples, clip_target = prepare_train_data(fp_parser, file_name, talking_head, base_sample, silent_frames_start, silent_frames_end)
+                # import pdb; pdb.set_trace();
+                samples, clip_target = prepare_train_data(batch_dict)
 
                 # torch.cuda.synchronize()
                 data_t = time.time() -t
@@ -229,9 +229,9 @@ def main():
         nsd_root: '/data/yashengsun/Proj/MMEdit/StableDiffusionReconstruction/nsd'
         resolution: 320
         split: 'train'
-        is_reconstruct_mode: False
+        is_reconstruct_mode: True
         url: 'nsd_data_dir/train_subj01_{0..17}.tar'
-        reconstruct_prob: 0.05
+        reconstruct_prob: 1.05
 
     validation:
       target: third_party.StableDiffusionReconstruction.codes.utils.nsd_creater.NIPS23NSDDataset
@@ -239,9 +239,9 @@ def main():
         nsd_root: '/data/yashengsun/Proj/MMEdit/StableDiffusionReconstruction/nsd'
         resolution: 320
         split: 'test'
-        is_reconstruct_mode: False
+        is_reconstruct_mode: True
         url: 'nsd_data_dir/test_subj01_{0..1}.tar'
-        reconstruct_prob: 0.05
+        reconstruct_prob: 1.05
     """
     dataset_cfg = EasyDict(yaml.safe_load(dataset_cfg_str))
     # import pdb; pdb.set_trace();
