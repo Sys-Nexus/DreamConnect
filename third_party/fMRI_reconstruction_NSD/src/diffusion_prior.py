@@ -185,7 +185,7 @@ class VersatileDiffusionPriorNetwork(nn.Module):
         self.continuous_embedded_time = not exists(num_timesteps)
         self.learned_query_mode = learned_query_mode
 
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
         self.to_time_embeds = nn.Sequential(
             nn.Embedding(num_timesteps, dim * num_time_embeds) if exists(num_timesteps) else nn.Sequential(SinusoidalPosEmb(dim), MLP(dim, dim * num_time_embeds)), # also offer a continuous version of timestep embeddings, with a 2 layer MLP
             Rearrange('b (n d) -> b n d', n = num_time_embeds)

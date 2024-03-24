@@ -190,7 +190,7 @@ def main():
     parser.add_argument('--max_lr', type=float, default=0.001)
     parser.add_argument('--max_epoch', type=int, default=100)
     parser.add_argument('--local_rank', type=int, default=0)
-    parser.add_argument('--clip_size', type=int, default=768)
+    parser.add_argument('--clip_size', type=int, default=128)
     parser.add_argument('--jobname', type=str, default='latent_diffusion_image')
     parser.add_argument('--resume_from_ckpt', type=bool, default=True)
     parser.add_argument('--is_tensorboard_log', type=bool, default=True)
@@ -246,7 +246,7 @@ def main():
     depth = 6
     dim_head = 64
     clip_size = args.clip_size
-    out_dim = clip_size * 257
+    out_dim = clip_size
     heads = clip_size//16
     # import pdb; pdb.set_trace();
     prior_network = VersatileDiffusionPriorNetwork(
@@ -263,7 +263,6 @@ def main():
 
     # clip text to emotion latent model
     clip_size = args.clip_size
-    out_dim = clip_size * 257
     voxel2clip_kwargs = dict(in_dim=768,out_dim=clip_size,clip_size=clip_size,use_projector=args.use_projector)
     voxel2clip = BrainNetwork(**voxel2clip_kwargs)
 
