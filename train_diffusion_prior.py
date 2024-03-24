@@ -15,7 +15,7 @@ from ldm.util import instantiate_from_config
 sys.path.append('third_party/versatile_diffusion')
 from lib.model_zoo.vd import VDCLIP
 from third_party.fMRI_reconstruction_NSD.src.models import BrainNetwork 
-from third_party.fMRI_reconstruction_NSD.src.diffusion_prior import InstructDiffusionPrior
+from third_party.fMRI_reconstruction_NSD.src.diffusion_prior import InstructDiffusionPrior, VersatileDiffusionPriorNetwork
 
 def cosine_anneal(start, end, steps):
     return end + (start - end)/2 * (1 + torch.cos(torch.pi*torch.arange(steps)/(steps-1)))
@@ -145,10 +145,22 @@ def main():
     train_dl = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True)
     val_dl = DataLoader(val_dataset, batch_size=args.batch_size, shuffle=False)
 
-    diffusion_prior = None
-    vd_clip = None
     optimizer = None
-    prior_network = None
+    # prior model
+    guidance_scale = 3.5
+    timesteps = 100
+    depth = 6
+    dim_head = 64
+    heads = clip_size//16
+    prior_network = VersatileDiffusionPriorNetwork(
+            dim=out_dim,
+            depth=depth,
+            dim_head=dim_head,
+            heads=heads,
+            causal=False,
+            num_tokens = 1,
+            learned_query_mode="pos_emb"
+        ).to(torch.device("cuda"))
 
     # clip text to emotion latent model
     clip_size = args.clip_size
