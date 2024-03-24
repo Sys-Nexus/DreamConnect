@@ -36,9 +36,9 @@ def prepare_train_data(batch_dict, vd_clip, use_image_aug=True):
     image = batch_dict['image'].cuda()
     if use_image_aug:
         image = img_augment(image)
-    # import pdb; pdb.set_trace();
     vd_clip.clip.fp16 = False
     clip_target = vd_clip.clip_encode_vision(image)
+    import pdb; pdb.set_trace();
 
     return voxel, clip_target
 
