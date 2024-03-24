@@ -679,8 +679,8 @@ class DualLDM(LatentDiffusion):
                 fmri_x, fmri_cap = pred_image_emb.half(), pred_text_emb.half()
                 # fmri_x = pred_image_emb.half()
         if 'img_clip' in batch:
-            import pdb; pdb.set_trace();
-            batch['img_clip'] = batch['img_clip'].to(z)
+            # import pdb; pdb.set_trace();
+            batch['img_clip'] = batch['img_clip'].to(z)[:bs]
             print(batch['img_clip'].shape, fmri_x.shape, torch.nn.MSELoss()(batch['img_clip'], fmri_x))
             fmri_x = batch['img_clip'].half()
         
