@@ -199,7 +199,8 @@ def main():
     
     parser.add_argument('--batch_size', type=int, default=16)
     parser.add_argument('--use_projector', type=bool, default=True)
-    
+    parser.add_argument("--epoch", type=int, default=0, help='number of epochs')
+
     args = parser.parse_args()
 
     clip_cfg = {'symbol': 'clip',
