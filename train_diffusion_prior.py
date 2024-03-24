@@ -7,6 +7,7 @@ import argparse
 from tqdm import tqdm
 import time
 import torch
+import torch.nn as nn
 from torch.utils.data import DataLoader, Dataset, ConcatDataset
 from torch.utils.tensorboard import SummaryWriter
 
