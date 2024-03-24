@@ -152,6 +152,7 @@ def main():
     depth = 6
     dim_head = 64
     clip_size = args.clip_size
+    out_dim = clip_size * 257
     heads = clip_size//16
     prior_network = VersatileDiffusionPriorNetwork(
             dim=out_dim,
