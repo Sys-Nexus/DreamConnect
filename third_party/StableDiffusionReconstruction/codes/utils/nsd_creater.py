@@ -140,9 +140,10 @@ class NIPS23NSDDataset(Dataset):
         fmri_norm = self.voxels[index][0]
 
         nsd_dict = {'cap': random.choices(caps)[0], 'image': init_image[0], 
-                    'fmri': fmri_norm, 's': s,
-                    'img_clip': np.load(image_clip_path)}
+                    'fmri': fmri_norm, 's': s}
         
+        if os.path.exists(image_clip_path):
+            nsd_dict['img_clip'] = np.load(image_clip_path)
         if os.path.exists(self.nsd_cliptext_path):
             nsd_cliptext = self.all_nsd_cliptext[index]
             nsd_clipvision = self.all_nsd_clipvision[index]
