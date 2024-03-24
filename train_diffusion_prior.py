@@ -403,7 +403,8 @@ def trainer(args, train_dl, val_dl, diffusion_prior, vd_clip, optimizer, distrib
         for val_i, batch_dict in tqdm(enumerate(val_dl)):
             with torch.no_grad():
                 voxel, clip_target = prepare_train_data(batch_dict, vd_clip, use_image_aug=False)
-                img_emb = voxel2img_emb(voxel, diffusion_priors=diffusion_prior, image_embed=None)
+                image_embed = torch.randn((1,1,768)).to(voxel)
+                pred_img_embed = voxel2img_emb(voxel, diffusion_priors=diffusion_prior, image_embed=image_embed)
                 import pdb; pdb.set_trace()
 
 
