@@ -32,6 +32,37 @@ img_augment = AugmentationSequential(
     # data_keys=["input"],
 )
 
+def write_loss_meters(meters, losses_dict):
+    r"""Write all loss values to tensorboard."""
+    for loss_name, loss in losses_dict.items():
+        full_loss_name = 'diffusion' + '/' + loss_name
+        if full_loss_name not in meters.keys():
+            # Create a new meter if it doesn't exist.
+            meters[full_loss_name] = Meter(full_loss_name)
+        # meters[full_loss_name].write(loss.item())
+        meters[full_loss_name].write(loss)
+
+def flush_meters(meters, current_iteration):
+    r"""Flush all meters using the current iteration."""
+    for meter in meters.values():
+        meter.flush(current_iteration)
+
+# if resume_from_ckpt:
+def resume_ckpt(ckpt_path, optimizer, lr_scheduler, diffusion_prior):
+    print("\n---resuming from last.pth ckpt---\n")
+    # try:
+    # checkpoint = torch.load(outdir+'/last.pth', map_location='cpu')
+    checkpoint = torch.load(ckpt_path, map_location='cpu')
+    # except:
+    #     print('last.pth failed... trying last_backup.pth')
+    #     checkpoint = torch.load(outdir+'/last_backup.pth', map_location='cpu')
+    epoch = checkpoint['epoch']
+    print("Epoch",epoch)
+    optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+    # lr_scheduler.load_state_dict(checkpoint['lr_scheduler'])
+    diffusion_prior.load_state_dict(checkpoint['model_state_dict'])
+    return epoch
+    
 def check_loss(loss):
     if loss.isnan().any():
         raise ValueError('NaN loss')
