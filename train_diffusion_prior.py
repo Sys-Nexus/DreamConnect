@@ -17,6 +17,16 @@ from lib.model_zoo.vd import VDCLIP
 from third_party.fMRI_reconstruction_NSD.src.models import BrainNetwork 
 from third_party.fMRI_reconstruction_NSD.src.diffusion_prior import InstructDiffusionPrior, VersatileDiffusionPriorNetwork
 
+def set_summary_writer(log_dir):
+    r"""Set summary writer
+
+    Args:
+        log_dir (str): Log directory.
+    """
+    global LOG_DIR, LOG_WRITER
+    LOG_DIR = log_dir
+    LOG_WRITER = SummaryWriter(log_dir=log_dir)
+    
 def cosine_anneal(start, end, steps):
     return end + (start - end)/2 * (1 + torch.cos(torch.pi*torch.arange(steps)/(steps-1)))
 
@@ -49,7 +59,7 @@ def trainer(args, train_dl, val_dl, diffusion_prior, vd_clip, optimizer, distrib
             epoch = resume_ckpt(args.ckpt_path, optimizer, lr_scheduler, diffusion_prior)
         else:
             print('{} does not exist.'.format(args.ckpt_path))
-            import pdb; pdb.set_trace();
+            # import pdb; pdb.set_trace();
 
     if args.is_tensorboard_log:
         tensorboard_dir = os.path.join(outdir, 'tensorboard')
