@@ -78,12 +78,14 @@ def load_img_from_string(img_path,resolution):
 class NIPS23NSDDataset(Dataset):
     def __init__(self, url="nsd_data_dir/test_subj01_" + "{0..1}.tar", voxels_key='nsdgeneral.npy', split='test', resolution=320,\
             nsd_root='/data/yashengsun/Proj/MMEdit/StableDiffusionReconstruction/nsd',
+            image_clip_root='/data/yashengsun/Proj/MMEdit/fMRIInstructDiffusion/img_clip',
             is_reconstruct_mode=False,
             reconstruct_prob=0.1,):
         super().__init__()
         self.nsda = NSDAccess(nsd_root)
         self.is_reconstruct_mode = is_reconstruct_mode
         self.reconstruct_prob = reconstruct_prob
+        self.image_clip_root = image_clip_root
 
         sub = 1
         self.nsd_cliptext_path = 'nsd_data_dir/predicted_features/subj{:02d}/nsd_cliptext_pred{}_nsdgeneral.npy'.format(sub,split)
@@ -129,7 +131,7 @@ class NIPS23NSDDataset(Dataset):
 
     def __getitem__(self, index):
         s = self.cocos[index]
-
+        image_clip_path = os.path.join(self.image_clip_root, '{:05d}.npy'.format(s))
         # voxel, img_input, coco = self.data[index]
         caps = self.cap_dict[s]
         img = self.nsda.read_images(s)
@@ -137,7 +139,9 @@ class NIPS23NSDDataset(Dataset):
         init_image = repeat(init_image, '1 ... -> b ...', b=1)
         fmri_norm = self.voxels[index][0]
 
-        nsd_dict = {'cap': random.choices(caps)[0], 'image': init_image[0], 'fmri': fmri_norm, 's': s}
+        nsd_dict = {'cap': random.choices(caps)[0], 'image': init_image[0], 
+                    'fmri': fmri_norm, 's': s,
+                    'img_clip': np.load(image_clip_path)}
         
         if os.path.exists(self.nsd_cliptext_path):
             nsd_cliptext = self.all_nsd_cliptext[index]
