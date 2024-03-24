@@ -397,6 +397,88 @@ def trainer(args, train_dl, val_dl, diffusion_prior, vd_clip, optimizer, distrib
                 # Save model checkpoint and reconstruct
                 save_ckpt(f'last', outdir, epoch, diffusion_prior, optimizer, lr_scheduler, losses, val_losses, lrs)
                 # import pdb; pdb.set_trace()
+    else:
+        print('Usage of talking face instruction...')
+        t = time.time()
+        for val_i, batch_dict in tqdm(enumerate(val_dl)):
+            with torch.no_grad():
+                voxel, clip_target = prepare_train_data(batch_dict, vd_clip, use_image_aug=False)
+                voxel = torch.mean(voxel, dim=1).float()
+                img_emb = voxel2img_emb(voxel, diffusion_priors=diffusion_prior, image_embed=None)
+                import pdb; pdb.set_trace()
+
+
+def voxel2img_emb(
+    voxel, 
+    diffusion_priors=None,
+    recons_per_sample = 1,
+    plotting=True,
+    verbose=False,
+    img_variations=False,
+    seed = 0,
+    retrieve = False,
+    timesteps_prior = 100,
+    n_samples_save=1,
+    image_embed=None,
+    no_diffusion = False):
+    
+    device = voxel.device
+    brain_recons = None
+    
+    # voxel=voxel[:n_samples_save]
+
+    generator = torch.Generator(device=device)
+    generator.manual_seed(seed)
+
+    if diffusion_priors is not None:
+        if not isinstance(diffusion_priors, list):
+            diffusion_priors = [diffusion_priors]
+        brain_clip_embeddings_sum = None
+        for diffusion_prior in diffusion_priors:
+            brain_clip_embeddings0, proj_embeddings = diffusion_prior.voxel2clip(voxel.to(device).float())
+            if retrieve:
+                continue
+            # brain_clip_embeddings0 = brain_clip_embeddings0.view(len(voxel),-1,768) if isinstance(clip_extractor,Clipper) else brain_clip_embeddings0.view(len(voxel),-1,1024)
+            brain_clip_embeddings0 = brain_clip_embeddings0.view(len(voxel),-1,128) 
+            # import pdb; pdb.set_trace()
+            
+            if recons_per_sample>0:
+                # import pdb; pdb.set_trace()
+                if no_diffusion:
+                    brain_clip_embeddings0 = brain_clip_embeddings0.repeat(recons_per_sample, 1, 1)
+                    # brain_clip_embeddings = copy.deepcopy(proj_embeddings)
+                    brain_clip_embeddings = F.normalize(proj_embeddings, p=2, dim=-1) * 2.0
+                    # import pdb; pdb.set_trace()
+                elif not img_variations:
+                    brain_clip_embeddings0 = brain_clip_embeddings0.repeat(recons_per_sample, 1, 1)
+                    try:
+                        brain_clip_embeddings = diffusion_prior.p_sample_loop(brain_clip_embeddings0.shape, 
+                                                text_cond = dict(text_embed = brain_clip_embeddings0), 
+                                                cond_scale = 1., timesteps = timesteps_prior,
+                                                generator=generator, image_embed=image_embed)
+                    except:
+                        brain_clip_embeddings = diffusion_prior.p_sample_loop(brain_clip_embeddings0.shape, 
+                                                text_cond = dict(text_embed = brain_clip_embeddings0), 
+                                                cond_scale = 1., timesteps = timesteps_prior, image_embed=image_embed)
+                    # import pdb; pdb.set_trace()
+                else:
+                    brain_clip_embeddings0 = brain_clip_embeddings0.view(-1,768)
+                    brain_clip_embeddings0 = brain_clip_embeddings0.repeat(recons_per_sample, 1)
+                    brain_clip_embeddings = diffusion_prior.p_sample_loop(brain_clip_embeddings0.shape, 
+                                                text_cond = dict(text_embed = brain_clip_embeddings0), 
+                                                cond_scale = 1., timesteps = 1000, #1000 timesteps used from nousr pretraining
+                                                generator=generator, image_embed=image_embed)
+                if brain_clip_embeddings_sum is None:
+                    brain_clip_embeddings_sum = brain_clip_embeddings
+                else:
+                    brain_clip_embeddings_sum += brain_clip_embeddings
+
+        # average embeddings for all diffusion priors
+        if recons_per_sample>0:
+            brain_clip_embeddings = brain_clip_embeddings_sum / len(diffusion_priors)
+    # import pdb; pdb.set_trace()
+    return brain_clip_embeddings
+
 
 def main():
     parser = argparse.ArgumentParser()
@@ -408,7 +490,7 @@ def main():
     parser.add_argument('--resume_from_ckpt', type=bool, default=True)
     parser.add_argument('--is_tensorboard_log', type=bool, default=True)
     parser.add_argument('--is_test', type=bool, default=False)
-    parser.add_argument('--ckpt_path', type=str, default='dummy')
+    parser.add_argument('--ckpt_path', type=str, default='/data/yashengsun/Proj/MMEdit/fMRIInstructDiffusion/train_logs/latent_diffusion_image/last.pth')
     
     parser.add_argument('--batch_size', type=int, default=24)
     parser.add_argument('--use_projector', type=bool, default=True)
@@ -455,7 +537,7 @@ def main():
     val_dataset = instantiate_from_config(dataset_cfg['validation'])
 
     train_dl = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True)
-    val_dl = DataLoader(val_dataset, batch_size=args.batch_size, shuffle=False)
+    val_dl = DataLoader(val_dataset, batch_size=1, shuffle=False)
 
     optimizer = None
     # prior model
