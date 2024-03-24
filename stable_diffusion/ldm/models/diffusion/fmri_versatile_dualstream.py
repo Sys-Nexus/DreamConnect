@@ -680,7 +680,7 @@ class DualLDM(LatentDiffusion):
                 # fmri_x = pred_image_emb.half()
         if 'img_clip' in batch:
             # import pdb; pdb.set_trace();
-            # print(batch['img_clip'].shape)
+            print(batch['img_clip'].shape, fmri_x.shape, torch.nn.MSELoss()(batch['img_clip'], fmri_x))
             fmri_x = batch['img_clip'].to(fmri_x)
         
         if force_c_encode is False:
