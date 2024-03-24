@@ -364,6 +364,7 @@ def main():
     parser.add_argument('--batch_size', type=int, default=16)
     parser.add_argument('--use_projector', type=bool, default=True)
     parser.add_argument("--epoch", type=int, default=0, help='number of epochs')
+    parser.add_argument("--log_loss_steps", type=int, default=5)
 
     args = parser.parse_args()
 
