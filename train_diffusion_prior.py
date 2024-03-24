@@ -408,7 +408,7 @@ def trainer(args, train_dl, val_dl, diffusion_prior, vd_clip, optimizer, distrib
                 # import pdb; pdb.set_trace()
                 s = batch_dict['s'][0].item()
                 os.makedirs('img_clip', exist_ok=True)
-                np.save('img_clip/{:05d}.npy'.format(s), pred_img_embed)
+                np.save('img_clip/{:05d}.npy'.format(s), pred_img_embed.cpu().numpy())
 
 
 def voxel2img_emb(
