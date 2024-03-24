@@ -31,6 +31,10 @@ img_augment = AugmentationSequential(
     # data_keys=["input"],
 )
 
+def check_loss(loss):
+    if loss.isnan().any():
+        raise ValueError('NaN loss')
+
 def soft_clip_loss(preds, targs, temp=0.125):
     clip_clip = (targs @ targs.T)/temp
     brain_clip = (preds @ targs.T)/temp
@@ -40,7 +44,7 @@ def soft_clip_loss(preds, targs, temp=0.125):
     
     loss = (loss1 + loss2)/2
     return loss
-    
+
 @torch.no_grad()
 def prepare_train_data(batch_dict, vd_clip, use_image_aug=True):
     voxel = batch_dict['fmri'].cuda()
