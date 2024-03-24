@@ -424,8 +424,10 @@ def main():
 
     clip_cfg = EasyDict(clip_cfg)
     vd_clip = VDCLIP(clip_cfg)
+    for param in vd_clip.parameters():
+        param.requires_grad = False
     vd_clip = vd_clip.eval()
-    
+
     dataset_cfg_str = """
     train:
       target: third_party.StableDiffusionReconstruction.codes.utils.nsd_creater.NIPS23NSDDataset
