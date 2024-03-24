@@ -206,7 +206,7 @@ def main():
     parser.add_argument('--jobname', type=str, default='latent_diffusion_image')
     parser.add_argument('--resume_from_ckpt', type=bool, default=True)
     parser.add_argument('--is_tensorboard_log', type=bool, default=True)
-    parser.add_argument('--is_test', type=bool, default=True)
+    parser.add_argument('--is_test', type=bool, default=False)
     parser.add_argument('--ckpt_path', type=str, default='dummy')
     
     parser.add_argument('--batch_size', type=int, default=16)
