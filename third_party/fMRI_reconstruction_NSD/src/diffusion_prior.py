@@ -180,6 +180,7 @@ class VersatileDiffusionPriorNetwork(nn.Module):
         **kwargs
     ):
         super().__init__()
+        import pdb; pdb.set_trace()
         self.dim = dim
         self.num_time_embeds = num_time_embeds
         self.continuous_embedded_time = not exists(num_timesteps)
