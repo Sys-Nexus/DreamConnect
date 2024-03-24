@@ -103,7 +103,6 @@ def main():
     parser.add_argument('--ckpt_path', type=str, default='dummy')
     
     parser.add_argument('--batch_size', type=int, default=16)
-    parser.add_argument('--clip_size', type=int, default=768)
     parser.add_argument('--use_projector', type=bool, default=True)
     
     args = parser.parse_args()
