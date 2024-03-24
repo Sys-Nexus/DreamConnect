@@ -60,7 +60,22 @@ def batchwise_cosine_similarity(Z,B):
     B_norm = torch.linalg.norm(B, dim=0, keepdim=True)  # Size (1, b).
     cosine_similarity = ((Z @ B) / (Z_norm @ B_norm)).T
     return cosine_similarity
-    
+
+def save_ckpt(tag, outdir, epoch, diffusion_prior, optimizer, lr_scheduler, losses, val_losses, lrs):
+    ckpt_path = outdir+f'/{tag}.pth'
+    os.makedirs(outdir, exist_ok=True)
+    print(f'saving {ckpt_path}',flush=True)
+    # try:
+    torch.save({
+        'epoch': epoch,
+        'model_state_dict': diffusion_prior.state_dict(),
+        'optimizer_state_dict': optimizer.state_dict(),
+        'lr_scheduler': lr_scheduler.state_dict(),
+        'train_losses': losses,
+        'val_losses': val_losses,
+        'lrs': lrs,
+        }, ckpt_path)
+        
 @torch.no_grad()
 def prepare_train_data(batch_dict, vd_clip, use_image_aug=True):
     voxel = batch_dict['fmri'].cuda()
