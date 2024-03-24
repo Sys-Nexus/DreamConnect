@@ -101,11 +101,10 @@ def trainer(args, train_dl, val_dl, diffusion_prior, vd_clip, optimizer, distrib
             val_loss_prior_sum = 0.
 
             import pdb; pdb.set_trace();
-            for train_i, (_, _, _, _, _, _, _, _, file_name, text_descr) in tqdm(enumerate(train_dl)):
+            for train_i, batch_dict in tqdm(enumerate(train_dl)):
                 train_iter = train_i + len(train_dl)*epoch
-                # torch.cuda.synchronize()
                 t = time.time()
-                
+                import pdb; pdb.set_trace();
                 samples, clip_target = prepare_train_data(fp_parser, file_name, talking_head, base_sample, silent_frames_start, silent_frames_end)
 
                 # torch.cuda.synchronize()
