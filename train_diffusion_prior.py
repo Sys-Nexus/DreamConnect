@@ -19,6 +19,26 @@ from lib.model_zoo.vd import VDCLIP
 from third_party.fMRI_reconstruction_NSD.src.models import BrainNetwork 
 from third_party.fMRI_reconstruction_NSD.src.diffusion_prior import InstructDiffusionPrior, VersatileDiffusionPriorNetwork
 
+import kornia
+from kornia.augmentation.container import AugmentationSequential
+img_augment = AugmentationSequential(
+    kornia.augmentation.RandomResizedCrop((224,224), (0.6,1), p=0.3),
+    kornia.augmentation.Resize((224, 224)),
+    kornia.augmentation.RandomHorizontalFlip(p=0.5),
+    kornia.augmentation.ColorJitter(brightness=0.4, contrast=0.4, saturation=0.2, hue=0.1, p=0.3),
+    kornia.augmentation.RandomGrayscale(p=0.3),
+    # data_keys=["input"],
+)
+
+def prepare_train_data(batch_dict, vd_clip, use_image_aug=True):
+    import pdb; pdb.set_trace();
+    if use_image_aug:
+        image = img_augment(image)
+    clip_target = clip_extractor.embed_image(image).float()   
+
+    return voxel, clip_target
+
+
 def set_summary_writer(log_dir):
     r"""Set summary writer
 
@@ -106,7 +126,7 @@ def trainer(args, train_dl, val_dl, diffusion_prior, vd_clip, optimizer, distrib
                 train_iter = train_i + len(train_dl)*epoch
                 t = time.time()
                 # import pdb; pdb.set_trace();
-                samples, clip_target = prepare_train_data(batch_dict)
+                voxel, clip_target = prepare_train_data(batch_dict, vd_clip, use_image_aug=True)
 
                 # torch.cuda.synchronize()
                 data_t = time.time() -t
@@ -117,8 +137,8 @@ def trainer(args, train_dl, val_dl, diffusion_prior, vd_clip, optimizer, distrib
                     optimizer.zero_grad()
 
                     with torch.no_grad():
-                        voxel = clip_text_embdder(text_descr)
-                        voxel = torch.mean(voxel, dim=1) #### TODO, we use mean 77 tokens to obtain semantic info
+                        # voxel = clip_text_embdder(text_descr)
+                        voxel = torch.mean(voxel, dim=1).float() #### TODO, we use mean 77 tokens to obtain semantic info
                     voxel = voxel.requires_grad_(True)
                     
                     clip_voxels, clip_voxels_proj = diffusion_prior.module.voxel2clip(voxel) if distributed else diffusion_prior.voxel2clip(voxel)
