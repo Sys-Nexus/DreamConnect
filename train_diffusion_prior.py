@@ -4,6 +4,7 @@ import os
 import yaml
 from easydict import EasyDict
 import argparse
+from torch.utils.data import DataLoader, Dataset, ConcatDataset
 
 proj_root = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(proj_root,"stable_diffusion"))
@@ -99,6 +100,8 @@ def main():
     parser.add_argument('--is_test', type=bool, default=True)
     parser.add_argument('--ckpt_path', type=str, default='dummy')
     
+    parser.add_argument('--batch_size', type=int, default=16)
+    
     args = parser.parse_args()
 
     clip_cfg = {'symbol': 'clip',
@@ -131,7 +134,13 @@ def main():
         reconstruct_prob: 0.05
     """
     dataset_cfg = EasyDict(yaml.safe_load(dataset_cfg_str))
-    import pdb; pdb.set_trace();
+    # import pdb; pdb.set_trace();
+    train_dataset = instantiate_from_config(dataset_cfg['train'])
+    val_dataset = instantiate_from_config(dataset_cfg['validation'])
+
+    train_dl = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True)
+    val_dl = DataLoader(val_dataset, batch_size=args.batch_size, shuffle=False)
+
 
 if __name__ == '__main__':
     main()
