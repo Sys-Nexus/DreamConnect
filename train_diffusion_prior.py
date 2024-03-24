@@ -473,7 +473,7 @@ def main():
             dim_head=dim_head,
             heads=heads,
             causal=False,
-            num_tokens = 1,
+            num_tokens = 257,
             learned_query_mode="pos_emb"
         )
     # import pdb; pdb.set_trace();
