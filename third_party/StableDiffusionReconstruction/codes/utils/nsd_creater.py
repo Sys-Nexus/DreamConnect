@@ -143,7 +143,7 @@ class NIPS23NSDDataset(Dataset):
                     'fmri': fmri_norm, 's': s}
         
         if os.path.exists(image_clip_path):
-            nsd_dict['img_clip'] = np.load(image_clip_path)
+            nsd_dict['img_clip'] = np.load(image_clip_path)[0]
         if os.path.exists(self.nsd_cliptext_path):
             nsd_cliptext = self.all_nsd_cliptext[index]
             nsd_clipvision = self.all_nsd_clipvision[index]
