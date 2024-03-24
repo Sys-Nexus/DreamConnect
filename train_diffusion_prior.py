@@ -7,6 +7,7 @@ import argparse
 
 import torch
 from torch.utils.data import DataLoader, Dataset, ConcatDataset
+from torch.utils.tensorboard import SummaryWriter
 
 proj_root = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(proj_root,"stable_diffusion"))
@@ -26,7 +27,7 @@ def set_summary_writer(log_dir):
     global LOG_DIR, LOG_WRITER
     LOG_DIR = log_dir
     LOG_WRITER = SummaryWriter(log_dir=log_dir)
-    
+
 def cosine_anneal(start, end, steps):
     return end + (start - end)/2 * (1 + torch.cos(torch.pi*torch.arange(steps)/(steps-1)))
 
