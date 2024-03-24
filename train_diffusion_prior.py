@@ -4,6 +4,8 @@ import os
 import yaml
 from easydict import EasyDict
 import argparse
+
+import torch
 from torch.utils.data import DataLoader, Dataset, ConcatDataset
 
 proj_root = os.path.dirname(os.path.abspath(__file__))
