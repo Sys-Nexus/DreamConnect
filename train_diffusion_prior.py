@@ -14,7 +14,7 @@ from ldm.util import instantiate_from_config
 
 sys.path.append('third_party/versatile_diffusion')
 from lib.model_zoo.vd import VDCLIP
-
+from third_party.fMRI_reconstruction_NSD.src.models import BrainNetwork
 
 def cosine_anneal(start, end, steps):
     return end + (start - end)/2 * (1 + torch.cos(torch.pi*torch.arange(steps)/(steps-1)))
