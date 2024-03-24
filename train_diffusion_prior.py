@@ -45,6 +45,22 @@ def soft_clip_loss(preds, targs, temp=0.125):
     loss = (loss1 + loss2)/2
     return loss
 
+def topk(similarities,labels,k=5):
+    if k > similarities.shape[0]:
+        k = similarities.shape[0]
+    topsum=0
+    for i in range(k):
+        topsum += torch.sum(torch.argsort(similarities,axis=1)[:,-(i+1)] == labels)/len(labels)
+    return topsum
+
+def batchwise_cosine_similarity(Z,B):
+    # https://www.h4pz.co/blog/2021/4/2/batch-cosine-similarity-in-pytorch-or-numpy-jax-cupy-etc
+    B = B.T
+    Z_norm = torch.linalg.norm(Z, dim=1, keepdim=True)  # Size (n, 1).
+    B_norm = torch.linalg.norm(B, dim=0, keepdim=True)  # Size (1, b).
+    cosine_similarity = ((Z @ B) / (Z_norm @ B_norm)).T
+    return cosine_similarity
+    
 @torch.no_grad()
 def prepare_train_data(batch_dict, vd_clip, use_image_aug=True):
     voxel = batch_dict['fmri'].cuda()
