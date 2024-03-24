@@ -682,7 +682,7 @@ class DualLDM(LatentDiffusion):
             import pdb; pdb.set_trace();
             batch['img_clip'] = batch['img_clip'].to(z)
             print(batch['img_clip'].shape, fmri_x.shape, torch.nn.MSELoss()(batch['img_clip'], fmri_x))
-            fmri_x = batch['img_clip']
+            fmri_x = batch['img_clip'].half()
         
         if force_c_encode is False:
             cond["c_crossattn_1"]["image_emb"] = [torch.where(fmri_prompt_mask.bool(), fmri_null_x, fmri_x)]
