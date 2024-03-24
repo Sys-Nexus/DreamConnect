@@ -546,7 +546,7 @@ def train_one_epoch(config, model, model_ema, data_loader, val_data_loader, opti
         if (epoch * num_steps + idx) % 4000 == 0:
             with torch.no_grad():
                 # if random.uniform(0,1) > 0.5:
-                if False:
+                if True:
                     for val_idx, batch in enumerate(val_data_loader):
                         batch_size = batch['image'].shape[0]
                         if model_wrap is not None:
