@@ -403,8 +403,6 @@ def trainer(args, train_dl, val_dl, diffusion_prior, vd_clip, optimizer, distrib
         for val_i, batch_dict in tqdm(enumerate(val_dl)):
             with torch.no_grad():
                 voxel, clip_target = prepare_train_data(batch_dict, vd_clip, use_image_aug=False)
-                voxel = torch.mean(voxel, dim=1).float()
-                import pdb; pdb.set_trace()
                 img_emb = voxel2img_emb(voxel, diffusion_priors=diffusion_prior, image_embed=None)
                 import pdb; pdb.set_trace()
 
@@ -436,7 +434,6 @@ def voxel2img_emb(
             diffusion_priors = [diffusion_priors]
         brain_clip_embeddings_sum = None
         for diffusion_prior in diffusion_priors:
-            import pdb; pdb.set_trace()
             brain_clip_embeddings0, proj_embeddings = diffusion_prior.voxel2clip(voxel.to(device).float())
             if retrieve:
                 continue
