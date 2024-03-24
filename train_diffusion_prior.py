@@ -308,7 +308,7 @@ def main():
     timesteps = 100
     diffusion_prior = InstructDiffusionPrior(
         net=prior_network,
-        image_embed_dim=out_dim,
+        image_embed_dim=clip_size,
         condition_on_text_encodings=False,
         timesteps=timesteps,
         cond_drop_prob=0.2,
