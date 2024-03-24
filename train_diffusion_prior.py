@@ -396,7 +396,7 @@ def trainer(args, train_dl, val_dl, diffusion_prior, vd_clip, optimizer, distrib
 
                 # Save model checkpoint and reconstruct
                 save_ckpt(f'last', outdir, epoch, diffusion_prior, optimizer, lr_scheduler, losses, val_losses, lrs)
-                import pdb; pdb.set_trace()
+                # import pdb; pdb.set_trace()
 
 def main():
     parser = argparse.ArgumentParser()
