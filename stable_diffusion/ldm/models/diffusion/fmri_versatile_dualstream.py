@@ -662,6 +662,7 @@ class DualLDM(LatentDiffusion):
         fmri_x = self.vd_clip.clip_encode_vision(xc["c_concat"])
         fmri_cap = self.vd_clip.clip_encode_text(cap)
 
+        import pdb; pdb.set_trace();
         # import pdb; pdb.set_trace();
 
         cond["c_crossattn_1"] = {}
