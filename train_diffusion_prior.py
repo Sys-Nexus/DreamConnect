@@ -302,7 +302,7 @@ def main():
     clip_size = args.clip_size
     num_voxels = 15724
     voxel2clip_kwargs = dict(in_dim=num_voxels,out_dim=clip_size*257,clip_size=clip_size,use_projector=args.use_projector)
-    voxel2clip = BrainNetwork(**voxel2clip_kwargs)
+    voxel2clip = BrainNetwork(**voxel2clip_kwargs).cuda()
 
     # use dalle interface to include prior model and clip text-to-emotion models
     timesteps = 100
