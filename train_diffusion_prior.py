@@ -100,101 +100,101 @@ def trainer(args, train_dl, val_dl, diffusion_prior, vd_clip, optimizer, distrib
             val_loss_nce_sum = 0.
             val_loss_prior_sum = 0.
 
-        import pdb; pdb.set_trace();
-        for train_i, (_, _, _, _, _, _, _, _, file_name, text_descr) in tqdm(enumerate(train_dl)):
-            train_iter = train_i + len(train_dl)*epoch
-            # torch.cuda.synchronize()
-            t = time.time()
-            
-            samples, clip_target = prepare_train_data(fp_parser, file_name, talking_head, base_sample, silent_frames_start, silent_frames_end)
-
-            # torch.cuda.synchronize()
-            data_t = time.time() -t
-            t = time.time()
-            
-            # import pdb; pdb.set_trace();
-            with torch.cuda.amp.autocast():
-                optimizer.zero_grad()
-
-                with torch.no_grad():
-                    voxel = clip_text_embdder(text_descr)
-                    voxel = torch.mean(voxel, dim=1) #### TODO, we use mean 77 tokens to obtain semantic info
-                voxel = voxel.requires_grad_(True)
+            import pdb; pdb.set_trace();
+            for train_i, (_, _, _, _, _, _, _, _, file_name, text_descr) in tqdm(enumerate(train_dl)):
+                train_iter = train_i + len(train_dl)*epoch
+                # torch.cuda.synchronize()
+                t = time.time()
                 
-                clip_voxels, clip_voxels_proj = diffusion_prior.module.voxel2clip(voxel) if distributed else diffusion_prior.voxel2clip(voxel)
+                samples, clip_target = prepare_train_data(fp_parser, file_name, talking_head, base_sample, silent_frames_start, silent_frames_end)
+
+                # torch.cuda.synchronize()
+                data_t = time.time() -t
+                t = time.time()
+                
+                # import pdb; pdb.set_trace();
+                with torch.cuda.amp.autocast():
+                    optimizer.zero_grad()
+
+                    with torch.no_grad():
+                        voxel = clip_text_embdder(text_descr)
+                        voxel = torch.mean(voxel, dim=1) #### TODO, we use mean 77 tokens to obtain semantic info
+                    voxel = voxel.requires_grad_(True)
+                    
+                    clip_voxels, clip_voxels_proj = diffusion_prior.module.voxel2clip(voxel) if distributed else diffusion_prior.voxel2clip(voxel)
+                    # import pdb; pdb.set_trace()
+                    
+                    if hidden:
+                        clip_voxels = clip_voxels.view(len(voxel),-1,clip_size)
+                    
+                    if prior:
+                        loss_prior, aligned_clip_voxels = diffusion_prior(text_embed=clip_voxels, image_embed=clip_target)
+                        aligned_clip_voxels /= diffusion_prior.module.image_embed_scale if distributed else diffusion_prior.image_embed_scale
+                    else:
+                        aligned_clip_voxels = clip_voxels
+
+                    clip_voxels_norm = nn.functional.normalize(clip_voxels_proj.flatten(1), dim=-1)
+                    clip_target_norm = nn.functional.normalize(clip_target.flatten(1), dim=-1)
+                    # import pdb; pdb.set_trace()
+
+                    if epoch < int(mixup_pct * num_epochs):
+                        loss_nce = utils.mixco_nce(
+                            clip_voxels_norm,
+                            clip_target_norm,
+                            temp=.006, 
+                            perm=perm, betas=betas, select=select)
+                    else:
+                        epoch_temp = soft_loss_temps[epoch-int(mixup_pct*num_epochs)]
+                        loss_nce = soft_clip_loss(
+                            clip_voxels_norm,
+                            clip_target_norm,
+                            temp=epoch_temp)
+
+                    if prior and v2c:
+                        loss_nce_sum += loss_nce.item()
+                        loss_prior_sum += loss_prior.item()
+                        loss = loss_nce + (prior_mult * loss_prior)
+                    elif v2c:
+                        loss_nce_sum += loss_nce.item()
+                        loss = loss_nce
+                    elif prior:
+                        loss_prior_sum += loss_prior.item()
+                        loss = prior_mult * loss_prior
+                    check_loss(loss)
+                    # utils.check_loss(loss)
+                    
+                    # accelerator.backward(loss)
+                    loss.backward()
+                    optimizer.step()
+
+                    losses.append(loss.item())
+                    lrs.append(optimizer.param_groups[0]['lr'])
+
+                    sims_base += nn.functional.cosine_similarity(clip_target_norm,clip_voxels_norm).mean().item()
+
+                    # forward and backward top 1 accuracy        
+                    labels = torch.arange(len(clip_target_norm)).to(torch.device("cuda")) 
+                    fwd_percent_correct += topk(batchwise_cosine_similarity(clip_voxels_norm,clip_target_norm), labels, k=1)
+                    bwd_percent_correct += topk(batchwise_cosine_similarity(clip_target_norm, clip_voxels_norm), labels, k=1)
+
+                    if lr_scheduler_type is not None:
+                        lr_scheduler.step()
+                forward_t = time.time() - t
+
+                if args.is_tensorboard_log:
+                    loss_dict['train_sims_base'] = sims_base / (train_i + 1)
+                    loss_dict['train_fwd_percent_correct'] = fwd_percent_correct / (train_i + 1)
+                    loss_dict['train_bwd_percent_correct'] = bwd_percent_correct / (train_i + 1)
+                    loss_dict['train_loss_nce'] = loss_nce_sum / (train_i + 1)
+                    loss_dict['train_loss_prior'] = loss_prior_sum / (train_i + 1)
+                    loss_dict['train_loss'] = np.mean(losses[-(train_i+1):])
+                    losses_dict.update(loss_dict)
+                    write_loss_meters(meters, losses_dict)
+
+                    if train_iter % args.log_loss_steps == 0:
+                        flush_meters(meters, train_iter)
+                # print('data: ', data_t, ' forward: ', forward_t, ' loss:', loss.item())
                 # import pdb; pdb.set_trace()
-                
-                if hidden:
-                    clip_voxels = clip_voxels.view(len(voxel),-1,clip_size)
-                
-                if prior:
-                    loss_prior, aligned_clip_voxels = diffusion_prior(text_embed=clip_voxels, image_embed=clip_target)
-                    aligned_clip_voxels /= diffusion_prior.module.image_embed_scale if distributed else diffusion_prior.image_embed_scale
-                else:
-                    aligned_clip_voxels = clip_voxels
-
-                clip_voxels_norm = nn.functional.normalize(clip_voxels_proj.flatten(1), dim=-1)
-                clip_target_norm = nn.functional.normalize(clip_target.flatten(1), dim=-1)
-                # import pdb; pdb.set_trace()
-
-                if epoch < int(mixup_pct * num_epochs):
-                    loss_nce = utils.mixco_nce(
-                        clip_voxels_norm,
-                        clip_target_norm,
-                        temp=.006, 
-                        perm=perm, betas=betas, select=select)
-                else:
-                    epoch_temp = soft_loss_temps[epoch-int(mixup_pct*num_epochs)]
-                    loss_nce = soft_clip_loss(
-                        clip_voxels_norm,
-                        clip_target_norm,
-                        temp=epoch_temp)
-
-                if prior and v2c:
-                    loss_nce_sum += loss_nce.item()
-                    loss_prior_sum += loss_prior.item()
-                    loss = loss_nce + (prior_mult * loss_prior)
-                elif v2c:
-                    loss_nce_sum += loss_nce.item()
-                    loss = loss_nce
-                elif prior:
-                    loss_prior_sum += loss_prior.item()
-                    loss = prior_mult * loss_prior
-                check_loss(loss)
-                # utils.check_loss(loss)
-                
-                # accelerator.backward(loss)
-                loss.backward()
-                optimizer.step()
-
-                losses.append(loss.item())
-                lrs.append(optimizer.param_groups[0]['lr'])
-
-                sims_base += nn.functional.cosine_similarity(clip_target_norm,clip_voxels_norm).mean().item()
-
-                # forward and backward top 1 accuracy        
-                labels = torch.arange(len(clip_target_norm)).to(torch.device("cuda")) 
-                fwd_percent_correct += topk(batchwise_cosine_similarity(clip_voxels_norm,clip_target_norm), labels, k=1)
-                bwd_percent_correct += topk(batchwise_cosine_similarity(clip_target_norm, clip_voxels_norm), labels, k=1)
-
-                if lr_scheduler_type is not None:
-                    lr_scheduler.step()
-            forward_t = time.time() - t
-
-            if args.is_tensorboard_log:
-                loss_dict['train_sims_base'] = sims_base / (train_i + 1)
-                loss_dict['train_fwd_percent_correct'] = fwd_percent_correct / (train_i + 1)
-                loss_dict['train_bwd_percent_correct'] = bwd_percent_correct / (train_i + 1)
-                loss_dict['train_loss_nce'] = loss_nce_sum / (train_i + 1)
-                loss_dict['train_loss_prior'] = loss_prior_sum / (train_i + 1)
-                loss_dict['train_loss'] = np.mean(losses[-(train_i+1):])
-                losses_dict.update(loss_dict)
-                write_loss_meters(meters, losses_dict)
-
-                if train_iter % args.log_loss_steps == 0:
-                    flush_meters(meters, train_iter)
-            # print('data: ', data_t, ' forward: ', forward_t, ' loss:', loss.item())
-            # import pdb; pdb.set_trace()
 
 
 def main():
