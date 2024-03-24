@@ -38,8 +38,8 @@ def prepare_train_data(batch_dict, vd_clip, use_image_aug=True):
         image = img_augment(image)
     vd_clip.clip.fp16 = False
     clip_target = vd_clip.clip_encode_vision(image)
-    import pdb; pdb.set_trace();
-
+    # import pdb; pdb.set_trace();
+    clip_target = clip_target.cuda()
     return voxel, clip_target
 
 
@@ -283,11 +283,11 @@ def main():
     depth = 6
     dim_head = 64
     clip_size = args.clip_size
-    out_dim = clip_size
+    # out_dim = clip_size
     heads = clip_size//16
     # import pdb; pdb.set_trace();
     prior_network = VersatileDiffusionPriorNetwork(
-            dim=out_dim,
+            dim=clip_size,
             depth=depth,
             dim_head=dim_head,
             heads=heads,
