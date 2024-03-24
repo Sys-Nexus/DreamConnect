@@ -32,6 +32,61 @@ img_augment = AugmentationSequential(
     # data_keys=["input"],
 )
 
+class Meter(object):
+    """Meter is to keep track of statistics along steps.
+    Meters write values for purpose like printing average values.
+    Meters can be flushed to log files (i.e. TensorBoard for now)
+    regularly.
+
+    Args:
+        name (str): the name of meter
+    """
+
+    @master_only
+    def __init__(self, name):
+        self.name = name
+        self.values = []
+
+    @master_only
+    def reset(self):
+        r"""Reset the meter values"""
+        self.values = []
+
+    @master_only
+    def write(self, value):
+        r"""Record the value"""
+        self.values.append(value)
+
+    @master_only
+    def flush(self, step):
+        r"""Write the value in the tensorboard.
+
+        Args:
+            step (int): Epoch or iteration number.
+        """
+        if not all(math.isfinite(x) for x in self.values):
+            print("meter {} contained a nan or inf.".format(self.name))
+        filtered_values = list(filter(lambda x: math.isfinite(x), self.values))
+        if float(len(filtered_values)) != 0:
+            value = float(sum(filtered_values)) / float(len(filtered_values))
+            write_summary(self.name, value, step)
+        self.reset()
+
+    @master_only
+    def write_image(self, img_grid, step):
+        r"""Write the value in the tensorboard.
+
+        Args:
+            img_grid:
+            step (int): Epoch or iteration number.
+        """
+        global LOG_WRITER
+        lw = LOG_WRITER
+        if lw is None:
+            raise Exception("Log writer not set.")
+        lw.add_image("Visualizations", img_grid, step)
+
+
 def write_loss_meters(meters, losses_dict):
     r"""Write all loss values to tensorboard."""
     for loss_name, loss in losses_dict.items():
@@ -62,7 +117,7 @@ def resume_ckpt(ckpt_path, optimizer, lr_scheduler, diffusion_prior):
     # lr_scheduler.load_state_dict(checkpoint['lr_scheduler'])
     diffusion_prior.load_state_dict(checkpoint['model_state_dict'])
     return epoch
-    
+
 def check_loss(loss):
     if loss.isnan().any():
         raise ValueError('NaN loss')
