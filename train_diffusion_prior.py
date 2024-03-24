@@ -8,6 +8,7 @@ from tqdm import tqdm
 import time
 import torch
 import torch.nn as nn
+import numpy as np
 from torch.utils.data import DataLoader, Dataset, ConcatDataset
 from torch.utils.tensorboard import SummaryWriter
 
@@ -75,7 +76,7 @@ def save_ckpt(tag, outdir, epoch, diffusion_prior, optimizer, lr_scheduler, loss
         'val_losses': val_losses,
         'lrs': lrs,
         }, ckpt_path)
-        
+
 @torch.no_grad()
 def prepare_train_data(batch_dict, vd_clip, use_image_aug=True):
     voxel = batch_dict['fmri'].cuda()
