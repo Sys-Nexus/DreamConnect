@@ -42,22 +42,18 @@ class Meter(object):
         name (str): the name of meter
     """
 
-    @master_only
     def __init__(self, name):
         self.name = name
         self.values = []
 
-    @master_only
     def reset(self):
         r"""Reset the meter values"""
         self.values = []
 
-    @master_only
     def write(self, value):
         r"""Record the value"""
         self.values.append(value)
 
-    @master_only
     def flush(self, step):
         r"""Write the value in the tensorboard.
 
@@ -72,7 +68,6 @@ class Meter(object):
             write_summary(self.name, value, step)
         self.reset()
 
-    @master_only
     def write_image(self, img_grid, step):
         r"""Write the value in the tensorboard.
 
