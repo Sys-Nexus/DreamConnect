@@ -435,6 +435,7 @@ def voxel2img_emb(
             diffusion_priors = [diffusion_priors]
         brain_clip_embeddings_sum = None
         for diffusion_prior in diffusion_priors:
+            import pdb; pdb.set_trace()
             brain_clip_embeddings0, proj_embeddings = diffusion_prior.voxel2clip(voxel.to(device).float())
             if retrieve:
                 continue
