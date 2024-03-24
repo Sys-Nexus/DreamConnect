@@ -300,7 +300,7 @@ def main():
 
     # clip text to emotion latent model
     clip_size = args.clip_size
-    voxel2clip_kwargs = dict(in_dim=768,out_dim=clip_size,clip_size=clip_size,use_projector=args.use_projector)
+    voxel2clip_kwargs = dict(in_dim=768,out_dim=clip_size*257,clip_size=clip_size,use_projector=args.use_projector)
     voxel2clip = BrainNetwork(**voxel2clip_kwargs)
 
     # use dalle interface to include prior model and clip text-to-emotion models
