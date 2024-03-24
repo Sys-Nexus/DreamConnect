@@ -151,6 +151,7 @@ def main():
     timesteps = 100
     depth = 6
     dim_head = 64
+    clip_size = args.clip_size
     heads = clip_size//16
     prior_network = VersatileDiffusionPriorNetwork(
             dim=out_dim,
