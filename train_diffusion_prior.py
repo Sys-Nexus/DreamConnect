@@ -404,6 +404,7 @@ def trainer(args, train_dl, val_dl, diffusion_prior, vd_clip, optimizer, distrib
             with torch.no_grad():
                 voxel, clip_target = prepare_train_data(batch_dict, vd_clip, use_image_aug=False)
                 voxel = torch.mean(voxel, dim=1).float()
+                import pdb; pdb.set_trace()
                 img_emb = voxel2img_emb(voxel, diffusion_priors=diffusion_prior, image_embed=None)
                 import pdb; pdb.set_trace()
 
