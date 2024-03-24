@@ -33,6 +33,19 @@ img_augment = AugmentationSequential(
     # data_keys=["input"],
 )
 
+def write_summary(name, summary, step, hist=False):
+    """Utility function for write summary to log_writer.
+    """
+    global LOG_WRITER
+    lw = LOG_WRITER
+    if lw is None:
+        raise Exception("Log writer not set.")
+    if hist:
+        lw.add_histogram(name, summary, step)
+    else:
+        lw.add_scalar(name, summary, step)
+
+
 class Meter(object):
     """Meter is to keep track of statistics along steps.
     Meters write values for purpose like printing average values.
