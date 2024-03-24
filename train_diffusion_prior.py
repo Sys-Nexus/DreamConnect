@@ -3,6 +3,10 @@ import sys
 from easydict import EasyDict
 import argparse
 
+proj_root = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(os.path.join(proj_root,"stable_diffusion"))
+from ldm.util import instantiate_from_config
+
 sys.path.append('third_party/versatile_diffusion')
 from lib.model_zoo.vd import VDCLIP
 
@@ -103,7 +107,29 @@ def main():
     clip_cfg = EasyDict(clip_cfg)
     vd_clip = VDCLIP(clip_cfg)
 
+    dataset_cfg_str = """
+    train:
+      target: third_party.StableDiffusionReconstruction.codes.utils.nsd_creater.NIPS23NSDDataset
+      params:
+        nsd_root: '/data/yashengsun/Proj/MMEdit/StableDiffusionReconstruction/nsd'
+        resolution: 320
+        split: 'train'
+        is_reconstruct_mode: False
+        url: 'nsd_data_dir/train_subj01_{0..17}.tar'
+        reconstruct_prob: 0.05
 
+    validation:
+      target: third_party.StableDiffusionReconstruction.codes.utils.nsd_creater.NIPS23NSDDataset
+      params:
+        nsd_root: '/data/yashengsun/Proj/MMEdit/StableDiffusionReconstruction/nsd'
+        resolution: 320
+        split: 'test'
+        is_reconstruct_mode: False
+        url: 'nsd_data_dir/test_subj01_{0..1}.tar'
+        reconstruct_prob: 0.05
+    """
+    dataset_cfg = EasyDict(yaml.safe_load(dataset_cfg_str))
+    import pdb; pdb.set_trace();
 
 if __name__ == '__main__':
     main()
