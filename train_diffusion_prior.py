@@ -405,7 +405,10 @@ def trainer(args, train_dl, val_dl, diffusion_prior, vd_clip, optimizer, distrib
                 voxel, clip_target = prepare_train_data(batch_dict, vd_clip, use_image_aug=False)
                 image_embed = torch.randn((1,1,768)).to(voxel)
                 pred_img_embed = voxel2img_emb(voxel, diffusion_priors=diffusion_prior, image_embed=image_embed)
-                import pdb; pdb.set_trace()
+                # import pdb; pdb.set_trace()
+                s = batch_dict['s'][0].item()
+                os.makedirs('img_clip', exist_ok=True)
+                np.save('img_clip/{:05d}.npy'.format(s), pred_img_embed)
 
 
 def voxel2img_emb(
