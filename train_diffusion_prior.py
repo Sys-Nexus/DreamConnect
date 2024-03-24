@@ -1,6 +1,6 @@
 import sys
-from lib.model_zoo.vd import VDCLIP
 sys.path.append('third_party/versatile_diffusion')
+from lib.model_zoo.vd import VDCLIP
 
 
 def main():
