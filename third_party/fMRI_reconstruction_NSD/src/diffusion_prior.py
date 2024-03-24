@@ -261,7 +261,7 @@ class VersatileDiffusionPriorNetwork(nn.Module):
 
         # mask out brain embeddings with null brain embeddings
 
-        # import pdb; pdb.set_trace()
+        import pdb; pdb.set_trace()
         null_brain_embeds = self.null_brain_embeds.to(brain_embed.dtype)
         brain_embed = torch.where(
             brain_keep_mask,
