@@ -91,7 +91,7 @@ def trainer(args, train_dl, val_dl, diffusion_prior, vd_clip, optimizer, distrib
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--max_lr', type=float, default=0.001)
-    parser.add_argument('--num_epochs', type=int, default=100)
+    parser.add_argument('--num_epoch', type=int, default=100)
     parser.add_argument('--local_rank', type=int, default=0)
     parser.add_argument('--clip_size', type=int, default=768)
     parser.add_argument('--jobname', type=str, default='latent_diffusion_image')
