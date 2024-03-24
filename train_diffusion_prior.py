@@ -12,7 +12,7 @@ def main():
                 'name': 'clip_frozen',
                 'type': 'clip_frozen'}
     # clip_cfg = SimpleNamespace(**clip_cfg)    
-    clip_cfg = yaml.loads(yaml.dumps(clip_cfg))
+    clip_cfg = yaml.load(yaml.dumps(clip_cfg))
     vd_clip = VDCLIP(clip_cfg)
 
 
