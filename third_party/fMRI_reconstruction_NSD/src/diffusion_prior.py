@@ -238,13 +238,13 @@ class VersatileDiffusionPriorNetwork(nn.Module):
         if text_cond_drop_prob is not None:
             brain_cond_drop_prob = text_cond_drop_prob
         
-        # image_embed = image_embed.view(len(image_embed),-1,768)
-        # # text_embed = text_embed.view(len(text_embed),-1,768)
-        # brain_embed = brain_embed.view(len(brain_embed),-1,768)
+        image_embed = image_embed.view(len(image_embed),-1,768)
+        # text_embed = text_embed.view(len(text_embed),-1,768)
+        brain_embed = brain_embed.view(len(brain_embed),-1,768)
 
-        image_embed = image_embed.view(len(image_embed),-1,128)
-        # text_embed = text_embed.view(len(text_embed),-1,128)
-        brain_embed = brain_embed.view(len(brain_embed),-1,128)
+        # image_embed = image_embed.view(len(image_embed),-1,128)
+        # # text_embed = text_embed.view(len(text_embed),-1,128)
+        # brain_embed = brain_embed.view(len(brain_embed),-1,128)
 
         # print(*image_embed.shape)
         # print(*image_embed.shape, image_embed.device, image_embed.dtype)
@@ -261,7 +261,7 @@ class VersatileDiffusionPriorNetwork(nn.Module):
 
         # mask out brain embeddings with null brain embeddings
 
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
         null_brain_embeds = self.null_brain_embeds.to(brain_embed.dtype)
         brain_embed = torch.where(
             brain_keep_mask,
