@@ -279,6 +279,7 @@ class DualLDM(LatentDiffusion):
         self.vd_clip = VDCLIP(clip_cfg)
 
         self.useful_ctx_idxes = kwargs.get('useful_ctx_idxes', None)
+        self.mutual_selfatt = kwargs.get('mutual_selfatt', None)
         self.only_align_loss = kwargs.get('only_align_loss', False)
         self.use_styleclip_loss = kwargs['use_styleclip_loss']
         self.is_save_x0 = kwargs['is_save_x0']
@@ -662,9 +663,6 @@ class DualLDM(LatentDiffusion):
         fmri_x = self.vd_clip.clip_encode_vision(xc["c_concat"])
         fmri_cap = self.vd_clip.clip_encode_text(cap)
 
-        # import pdb; pdb.set_trace();
-        # import pdb; pdb.set_trace();
-
         cond["c_crossattn_1"] = {}
 
         if self.only_align_loss is True:
@@ -678,12 +676,13 @@ class DualLDM(LatentDiffusion):
             else:
                 fmri_x, fmri_cap = pred_image_emb.half(), pred_text_emb.half()
                 # fmri_x = pred_image_emb.half()
-        if 'img_clip' in batch:
-            # import pdb; pdb.set_trace();
-            batch['img_clip'] = batch['img_clip'].to(z)[:bs]
-            print(batch['img_clip'].shape, fmri_x.shape, torch.nn.MSELoss()(batch['img_clip'], fmri_x))
-            fmri_x = batch['img_clip'].half()
-        
+
+        # if 'img_clip' in batch:
+        #     # import pdb; pdb.set_trace();
+        #     batch['img_clip'] = batch['img_clip'].to(z)[:bs]
+        #     print(batch['img_clip'].shape, fmri_x.shape, torch.nn.MSELoss()(batch['img_clip'], fmri_x))
+        #     fmri_x = batch['img_clip'].half()
+
         if force_c_encode is False:
             cond["c_crossattn_1"]["image_emb"] = [torch.where(fmri_prompt_mask.bool(), fmri_null_x, fmri_x)]
             cond["c_crossattn_1"]["text_emb"] = [torch.where(fmri_prompt_mask.bool(), fmri_null_cap, fmri_cap)]
@@ -1030,7 +1029,7 @@ class DualLDM(LatentDiffusion):
                 if useful_ctx_idxes is not None and kk not in useful_ctx_idxes: continue
                 injected_contexts.append(ctx_feature)
             new_cond['injected_contexts'] = injected_contexts
-            new_cond['injected_attn_qkv'] = control_attn_qkv
+            new_cond['injected_attn_qkv'] = control_attn_qkv if self.mutual_selfatt else None
             # import pdb; pdb.set_trace()
 
             ## this sentence will overwrite the obtained noisy_c_concat at inference time            
