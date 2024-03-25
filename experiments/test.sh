@@ -38,19 +38,19 @@ resume_path='/data/yashengsun/Proj/MMEdit/fMRIInstructDiffusion/logs/wo_prospect
 
 # ${HOME}/.local/bin/wandb login 56d149bd571b8312fbca5e3802d7859909ea00c1
 
-CUDA_LAUNCH_BLOCKING=1 CUDA_VISIBLE_DEVICES=${gpus} ${run_cmd} main.py --name ${exp_name} \
-          --base configs/test/${jobname}.yaml \
-          --train \
-          --gpus ${gpus} \
-          --resume '' \
-          --num_nodes ${num_nodes} \
-          --filter_mode ${filter_mode} \
-          --no-test True \
-          --vis ${vis} \
-          --isTrain ${isTrain} \
-          --cfg_text ${cfg_text} \
-          --prospect_ckpt_path ${prospect_ckpt_path} \
-          --cfg_text_edit ${cfg_text_edit} #\
-          # --layout_path ${layout_path} #\
-          # --is_inst_gen True
-          # --is_inst_edit True \
+CUDA_VISIBLE_DEVICES=${gpus} ${run_cmd} main.py --name ${exp_name} \
+    --base configs/test/${jobname}.yaml \
+    --train \
+    --gpus ${gpus} \
+    --resume '' \
+    --num_nodes ${num_nodes} \
+    --filter_mode ${filter_mode} \
+    --no-test True \
+    --vis ${vis} \
+    --isTrain ${isTrain} \
+    --cfg_text ${cfg_text} \
+    --prospect_ckpt_path ${prospect_ckpt_path} \
+    --cfg_text_edit ${cfg_text_edit} #\
+    # --layout_path ${layout_path} #\
+    # --is_inst_gen True
+    # --is_inst_edit True \
