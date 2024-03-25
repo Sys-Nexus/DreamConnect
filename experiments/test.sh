@@ -1,5 +1,5 @@
 
-jobname=${1:-'wo_prospect_ctx_adaptor_bs4'}
+jobname=${1:-'wo_prospect_ctx_adaptor_zeroconv_mattn_bs4'}
 filter_mode=${2:-'tune_sideconv'} #do not use no_filter, which will fail the memory
 
 gpus=${3:-'0,'}
