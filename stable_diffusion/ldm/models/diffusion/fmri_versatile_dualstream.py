@@ -759,7 +759,7 @@ class DualLDM(LatentDiffusion):
         
         c_w_uncond = copy.deepcopy(c)
 
-        import pdb; pdb.set_trace();
+        # import pdb; pdb.set_trace();
 
         if self.use_fmri_clip and split == 'val':
             c0 = batch['img_clip'][:N].to(c["c_crossattn_1"]["image_emb"][0])
