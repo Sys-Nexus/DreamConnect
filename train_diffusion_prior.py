@@ -173,14 +173,21 @@ def save_ckpt(tag, outdir, epoch, diffusion_prior, optimizer, lr_scheduler, loss
         }, ckpt_path)
 
 @torch.no_grad()
-def prepare_train_data(batch_dict, vd_clip, use_image_aug=True):
+def prepare_train_data(batch_dict, vd_clip, use_image_aug=True, mode='image'):
     voxel = batch_dict['fmri'].cuda()
-    image = batch_dict['image'].cuda()
-    if use_image_aug:
-        image = img_augment(image)
     vd_clip.clip.fp16 = False
     vd_clip.clip.cuda()
-    clip_target = vd_clip.clip_encode_vision(image)
+        
+    if mode == 'image':
+        image = batch_dict['image'].cuda()
+        if use_image_aug:
+            image = img_augment(image)
+        clip_target = vd_clip.clip_encode_vision(image)
+    elif mode == 'text':
+        cap = batch_dict['text'].cuda()
+        clip_target = vd_clip.clip_encode_text(cap)
+    else:
+        raise ValueError
     # import pdb; pdb.set_trace();
     # clip_target = clip_target.cuda()
     return voxel, clip_target
@@ -273,7 +280,7 @@ def trainer(args, train_dl, val_dl, diffusion_prior, vd_clip, optimizer, distrib
                 train_iter = train_i + len(train_dl)*epoch
                 t = time.time()
                 # import pdb; pdb.set_trace();
-                voxel, clip_target = prepare_train_data(batch_dict, vd_clip, use_image_aug=True)
+                voxel, clip_target = prepare_train_data(batch_dict, vd_clip, use_image_aug=False, mode=args.mode)
 
                 # torch.cuda.synchronize()
                 data_t = time.time() -t
@@ -401,15 +408,17 @@ def trainer(args, train_dl, val_dl, diffusion_prior, vd_clip, optimizer, distrib
     else:
         print('Usage of talking face instruction...')
         t = time.time()
+        prefix = 'img' if args.mode == 'image' else 'text'
         for val_i, batch_dict in tqdm(enumerate(val_dl)):
             with torch.no_grad():
-                voxel, clip_target = prepare_train_data(batch_dict, vd_clip, use_image_aug=False)
+                voxel, clip_target = prepare_train_data(batch_dict, vd_clip, use_image_aug=False, mode=args.mode)
                 image_embed = None
                 pred_img_embed = voxel2img_emb(voxel, diffusion_priors=diffusion_prior, image_embed=image_embed)
                 # import pdb; pdb.set_trace()
                 s = batch_dict['s'][0].item()
-                os.makedirs('img_clip', exist_ok=True)
-                np.save('img_clip/{:05d}.npy'.format(s), pred_img_embed.cpu().numpy())
+
+                os.makedirs(prefix+'_clip', exist_ok=True)
+                np.save(prefix+'_clip/{:05d}.npy'.format(s), pred_img_embed.cpu().numpy())
 
 
 def voxel2img_emb(
@@ -492,13 +501,18 @@ def main():
     parser.add_argument('--is_tensorboard_log', type=bool, default=True)
     parser.add_argument('--is_test', type=bool, default=False)
     parser.add_argument('--ckpt_path', type=str, default='/data/yashengsun/Proj/MMEdit/fMRIInstructDiffusion/train_logs/latent_diffusion_image/last.pth')
-    
+    parser.add_argument('--mode', type=str, default='image')
+
     parser.add_argument('--batch_size', type=int, default=24)
     parser.add_argument('--use_projector', type=bool, default=True)
     parser.add_argument("--epoch", type=int, default=0, help='number of epochs')
     parser.add_argument("--log_loss_steps", type=int, default=5)
 
     args = parser.parse_args()
+
+    if args.mode == 'image': args.jobname = 'latent_diffusion_image'
+    elif args.mode == 'text': args.jobname = 'latent_diffusion_text'
+    else: raise ValueError
 
     clip_cfg = {'symbol': 'clip',
                 'args': {},
@@ -550,13 +564,14 @@ def main():
     # out_dim = clip_size
     heads = clip_size//16
     # import pdb; pdb.set_trace();
+    num_tokens = 257 if args.mode == 'image' else 77
     prior_network = VersatileDiffusionPriorNetwork(
             dim=clip_size,
             depth=depth,
             dim_head=dim_head,
             heads=heads,
             causal=False,
-            num_tokens = 257,
+            num_tokens = num_tokens,
             learned_query_mode="pos_emb"
         )
     # import pdb; pdb.set_trace();
@@ -565,7 +580,7 @@ def main():
     # clip text to emotion latent model
     clip_size = args.clip_size
     num_voxels = 15724
-    voxel2clip_kwargs = dict(in_dim=num_voxels,out_dim=clip_size*257,clip_size=clip_size,use_projector=args.use_projector)
+    voxel2clip_kwargs = dict(in_dim=num_voxels,out_dim=clip_size*num_tokens,clip_size=clip_size,use_projector=args.use_projector)
     voxel2clip = BrainNetwork(**voxel2clip_kwargs).cuda()
 
     # use dalle interface to include prior model and clip text-to-emotion models
