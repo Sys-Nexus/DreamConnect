@@ -329,7 +329,7 @@ class InstructDiffusionPrior(DiffusionPrior):
     @torch.no_grad()
     def p_sample(self, x, t, text_cond = None, self_cond = None, clip_denoised = True, cond_scale = 1.,
                 generator=None):
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
         b, *_, device = *x.shape, x.device
         model_mean, _, model_log_variance, x_start = self.p_mean_variance(x = x, t = t, text_cond = text_cond, self_cond = self_cond, clip_denoised = clip_denoised, cond_scale = cond_scale)
         if generator is None:

@@ -442,10 +442,7 @@ def voxel2img_emb(
             brain_clip_embeddings0, proj_embeddings = diffusion_prior.voxel2clip(voxel.to(device).float())
             if retrieve:
                 continue
-            # brain_clip_embeddings0 = brain_clip_embeddings0.view(len(voxel),-1,768) if isinstance(clip_extractor,Clipper) else brain_clip_embeddings0.view(len(voxel),-1,1024)
-            brain_clip_embeddings0 = brain_clip_embeddings0.view(len(voxel),-1,128) 
-            # import pdb; pdb.set_trace()
-            
+            brain_clip_embeddings0 = brain_clip_embeddings0.view(len(voxel),-1,768)
             if recons_per_sample>0:
                 # import pdb; pdb.set_trace()
                 if no_diffusion:
