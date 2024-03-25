@@ -184,7 +184,7 @@ def prepare_train_data(batch_dict, vd_clip, use_image_aug=True, mode='image'):
             image = img_augment(image)
         clip_target = vd_clip.clip_encode_vision(image)
     elif mode == 'text':
-        cap = batch_dict['cap'].cuda()
+        cap = batch_dict['cap']#.cuda()
         clip_target = vd_clip.clip_encode_text(cap)
     else:
         raise ValueError
