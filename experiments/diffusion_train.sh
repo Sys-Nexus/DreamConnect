@@ -6,5 +6,7 @@ if [[ $mode == 'image' ]]; then
 fi
 
 if [[ $mode == 'text' ]]; then
-    CUDA_VISIBLE_DEVICES=${which_gpu} python train_diffusion_prior.py --mode 'text' --ckpt_path 'dummy'
+    CUDA_VISIBLE_DEVICES=${which_gpu} python train_diffusion_prior.py --mode 'text' \
+                --batch_size 64 \
+                --ckpt_path '/data/yashengsun/Proj/MMEdit/fMRIInstructDiffusion/train_logs/latent_diffusion_text/last.pth'
 fi
