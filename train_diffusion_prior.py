@@ -303,7 +303,7 @@ def trainer(args, train_dl, val_dl, diffusion_prior, vd_clip, optimizer, distrib
 
                     clip_voxels_norm = nn.functional.normalize(clip_voxels_proj.flatten(1), dim=-1)
                     clip_target_norm = nn.functional.normalize(clip_target.flatten(1), dim=-1)
-                    import pdb; pdb.set_trace()
+                    # import pdb; pdb.set_trace()
 
                     if epoch < int(mixup_pct * num_epochs):
                         loss_nce = utils.mixco_nce(
@@ -487,7 +487,7 @@ def voxel2img_emb(
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--max_lr', type=float, default=0.0001)
-    parser.add_argument('--max_epoch', type=int, default=5000)
+    parser.add_argument('--max_epoch', type=int, default=240)
     parser.add_argument('--local_rank', type=int, default=0)
     parser.add_argument('--clip_size', type=int, default=768)
     parser.add_argument('--jobname', type=str, default='latent_diffusion_image')
