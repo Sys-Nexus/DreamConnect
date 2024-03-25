@@ -28,8 +28,8 @@ img_augment = AugmentationSequential(
     kornia.augmentation.RandomResizedCrop((224,224), (0.6,1), p=0.3),
     kornia.augmentation.Resize((224, 224)),
     kornia.augmentation.RandomHorizontalFlip(p=0.5),
-    kornia.augmentation.ColorJitter(brightness=0.4, contrast=0.4, saturation=0.2, hue=0.1, p=0.3),
-    kornia.augmentation.RandomGrayscale(p=0.3),
+    # kornia.augmentation.ColorJitter(brightness=0.4, contrast=0.4, saturation=0.2, hue=0.1, p=0.3),
+    # kornia.augmentation.RandomGrayscale(p=0.3),
     # data_keys=["input"],
 )
 
