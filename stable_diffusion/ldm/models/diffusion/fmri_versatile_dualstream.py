@@ -281,6 +281,7 @@ class DualLDM(LatentDiffusion):
         self.useful_ctx_idxes = kwargs.get('useful_ctx_idxes', None)
         self.mutual_selfatt = kwargs.get('mutual_selfatt', None)
         self.only_align_loss = kwargs.get('only_align_loss', False)
+        self.use_fmri_clip = kwargs.get('use_fmri_clip', False)
         self.use_styleclip_loss = kwargs['use_styleclip_loss']
         self.is_save_x0 = kwargs['is_save_x0']
         self.is_save_intermediate = kwargs['is_save_intermediate']
@@ -758,8 +759,12 @@ class DualLDM(LatentDiffusion):
         
         c_w_uncond = copy.deepcopy(c)
 
-        # import pdb; pdb.set_trace();
-        c0 = torch.cat(c["c_crossattn_1"]["image_emb"], 1)
+        import pdb; pdb.set_trace();
+
+        if self.use_fmri_clip and split == 'val':
+            c0 = batch['img_clip'][:N].to(c["c_crossattn_1"]["image_emb"][0])
+        else:
+            c0 = torch.cat(c["c_crossattn_1"]["image_emb"], 1)
         if is_inst_gen is True:
             # self.mixing = 1.0 # all text
             self.mixing = 0.0 # all image
