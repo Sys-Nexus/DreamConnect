@@ -79,7 +79,7 @@ class NIPS23NSDDataset(Dataset):
     def __init__(self, url="nsd_data_dir/test_subj01_" + "{0..1}.tar", voxels_key='nsdgeneral.npy', split='test', resolution=320,\
             nsd_root='/data/yashengsun/Proj/MMEdit/StableDiffusionReconstruction/nsd',
             image_clip_root='/data/yashengsun/Proj/MMEdit/fMRIInstructDiffusion/img_clip',
-            image_clip_root='/data/yashengsun/Proj/MMEdit/fMRIInstructDiffusion/text_clip',
+            text_clip_root='/data/yashengsun/Proj/MMEdit/fMRIInstructDiffusion/text_clip',
             is_reconstruct_mode=False,
             reconstruct_prob=0.1,):
         super().__init__()
