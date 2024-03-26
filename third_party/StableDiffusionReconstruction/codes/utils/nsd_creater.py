@@ -79,6 +79,7 @@ class NIPS23NSDDataset(Dataset):
     def __init__(self, url="nsd_data_dir/test_subj01_" + "{0..1}.tar", voxels_key='nsdgeneral.npy', split='test', resolution=320,\
             nsd_root='/data/yashengsun/Proj/MMEdit/StableDiffusionReconstruction/nsd',
             image_clip_root='/data/yashengsun/Proj/MMEdit/fMRIInstructDiffusion/img_clip',
+            image_clip_root='/data/yashengsun/Proj/MMEdit/fMRIInstructDiffusion/text_clip',
             is_reconstruct_mode=False,
             reconstruct_prob=0.1,):
         super().__init__()
@@ -86,6 +87,7 @@ class NIPS23NSDDataset(Dataset):
         self.is_reconstruct_mode = is_reconstruct_mode
         self.reconstruct_prob = reconstruct_prob
         self.image_clip_root = image_clip_root
+        self.text_clip_root = text_clip_root
 
         sub = 1
         self.nsd_cliptext_path = 'nsd_data_dir/predicted_features/subj{:02d}/nsd_cliptext_pred{}_nsdgeneral.npy'.format(sub,split)
@@ -132,6 +134,8 @@ class NIPS23NSDDataset(Dataset):
     def __getitem__(self, index):
         s = self.cocos[index]
         image_clip_path = os.path.join(self.image_clip_root, '{:05d}.npy'.format(s))
+        text_clip_path = os.path.join(self.text_clip_root, '{:05d}.npy'.format(s))
+        
         # voxel, img_input, coco = self.data[index]
         caps = self.cap_dict[s]
         img = self.nsda.read_images(s)
@@ -144,6 +148,9 @@ class NIPS23NSDDataset(Dataset):
         
         if os.path.exists(image_clip_path):
             nsd_dict['img_clip'] = np.load(image_clip_path)[0]
+        if os.path.exists(text_clip_path):
+            nsd_dict['text_clip'] = np.load(text_clip_path)[0]
+
         if os.path.exists(self.nsd_cliptext_path):
             nsd_cliptext = self.all_nsd_cliptext[index]
             nsd_clipvision = self.all_nsd_clipvision[index]
