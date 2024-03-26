@@ -252,8 +252,10 @@ def trainer(args, train_dl, val_dl, diffusion_prior, vd_clip, optimizer, distrib
     soft_loss_temps = cosine_anneal(0.004, 0.0075, num_epochs - int(mixup_pct * num_epochs))
     if hidden:
         prior_mult = 30
+        nce_mult = 0.1
     else:
         prior_mult = .03
+        nce_mult = 1.0
     losses, val_losses, lrs = [], [], []
     nce_losses, val_nce_losses = [], []
     sim_losses, val_sim_losses = [], []
@@ -328,10 +330,10 @@ def trainer(args, train_dl, val_dl, diffusion_prior, vd_clip, optimizer, distrib
                     if prior and v2c:
                         loss_nce_sum += loss_nce.item()
                         loss_prior_sum += loss_prior.item()
-                        loss = loss_nce + (prior_mult * loss_prior)
+                        loss = nce_mult * loss_nce + (prior_mult * loss_prior)
                     elif v2c:
                         loss_nce_sum += loss_nce.item()
-                        loss = loss_nce
+                        loss = nce_mult * loss_nce
                     elif prior:
                         loss_prior_sum += loss_prior.item()
                         loss = prior_mult * loss_prior
