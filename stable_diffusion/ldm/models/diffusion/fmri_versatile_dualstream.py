@@ -315,7 +315,9 @@ class DualLDM(LatentDiffusion):
         scale = 7.5
         strength = 0.75
         # mixing = 0.4
-        mixing = 0.0 ### all image branch
+        # mixing = 0.0 ### all image branch
+        # mixing = 1.0 ### all text branch
+        mixing = kwargs.get('mixing', 0.4) ### mix of image an text
         t_enc = int(strength * ddim_steps)
 
         self.t_enc = t_enc
