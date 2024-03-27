@@ -1,5 +1,5 @@
 
-jobname=${1:-'wo_prospect_ctx_adaptor_zeroconv_mattn_bs4'}
+jobname=${1:-'train_conv_adaptor'}
 filter_mode=${2:-'tune_controlunet'} #no_filter
 
 gpus=${3:-'1,'}

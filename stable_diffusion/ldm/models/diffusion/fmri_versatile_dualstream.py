@@ -278,10 +278,13 @@ class DualLDM(LatentDiffusion):
         super().__init__(*args, **kwargs)
         self.vd_clip = VDCLIP(clip_cfg)
 
+        self.adaptor_ckpt_path = kwargs.get('adaptor_ckpt_path', None)
+
         self.useful_ctx_idxes = kwargs.get('useful_ctx_idxes', None)
         self.mutual_selfatt = kwargs.get('mutual_selfatt', None)
         self.only_align_loss = kwargs.get('only_align_loss', False)
         self.use_fmri_clip = kwargs.get('use_fmri_clip', False)
+
         self.use_styleclip_loss = kwargs['use_styleclip_loss']
         self.is_save_x0 = kwargs['is_save_x0']
         self.is_save_intermediate = kwargs['is_save_intermediate']
