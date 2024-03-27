@@ -12,6 +12,7 @@ import numpy as np
 import math
 from torch.utils.data import DataLoader, Dataset, ConcatDataset
 from torch.utils.tensorboard import SummaryWriter
+import nlpaug.augmenter.word as naw
 
 proj_root = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(proj_root,"stable_diffusion"))
