@@ -2,7 +2,8 @@ mode=${1-'image'}
 which_gpu=${2-'1,'}
 
 if [[ $mode == 'image' ]]; then
-    CUDA_VISIBLE_DEVICES=${which_gpu} python train_diffusion_prior.py --mode 'image'
+    CUDA_VISIBLE_DEVICES=${which_gpu} python train_diffusion_prior.py --mode 'image' \
+                --max_epoch 480
 fi
 
 if [[ $mode == 'text' ]]; then
