@@ -189,8 +189,8 @@ def prepare_train_data(batch_dict, vd_clip, use_image_aug=False, use_text_aug=Tr
         if use_text_aug:
             aug_p = 0.1
             aug = naw.SynonymAug(aug_p=aug_p)
-            augmented_text = aug.augment(cap[0])
-            cap = [augmented_text]
+            # augmented_text = aug.augment(cap[0])
+            cap = [aug.augment(text_i) for text_i in cap]
         clip_target = vd_clip.clip_encode_text(cap)
     else:
         raise ValueError
