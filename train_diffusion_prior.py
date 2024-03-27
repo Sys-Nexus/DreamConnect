@@ -187,6 +187,8 @@ def prepare_train_data(batch_dict, vd_clip, use_image_aug=False, use_text_aug=Tr
     elif mode == 'text':
         cap = batch_dict['cap']#.cuda()
         if use_text_aug:
+
+            import pdb; pdb.set_trace()
             aug_p = 0.1
             aug = naw.SynonymAug(aug_p=aug_p)
             # augmented_text = aug.augment(cap[0])
