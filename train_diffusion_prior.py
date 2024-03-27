@@ -173,7 +173,7 @@ def save_ckpt(tag, outdir, epoch, diffusion_prior, optimizer, lr_scheduler, loss
         }, ckpt_path)
 
 @torch.no_grad()
-def prepare_train_data(batch_dict, vd_clip, use_image_aug=False, mode='image'):
+def prepare_train_data(batch_dict, vd_clip, use_image_aug=False, use_text_aug=True, mode='image'):
     voxel = batch_dict['fmri'].cuda()
     vd_clip.clip.fp16 = False
     vd_clip.clip.cuda()
@@ -185,6 +185,11 @@ def prepare_train_data(batch_dict, vd_clip, use_image_aug=False, mode='image'):
         clip_target = vd_clip.clip_encode_vision(image)
     elif mode == 'text':
         cap = batch_dict['cap']#.cuda()
+        if use_text_aug:
+            aug_p = 0.1
+            aug = naw.SynonymAug(aug_p=aug_p)
+            augmented_text = aug.augment(cap[0])
+            cap = [augmented_text]
         clip_target = vd_clip.clip_encode_text(cap)
     else:
         raise ValueError
