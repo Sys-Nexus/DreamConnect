@@ -259,6 +259,7 @@ def trainer(args, train_dl, val_dl, diffusion_prior, vd_clip, optimizer, distrib
     if hidden:
         prior_mult = 30
         nce_mult = 0.1
+        if args.mode == 'text': nce_mult = 0.01
     else:
         prior_mult = .03
         nce_mult = 1.0
