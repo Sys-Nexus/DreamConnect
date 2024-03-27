@@ -173,7 +173,7 @@ def save_ckpt(tag, outdir, epoch, diffusion_prior, optimizer, lr_scheduler, loss
         }, ckpt_path)
 
 @torch.no_grad()
-def prepare_train_data(batch_dict, vd_clip, use_image_aug=True, mode='image'):
+def prepare_train_data(batch_dict, vd_clip, use_image_aug=False, mode='image'):
     voxel = batch_dict['fmri'].cuda()
     vd_clip.clip.fp16 = False
     vd_clip.clip.cuda()
