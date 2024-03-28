@@ -260,7 +260,9 @@ def trainer(args, train_dl, val_dl, diffusion_prior, vd_clip, optimizer, distrib
         prior_mult = 30
         nce_mult = 0.1
         if args.mode == 'text': nce_mult = 0.01
-        if args.mode == 'image': nce_mult = 0.00001
+        if args.mode == 'image': 
+            nce_mult = 0.00001
+            prior_mult = 3
     else:
         prior_mult = .03
         nce_mult = 1.0
