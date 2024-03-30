@@ -522,9 +522,9 @@ def main():
 
     args = parser.parse_args()
 
-    if args.mode == 'image': args.jobname = 'latent_diffusion_image'
-    elif args.mode == 'text': args.jobname = 'latent_diffusion_text'
-    else: raise ValueError
+    # if args.mode == 'image': args.jobname = 'latent_diffusion_image'
+    # elif args.mode == 'text': args.jobname = 'latent_diffusion_text'
+    # else: raise ValueError
 
     clip_cfg = {'symbol': 'clip',
                 'args': {},
