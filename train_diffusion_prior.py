@@ -252,7 +252,7 @@ def trainer(args, train_dl, val_dl, diffusion_prior, vd_clip, optimizer, distrib
     print(f"starting with epoch {epoch} / {num_epochs}")
     progress_bar = tqdm(range(epoch,num_epochs), ncols=1200, disable=(local_rank!=0))
 
-    hidden, prior, v2c = True, True, False
+    hidden, prior, v2c = True, True, True
 
     mixup_pct = 0.
     soft_loss_temps = cosine_anneal(0.004, 0.0075, num_epochs - int(mixup_pct * num_epochs))
