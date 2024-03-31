@@ -182,6 +182,7 @@ def prepare_train_data(batch_dict, vd_clip, use_image_aug=False, use_text_aug=Tr
         
     if mode == 'image':
         image = batch_dict['image'].cuda()
+        import pdb; pdb.set_trace();
         if use_image_aug:
             image = img_augment(image)
         clip_target = vd_clip.clip_encode_vision(image)
@@ -574,7 +575,7 @@ def main():
 
     clip_cfg = EasyDict(clip_cfg)
     vd_clip = VDCLIP(clip_cfg)
-    vd_clip.text_model = None
+    vd_clip.text_model = None # delete text branch for memory saving
     for param in vd_clip.parameters():
         param.requires_grad = False
     vd_clip = vd_clip.eval()
