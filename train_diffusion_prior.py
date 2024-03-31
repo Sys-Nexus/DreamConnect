@@ -576,7 +576,7 @@ def main():
 
     clip_cfg = EasyDict(clip_cfg)
     vd_clip = VDCLIP(clip_cfg)
-    vd_clip.text_model = None # delete text branch for memory saving
+    # vd_clip.text_model = None # delete text branch for memory saving
     for param in vd_clip.parameters():
         param.requires_grad = False
     vd_clip = vd_clip.eval()
