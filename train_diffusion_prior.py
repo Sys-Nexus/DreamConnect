@@ -257,16 +257,17 @@ def trainer(args, train_dl, val_dl, diffusion_prior, vd_clip, optimizer, distrib
     mixup_pct = 0.33
     soft_loss_temps = cosine_anneal(0.004, 0.0075, num_epochs - int(mixup_pct * num_epochs))
     import pdb; pdb.set_trace();
+    nce_mult = 1.0
     if hidden:
         prior_mult = 30
-        nce_mult = 0.1
-        if args.mode == 'text': nce_mult = 0.01
-        if args.mode == 'image': 
-            nce_mult = 0.00001
-            prior_mult = 3
+        # nce_mult = 0.1
+        # if args.mode == 'text': nce_mult = 0.01
+        # if args.mode == 'image': 
+        #     nce_mult = 0.00001
+        #     prior_mult = 3
     else:
         prior_mult = .03
-        nce_mult = 1.0
+        # nce_mult = 1.0
     losses, val_losses, lrs = [], [], []
     nce_losses, val_nce_losses = [], []
     sim_losses, val_sim_losses = [], []
