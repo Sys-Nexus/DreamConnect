@@ -27,9 +27,9 @@ from third_party.fMRI_reconstruction_NSD.src.diffusion_prior import InstructDiff
 import kornia
 from kornia.augmentation.container import AugmentationSequential
 img_augment = AugmentationSequential(
-    kornia.augmentation.RandomResizedCrop((224,224), (0.6,1), p=0.3),
+    kornia.augmentation.RandomResizedCrop((224,224), (0.9,1), p=0.3),
     kornia.augmentation.Resize((224, 224)),
-    kornia.augmentation.RandomHorizontalFlip(p=0.5),
+    # kornia.augmentation.RandomHorizontalFlip(p=0.5),
     # kornia.augmentation.ColorJitter(brightness=0.4, contrast=0.4, saturation=0.2, hue=0.1, p=0.3),
     # kornia.augmentation.RandomGrayscale(p=0.3),
     # data_keys=["input"],
@@ -182,7 +182,8 @@ def prepare_train_data(batch_dict, vd_clip, use_image_aug=False, use_text_aug=Tr
         
     if mode == 'image':
         image = batch_dict['image'].cuda()
-        import pdb; pdb.set_trace();
+        image = F.interpolate(image, size=(224,224))
+        # import pdb; pdb.set_trace();
         if use_image_aug:
             image = img_augment(image)
         clip_target = vd_clip.clip_encode_vision(image)
