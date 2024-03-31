@@ -556,7 +556,7 @@ def main():
     parser.add_argument('--ckpt_path', type=str, default='/data/yashengsun/Proj/MMEdit/fMRIInstructDiffusion/train_logs/latent_diffusion_image/last.pth')
     parser.add_argument('--mode', type=str, default='image')
 
-    parser.add_argument('--batch_size', type=int, default=30)
+    parser.add_argument('--batch_size', type=int, default=28)
     parser.add_argument('--use_projector', type=bool, default=True)
     parser.add_argument("--epoch", type=int, default=0, help='number of epochs')
     parser.add_argument("--log_loss_steps", type=int, default=5)
