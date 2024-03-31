@@ -254,8 +254,9 @@ def trainer(args, train_dl, val_dl, diffusion_prior, vd_clip, optimizer, distrib
 
     hidden, prior, v2c = True, True, True
 
-    mixup_pct = 0.
+    mixup_pct = 0.33
     soft_loss_temps = cosine_anneal(0.004, 0.0075, num_epochs - int(mixup_pct * num_epochs))
+    import pdb; pdb.set_trace();
     if hidden:
         prior_mult = 30
         nce_mult = 0.1
