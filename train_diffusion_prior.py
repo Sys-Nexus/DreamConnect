@@ -361,7 +361,7 @@ def trainer(args, train_dl, val_dl, diffusion_prior, vd_clip, optimizer, distrib
 
                     clip_voxels_norm = nn.functional.normalize(clip_voxels_proj.flatten(1), dim=-1)
                     clip_target_norm = nn.functional.normalize(clip_target.flatten(1), dim=-1)
-                    import pdb; pdb.set_trace()
+                    # import pdb; pdb.set_trace()
 
                     if epoch < int(mixup_pct * num_epochs):
                         loss_nce = mixco_nce(
@@ -455,6 +455,8 @@ def trainer(args, train_dl, val_dl, diffusion_prior, vd_clip, optimizer, distrib
 
                 # Save model checkpoint and reconstruct
                 save_ckpt(f'last', outdir, epoch, diffusion_prior, optimizer, lr_scheduler, losses, val_losses, lrs)
+                if epoch % 25 == 0:
+                    save_ckpt(f'ep_{}'.format(epoch), outdir, epoch, diffusion_prior, optimizer, lr_scheduler, losses, val_losses, lrs)
                 # import pdb; pdb.set_trace()
     else:
         print('Usage of talking face instruction...')
@@ -554,7 +556,7 @@ def main():
     parser.add_argument('--ckpt_path', type=str, default='/data/yashengsun/Proj/MMEdit/fMRIInstructDiffusion/train_logs/latent_diffusion_image/last.pth')
     parser.add_argument('--mode', type=str, default='image')
 
-    parser.add_argument('--batch_size', type=int, default=24)
+    parser.add_argument('--batch_size', type=int, default=30)
     parser.add_argument('--use_projector', type=bool, default=True)
     parser.add_argument("--epoch", type=int, default=0, help='number of epochs')
     parser.add_argument("--log_loss_steps", type=int, default=5)
