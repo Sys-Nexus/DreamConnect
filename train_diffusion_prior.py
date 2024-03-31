@@ -199,6 +199,18 @@ def prepare_train_data(batch_dict, vd_clip, use_image_aug=False, use_text_aug=Tr
     return voxel, clip_target
 
 
+def mixco(voxels, beta=0.15, s_thresh=0.5):
+    perm = torch.randperm(voxels.shape[0])
+    voxels_shuffle = voxels[perm].to(voxels.device,dtype=voxels.dtype)
+    betas = torch.distributions.Beta(beta, beta).sample([voxels.shape[0]]).to(voxels.device,dtype=voxels.dtype)
+    select = (torch.rand(voxels.shape[0]) <= s_thresh).to(voxels.device)
+    betas_shape = [-1] + [1]*(len(voxels.shape)-1)
+    voxels[select] = voxels[select] * betas[select].reshape(*betas_shape) + \
+        voxels_shuffle[select] * (1 - betas[select]).reshape(*betas_shape)
+    betas[~select] = 1
+    return voxels, perm, betas, select
+
+
 def set_summary_writer(log_dir):
     r"""Set summary writer
 
@@ -256,7 +268,7 @@ def trainer(args, train_dl, val_dl, diffusion_prior, vd_clip, optimizer, distrib
 
     mixup_pct = 0.33
     soft_loss_temps = cosine_anneal(0.004, 0.0075, num_epochs - int(mixup_pct * num_epochs))
-    import pdb; pdb.set_trace();
+    # import pdb; pdb.set_trace();
     nce_mult = 1.0
     if hidden:
         prior_mult = 30
@@ -296,6 +308,15 @@ def trainer(args, train_dl, val_dl, diffusion_prior, vd_clip, optimizer, distrib
                 # import pdb; pdb.set_trace();
                 voxel, clip_target = prepare_train_data(batch_dict, vd_clip, use_image_aug=False, mode=args.mode)
 
+                with torch.no_grad():
+                    # voxel = clip_text_embdder(text_descr)
+                    # voxel = torch.mean(voxel, dim=1).float() #### TODO, we use mean 77 tokens to obtain semantic info
+                    voxel = voxel[:, train_i%3].float()
+                    
+                    if epoch < int(mixup_pct * num_epochs):
+                        voxel, perm, betas, select = mixco(voxel)
+                
+                voxel = voxel.requires_grad_(True)
                 # torch.cuda.synchronize()
                 data_t = time.time() -t
                 t = time.time()
@@ -304,12 +325,6 @@ def trainer(args, train_dl, val_dl, diffusion_prior, vd_clip, optimizer, distrib
                 with torch.cuda.amp.autocast():
                     optimizer.zero_grad()
 
-                    with torch.no_grad():
-                        # voxel = clip_text_embdder(text_descr)
-                        # voxel = torch.mean(voxel, dim=1).float() #### TODO, we use mean 77 tokens to obtain semantic info
-                        voxel = voxel[:, train_i%3].float()
-                    voxel = voxel.requires_grad_(True)
-                    
                     clip_voxels, clip_voxels_proj = diffusion_prior.module.voxel2clip(voxel) if distributed else diffusion_prior.voxel2clip(voxel)
                     # import pdb; pdb.set_trace()
                     
@@ -324,10 +339,10 @@ def trainer(args, train_dl, val_dl, diffusion_prior, vd_clip, optimizer, distrib
 
                     clip_voxels_norm = nn.functional.normalize(clip_voxels_proj.flatten(1), dim=-1)
                     clip_target_norm = nn.functional.normalize(clip_target.flatten(1), dim=-1)
-                    # import pdb; pdb.set_trace()
+                    import pdb; pdb.set_trace()
 
                     if epoch < int(mixup_pct * num_epochs):
-                        loss_nce = utils.mixco_nce(
+                        loss_nce = mixco_nce(
                             clip_voxels_norm,
                             clip_target_norm,
                             temp=.006, 
