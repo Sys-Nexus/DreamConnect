@@ -9,9 +9,10 @@ if [[ $mode == 'image' ]]; then
 fi
 
 if [[ $mode == 'text' ]]; then
+    ckpt_path='/data/yashengsun/Proj/MMEdit/fMRIInstructDiffusion/train_logs/latent_diffusion_text_pct/ep_175.pth'
     CUDA_VISIBLE_DEVICES=${which_gpu} python train_diffusion_prior.py --mode 'text' \
                 --batch_size 128 \
-                --ckpt_path 'dummy' \
+                --ckpt_path ${ckpt_path} \
                 --max_epoch 480 \
-                --jobname 'latent_diffusion_text_pct'
+                --jobname 'latent_diffusion_text_pct_0331'
 fi
