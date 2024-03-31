@@ -8,6 +8,7 @@ from tqdm import tqdm
 import time
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 import numpy as np
 import math
 from torch.utils.data import DataLoader, Dataset, ConcatDataset
@@ -209,6 +210,27 @@ def mixco(voxels, beta=0.15, s_thresh=0.5):
         voxels_shuffle[select] * (1 - betas[select]).reshape(*betas_shape)
     betas[~select] = 1
     return voxels, perm, betas, select
+
+
+def mixco_nce(preds, targs, temp=0.1, perm=None, betas=None, select=None, distributed=False, 
+              accelerator=None, local_rank=None, bidirectional=True):
+    brain_clip = (preds @ targs.T)/temp
+    
+    if perm is not None and betas is not None and select is not None:
+        probs = torch.diag(betas)
+        probs[torch.arange(preds.shape[0]).to(preds.device), perm] = 1 - betas
+
+        loss = -(brain_clip.log_softmax(-1) * probs).sum(-1).mean()
+        if bidirectional:
+            loss2 = -(brain_clip.T.log_softmax(-1) * probs.T).sum(-1).mean()
+            loss = (loss + loss2)/2
+        return loss
+    else:
+        loss =  F.cross_entropy(brain_clip, torch.arange(brain_clip.shape[0]).to(brain_clip.device))
+        if bidirectional:
+            loss2 = F.cross_entropy(brain_clip.T, torch.arange(brain_clip.shape[0]).to(brain_clip.device))
+            loss = (loss + loss2)/2
+        return loss
 
 
 def set_summary_writer(log_dir):
@@ -521,7 +543,7 @@ def voxel2img_emb(
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--max_lr', type=float, default=0.0001)
+    parser.add_argument('--max_lr', type=float, default=0.0002)
     parser.add_argument('--max_epoch', type=int, default=240)
     parser.add_argument('--local_rank', type=int, default=0)
     parser.add_argument('--clip_size', type=int, default=768)

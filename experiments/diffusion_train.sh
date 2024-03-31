@@ -1,18 +1,11 @@
-mode=${1-'image_w_nce'}
+mode=${1-'image'}
 which_gpu=${2-'2,'}
 
 if [[ $mode == 'image' ]]; then
     CUDA_VISIBLE_DEVICES=${which_gpu} python train_diffusion_prior.py --mode 'image' \
-                --max_epoch 480 \
+                --max_epoch 240 \
                 --ckpt_path 'dummy' \
-                --jobname 'latent_diffusion_image'
-fi
-
-if [[ $mode == 'image_w_nce' ]]; then
-    CUDA_VISIBLE_DEVICES=${which_gpu} python train_diffusion_prior.py --mode 'image' \
-                --max_epoch 480 \
-                --ckpt_path 'dummy' \
-                --jobname 'latent_diffusion_image_w_nce'
+                --jobname 'latent_diffusion_image_pct'
 fi
 
 if [[ $mode == 'text' ]]; then
