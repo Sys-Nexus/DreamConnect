@@ -456,7 +456,7 @@ def trainer(args, train_dl, val_dl, diffusion_prior, vd_clip, optimizer, distrib
                 # Save model checkpoint and reconstruct
                 save_ckpt(f'last', outdir, epoch, diffusion_prior, optimizer, lr_scheduler, losses, val_losses, lrs)
                 if epoch % 25 == 0:
-                    save_ckpt(f'ep_{}'.format(epoch), outdir, epoch, diffusion_prior, optimizer, lr_scheduler, losses, val_losses, lrs)
+                    save_ckpt('ep_{}'.format(epoch), outdir, epoch, diffusion_prior, optimizer, lr_scheduler, losses, val_losses, lrs)
                 # import pdb; pdb.set_trace()
     else:
         print('Usage of talking face instruction...')
