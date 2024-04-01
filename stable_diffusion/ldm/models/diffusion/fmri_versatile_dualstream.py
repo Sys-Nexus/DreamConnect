@@ -687,6 +687,7 @@ class DualLDM(LatentDiffusion):
         #     print(batch['img_clip'].shape, fmri_x.shape, torch.nn.MSELoss()(batch['img_clip'], fmri_x))
         #     fmri_x = batch['img_clip'].half()
 
+        import pdb; pdb.set_trace();
         if force_c_encode is False:
             cond["c_crossattn_1"]["image_emb"] = [torch.where(fmri_prompt_mask.bool(), fmri_null_x, fmri_x)]
             cond["c_crossattn_1"]["text_emb"] = [torch.where(fmri_prompt_mask.bool(), fmri_null_cap, fmri_cap)]
@@ -694,7 +695,6 @@ class DualLDM(LatentDiffusion):
         else:
             cond["c_crossattn_1"]["image_emb"] = [fmri_x]
             cond["c_crossattn_1"]["text_emb"] = [fmri_cap]
-            # import pdb; pdb.set_trace();
             if self.embedding_manager is not None:
                 if prospect_words is not None:
                     cond["c_crossattn"] = [self.get_learned_conditioning(['*'], prospect_words=prospect_words)[0].detach()]
