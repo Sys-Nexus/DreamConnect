@@ -393,7 +393,7 @@ def trainer(args, train_dl, val_dl, diffusion_prior, vd_clip, optimizer, distrib
                         loss_prior_sum += loss_prior.item()
                         loss = prior_mult * loss_prior
                     
-                    if has_nan(clip_voxels_norm) or has_nan(clip_target_norm) or has_nan(loss) or any(has_nan(param) for param in diffusion_prior.module.parameters()):
+                    if has_nan(clip_voxels_norm) or has_nan(clip_target_norm) or has_nan(loss) or any(has_nan(param) for param in diffusion_prior.parameters()):
                         print("NaN detected during training!")
                         # break
                         import pdb; pdb.set_trace()
