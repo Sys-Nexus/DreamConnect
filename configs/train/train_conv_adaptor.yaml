@@ -223,6 +223,6 @@ trainer:
   initial_scale: 13
   max_epochs: 200
   save_freq: 5
-  accumulate_grad_batches: 1
+  accumulate_grad_batches: 4
   clip_grad: 0.0
   optimizer: adamw
