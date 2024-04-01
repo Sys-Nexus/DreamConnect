@@ -248,6 +248,9 @@ def set_summary_writer(log_dir):
 def cosine_anneal(start, end, steps):
     return end + (start - end)/2 * (1 + torch.cos(torch.pi*torch.arange(steps)/(steps-1)))
 
+def has_nan(tensor):
+    return torch.isnan(tensor).any()
+
 def trainer(args, train_dl, val_dl, diffusion_prior, vd_clip, optimizer, distributed=False):
     lr_scheduler_type = 'cycle'
     num_train = len(train_dl)
@@ -389,6 +392,12 @@ def trainer(args, train_dl, val_dl, diffusion_prior, vd_clip, optimizer, distrib
                     elif prior:
                         loss_prior_sum += loss_prior.item()
                         loss = prior_mult * loss_prior
+                    
+                    if has_nan(clip_voxels_norm) or has_nan(clip_target_norm) or has_nan(loss) or any(has_nan(param) for param in diffusion_prior.module.parameters()):
+                        print("NaN detected during training!")
+                        # break
+                        import pdb; pdb.set_trace()
+
                     check_loss(loss)
                     # utils.check_loss(loss)
                     
