@@ -659,7 +659,8 @@ def main():
         condition_on_text_encodings=False,
         timesteps=timesteps,
         cond_drop_prob=0.2,
-        image_embed_scale=None,
+        # image_embed_scale=None,
+        image_embed_scale=1.0,
         voxel2clip=voxel2clip,)
     assert torch.cuda.is_available()
     diffusion_prior = diffusion_prior.to(torch.device("cuda"))
