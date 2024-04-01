@@ -64,7 +64,7 @@ class BrainNetwork(nn.Module):
             assert x.shape[1] == 81 and x.shape[2] == 104 and x.shape[3] == 83
             # [N, 699192]
             x = x.reshape(x.shape[0], -1)
-
+        import pdb; pbd.set_trace();
         x = self.lin0(x)  # bs, h
         residual = x
         for res_block in range(self.n_blocks):
