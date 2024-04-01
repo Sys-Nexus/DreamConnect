@@ -355,7 +355,7 @@ def trainer(args, train_dl, val_dl, diffusion_prior, vd_clip, optimizer, distrib
 
                     clip_voxels, clip_voxels_proj = diffusion_prior.module.voxel2clip(voxel) if distributed else diffusion_prior.voxel2clip(voxel)
                     clip_voxels, clip_voxels_proj = clip_voxels.float(), clip_voxels_proj.float()
-                    # import pdb; pdb.set_trace()
+                    import pdb; pdb.set_trace()
                     
                     if hidden:
                         clip_voxels = clip_voxels.view(len(voxel),-1,clip_size)
