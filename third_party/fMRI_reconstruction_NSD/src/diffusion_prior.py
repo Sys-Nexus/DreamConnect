@@ -401,6 +401,7 @@ class InstructDiffusionPrior(DiffusionPrior):
             target = noise
 
         loss = self.noise_scheduler.loss_fn(pred, target)
+        print(text_cond['text_embed'].max(), text_cond['text_embed'].min(), text_cond['text_embed'].mean())
         if has_nan(loss): 
             import pdb; pdb.set_trace()
 
