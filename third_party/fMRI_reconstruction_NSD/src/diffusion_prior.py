@@ -457,7 +457,9 @@ class InstructDiffusionPrior(DiffusionPrior):
         # image_embed *= self.image_embed_scale
 
         # calculate forward loss
-        # import pdb; pdb.set_trace()
+        print(text_embed.max(), text_embed.min(), text_embed.mean())
+        import pdb; pdb.set_trace()
+
         loss, pred = self.p_losses(image_embed*self.image_embed_scale, times, text_cond = text_cond, *args, **kwargs)
         
         # undo the scaling so we can directly use it for real mse loss and reconstruction
