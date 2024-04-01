@@ -653,6 +653,7 @@ def main():
 
     # use dalle interface to include prior model and clip text-to-emotion models
     timesteps = 100
+    image_embed_scale = 1.0 if args.mode == 'text' else None
     diffusion_prior = InstructDiffusionPrior(
         net=prior_network,
         image_embed_dim=clip_size,
@@ -660,7 +661,7 @@ def main():
         timesteps=timesteps,
         cond_drop_prob=0.2,
         # image_embed_scale=None,
-        image_embed_scale=1.0,
+        image_embed_scale=image_embed_scale,
         voxel2clip=voxel2clip,)
     assert torch.cuda.is_available()
     diffusion_prior = diffusion_prior.to(torch.device("cuda"))
