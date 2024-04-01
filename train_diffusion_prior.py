@@ -655,7 +655,7 @@ def main():
 
     # use dalle interface to include prior model and clip text-to-emotion models
     timesteps = 100
-    image_embed_scale = 1.0 if args.mode == 'text' else None
+    image_embed_scale = 1.0 #if args.mode == 'text' else None
     diffusion_prior = InstructDiffusionPrior(
         net=prior_network,
         image_embed_dim=clip_size,
