@@ -360,7 +360,7 @@ def trainer(args, train_dl, val_dl, diffusion_prior, vd_clip, optimizer, distrib
                     if hidden:
                         clip_voxels = clip_voxels.view(len(voxel),-1,clip_size)
                     
-                    print(clip_target.max(), clip_target.min(), clip_target.mean())
+                    # print(clip_target.max(), clip_target.min(), clip_target.mean())
                     if prior:
                         loss_prior, aligned_clip_voxels = diffusion_prior(text_embed=clip_voxels, image_embed=clip_target)
                         aligned_clip_voxels /= diffusion_prior.module.image_embed_scale if distributed else diffusion_prior.image_embed_scale
