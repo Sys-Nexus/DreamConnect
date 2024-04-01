@@ -416,6 +416,9 @@ def test_one_epoch(config, model, model_ema, data_loader, val_data_loader, optim
                     model.log_images(batch, epoch, idx, val_idx, model_wrap, model_wrap_cfg, 
                                  save_dir, 'val', cfg_text=cfg_text, cfg_text_edit=cfg_text_edit, cfg_fmri=2.5,
                                  prospect_words=prospect_words, is_inst_edit=is_inst_edit, is_inst_gen=is_inst_gen)
+                    if val_idx > 100: break
+                    ## only run 100 iterations for quick selection of images
+                    
                 # elif layout_in is not None:
                 #     model.log_images(batch, epoch, idx, val_idx, model_wrap, model_wrap_cfg, 
                 #                  save_dir, 'val', cfg_text=cfg_text, cfg_text_edit=cfg_text_edit, cfg_fmri=2.5,
