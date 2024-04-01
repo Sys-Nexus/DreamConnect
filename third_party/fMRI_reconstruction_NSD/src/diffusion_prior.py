@@ -19,6 +19,9 @@ from dalle2_pytorch.dalle2_pytorch import RotaryEmbedding, CausalTransformer, Si
 from transformers import CLIPTokenizer, CLIPTextModel
 
 
+def has_nan(tensor):
+    return torch.isnan(tensor).any()
+
 class AbstractEncoder(nn.Module):
     def __init__(self):
         super().__init__()
@@ -386,7 +389,7 @@ class InstructDiffusionPrior(DiffusionPrior):
             image_cond_drop_prob = self.image_cond_drop_prob,
             **text_cond
         )
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
         if self.predict_x_start and self.training_clamp_l2norm:
             pred = self.l2norm_clamp_embed(pred)
 
@@ -397,8 +400,10 @@ class InstructDiffusionPrior(DiffusionPrior):
         else:
             target = noise
 
-        # import pdb; pdb.set_trace()
         loss = self.noise_scheduler.loss_fn(pred, target)
+        if has_nan(loss): 
+            import pdb; pdb.set_trace()
+
         return loss, pred
 
     def forward(
