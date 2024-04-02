@@ -293,7 +293,8 @@ def trainer(args, train_dl, val_dl, diffusion_prior, vd_clip, optimizer, distrib
 
     hidden, prior, v2c = True, True, True
 
-    mixup_pct = 1.0
+    # mixup_pct = 1.0
+    mixup_pct = 0.0
     # mixup_pct = 0.33 if args.mode == 'image' else 1.0
     soft_loss_temps = cosine_anneal(0.004, 0.0075, num_epochs - int(mixup_pct * num_epochs))
     # import pdb; pdb.set_trace();
@@ -364,11 +365,14 @@ def trainer(args, train_dl, val_dl, diffusion_prior, vd_clip, optimizer, distrib
                     
                     # print(clip_target.max(), clip_target.min(), clip_target.mean())
                     # print(clip_voxels.max(), clip_voxels.min(), clip_voxels.mean())
+                    # print(clip_voxels_proj.max(), clip_voxels_proj.min(), clip_voxels_proj.mean())
                     if prior:
                         loss_prior, aligned_clip_voxels = diffusion_prior(text_embed=clip_voxels, image_embed=clip_target)
                         aligned_clip_voxels /= diffusion_prior.module.image_embed_scale if distributed else diffusion_prior.image_embed_scale
                     else:
                         aligned_clip_voxels = clip_voxels
+
+                    loss_norm = torch.nn.MSELoss()(clip_voxels_proj.flatten(1).norm(dim=1), clip_target.flatten(1).norm(dim=1)) * 0.0001
 
                     clip_voxels_norm = nn.functional.normalize(clip_voxels_proj.flatten(1), dim=-1)
                     clip_target_norm = nn.functional.normalize(clip_target.flatten(1), dim=-1)
