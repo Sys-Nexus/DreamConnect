@@ -542,7 +542,7 @@ def voxel2img_emb(
                     # import pdb; pdb.set_trace()
                 else:
                     # brain_clip_embeddings0 = brain_clip_embeddings0.view(-1,768)
-                    brain_clip_embeddings0 = brain_clip_embeddings0.repeat(recons_per_sample, 1)
+                    brain_clip_embeddings0 = brain_clip_embeddings0.repeat(recons_per_sample, 1, 1)
                     diffusion_prior.image_embed_scale = None
                     brain_clip_embeddings = diffusion_prior.p_sample_loop(brain_clip_embeddings0.shape, 
                                                 text_cond = dict(text_embed = brain_clip_embeddings0), 
