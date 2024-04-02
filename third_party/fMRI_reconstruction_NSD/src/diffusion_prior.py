@@ -348,7 +348,7 @@ class InstructDiffusionPrior(DiffusionPrior):
     @torch.no_grad()
     def p_sample_loop_ddpm(self, shape, text_cond, cond_scale = 1., generator=None, image_embed=None):
         batch, device = shape[0], self.device
-        # import pdb; pdb.set_trace()
+        import pdb; pdb.set_trace()
         if image_embed is None:
             if generator is None:
                 image_embed = torch.randn(shape, device = device)
