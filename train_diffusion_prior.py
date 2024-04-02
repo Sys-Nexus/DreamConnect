@@ -483,7 +483,7 @@ def trainer(args, train_dl, val_dl, diffusion_prior, vd_clip, optimizer, distrib
                 voxel, clip_target = prepare_train_data(batch_dict, vd_clip, use_image_aug=False, mode=args.mode)
                 image_embed = None
                 pred_img_embed = voxel2img_emb(voxel, diffusion_priors=diffusion_prior, image_embed=image_embed)
-                # import pdb; pdb.set_trace()
+                import pdb; pdb.set_trace()
                 s = batch_dict['s'][0].item()
 
                 os.makedirs(prefix+'_clip', exist_ok=True)
