@@ -546,14 +546,14 @@ def voxel2img_emb(
                     diffusion_prior.image_embed_scale = None
                     brain_clip_embeddings = diffusion_prior.p_sample_loop(brain_clip_embeddings0.shape, 
                                                 text_cond = dict(text_embed = brain_clip_embeddings0), 
-                                                cond_scale = 1., timesteps = 1000, #1000 timesteps used from nousr pretraining
+                                                cond_scale = 1., timesteps = 100, #1000 timesteps used from nousr pretraining
                                                 generator=generator, image_embed=image_embed)
                     print(brain_clip_embeddings.std())
 
                     diffusion_prior.image_embed_scale = 1.
                     brain_clip_embeddings = diffusion_prior.p_sample_loop(brain_clip_embeddings0.shape, 
                                                 text_cond = dict(text_embed = brain_clip_embeddings0), 
-                                                cond_scale = 1., timesteps = 1000, #1000 timesteps used from nousr pretraining
+                                                cond_scale = 1., timesteps = 100, #1000 timesteps used from nousr pretraining
                                                 generator=generator, image_embed=image_embed)
                     print(brain_clip_embeddings.std())
                     import pdb; pdb.set_trace()
