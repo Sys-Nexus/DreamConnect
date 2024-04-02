@@ -352,7 +352,7 @@ def trainer(args, train_dl, val_dl, diffusion_prior, vd_clip, optimizer, distrib
                 # import pdb; pdb.set_trace();
                 # with torch.cuda.amp.autocast():
                 # with torch.autograd.set_detect_anomaly(True):
-                with torch.autocast(dtype=torch.float32):
+                with torch.autocast(device_type='cuda', dtype=torch.float32):
                     optimizer.zero_grad()
 
                     clip_voxels, clip_voxels_proj = diffusion_prior.module.voxel2clip(voxel) if distributed else diffusion_prior.voxel2clip(voxel)
