@@ -483,7 +483,7 @@ def trainer(args, train_dl, val_dl, diffusion_prior, vd_clip, optimizer, distrib
                 voxel, clip_target = prepare_train_data(batch_dict, vd_clip, use_image_aug=False, mode=args.mode)
                 image_embed = None
                 pred_img_embed = voxel2img_emb(voxel, diffusion_priors=diffusion_prior, image_embed=image_embed)
-                import pdb; pdb.set_trace()
+                # import pdb; pdb.set_trace()
                 s = batch_dict['s'][0].item()
 
                 os.makedirs(prefix+'_clip', exist_ok=True)
@@ -543,20 +543,20 @@ def voxel2img_emb(
                 else:
                     # brain_clip_embeddings0 = brain_clip_embeddings0.view(-1,768)
                     brain_clip_embeddings0 = brain_clip_embeddings0.repeat(recons_per_sample, 1, 1)
-                    diffusion_prior.image_embed_scale = diffusion_prior.image_embed_dim ** 0.5
-                    brain_clip_embeddings = diffusion_prior.p_sample_loop(brain_clip_embeddings0.shape, 
-                                                text_cond = dict(text_embed = brain_clip_embeddings0), 
-                                                cond_scale = 1., timesteps = 100, #1000 timesteps used from nousr pretraining
-                                                generator=generator, image_embed=image_embed)
-                    print(brain_clip_embeddings.std())
+                    # diffusion_prior.image_embed_scale = diffusion_prior.image_embed_dim ** 0.5
+                    # brain_clip_embeddings = diffusion_prior.p_sample_loop(brain_clip_embeddings0.shape, 
+                    #                             text_cond = dict(text_embed = brain_clip_embeddings0), 
+                    #                             cond_scale = 1., timesteps = 100, #1000 timesteps used from nousr pretraining
+                    #                             generator=generator, image_embed=image_embed)
+                    # print(brain_clip_embeddings.std())
 
-                    diffusion_prior.image_embed_scale = 1.
+                    # diffusion_prior.image_embed_scale = 1.
                     brain_clip_embeddings = diffusion_prior.p_sample_loop(brain_clip_embeddings0.shape, 
                                                 text_cond = dict(text_embed = brain_clip_embeddings0), 
                                                 cond_scale = 1., timesteps = 100, #1000 timesteps used from nousr pretraining
                                                 generator=generator, image_embed=image_embed)
-                    print(brain_clip_embeddings.std())
-                    import pdb; pdb.set_trace()
+                    # print(brain_clip_embeddings.std())
+                    # import pdb; pdb.set_trace()
 
                 if brain_clip_embeddings_sum is None:
                     brain_clip_embeddings_sum = brain_clip_embeddings
@@ -666,8 +666,8 @@ def main():
 
     # use dalle interface to include prior model and clip text-to-emotion models
     timesteps = 100
-    image_embed_scale = 1.0 
-    # image_embed_scale=None
+    # image_embed_scale = 1.0 
+    image_embed_scale=None
     diffusion_prior = InstructDiffusionPrior(
         net=prior_network,
         image_embed_dim=clip_size,
