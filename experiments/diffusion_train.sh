@@ -6,6 +6,7 @@ if [[ $mode == 'image' ]]; then
     CUDA_VISIBLE_DEVICES=${which_gpu} python train_diffusion_prior.py --mode 'image' \
                 --max_epoch 240 \
                 --ckpt_path ${ckpt_path} \
+                --max_lr 0.00002 \
                 --jobname 'latent_diffusion_image_resume0326'
 fi
 
@@ -18,5 +19,6 @@ if [[ $mode == 'text' ]]; then
                 --batch_size 128 \
                 --ckpt_path ${ckpt_path} \
                 --max_epoch 480 \
+                --max_lr 0.00002 \
                 --jobname 'latent_diffusion_text_resume0326'
 fi
