@@ -264,8 +264,8 @@ class VersatileDiffusionPriorNetwork(nn.Module):
 
         # mask out brain embeddings with null brain embeddings
 
-        brain_embed = brain_embed.float()
-        image_embed = image_embed.float()
+        # brain_embed = brain_embed.float()
+        # image_embed = image_embed.float()
 
         # import pdb; pdb.set_trace()
         null_brain_embeds = self.null_brain_embeds.to(brain_embed.dtype)
@@ -290,7 +290,7 @@ class VersatileDiffusionPriorNetwork(nn.Module):
             diffusion_timesteps = diffusion_timesteps.type(dtype)
         time_embed = self.to_time_embeds(diffusion_timesteps)
 
-        time_embed = time_embed.to(brain_embed.dtype)
+        # time_embed = time_embed.to(brain_embed.dtype)
 
         if self.learned_query_mode == 'token':
             learned_queries = repeat(self.learned_query, 'n d -> b n d', b = batch)
