@@ -543,7 +543,7 @@ def voxel2img_emb(
                 else:
                     # brain_clip_embeddings0 = brain_clip_embeddings0.view(-1,768)
                     brain_clip_embeddings0 = brain_clip_embeddings0.repeat(recons_per_sample, 1, 1)
-                    diffusion_prior.image_embed_scale = None
+                    diffusion_prior.image_embed_scale = diffusion_prior.image_embed_dim ** 0.5
                     brain_clip_embeddings = diffusion_prior.p_sample_loop(brain_clip_embeddings0.shape, 
                                                 text_cond = dict(text_embed = brain_clip_embeddings0), 
                                                 cond_scale = 1., timesteps = 100, #1000 timesteps used from nousr pretraining
