@@ -350,76 +350,76 @@ def trainer(args, train_dl, val_dl, diffusion_prior, vd_clip, optimizer, distrib
                 t = time.time()
                 
                 # import pdb; pdb.set_trace();
-                with torch.cuda.amp.autocast():
-                    optimizer.zero_grad()
+                # with torch.cuda.amp.autocast():
+                optimizer.zero_grad()
 
-                    clip_voxels, clip_voxels_proj = diffusion_prior.module.voxel2clip(voxel) if distributed else diffusion_prior.voxel2clip(voxel)
-                    # clip_voxels, clip_voxels_proj = clip_voxels.float(), clip_voxels_proj.float()
-                    # import pdb; pdb.set_trace()
-                    
-                    if hidden:
-                        clip_voxels = clip_voxels.view(len(voxel),-1,clip_size)
-                    
-                    # print(clip_target.max(), clip_target.min(), clip_target.mean())
-                    # print(clip_voxels.max(), clip_voxels.min(), clip_voxels.mean())
-                    if prior:
-                        loss_prior, aligned_clip_voxels = diffusion_prior(text_embed=clip_voxels, image_embed=clip_target)
-                        aligned_clip_voxels /= diffusion_prior.module.image_embed_scale if distributed else diffusion_prior.image_embed_scale
-                    else:
-                        aligned_clip_voxels = clip_voxels
+                clip_voxels, clip_voxels_proj = diffusion_prior.module.voxel2clip(voxel) if distributed else diffusion_prior.voxel2clip(voxel)
+                # clip_voxels, clip_voxels_proj = clip_voxels.float(), clip_voxels_proj.float()
+                # import pdb; pdb.set_trace()
+                
+                if hidden:
+                    clip_voxels = clip_voxels.view(len(voxel),-1,clip_size)
+                
+                # print(clip_target.max(), clip_target.min(), clip_target.mean())
+                # print(clip_voxels.max(), clip_voxels.min(), clip_voxels.mean())
+                if prior:
+                    loss_prior, aligned_clip_voxels = diffusion_prior(text_embed=clip_voxels, image_embed=clip_target)
+                    aligned_clip_voxels /= diffusion_prior.module.image_embed_scale if distributed else diffusion_prior.image_embed_scale
+                else:
+                    aligned_clip_voxels = clip_voxels
 
-                    clip_voxels_norm = nn.functional.normalize(clip_voxels_proj.flatten(1), dim=-1)
-                    clip_target_norm = nn.functional.normalize(clip_target.flatten(1), dim=-1)
-                    # import pdb; pdb.set_trace()
+                clip_voxels_norm = nn.functional.normalize(clip_voxels_proj.flatten(1), dim=-1)
+                clip_target_norm = nn.functional.normalize(clip_target.flatten(1), dim=-1)
+                # import pdb; pdb.set_trace()
 
-                    if epoch < int(mixup_pct * num_epochs):
-                        loss_nce = mixco_nce(
-                            clip_voxels_norm,
-                            clip_target_norm,
-                            temp=.006, 
-                            perm=perm, betas=betas, select=select)
-                    else:
-                        epoch_temp = soft_loss_temps[epoch-int(mixup_pct*num_epochs)]
-                        loss_nce = soft_clip_loss(
-                            clip_voxels_norm,
-                            clip_target_norm,
-                            temp=epoch_temp)
+                if epoch < int(mixup_pct * num_epochs):
+                    loss_nce = mixco_nce(
+                        clip_voxels_norm,
+                        clip_target_norm,
+                        temp=.006, 
+                        perm=perm, betas=betas, select=select)
+                else:
+                    epoch_temp = soft_loss_temps[epoch-int(mixup_pct*num_epochs)]
+                    loss_nce = soft_clip_loss(
+                        clip_voxels_norm,
+                        clip_target_norm,
+                        temp=epoch_temp)
 
-                    if prior and v2c:
-                        loss_nce_sum += loss_nce.item()
-                        loss_prior_sum += loss_prior.item()
-                        loss = nce_mult * loss_nce + (prior_mult * loss_prior)
-                    elif v2c:
-                        loss_nce_sum += loss_nce.item()
-                        loss = nce_mult * loss_nce
-                    elif prior:
-                        loss_prior_sum += loss_prior.item()
-                        loss = prior_mult * loss_prior
-                    
-                    if has_nan(clip_voxels_norm) or has_nan(clip_target_norm) or has_nan(loss) or any(has_nan(param) for param in diffusion_prior.parameters()):
-                        print("NaN detected during training!")
-                        # break
-                        import pdb; pdb.set_trace()
+                if prior and v2c:
+                    loss_nce_sum += loss_nce.item()
+                    loss_prior_sum += loss_prior.item()
+                    loss = nce_mult * loss_nce + (prior_mult * loss_prior)
+                elif v2c:
+                    loss_nce_sum += loss_nce.item()
+                    loss = nce_mult * loss_nce
+                elif prior:
+                    loss_prior_sum += loss_prior.item()
+                    loss = prior_mult * loss_prior
+                
+                if has_nan(clip_voxels_norm) or has_nan(clip_target_norm) or has_nan(loss) or any(has_nan(param) for param in diffusion_prior.parameters()):
+                    print("NaN detected during training!")
+                    # break
+                    import pdb; pdb.set_trace()
 
-                    check_loss(loss)
-                    # utils.check_loss(loss)
-                    
-                    # accelerator.backward(loss)
-                    loss.backward()
-                    optimizer.step()
+                check_loss(loss)
+                # utils.check_loss(loss)
+                
+                # accelerator.backward(loss)
+                loss.backward()
+                optimizer.step()
 
-                    losses.append(loss.item())
-                    lrs.append(optimizer.param_groups[0]['lr'])
+                losses.append(loss.item())
+                lrs.append(optimizer.param_groups[0]['lr'])
 
-                    sims_base += nn.functional.cosine_similarity(clip_target_norm,clip_voxels_norm).mean().item()
+                sims_base += nn.functional.cosine_similarity(clip_target_norm,clip_voxels_norm).mean().item()
 
-                    # forward and backward top 1 accuracy        
-                    labels = torch.arange(len(clip_target_norm)).to(torch.device("cuda")) 
-                    fwd_percent_correct += topk(batchwise_cosine_similarity(clip_voxels_norm,clip_target_norm), labels, k=1)
-                    bwd_percent_correct += topk(batchwise_cosine_similarity(clip_target_norm, clip_voxels_norm), labels, k=1)
+                # forward and backward top 1 accuracy        
+                labels = torch.arange(len(clip_target_norm)).to(torch.device("cuda")) 
+                fwd_percent_correct += topk(batchwise_cosine_similarity(clip_voxels_norm,clip_target_norm), labels, k=1)
+                bwd_percent_correct += topk(batchwise_cosine_similarity(clip_target_norm, clip_voxels_norm), labels, k=1)
 
-                    if lr_scheduler_type is not None:
-                        lr_scheduler.step()
+                if lr_scheduler_type is not None:
+                    lr_scheduler.step()
                 forward_t = time.time() - t
 
                 if args.is_tensorboard_log:
