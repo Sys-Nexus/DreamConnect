@@ -329,6 +329,7 @@ def trainer(args, train_dl, val_dl, diffusion_prior, vd_clip, optimizer, distrib
             loss_prior_sum = 0.
             val_loss_nce_sum = 0.
             val_loss_prior_sum = 0.
+            loss_norm_sum = 0.
 
             # import pdb; pdb.set_trace();
             for train_i, batch_dict in tqdm(enumerate(train_dl)):
@@ -402,6 +403,8 @@ def trainer(args, train_dl, val_dl, diffusion_prior, vd_clip, optimizer, distrib
                         loss_prior_sum += loss_prior.item()
                         loss = prior_mult * loss_prior
                     
+                    loss_norm_sum += loss_norm.item()
+                    loss += loss_norm
                     if has_nan(clip_voxels_norm) or has_nan(clip_target_norm) or has_nan(loss) or any(has_nan(param) for param in diffusion_prior.parameters()):
                         print("NaN detected during training!")
                         # break
@@ -437,6 +440,8 @@ def trainer(args, train_dl, val_dl, diffusion_prior, vd_clip, optimizer, distrib
                     loss_dict['train_bwd_percent_correct'] = bwd_percent_correct / (train_i + 1)
                     loss_dict['train_loss_nce'] = loss_nce_sum / (train_i + 1)
                     loss_dict['train_loss_prior'] = loss_prior_sum / (train_i + 1)
+                    loss_dict['train_loss_norm'] = loss_norm_sum / (train_i + 1)
+                    
                     loss_dict['train_loss'] = np.mean(losses[-(train_i+1):])
                     losses_dict.update(loss_dict)
                     write_loss_meters(meters, losses_dict)
