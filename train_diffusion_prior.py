@@ -293,8 +293,8 @@ def trainer(args, train_dl, val_dl, diffusion_prior, vd_clip, optimizer, distrib
 
     hidden, prior, v2c = True, True, True
 
-    # mixup_pct = 1.0
-    mixup_pct = 0.33 if args.mode == 'image' else 1.0
+    mixup_pct = 1.0
+    # mixup_pct = 0.33 if args.mode == 'image' else 1.0
     soft_loss_temps = cosine_anneal(0.004, 0.0075, num_epochs - int(mixup_pct * num_epochs))
     # import pdb; pdb.set_trace();
     nce_mult = 1.0
@@ -474,7 +474,8 @@ def trainer(args, train_dl, val_dl, diffusion_prior, vd_clip, optimizer, distrib
                 # progress_bar.set_postfix(**logs)
 
                 # Save model checkpoint and reconstruct
-                save_ckpt(f'last', outdir, epoch, diffusion_prior, optimizer, lr_scheduler, losses, val_losses, lrs)
+                if epoch % 10 == 0:
+                    save_ckpt(f'last', outdir, epoch, diffusion_prior, optimizer, lr_scheduler, losses, val_losses, lrs)
                 if epoch % 25 == 0:
                     save_ckpt('ep_{}'.format(epoch), outdir, epoch, diffusion_prior, optimizer, lr_scheduler, losses, val_losses, lrs)
                 # import pdb; pdb.set_trace()
