@@ -528,20 +528,20 @@ def voxel2img_emb(
                     # brain_clip_embeddings = copy.deepcopy(proj_embeddings)
                     brain_clip_embeddings = F.normalize(proj_embeddings, p=2, dim=-1) * 2.0
                     # import pdb; pdb.set_trace()
-                elif not img_variations:
-                    brain_clip_embeddings0 = brain_clip_embeddings0.repeat(recons_per_sample, 1, 1)
-                    try:
-                        brain_clip_embeddings = diffusion_prior.p_sample_loop(brain_clip_embeddings0.shape, 
-                                                text_cond = dict(text_embed = brain_clip_embeddings0), 
-                                                cond_scale = 1., timesteps = timesteps_prior,
-                                                generator=generator, image_embed=image_embed)
-                    except:
-                        brain_clip_embeddings = diffusion_prior.p_sample_loop(brain_clip_embeddings0.shape, 
-                                                text_cond = dict(text_embed = brain_clip_embeddings0), 
-                                                cond_scale = 1., timesteps = timesteps_prior, image_embed=image_embed)
+                # elif not img_variations:
+                #     brain_clip_embeddings0 = brain_clip_embeddings0.repeat(recons_per_sample, 1, 1)
+                #     try:
+                #         brain_clip_embeddings = diffusion_prior.p_sample_loop(brain_clip_embeddings0.shape, 
+                #                                 text_cond = dict(text_embed = brain_clip_embeddings0), 
+                #                                 cond_scale = 1., timesteps = timesteps_prior,
+                #                                 generator=generator, image_embed=image_embed)
+                #     except:
+                #         brain_clip_embeddings = diffusion_prior.p_sample_loop(brain_clip_embeddings0.shape, 
+                #                                 text_cond = dict(text_embed = brain_clip_embeddings0), 
+                #                                 cond_scale = 1., timesteps = timesteps_prior, image_embed=image_embed)
                     # import pdb; pdb.set_trace()
                 else:
-                    brain_clip_embeddings0 = brain_clip_embeddings0.view(-1,768)
+                    # brain_clip_embeddings0 = brain_clip_embeddings0.view(-1,768)
                     brain_clip_embeddings0 = brain_clip_embeddings0.repeat(recons_per_sample, 1)
                     diffusion_prior.image_embed_scale = None
                     brain_clip_embeddings = diffusion_prior.p_sample_loop(brain_clip_embeddings0.shape, 
@@ -557,7 +557,7 @@ def voxel2img_emb(
                                                 generator=generator, image_embed=image_embed)
                     print(brain_clip_embeddings.std())
                     import pdb; pdb.set_trace()
-                    
+
                 if brain_clip_embeddings_sum is None:
                     brain_clip_embeddings_sum = brain_clip_embeddings
                 else:
