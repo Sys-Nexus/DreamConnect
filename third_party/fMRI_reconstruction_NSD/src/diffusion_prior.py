@@ -465,7 +465,7 @@ class InstructDiffusionPrior(DiffusionPrior):
 
         # calculate forward loss
         # print(text_embed.max(), text_embed.min(), text_embed.mean())
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
 
         loss, pred = self.p_losses(image_embed*self.image_embed_scale, times, text_cond = text_cond, *args, **kwargs)
         
