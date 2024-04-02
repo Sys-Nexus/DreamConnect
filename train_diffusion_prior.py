@@ -408,6 +408,9 @@ def trainer(args, train_dl, val_dl, diffusion_prior, vd_clip, optimizer, distrib
                     
                     # accelerator.backward(loss)
                     loss.backward()
+                    torch.nn.utils.clip_grad_norm_(diffusion_prior.voxel2clip.parameters(), max_norm=0.5)
+                    torch.nn.utils.clip_grad_norm_(model.net.parameters(), max_norm=0.5)
+
                     optimizer.step()
 
                     losses.append(loss.item())
