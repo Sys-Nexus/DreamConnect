@@ -62,7 +62,8 @@ class BrainNetwork(nn.Module):
     def __init__(self, out_dim=128, in_dim=768, clip_size=128, h=4096, n_blocks=4, norm_type='ln', act_first=False, use_projector=True):
         super().__init__()
         norm_func = partial(nn.BatchNorm1d, num_features=h) if norm_type == 'bn' else partial(nn.LayerNorm, normalized_shape=h)
-        act_fn = partial(nn.ReLU, inplace=True) if norm_type == 'bn' else nn.GELU
+        # act_fn = partial(nn.ReLU, inplace=True) if norm_type == 'bn' else nn.GELU
+        act_fn = partial(nn.ReLU, inplace=False) if norm_type == 'bn' else nn.GELU
         act_and_norm = (act_fn, norm_func) if act_first else (norm_func, act_fn)
         # self.temp = nn.Parameter(torch.tensor(.006))
         self.lin0 = nn.Sequential(
@@ -319,7 +320,7 @@ class VersatileDiffusionPriorNetwork(nn.Module):
         # get learned query, which should predict the image embedding (per DDPM timestep)
         pred_image_embed = tokens[..., -self.num_tokens:, :]
 
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
         return pred_image_embed
 
 class InstructDiffusionPrior(DiffusionPrior):
@@ -395,7 +396,7 @@ class InstructDiffusionPrior(DiffusionPrior):
             image_cond_drop_prob = self.image_cond_drop_prob,
             **text_cond
         )
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
 
         if self.predict_x_start and self.training_clamp_l2norm:
             pred = self.l2norm_clamp_embed(pred)
