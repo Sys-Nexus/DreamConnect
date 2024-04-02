@@ -389,7 +389,16 @@ class InstructDiffusionPrior(DiffusionPrior):
             image_cond_drop_prob = self.image_cond_drop_prob,
             **text_cond
         )
-        # import pdb; pdb.set_trace()
+        import pdb; pdb.set_trace()
+        pred = self.net(
+            image_embed_noisy,
+            times,
+            self_cond = self_cond,
+            text_cond_drop_prob = self.text_cond_drop_prob,
+            image_cond_drop_prob = self.image_cond_drop_prob,
+            **text_cond
+        )
+
         if self.predict_x_start and self.training_clamp_l2norm:
             pred = self.l2norm_clamp_embed(pred)
 
