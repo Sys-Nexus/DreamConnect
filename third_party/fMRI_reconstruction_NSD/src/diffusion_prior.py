@@ -269,19 +269,19 @@ class VersatileDiffusionPriorNetwork(nn.Module):
 
         # import pdb; pdb.set_trace()
         null_brain_embeds = self.null_brain_embeds.to(brain_embed.dtype)
-        # brain_embed = torch.where(
-        #     brain_keep_mask,
-        #     brain_embed,
-        #     null_brain_embeds[None]
-        # )
+        brain_embed = torch.where(
+            brain_keep_mask,
+            brain_embed,
+            null_brain_embeds[None]
+        )
 
         # mask out image embeddings with null image embeddings
         null_image_embed = self.null_image_embed.to(image_embed.dtype)
-        # image_embed = torch.where(
-        #     image_keep_mask,
-        #     image_embed,
-        #     null_image_embed[None]
-        # )
+        image_embed = torch.where(
+            image_keep_mask,
+            image_embed,
+            null_image_embed[None]
+        )
 
         # whether brain embedding is used for conditioning depends on whether brain encodings are available for attention (for classifier free guidance, even though it seems from the paper it was not used in the prior ddpm, as the objective is different)
         # but let's just do it right
@@ -314,7 +314,7 @@ class VersatileDiffusionPriorNetwork(nn.Module):
             tokens = tokens + pos_embs
 
         # attend
-        tokens = self.causal_transformer(tokens)
+        # tokens = self.causal_transformer(tokens)
 
         # get learned query, which should predict the image embedding (per DDPM timestep)
         pred_image_embed = tokens[..., -self.num_tokens:, :]
