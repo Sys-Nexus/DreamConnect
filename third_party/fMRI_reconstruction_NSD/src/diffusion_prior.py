@@ -116,7 +116,8 @@ class BrainNetwork(nn.Module):
         x = x.reshape(len(x), -1)
         x = self.lin1(x)
         if self.use_projector:
-            return x, self.projector(x.reshape(len(x), -1, self.clip_size))
+            proj_x = self.projector(x.reshape(len(x), -1, self.clip_size))
+            return x, proj_x
         return x
 
 class FlaggedCausalTransformer(nn.Module):
