@@ -236,7 +236,7 @@ class VersatileDiffusionPriorNetwork(nn.Module):
         text_cond_drop_prob = None,
         image_cond_drop_prob = 0.
     ):
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
         if text_embed is not None:
             brain_embed = text_embed
         if text_cond_drop_prob is not None:
@@ -320,7 +320,7 @@ class VersatileDiffusionPriorNetwork(nn.Module):
         # get learned query, which should predict the image embedding (per DDPM timestep)
         pred_image_embed = tokens[..., -self.num_tokens:, :]
 
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
         return pred_image_embed
 
 class InstructDiffusionPrior(DiffusionPrior):
