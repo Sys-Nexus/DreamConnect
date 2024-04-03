@@ -370,7 +370,7 @@ def trainer(args, train_dl, val_dl, diffusion_prior, vd_clip, optimizer, distrib
                     # print(clip_voxels_proj.max(), clip_voxels_proj.min(), clip_voxels_proj.mean())
                     if prior:
                         loss_prior, aligned_clip_voxels = diffusion_prior(text_embed=clip_voxels, image_embed=clip_target)
-                        aligned_clip_voxels /= diffusion_prior.module.image_embed_scale if distributed else diffusion_prior.image_embed_scale
+                        aligned_clip_voxels =  aligned_clip_voxels / diffusion_prior.module.image_embed_scale if distributed else aligned_clip_voxels / diffusion_prior.image_embed_scale
                     else:
                         aligned_clip_voxels = clip_voxels
 
