@@ -443,7 +443,8 @@ def trainer(args, train_dl, val_dl, diffusion_prior, vd_clip, optimizer, distrib
                     loss_dict['train_bwd_percent_correct'] = bwd_percent_correct / (train_i + 1)
                     loss_dict['train_loss_nce'] = loss_nce_sum / (train_i + 1)
                     loss_dict['train_loss_prior'] = loss_prior_sum / (train_i + 1)
-                    loss_dict['train_loss_norm_proj'] = loss_norm_sum / (train_i + 1)
+                    loss_dict['train_loss_norm_proj'] = loss_norm_sum_proj / (train_i + 1)
+                    loss_dict['train_loss_norm_voxels'] = loss_norm_sum_voxels / (train_i + 1)
                     
                     loss_dict['train_loss'] = np.mean(losses[-(train_i+1):])
                     losses_dict.update(loss_dict)
