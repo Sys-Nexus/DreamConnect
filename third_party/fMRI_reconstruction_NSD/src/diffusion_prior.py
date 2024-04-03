@@ -396,7 +396,7 @@ class InstructDiffusionPrior(DiffusionPrior):
             image_cond_drop_prob = self.image_cond_drop_prob,
             **text_cond
         )
-        pred = image_embed_noisy
+        # pred = image_embed_noisy
 
         if self.predict_x_start and self.training_clamp_l2norm:
             pred = self.l2norm_clamp_embed(pred)
