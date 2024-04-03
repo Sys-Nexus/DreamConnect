@@ -43,13 +43,13 @@ class BrainNetwork(nn.Module):
         if use_projector:
             self.projector = nn.Sequential(
                 nn.LayerNorm(clip_size),
-                nn.GELU(inplace=False),
+                nn.GELU(),
                 nn.Linear(clip_size, 2048),
                 nn.LayerNorm(2048),
-                nn.GELU(inplace=False),
+                nn.GELU(),
                 nn.Linear(2048, 2048),
                 nn.LayerNorm(2048),
-                nn.GELU(inplace=False),
+                nn.GELU(),
                 nn.Linear(2048, clip_size)
             )
 
@@ -75,5 +75,6 @@ class BrainNetwork(nn.Module):
         x = x.reshape(len(x), -1)
         x = self.lin1(x)
         if self.use_projector:
-            return x, self.projector(x.reshape(len(x), -1, self.clip_size))
+            proj_x = self.projector(x.reshape(len(x), -1, self.clip_size))
+            return x, proj_x
         return x
