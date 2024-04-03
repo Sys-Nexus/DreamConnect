@@ -241,9 +241,9 @@ class VersatileDiffusionPriorNetwork(nn.Module):
         if text_cond_drop_prob is not None:
             brain_cond_drop_prob = text_cond_drop_prob
         
-        in_image_embed = image_embed.view(len(image_embed),-1,768)
+        image_embed = image_embed.view(len(image_embed),-1,768)
         # text_embed = text_embed.view(len(text_embed),-1,768)
-        in_brain_embed = brain_embed.view(len(brain_embed),-1,768)
+        brain_embed = brain_embed.view(len(brain_embed),-1,768)
 
         # image_embed = image_embed.view(len(image_embed),-1,128)
         # # text_embed = text_embed.view(len(text_embed),-1,128)
@@ -252,7 +252,7 @@ class VersatileDiffusionPriorNetwork(nn.Module):
         # print(*image_embed.shape)
         # print(*image_embed.shape, image_embed.device, image_embed.dtype)
         
-        batch, _, dim, device, dtype = *in_image_embed.shape, in_image_embed.device, in_image_embed.dtype
+        batch, _, dim, device, dtype = *image_embed.shape, image_embed.device, image_embed.dtype
         # num_time_embeds, num_image_embeds, num_brain_embeds = self.num_time_embeds, self.num_image_embeds, self.num_brain_embeds
         
         # classifier free guidance masks
@@ -268,20 +268,20 @@ class VersatileDiffusionPriorNetwork(nn.Module):
         # image_embed = image_embed.float()
 
         # import pdb; pdb.set_trace()
-        null_brain_embeds = self.null_brain_embeds.to(in_brain_embed.dtype)
-        brain_embed = torch.where(
-            brain_keep_mask,
-            in_brain_embed,
-            null_brain_embeds[None]
-        )
+        null_brain_embeds = self.null_brain_embeds.to(brain_embed.dtype)
+        # brain_embed = torch.where(
+        #     brain_keep_mask,
+        #     brain_embed,
+        #     null_brain_embeds[None]
+        # )
 
         # mask out image embeddings with null image embeddings
         null_image_embed = self.null_image_embed.to(image_embed.dtype)
-        image_embed = torch.where(
-            image_keep_mask,
-            in_image_embed,
-            null_image_embed[None]
-        )
+        # image_embed = torch.where(
+        #     image_keep_mask,
+        #     image_embed,
+        #     null_image_embed[None]
+        # )
 
         # whether brain embedding is used for conditioning depends on whether brain encodings are available for attention (for classifier free guidance, even though it seems from the paper it was not used in the prior ddpm, as the objective is different)
         # but let's just do it right
