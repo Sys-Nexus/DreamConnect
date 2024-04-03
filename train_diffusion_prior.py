@@ -375,9 +375,9 @@ def trainer(args, train_dl, val_dl, diffusion_prior, vd_clip, optimizer, distrib
                         aligned_clip_voxels = clip_voxels
 
                     # loss_norm_proj = torch.nn.MSELoss()(clip_voxels_proj.flatten(1).norm(dim=1), clip_target.flatten(1).norm(dim=1)) * 0.0001
-                    loss_norm_proj = torch.sum(torch.clamp(clip_voxels_proj.flatten(1).norm(dim=1) - 20, min=0)) * 0.1
+                    loss_norm_proj = torch.mean(torch.clamp(clip_voxels_proj.flatten(1).norm(dim=1) - 20, min=0)) * 0.001
                     # loss_norm_voxels = torch.nn.MSELoss()(clip_voxels.flatten(1).norm(dim=1), clip_target.flatten(1).norm(dim=1)) * 0.1
-                    loss_norm_voxels = torch.sum(torch.clamp(clip_voxels.flatten(1).norm(dim=1) - 20, min=0)) * 0.1
+                    loss_norm_voxels = torch.mean(torch.clamp(clip_voxels.flatten(1).norm(dim=1) - 20, min=0)) * 0.001
 
                     clip_voxels_norm = nn.functional.normalize(clip_voxels_proj.flatten(1), dim=-1)
                     clip_target_norm = nn.functional.normalize(clip_target.flatten(1), dim=-1)
