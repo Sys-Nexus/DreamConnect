@@ -241,9 +241,9 @@ class VersatileDiffusionPriorNetwork(nn.Module):
         if text_cond_drop_prob is not None:
             brain_cond_drop_prob = text_cond_drop_prob
         
-        image_embed = image_embed.view(len(image_embed),-1,768)
+        in_image_embed = image_embed.view(len(image_embed),-1,768)
         # text_embed = text_embed.view(len(text_embed),-1,768)
-        brain_embed = brain_embed.view(len(brain_embed),-1,768)
+        in_brain_embed = brain_embed.view(len(brain_embed),-1,768)
 
         # image_embed = image_embed.view(len(image_embed),-1,128)
         # # text_embed = text_embed.view(len(text_embed),-1,128)
@@ -252,7 +252,7 @@ class VersatileDiffusionPriorNetwork(nn.Module):
         # print(*image_embed.shape)
         # print(*image_embed.shape, image_embed.device, image_embed.dtype)
         
-        batch, _, dim, device, dtype = *image_embed.shape, image_embed.device, image_embed.dtype
+        batch, _, dim, device, dtype = *in_image_embed.shape, in_image_embed.device, in_image_embed.dtype
         # num_time_embeds, num_image_embeds, num_brain_embeds = self.num_time_embeds, self.num_image_embeds, self.num_brain_embeds
         
         # classifier free guidance masks
@@ -268,10 +268,10 @@ class VersatileDiffusionPriorNetwork(nn.Module):
         # image_embed = image_embed.float()
 
         # import pdb; pdb.set_trace()
-        null_brain_embeds = self.null_brain_embeds.to(brain_embed.dtype)
+        null_brain_embeds = self.null_brain_embeds.to(in_brain_embed.dtype)
         brain_embed = torch.where(
             brain_keep_mask,
-            brain_embed,
+            in_brain_embed,
             null_brain_embeds[None]
         )
 
@@ -279,7 +279,7 @@ class VersatileDiffusionPriorNetwork(nn.Module):
         null_image_embed = self.null_image_embed.to(image_embed.dtype)
         image_embed = torch.where(
             image_keep_mask,
-            image_embed,
+            in_image_embed,
             null_image_embed[None]
         )
 
@@ -387,15 +387,15 @@ class InstructDiffusionPrior(DiffusionPrior):
             with torch.no_grad():
                 self_cond = self.net(image_embed_noisy, times, **text_cond).detach()
 
-        # pred = self.net(
-        #     image_embed_noisy,
-        #     times,
-        #     self_cond = self_cond,
-        #     text_cond_drop_prob = self.text_cond_drop_prob,
-        #     image_cond_drop_prob = self.image_cond_drop_prob,
-        #     **text_cond
-        # )
-        pred = image_embed_noisy
+        pred = self.net(
+            image_embed_noisy,
+            times,
+            self_cond = self_cond,
+            text_cond_drop_prob = self.text_cond_drop_prob,
+            image_cond_drop_prob = self.image_cond_drop_prob,
+            **text_cond
+        )
+        # pred = image_embed_noisy
         # import pdb; pdb.set_trace()
 
         if self.predict_x_start and self.training_clamp_l2norm:
