@@ -320,7 +320,7 @@ class VersatileDiffusionPriorNetwork(nn.Module):
         # get learned query, which should predict the image embedding (per DDPM timestep)
         pred_image_embed = tokens[..., -self.num_tokens:, :]
 
-        # import pdb; pdb.set_trace()
+        import pdb; pdb.set_trace()
         return pred_image_embed
 
 class InstructDiffusionPrior(DiffusionPrior):
