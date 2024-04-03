@@ -381,7 +381,6 @@ def trainer(args, train_dl, val_dl, diffusion_prior, vd_clip, optimizer, distrib
 
                     clip_voxels_norm = nn.functional.normalize(clip_voxels_proj.flatten(1), dim=-1)
                     clip_target_norm = nn.functional.normalize(clip_target.flatten(1), dim=-1)
-                    import pdb; pdb.set_trace()
 
                     if epoch < int(mixup_pct * num_epochs):
                         loss_nce = mixco_nce(
@@ -395,6 +394,7 @@ def trainer(args, train_dl, val_dl, diffusion_prior, vd_clip, optimizer, distrib
                             clip_voxels_norm,
                             clip_target_norm,
                             temp=epoch_temp)
+                    import pdb; pdb.set_trace()
 
                     if prior and v2c:
                         loss_nce_sum += loss_nce.item()
