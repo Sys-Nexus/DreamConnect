@@ -387,14 +387,15 @@ class InstructDiffusionPrior(DiffusionPrior):
             with torch.no_grad():
                 self_cond = self.net(image_embed_noisy, times, **text_cond).detach()
 
-        pred = self.net(
-            image_embed_noisy,
-            times,
-            self_cond = self_cond,
-            text_cond_drop_prob = self.text_cond_drop_prob,
-            image_cond_drop_prob = self.image_cond_drop_prob,
-            **text_cond
-        )
+        # pred = self.net(
+        #     image_embed_noisy,
+        #     times,
+        #     self_cond = self_cond,
+        #     text_cond_drop_prob = self.text_cond_drop_prob,
+        #     image_cond_drop_prob = self.image_cond_drop_prob,
+        #     **text_cond
+        # )
+        pred = image_embed_noisy
         # import pdb; pdb.set_trace()
 
         if self.predict_x_start and self.training_clamp_l2norm:
