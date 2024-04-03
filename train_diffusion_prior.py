@@ -353,7 +353,7 @@ def trainer(args, train_dl, val_dl, diffusion_prior, vd_clip, optimizer, distrib
                 t = time.time()
                 
                 # import pdb; pdb.set_trace();
-                with torch.cuda.amp.autocast():
+                with torch.cuda.amp.autocast(enabled=False):
                 # with torch.autograd.set_detect_anomaly(True):
                 # with torch.autocast(device_type='cuda', dtype=torch.float32):
                     optimizer.zero_grad()
