@@ -348,7 +348,7 @@ class InstructDiffusionPrior(DiffusionPrior):
         else:
             target = noise
 
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
         loss = self.noise_scheduler.loss_fn(pred, target)
         # print(text_cond['text_embed'].max(), text_cond['text_embed'].min(), text_cond['text_embed'].mean())
         if has_nan(loss): 
@@ -407,7 +407,7 @@ class InstructDiffusionPrior(DiffusionPrior):
 
         # calculate forward loss
         # print(text_embed.max(), text_embed.min(), text_embed.mean())
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
         scaled_image_embed = image_embed*self.image_embed_scale
         loss, pred = self.p_losses(scaled_image_embed, times, text_cond = text_cond, *args, **kwargs)
         
