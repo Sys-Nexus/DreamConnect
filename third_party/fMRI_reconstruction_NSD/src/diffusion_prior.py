@@ -292,17 +292,17 @@ class VersatileDiffusionPriorNetwork(nn.Module):
 
         # time_embed = time_embed.to(brain_embed.dtype)
 
-        if self.learned_query_mode == 'token':
-            learned_queries = repeat(self.learned_query, 'n d -> b n d', b = batch)
-        elif self.learned_query_mode == 'pos_emb':
-            pos_embs = repeat(self.learned_query, 'n d -> b n d', b = batch)
-            image_embed = image_embed + pos_embs
-            learned_queries = torch.empty((batch, 0, dim), device=brain_embed.device)
-        elif self.learned_query_mode == 'all_pos_emb':
-            pos_embs = repeat(self.learned_query, 'n d -> b n d', b = batch)
-            learned_queries = torch.empty((batch, 0, dim), device=brain_embed.device)
-        else:
-            learned_queries = torch.empty((batch, 0, dim), device=brain_embed.device)
+        # if self.learned_query_mode == 'token':
+        #     learned_queries = repeat(self.learned_query, 'n d -> b n d', b = batch)
+        # elif self.learned_query_mode == 'pos_emb':
+        #     pos_embs = repeat(self.learned_query, 'n d -> b n d', b = batch)
+        #     image_embed = image_embed + pos_embs
+        #     learned_queries = torch.empty((batch, 0, dim), device=brain_embed.device)
+        # elif self.learned_query_mode == 'all_pos_emb':
+        #     pos_embs = repeat(self.learned_query, 'n d -> b n d', b = batch)
+        #     learned_queries = torch.empty((batch, 0, dim), device=brain_embed.device)
+        # else:
+        learned_queries = torch.empty((batch, 0, dim), device=brain_embed.device)
         
         tokens = torch.cat((
             brain_embed,  # 257
@@ -314,7 +314,7 @@ class VersatileDiffusionPriorNetwork(nn.Module):
             tokens = tokens + pos_embs
 
         # attend
-        # tokens = self.causal_transformer(tokens)
+        tokens = self.causal_transformer(tokens)
 
         # get learned query, which should predict the image embedding (per DDPM timestep)
         pred_image_embed = tokens[..., -self.num_tokens:, :]
