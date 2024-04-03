@@ -84,13 +84,13 @@ class BrainNetwork(nn.Module):
         self.use_projector = use_projector
         if use_projector:
             self.projector = nn.Sequential(
-                nn.LayerNorm(clip_size),
+                nn.LayerNorm(clip_size, inplace=False),
                 nn.GELU(inplace=False),
                 nn.Linear(clip_size, 2048),
-                nn.LayerNorm(2048),
+                nn.LayerNorm(2048, inplace=False),
                 nn.GELU(inplace=False),
                 nn.Linear(2048, 2048),
-                nn.LayerNorm(2048),
+                nn.LayerNorm(2048, inplace=False),
                 nn.GELU(inplace=False),
                 nn.Linear(2048, clip_size)
             )
