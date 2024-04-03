@@ -397,7 +397,6 @@ class InstructDiffusionPrior(DiffusionPrior):
             **text_cond
         )
         pred = image_embed_noisy
-        # import pdb; pdb.set_trace()
 
         if self.predict_x_start and self.training_clamp_l2norm:
             pred = self.l2norm_clamp_embed(pred)
@@ -409,6 +408,7 @@ class InstructDiffusionPrior(DiffusionPrior):
         else:
             target = noise
 
+        import pdb; pdb.set_trace()
         loss = self.noise_scheduler.loss_fn(pred, target)
         # print(text_cond['text_embed'].max(), text_cond['text_embed'].min(), text_cond['text_embed'].mean())
         if has_nan(loss): 
