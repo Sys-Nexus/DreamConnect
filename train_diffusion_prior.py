@@ -329,7 +329,8 @@ def trainer(args, train_dl, val_dl, diffusion_prior, vd_clip, optimizer, distrib
             loss_prior_sum = 0.
             val_loss_nce_sum = 0.
             val_loss_prior_sum = 0.
-            loss_norm_sum = 0.
+            loss_norm_sum_proj = 0.
+            loss_norm_sum_voxels = 0.
 
             # import pdb; pdb.set_trace();
             for train_i, batch_dict in tqdm(enumerate(train_dl)):
@@ -373,7 +374,8 @@ def trainer(args, train_dl, val_dl, diffusion_prior, vd_clip, optimizer, distrib
                     else:
                         aligned_clip_voxels = clip_voxels
 
-                    loss_norm = torch.nn.MSELoss()(clip_voxels_proj.flatten(1).norm(dim=1), clip_target.flatten(1).norm(dim=1)) * 0.0001
+                    loss_norm_proj = torch.nn.MSELoss()(clip_voxels_proj.flatten(1).norm(dim=1), clip_target.flatten(1).norm(dim=1)) * 0.0001
+                    loss_norm_voxels = torch.nn.MSELoss()(clip_voxels.flatten(1).norm(dim=1), clip_target.flatten(1).norm(dim=1)) * 0.0001
 
                     clip_voxels_norm = nn.functional.normalize(clip_voxels_proj.flatten(1), dim=-1)
                     clip_target_norm = nn.functional.normalize(clip_target.flatten(1), dim=-1)
@@ -403,8 +405,9 @@ def trainer(args, train_dl, val_dl, diffusion_prior, vd_clip, optimizer, distrib
                         loss_prior_sum += loss_prior.item()
                         loss = prior_mult * loss_prior
                     
-                    loss_norm_sum += loss_norm.item()
-                    loss += loss_norm
+                    loss_norm_sum_proj += loss_norm_proj.item()
+                    loss_norm_sum_voxels += loss_norm_voxels.item()
+                    loss += loss_norm_proj + loss_norm_voxels
                     if has_nan(clip_voxels_norm) or has_nan(clip_target_norm) or has_nan(loss) or any(has_nan(param) for param in diffusion_prior.parameters()):
                         print("NaN detected during training!")
                         # break
@@ -440,7 +443,7 @@ def trainer(args, train_dl, val_dl, diffusion_prior, vd_clip, optimizer, distrib
                     loss_dict['train_bwd_percent_correct'] = bwd_percent_correct / (train_i + 1)
                     loss_dict['train_loss_nce'] = loss_nce_sum / (train_i + 1)
                     loss_dict['train_loss_prior'] = loss_prior_sum / (train_i + 1)
-                    loss_dict['train_loss_norm'] = loss_norm_sum / (train_i + 1)
+                    loss_dict['train_loss_norm_proj'] = loss_norm_sum / (train_i + 1)
                     
                     loss_dict['train_loss'] = np.mean(losses[-(train_i+1):])
                     losses_dict.update(loss_dict)
