@@ -397,7 +397,7 @@ class InstructDiffusionPrior(DiffusionPrior):
             **text_cond
         )
         # pred = image_embed_noisy
-        # import pdb; pdb.set_trace()
+        import pdb; pdb.set_trace()
 
         if self.predict_x_start and self.training_clamp_l2norm:
             pred = self.l2norm_clamp_embed(pred)
