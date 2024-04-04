@@ -1,6 +1,6 @@
 
 jobname=${1:-'test_conv_adaptor_mixing0_image'}
-# jobname=${1:-'wo_prospect_ctx_adaptor_zeroconv_mattn_bs4_mixing1_text'}
+# jobname=${1:-'test_conv_adaptor_mixing1_text'}
 filter_mode=${2:-'tune_sideconv'} #do not use no_filter, which will fail the memory
 
 gpus=${3:-'0,'}
