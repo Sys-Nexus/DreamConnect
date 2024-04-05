@@ -20,11 +20,12 @@ if [[ $mode == 'text' ]]; then
     # ckpt_path='/data/yashengsun/Proj/MMEdit/fMRIInstructDiffusion/train_logs/latent_diffusion_text_pct_all/last.pth'
     # ckpt_path='/data/yashengsun/Proj/MMEdit/fMRIInstructDiffusion/train_logs/latent_diffusion_text_from_scratch/ep_150.pth'
     # ckpt_path='/data/yashengsun/Proj/MMEdit/fMRIInstructDiffusion/train_logs/latent_diffusion_text_fp32/last.pth'
-    ckpt_path='/data/yashengsun/Proj/MMEdit/fMRIInstructDiffusion/train_logs/latent_diffusion_text_fp32_resume/last.pth'
+    # ckpt_path='/data/yashengsun/Proj/MMEdit/fMRIInstructDiffusion/train_logs/latent_diffusion_text_fp32_resume/last.pth'
+    ckpt_path='/data/yashengsun/Proj/MMEdit/fMRIInstructDiffusion/train_logs/latent_diffusion_text_fp32_resume1/last.pth'
     # ckpt_path='dummy'
     CUDA_VISIBLE_DEVICES=${which_gpu} python train_diffusion_prior.py --mode 'text' \
                 --batch_size 128 \
                 --ckpt_path ${ckpt_path} \
                 --max_epoch 1440 \
-                --jobname 'latent_diffusion_text_fp32_resume1'
+                --jobname 'latent_diffusion_text_fp32_resume2'
 fi
