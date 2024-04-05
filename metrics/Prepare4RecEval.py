@@ -23,6 +23,7 @@ def main():
     image_files = glob.glob(os.path.join(image_directory, 'all_iter-*.png'))
     # Create a list to store images
     images = []
+    gt_images = []
     # import pdb; pdb.set_trace()
 
     # Iterate over the image files
@@ -30,17 +31,22 @@ def main():
         # Open the image using PIL (or you can use cv2.imread() from OpenCV)
         image = Image.open(image_path)
         image_crop = image.crop((0, 512*3, 512, 512*4))
+        gt_image_crop = image.crop((0, 512*2, 512, 512*3))
         # Apply transformations
         image = transform(image_crop)
+        gt_image = transform(gt_image_crop)
         # Append the image to the list
         images.append(image)
+        gt_images.append(gt_image)
 
     # Convert list of images to a tensor
     images = torch.stack(images)
+    gt_images = torch.stack(gt_images)
     # import pdb; pdb.set_trace()
     # Save the tensor of images as a PyTorch checkpoint
     torch.save(images, 'pred_images.pt')
-
+    torch.save(gt_images, 'gt_images.pt')
+    
 
 if __name__ == '__main__':
     main()
