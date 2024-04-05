@@ -12,6 +12,8 @@
 
 # In[2]:
 
+## conda activate pl17
+
 
 import os
 import sys
