@@ -26,6 +26,6 @@ if [[ $mode == 'text' ]]; then
     CUDA_VISIBLE_DEVICES=${which_gpu} python train_diffusion_prior.py --mode 'text' \
                 --batch_size 128 \
                 --ckpt_path ${ckpt_path} \
-                --max_epoch 1440 \
+                --max_epoch 2400 \
                 --jobname 'latent_diffusion_text_fp32_resume2'
 fi
