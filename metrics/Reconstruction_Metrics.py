@@ -68,12 +68,14 @@ if utils.is_interactive():
 parser = argparse.ArgumentParser(description="Model Training Configuration")
 parser.add_argument(
     "--recon_path", type=str,
-    default='/data/yashengsun/Proj/MMEdit/fMRI-reconstruction-NSD/prior_257_final_subj01_bimixco_softclip_byol_recons_img2img1.0_1samples.pt',
+    # default='/data/yashengsun/Proj/MMEdit/fMRI-reconstruction-NSD/prior_257_final_subj01_bimixco_softclip_byol_recons_img2img1.0_1samples.pt',
+    default='pred_images.pt',
     help="path to reconstructed/retrieved outputs",
 )
 parser.add_argument(
     "--all_images_path", type=str, 
-    default="/data/yashengsun/Proj/MMEdit/fMRI-reconstruction-NSD/all_images.pt",
+    # default="/data/yashengsun/Proj/MMEdit/fMRI-reconstruction-NSD/all_images.pt",
+    default="gt_images.pt",
     help="path to ground truth outputs",
 )
 
