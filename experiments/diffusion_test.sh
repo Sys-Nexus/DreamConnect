@@ -15,7 +15,7 @@ fi
 if [[ $mode == 'text' ]]; then
     # ckpt_path='/data/yashengsun/Proj/MMEdit/fMRIInstructDiffusion/train_logs/latent_diffusion_text_fp32/last.pth' # eval
     # ckpt_path='/data/yashengsun/Proj/MMEdit/fMRIInstructDiffusion/train_logs/latent_diffusion_text_fp32_resume/last.pth'
-    ckpt_path='/data/yashengsun/Proj/MMEdit/fMRIInstructDiffusion/train_logs/latent_diffusion_text_fp32_resume1/last.pth' # eval
+    ckpt_path='/data/yashengsun/Proj/MMEdit/fMRIInstructDiffusion/train_logs/latent_diffusion_text_fp32_resume2/last.pth' # eval
     CUDA_VISIBLE_DEVICES=${which_gpu} python train_diffusion_prior.py --mode 'text' --is_test True \
                 --batch_size 1 \
                 --ckpt_path ${ckpt_path}
