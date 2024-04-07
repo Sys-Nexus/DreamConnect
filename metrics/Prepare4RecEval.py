@@ -18,7 +18,8 @@ def main():
     # image_directory = '/data/yashengsun/Proj/MMEdit/fMRIInstructDiffusion/logs/versatile_dualstream_instruct_pre_post_w_x0_prospect_versatile_dualstream_instruct_pre_post_w_x0_prospect_2024-03-08/visualize/images/val'
     # image_directory = '/data/yashengsun/Proj/MMEdit/fMRIInstructDiffusion/logs/test_conv_adaptor_test_conv_adaptor_2024-04-03/visualize/images/val/'
     # image_directory = '/data/yashengsun/Proj/MMEdit/fMRIInstructDiffusion/logs/test_conv_adaptor_test_conv_adaptor_2024-04-05/visualize/images/val/'
-    image_directory = '/data/yashengsun/Proj/MMEdit/fMRIInstructDiffusion/logs/test_conv_adaptor_test_conv_adaptor_2024-04-05/visualize/images/val/'
+    # image_directory = '/data/yashengsun/Proj/MMEdit/fMRIInstructDiffusion/logs/test_conv_adaptor_test_conv_adaptor_2024-04-05/visualize/images/val/'
+    image_directory = '/data/yashengsun/Proj/MMEdit/fMRIInstructDiffusion/logs/test_conv_adaptor_test_conv_adaptor_2024-04-06/visualize/images/val/'
     # List all image files in the directory
     # image_files = [f for f in os.listdir(image_directory) if f.endswith(('.jpg', '.jpeg', '.png'))]
     image_files = glob.glob(os.path.join(image_directory, 'all_iter-*.png'))
