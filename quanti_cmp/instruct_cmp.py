@@ -168,5 +168,6 @@ def main():
         # import pdb; pdb.set_trace();
         torchvision.utils.save_image(input_image_all, os.path.join(args.instruct_root, save_name))
 
+
 if __name__ == '__main__':
     main()
