@@ -94,6 +94,7 @@ def main():
     parser = argparse.ArgumentParser(description='')
     parser.add_argument('--method', type=str, default='magic_brush')
     parser.add_argument('--ckpt_path', type=str, default='')
+    parser.add_argument('--recon_root', type=str, default='logs/test_conv_adaptor_test_conv_adaptor_2024-04-08/visualize/images/val/')
     args = parser.parse_args()
 
     dataset_cfg_str = """
@@ -128,8 +129,10 @@ def main():
         raise ValueError
 
     model, model_wrap, model_wrap_cfg, sigmas, null_token = init_gen_model(ckpt_path=args.ckpt_path)
-    import pdb; pdb.set_trace()
-
+    image_path_templ = 'all_iter-999999_ep-999999_bidx-{:06d}-{:06d}.png'
+    for val_i, batch_dict in tqdm(enumerate(val_dl)):
+        import pdb; pdb.set_trace()
+        # image_path = image_path_templ.format(val_i, )
 
 if __name__ == '__main__':
     main()
