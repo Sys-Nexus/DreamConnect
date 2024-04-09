@@ -81,13 +81,16 @@ class NIPS23NSDDataset(Dataset):
             image_clip_root='/data/yashengsun/Proj/MMEdit/fMRIInstructDiffusion/img_clip',
             text_clip_root='/data/yashengsun/Proj/MMEdit/fMRIInstructDiffusion/text_clip',
             is_reconstruct_mode=False,
-            reconstruct_prob=0.1,):
+            reconstruct_prob=0.1,
+            use_first_instruct=False):
         super().__init__()
         self.nsda = NSDAccess(nsd_root)
         self.is_reconstruct_mode = is_reconstruct_mode
         self.reconstruct_prob = reconstruct_prob
         self.image_clip_root = image_clip_root
         self.text_clip_root = text_clip_root
+        self.use_first_instruct = use_first_instruct
+        self.split = split
 
         sub = 1
         self.nsd_cliptext_path = 'nsd_data_dir/predicted_features/subj{:02d}/nsd_cliptext_pred{}_nsdgeneral.npy'.format(sub,split)
@@ -171,7 +174,7 @@ class NIPS23NSDDataset(Dataset):
                     chosen_pool.append(chosen_i)
 
             if len(chosen_pool) and s in self.meta_info and 'edit' in self.meta_info[s] and max(chosen_pool) < len(self.meta_info[s]['edit']):
-                chosen_i = random.choice(chosen_pool)
+                chosen_i = random.choice(chosen_pool) if self.split == 'train' and self.use_first_instruct is False else 0
                 instruction_text = self.meta_info[s]['edit'][chosen_i]
                 output_text = self.meta_info[s]['output'][chosen_i]
                 nsd_dict['fmri_edit'] = {'c_concat': init_image[0], 'output': output_text, 'c_crossattn': instruction_text, 'c_crossattn_1': fmri_norm}

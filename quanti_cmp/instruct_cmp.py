@@ -120,6 +120,7 @@ def main():
         is_reconstruct_mode: False
         url: 'nsd_data_dir/test_subj01_{0..1}.tar'
         reconstruct_prob: 0.0
+        use_first_instruct: True
     """
     dataset_cfg = EasyDict(yaml.safe_load(dataset_cfg_str))
     val_dataset = instantiate_from_config(dataset_cfg['validation'])
@@ -162,9 +163,9 @@ def main():
         z = torch.randn_like(cond["c_concat"][0]) * sigmas[0]
         z = K.sampling.sample_euler_ancestral(model_wrap_cfg, z, sigmas, extra_args=extra_args)
         x = model.decode_first_stage(z)
-        input_image_all[:,3*512:4*512,:] = x[0,]
+        input_image_all[:,4*512:,:] = x[0,]
         save_name = image_name.replace(args.recon_root, args.instruct_root)
-        import pdb; pdb.set_trace();
+        # import pdb; pdb.set_trace();
         torchvision.utils.save_image(input_image_all, os.path.join(args.instruct_root, save_name))
 
 if __name__ == '__main__':
