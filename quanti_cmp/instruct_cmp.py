@@ -25,7 +25,6 @@ from omegaconf import OmegaConf
 from PIL import Image, ImageOps
 from torch import autocast
 import k_diffusion as K
-from edit_cli import load_model_from_config, CFGDenoiser
 import torchvision
 
 import sys
@@ -34,6 +33,47 @@ sys.path.append(proj_root)
 sys.path.append(os.path.join(proj_root,"stable_diffusion"))
 
 from ldm.util import instantiate_from_config
+
+
+
+class CFGDenoiser(nn.Module):
+    def __init__(self, model):
+        super().__init__()
+        self.inner_model = model
+
+    def forward(self, z, sigma, cond, uncond, text_cfg_scale, image_cfg_scale):
+        cfg_z = einops.repeat(z, "1 ... -> n ...", n=3)
+        cfg_sigma = einops.repeat(sigma, "1 ... -> n ...", n=3)
+        cfg_cond = {
+            "c_crossattn": [torch.cat([cond["c_crossattn"][0], uncond["c_crossattn"][0], uncond["c_crossattn"][0]])],
+            "c_concat": [torch.cat([cond["c_concat"][0], cond["c_concat"][0], uncond["c_concat"][0]])],
+        }
+        out_cond, out_img_cond, out_uncond = self.inner_model(cfg_z, cfg_sigma, cond=cfg_cond).chunk(3)
+        return out_uncond + text_cfg_scale * (out_cond - out_img_cond) + image_cfg_scale * (out_img_cond - out_uncond)
+
+
+def load_model_from_config(config, ckpt, vae_ckpt=None, verbose=False):
+    print(f"Loading model from {ckpt}")
+    pl_sd = torch.load(ckpt, map_location="cpu")
+    if "global_step" in pl_sd:
+        print(f"Global Step: {pl_sd['global_step']}")
+    sd = pl_sd["state_dict"]
+    if vae_ckpt is not None:
+        print(f"Loading VAE from {vae_ckpt}")
+        vae_sd = torch.load(vae_ckpt, map_location="cpu")["state_dict"]
+        sd = {
+            k: vae_sd[k[len("first_stage_model.") :]] if k.startswith("first_stage_model.") else v
+            for k, v in sd.items()
+        }
+    model = instantiate_from_config(config.model)
+    m, u = model.load_state_dict(sd, strict=False)
+    if len(m) > 0 and verbose:
+        print("missing keys:")
+        print(m)
+    if len(u) > 0 and verbose:
+        print("unexpected keys:")
+        print(u)
+    return model
 
 
 def init_gen_model(ckpt_path = 'stable_diffusion/models/ldm/stable-diffusion-v1/MagicBrush-epoch-52-step-4999.ckpt'):
