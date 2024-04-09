@@ -107,7 +107,7 @@ def main():
         nsd_root: '/data/yashengsun/Proj/MMEdit/StableDiffusionReconstruction/nsd'
         resolution: 320
         split: 'train'
-        is_reconstruct_mode: True
+        is_reconstruct_mode: False
         url: 'nsd_data_dir/train_subj01_{0..17}.tar'
         reconstruct_prob: 1.05
 
@@ -117,7 +117,7 @@ def main():
         nsd_root: '/data/yashengsun/Proj/MMEdit/StableDiffusionReconstruction/nsd'
         resolution: 320
         split: 'test'
-        is_reconstruct_mode: True
+        is_reconstruct_mode: False
         url: 'nsd_data_dir/test_subj01_{0..1}.tar'
         reconstruct_prob: 1.05
     """
