@@ -140,7 +140,7 @@ def main():
         cond["c_crossattn"] = [model.get_learned_conditioning(instruct_text)]
         input_image_all = transforms.ToTensor()(Image.open(image_path))
         input_image = input_image_all[:,3*512:4*512,:].unsqueeze(0).to(device='cuda')
-        input_image = F.interpolate(input_image, size=(224,224))
+        # input_image = F.interpolate(input_image, size=(256,224))
         cond["c_concat"] = [model.encode_first_stage(input_image).mode()]
 
         uncond = {}
