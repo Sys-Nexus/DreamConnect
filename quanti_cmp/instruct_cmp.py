@@ -26,6 +26,7 @@ from PIL import Image, ImageOps
 from torch import autocast
 import k_diffusion as K
 import torchvision
+import torchvision.transforms as transforms
 
 import sys
 proj_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -131,8 +132,32 @@ def main():
     model, model_wrap, model_wrap_cfg, sigmas, null_token = init_gen_model(ckpt_path=args.ckpt_path)
     image_path_templ = 'all_iter-999999_ep-999999_bidx-{:06d}-{:06d}.png'
     for val_i, batch_dict in tqdm(enumerate(val_dl)):
-        import pdb; pdb.set_trace()
-        # image_path = image_path_templ.format(val_i, )
+        # import pdb; pdb.set_trace()
+        image_path = os.path.join(args.recon_root, image_path_templ.format(val_i, batch_dict['s'].item()))
+        cond = {}
+        instruct_text = batch_dict['fmri_edit']['c_crossattn']
+        cond["c_crossattn"] = [model.get_learned_conditioning(instruct_text)]
+        input_image_all = transforms.ToTensor()(Image.open(image_path))
+        input_image = input_image_all[:,3*512:4*512,:].unsqueeze(0).to(device='cuda')
+        input_image = F.interpolate(input_image, size=(224,224))
+        cond["c_concat"] = [model.encode_first_stage(input_image).mode()]
+
+        uncond = {}
+        uncond["c_crossattn"] = [null_token]
+        uncond["c_concat"] = [torch.zeros_like(cond["c_concat"][0])]
+
+        extra_args = {
+            "cond": cond,
+            "uncond": uncond,
+            "text_cfg_scale": 7.5,
+            "image_cfg_scale": 1.5,
+        }
+
+        z = torch.randn_like(cond["c_concat"][0]) * sigmas[0]
+        z = K.sampling.sample_euler_ancestral(model_wrap_cfg, z, sigmas, extra_args=extra_args)
+        x = model.decode_first_stage(z)
+        import pdb; pdb.set_trace();
+
 
 if __name__ == '__main__':
     main()
