@@ -131,7 +131,7 @@ def main():
     else:
         raise ValueError
 
-    args.instruct_root = args.recon_root.replace('images/val', 'images/val_{}'.format(method))
+    args.instruct_root = args.recon_root.replace('images/val', 'images/val_{}'.format(args.method))
     os.makedirs(args.instruct_root, exist_ok=True)
 
     model, model_wrap, model_wrap_cfg, sigmas, null_token = init_gen_model(ckpt_path=args.ckpt_path)
