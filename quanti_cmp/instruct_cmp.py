@@ -163,7 +163,7 @@ def main():
         z = K.sampling.sample_euler_ancestral(model_wrap_cfg, z, sigmas, extra_args=extra_args)
         x = model.decode_first_stage(z)
         input_image_all[:,3*512:4*512,:] = x[0,]
-        save_name = image_name.repalce(arg.recon_root, arg.instruct_root)
+        save_name = image_name.replace(arg.recon_root, arg.instruct_root)
         import pdb; pdb.set_trace();
         torchvision.utils.save_image(input_image_all, os.path.join(args.instruct_root, save_name))
 
