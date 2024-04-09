@@ -74,7 +74,7 @@ def main():
         raise ValueError
 
     model, model_wrap, model_wrap_cfg, sigmas, null_token = init_gen_model(ckpt_path=args.ckpt_path)
-    import pdb; pdb.set_trace()    
+    import pdb; pdb.set_trace()
 
 
 if __name__ == '__main__':
