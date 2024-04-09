@@ -109,7 +109,7 @@ def main():
         split: 'train'
         is_reconstruct_mode: False
         url: 'nsd_data_dir/train_subj01_{0..17}.tar'
-        reconstruct_prob: 1.05
+        reconstruct_prob: 0.0
 
     validation:
       target: third_party.StableDiffusionReconstruction.codes.utils.nsd_creater.NIPS23NSDDataset
@@ -119,7 +119,7 @@ def main():
         split: 'test'
         is_reconstruct_mode: False
         url: 'nsd_data_dir/test_subj01_{0..1}.tar'
-        reconstruct_prob: 1.05
+        reconstruct_prob: 0.0
     """
     dataset_cfg = EasyDict(yaml.safe_load(dataset_cfg_str))
     val_dataset = instantiate_from_config(dataset_cfg['validation'])
