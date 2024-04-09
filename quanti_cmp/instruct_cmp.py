@@ -77,7 +77,7 @@ def load_model_from_config(config, ckpt, vae_ckpt=None, verbose=False):
 
 
 def init_gen_model(ckpt_path = 'stable_diffusion/models/ldm/stable-diffusion-v1/MagicBrush-epoch-52-step-4999.ckpt'):
-    config = OmegaConf.load('configs/generate.yaml')
+    config = OmegaConf.load('configs/test/generate.yaml')
     model = load_model_from_config(config, ckpt_path, vae_ckpt=None)
 
     model.eval().cuda()
