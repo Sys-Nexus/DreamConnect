@@ -129,6 +129,10 @@ def main():
 
     if args.method == 'magic_brush':
         args.ckpt_path = 'stable_diffusion/models/ldm/stable-diffusion-v1/MagicBrush-epoch-52-step-4999.ckpt'
+    elif args.method == 'inst_dif':
+        args.ckpt_path = 'stable_diffusion/models/ldm/stable-diffusion-v1/v1-5-pruned-emaonly-adaption-task-humanalign.ckpt'
+    elif args.method == 'inst_pix2pix':
+        args.ckpt_path = 'stable_diffusion/models/ldm/stable-diffusion-v1/instruct-pix2pix-00-22000.ckpt'
     else:
         raise ValueError
 
