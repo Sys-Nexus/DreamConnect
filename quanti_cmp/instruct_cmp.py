@@ -21,6 +21,7 @@ img_augment = AugmentationSequential(
 )
 
 from einops import rearrange
+import einops
 from omegaconf import OmegaConf
 from PIL import Image, ImageOps
 from torch import autocast
