@@ -14,7 +14,7 @@ def read_split_image(img_path, offset):
     w = img.size[0]
     img = img.crop((0, offset*w, w, offset*w+w))
     img_ts = transforms.ToTensor()(img)
-    img_ts = img_ts.unsqueeze(0)
+    img_ts = img_ts.unsqueeze(0).cuda()
     # import pdb; pdb.set_trace()
     return img_ts
 
