@@ -35,7 +35,7 @@ def main():
         id_sim = F.cosine_similarity(input_feat, edit_feat)
         all_id_sims.append(id_sim.item())
     ave_id_sim = sum(all_id_sims) / len(all_id_sims)
-    print('id_sim': ave_id_sim)
+    print('id_sim: ', ave_id_sim)
 
     # import pdb; pdb.set_trace()
 
