@@ -10,9 +10,10 @@ from clip_similarity import ClipSimilarity
 
 def read_split_image(img_path, offset):
     img = Image.open(img_path)
-    import pdb; pdb.set_trace()
-    img = img.crop((offset, 0, offset + 256, 256))
+    w = img.size[0]
+    img = img.crop((0, offset*w, w, offset*w+w))
     img_ts = transforms.ToTensor()(img)
+    import pdb; pdb.set_trace()
     return img_ts
 
 
