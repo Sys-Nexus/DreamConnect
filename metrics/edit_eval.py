@@ -7,10 +7,10 @@ from clip_similarity import ClipSimilarity
 
 def main():
     parser = argparse.ArgumentParser(description='')
-    parser.add_argument('--root_dir', type=str)
+    parser.add_argument('--root_dir', type=str, default='')
     args = parser.parse_args()
 
-    sim_evaluator = ClipSimilarity()
+    sim_evaluator = ClipSimilarity().cuda()
     import pdb; pdb.set_trace()
 
 
