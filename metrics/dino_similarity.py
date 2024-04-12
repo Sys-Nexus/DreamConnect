@@ -25,9 +25,9 @@ class DINO_v2_Similarity(nn.Module):
     
     def encode_image(self, image):
         image = F.interpolate(image, (224,224))
-        image_feat = self.backbone_model(image)
-        # import pdb; pdb.set_trace()
-        return image_feat
+        image_features = self.backbone_model(image)
+        image_features = image_features / image_features.norm(dim=1, keepdim=True)
+        return image_features
 
 
 if __name__ == "__main__":

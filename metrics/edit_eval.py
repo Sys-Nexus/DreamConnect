@@ -6,6 +6,8 @@ from PIL import Image
 import torchvision.transforms as transforms
 import torchvision
 from clip_similarity import ClipSimilarity
+from dino_similarity import DINO_v2_Similarity
+
 from tqdm import tqdm
 import torch.nn.functional as F
 
@@ -22,13 +24,20 @@ def read_split_image(img_path, offset):
 
 def main():
     parser = argparse.ArgumentParser(description='')
+    parser.add_argument('--eval_method', type=str, default='clip')
     # parser.add_argument('--root_dir', type=str, default='logs/test_conv_adaptor_test_conv_adaptor_2024-04-08/visualize/images/val_inst_pix2pix')
     # parser.add_argument('--root_dir', type=str, default='logs/test_conv_adaptor_test_conv_adaptor_2024-04-08/visualize/images/val_inst_dif')
     parser.add_argument('--root_dir', type=str, default='logs/test_conv_adaptor_test_conv_adaptor_2024-04-08/visualize/images/val_sdedit')
     # parser.add_argument('--root_dir', type=str, default='logs/test_conv_adaptor_test_conv_adaptor_2024-04-08/visualize/images/val_magic_brush')
     args = parser.parse_args()
 
-    sim_evaluator = ClipSimilarity().cuda()
+    if args.eval_method == 'clip':
+        sim_evaluator = ClipSimilarity().cuda()
+    elif args.eval_method == 'dino':
+        sim_evaluator = DINO_v2_Similarity().cuda()
+    else:
+        raise ValueError
+
     img_paths = glob.glob(os.path.join(args.root_dir, 'all_iter*.png'))
     all_id_sims = []
     for img_path in tqdm(img_paths):
