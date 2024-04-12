@@ -7,6 +7,7 @@ import torchvision.transforms as transforms
 import torchvision
 from clip_similarity import ClipSimilarity
 from tqdm import tqdm
+import torch.nn.functional as F
 
 
 def read_split_image(img_path, offset):
