@@ -29,5 +29,5 @@ class DINO_v2_Similarity(nn.Module):
 
 if __name__ == "__main__":
     dino_v2 = DINO_v2_Similarity().cuda()
-    dino_v2.encode_image(torch.randn((1, 3, 256, 256)).cuda())
-    
+    dino_v2.encode_image(torch.randn((1, 3, 224, 224)).cuda())
+
