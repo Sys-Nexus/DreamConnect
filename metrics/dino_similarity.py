@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 
 
 class DINO_v2_Similarity(nn.Module):
@@ -23,11 +24,13 @@ class DINO_v2_Similarity(nn.Module):
         self.backbone_model = backbone_model
     
     def encode_image(self, image):
+        image = F.interpolate(image, (224,224))
         image_feat = self.backbone_model(image)
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
+        return image_feat
 
 
 if __name__ == "__main__":
     dino_v2 = DINO_v2_Similarity().cuda()
-    dino_v2.encode_image(torch.randn((1, 3, 224, 224)).cuda())
+    res_image_feat = dino_v2.encode_image(torch.randn((1, 3, 224, 224)).cuda())
 
