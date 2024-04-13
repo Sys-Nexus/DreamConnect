@@ -733,7 +733,7 @@ class DualLDM(LatentDiffusion):
                    prospect_words=None, 
                    is_inst_edit=False,
                    is_inst_gen=False,
-                   layout_in=None)
+                   layout_in=None):
         s = batch['s'][0]
         root = os.path.join(save_dir, "images", split)
         filename = "all_iter-{:06}_ep-{:06}_bidx-{:06d}-{:06d}.txt".format(iter_n, epoch_n, batch_idx, s)
