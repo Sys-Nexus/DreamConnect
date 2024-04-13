@@ -56,7 +56,7 @@ def main():
         edit_feat = sim_evaluator.encode_image(edit_img)
         if args.eval_mode == 'id_sim':
             id_sim = F.cosine_similarity(input_feat, edit_feat)
-        else:
+        elif args.eval_mode == 'inst_sim':
             instruct_path = image_path.replace(args.root_dir, args.text_dir).replace('.png', '-ouptut.txt')
             with open(instruct_path, 'r') as f:
                 instr_text = f.readlines()
@@ -65,6 +65,8 @@ def main():
             instr_feat = sim_evaluator.encode_text(instr_text)
             delta_feat = edit_feat-input_feat
             id_sim = F.cosine_similarity(delta_feat / delta_feat.norm(dim=1, keepdim=True), instr_feat)
+        else:
+            raise ValueError
         all_id_sims.append(id_sim.item())
         # if i>25:break
     ave_id_sim = sum(all_id_sims) * 1.0 / len(all_id_sims)
