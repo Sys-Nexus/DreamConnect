@@ -57,13 +57,21 @@ def main():
         if args.eval_mode == 'id_sim':
             id_sim = F.cosine_similarity(input_feat, edit_feat)
         elif args.eval_mode == 'inst_sim':
-            instruct_path = img_path.replace(args.root_dir, args.text_dir).replace('.png', '-output.txt')
+            input_path = img_path.replace(args.root_dir, args.text_dir).replace('.png', '-input.txt')
+            with open(input_path, 'r') as f:
+                input_text = f.readlines()
+            output_path = img_path.replace(args.root_dir, args.text_dir).replace('.png', '-output.txt')
+            with open(output_path, 'r') as f:
+                output_text = f.readlines()
+            instruct_path = img_path.replace(args.root_dir, args.text_dir).replace('.png', '-instruct.txt')
             with open(instruct_path, 'r') as f:
-                instr_text = f.readlines()
+                instruct_text = f.readlines()
+
             # instr_text = ['']
             # import pdb; pdb.set_trace()
-            instr_feat = sim_evaluator.encode_text(instr_text)
-            delta_feat = edit_feat-input_feat
+            # instr_feat = sim_evaluator.encode_text(instr_text)
+            instr_feat = sim_evaluator.encode_text(output_text) - sim_evaluator.encode_text(input_text)
+            delta_feat = edit_feat - input_feat
             id_sim = F.cosine_similarity(delta_feat / delta_feat.norm(dim=1, keepdim=True), instr_feat)
         else:
             raise ValueError
