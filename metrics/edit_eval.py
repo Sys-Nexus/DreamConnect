@@ -61,7 +61,7 @@ def main():
             with open(instruct_path, 'r') as f:
                 instr_text = f.readlines()
             # instr_text = ['']
-            import pdb; pdb.set_trace()
+            # import pdb; pdb.set_trace()
             instr_feat = sim_evaluator.encode_text(instr_text)
             delta_feat = edit_feat-input_feat
             id_sim = F.cosine_similarity(delta_feat / delta_feat.norm(dim=1, keepdim=True), instr_feat)
