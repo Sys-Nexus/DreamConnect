@@ -28,8 +28,16 @@ def main():
     # parser.add_argument('--root_dir', type=str, default='logs/test_conv_adaptor_test_conv_adaptor_2024-04-08/visualize/images/val_inst_pix2pix')
     # parser.add_argument('--root_dir', type=str, default='logs/test_conv_adaptor_test_conv_adaptor_2024-04-08/visualize/images/val_inst_dif')
     parser.add_argument('--root_dir', type=str, default='logs/test_conv_adaptor_test_conv_adaptor_2024-04-08/visualize/images/val_sdedit')
+    parser.add_argument('--eval_mode', type=str, default='id_sim')
     # parser.add_argument('--root_dir', type=str, default='logs/test_conv_adaptor_test_conv_adaptor_2024-04-08/visualize/images/val_magic_brush')
     args = parser.parse_args()
+
+    if args.eval_mode == 'id_sim':
+        pass
+    elif args.eval_mode == 'inst_sim':
+        args.eval_method = 'clip'
+    else:
+        raise ValueError
 
     if args.eval_method == 'clip':
         sim_evaluator = ClipSimilarity().cuda()
@@ -40,14 +48,21 @@ def main():
 
     img_paths = glob.glob(os.path.join(args.root_dir, 'all_iter*.png'))
     all_id_sims = []
-    for img_path in tqdm(img_paths):
+    for i,img_path in tqdm(enumerate(img_paths)):
         input_img = read_split_image(img_path, 3)
         edit_img = read_split_image(img_path, 4)
         input_feat = sim_evaluator.encode_image(input_img)
         edit_feat = sim_evaluator.encode_image(edit_img)
-        id_sim = F.cosine_similarity(input_feat, edit_feat)
+        if args.eval_mode == 'id_sim':
+            id_sim = F.cosine_similarity(input_feat, edit_feat)
+        else:
+            instr_text = ['']
+            instr_feat = sim_evaluator.encode_text(instr_text)
+            id_sim = F.cosine_similarity(edit_feat-input_feat, instr_feat)
         all_id_sims.append(id_sim.item())
+        if i>25:break
     ave_id_sim = sum(all_id_sims) * 1.0 / len(all_id_sims)
+    print('eval_mode: ', args.eval_mode)
     print('root_dir: ', args.root_dir)
     print('id_sim: ', ave_id_sim)
 
