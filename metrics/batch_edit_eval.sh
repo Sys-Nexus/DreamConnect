@@ -20,5 +20,7 @@ log_dirs=(
 
 eval_mode='inst_sim'
 eval_mode='id_sim'
+# eval_method='dino'
+eval_method='clip'
 root_dir=${log_dirs[0]}
-python  metrics/edit_eval.py --eval_method dino --eval_mode ${eval_mode} --root_dir ${root_dir}
+python  metrics/edit_eval.py --eval_method ${eval_method} --eval_mode ${eval_mode} --root_dir ${root_dir}
