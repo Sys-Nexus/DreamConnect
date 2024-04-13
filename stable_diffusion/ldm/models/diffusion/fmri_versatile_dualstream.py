@@ -722,6 +722,26 @@ class DualLDM(LatentDiffusion):
         return out
 
     @torch.no_grad()
+    def save_text(self, batch, epoch_n, iter_n, batch_idx, model_wrap, model_wrap_cfg,
+                   save_dir, split,
+                   cfg_text=7.5, cfg_fmri=1.5,
+                   cfg_text_edit=None, cfg_image_edit=None,
+                   delay_t=None,
+                   N=1, n_row=4, sample=True, 
+                   steps=100, ddim_eta=1., return_keys=None,
+                   quantize_denoised=True, inpaint=False,
+                   prospect_words=None, 
+                   is_inst_edit=False,
+                   is_inst_gen=False,
+                   layout_in=None)
+        s = batch['s'][0]
+        root = os.path.join(save_dir, "images", split)
+        filename = "all_iter-{:06}_ep-{:06}_bidx-{:06d}-{:06d}.txt".format(iter_n, epoch_n, batch_idx, s)
+        path = os.path.join(root, filename)
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        import pdb; pdb.set_trace();
+
+    @torch.no_grad()
     def log_images(self, batch, epoch_n, iter_n, batch_idx, model_wrap, model_wrap_cfg,
                    save_dir, split,
                    cfg_text=7.5, cfg_fmri=1.5,
