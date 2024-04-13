@@ -737,15 +737,21 @@ class DualLDM(LatentDiffusion):
         s = batch['s'][0]
         root = os.path.join(save_dir, "images", split)
         output_filename = "all_iter-{:06}_ep-{:06}_bidx-{:06d}-{:06d}-output.txt".format(iter_n, epoch_n, batch_idx, s)
+        input_filename = "all_iter-{:06}_ep-{:06}_bidx-{:06d}-{:06d}-input.txt".format(iter_n, epoch_n, batch_idx, s)
         instruct_filename = "all_iter-{:06}_ep-{:06}_bidx-{:06d}-{:06d}-instruct.txt".format(iter_n, epoch_n, batch_idx, s)
         output_path = os.path.join(root, output_filename)
+        input_path = os.path.join(root, input_filename)
         instruct_path = os.path.join(root, instruct_filename)
+        os.makedirs(os.path.dirname(input_path), exist_ok=True)
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
         os.makedirs(os.path.dirname(instruct_path), exist_ok=True)
 
+        input_cap = batch['cap'][0]
         output_cap = batch['fmri_edit']['output'][0]
         instruct_cap = batch['fmri_edit']['c_crossattn'][0]
 
+        with open(input_path, "w") as file:
+            file.write(input_cap)
         with open(output_path, "w") as file:
             file.write(output_cap)
         with open(instruct_path, "w") as file:
