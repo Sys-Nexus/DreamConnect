@@ -58,7 +58,8 @@ def main():
         else:
             instr_text = ['']
             instr_feat = sim_evaluator.encode_text(instr_text)
-            id_sim = F.cosine_similarity(edit_feat-input_feat, instr_feat)
+            delta_feat = edit_feat-input_feat
+            id_sim = F.cosine_similarity(delta_feat / delta_feat.norm(dim=1, keepdim=True), instr_feat)
         all_id_sims.append(id_sim.item())
         if i>25:break
     ave_id_sim = sum(all_id_sims) * 1.0 / len(all_id_sims)
