@@ -57,7 +57,7 @@ def main():
         if args.eval_mode == 'id_sim':
             id_sim = F.cosine_similarity(input_feat, edit_feat)
         elif args.eval_mode == 'inst_sim':
-            instruct_path = image_path.replace(args.root_dir, args.text_dir).replace('.png', '-ouptut.txt')
+            instruct_path = img_path.replace(args.root_dir, args.text_dir).replace('.png', '-ouptut.txt')
             with open(instruct_path, 'r') as f:
                 instr_text = f.readlines()
             # instr_text = ['']
