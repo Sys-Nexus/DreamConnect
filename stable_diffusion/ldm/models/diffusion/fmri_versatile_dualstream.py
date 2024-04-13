@@ -736,10 +736,20 @@ class DualLDM(LatentDiffusion):
                    layout_in=None):
         s = batch['s'][0]
         root = os.path.join(save_dir, "images", split)
-        filename = "all_iter-{:06}_ep-{:06}_bidx-{:06d}-{:06d}.txt".format(iter_n, epoch_n, batch_idx, s)
-        path = os.path.join(root, filename)
-        os.makedirs(os.path.dirname(path), exist_ok=True)
-        import pdb; pdb.set_trace();
+        output_filename = "all_iter-{:06}_ep-{:06}_bidx-{:06d}-{:06d}-output.txt".format(iter_n, epoch_n, batch_idx, s)
+        instruct_filename = "all_iter-{:06}_ep-{:06}_bidx-{:06d}-{:06d}-instruct.txt".format(iter_n, epoch_n, batch_idx, s)
+        output_path = os.path.join(root, output_filename)
+        instruct_path = os.path.join(root, instruct_filename)
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+        os.makedirs(os.path.dirname(instruct_path), exist_ok=True)
+
+        output_cap = batch['fmri_edit']['output'][0]
+        instruct_cap = batch['fmri_edit']['c_crossattn'][0]
+
+        with open(output_path, "w") as file:
+            file.write(output_cap)
+        with open(instruct_path, "w") as file:
+            file.write(instruct_cap)
 
     @torch.no_grad()
     def log_images(self, batch, epoch_n, iter_n, batch_idx, model_wrap, model_wrap_cfg,
