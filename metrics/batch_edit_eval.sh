@@ -19,7 +19,7 @@ log_dirs=(
 
 
 eval_mode='inst_sim'
-eval_mode='id_sim'
+# eval_mode='id_sim'
 # eval_method='dino'
 eval_method='clip'
 root_dir=${log_dirs[0]}
