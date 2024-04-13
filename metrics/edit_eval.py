@@ -28,6 +28,7 @@ def main():
     # parser.add_argument('--root_dir', type=str, default='logs/test_conv_adaptor_test_conv_adaptor_2024-04-08/visualize/images/val_inst_pix2pix')
     # parser.add_argument('--root_dir', type=str, default='logs/test_conv_adaptor_test_conv_adaptor_2024-04-08/visualize/images/val_inst_dif')
     parser.add_argument('--root_dir', type=str, default='logs/test_conv_adaptor_test_conv_adaptor_2024-04-08/visualize/images/val_sdedit')
+    parser.add_argument('--text_dir', type=str, default='logs/test_conv_adaptor_test_conv_adaptor_2024-04-13/visualize/images/val')
     parser.add_argument('--eval_mode', type=str, default='id_sim')
     # parser.add_argument('--root_dir', type=str, default='logs/test_conv_adaptor_test_conv_adaptor_2024-04-08/visualize/images/val_magic_brush')
     args = parser.parse_args()
@@ -56,7 +57,11 @@ def main():
         if args.eval_mode == 'id_sim':
             id_sim = F.cosine_similarity(input_feat, edit_feat)
         else:
-            instr_text = ['']
+            instruct_path = image_path.replace(args.root_dir, args.text_dir).replace('.png', '-ouptut.txt')
+            with open(instruct_path, 'r') as f:
+                instr_text = f.readlines()
+            # instr_text = ['']
+            import pdb; pdb.set_trace()
             instr_feat = sim_evaluator.encode_text(instr_text)
             delta_feat = edit_feat-input_feat
             id_sim = F.cosine_similarity(delta_feat / delta_feat.norm(dim=1, keepdim=True), instr_feat)
