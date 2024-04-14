@@ -56,9 +56,9 @@ class CLIPLoss(torch.nn.Module):
             input_t = self.encode_text(input_text)
             output_t = self.encode_text(output_text)
         
-        input_v = input_v.requrie_grad_(True)
-        input_t = input_t.requrie_grad_(True)
-        output_t = output_t.requrie_grad_(True)
+        input_v = input_v.requires_grad_(True)
+        input_t = input_t.requires_grad_(True)
+        output_t = output_t.requires_grad_(True)
 
         output_v = self.encode_image(output_image)
         
