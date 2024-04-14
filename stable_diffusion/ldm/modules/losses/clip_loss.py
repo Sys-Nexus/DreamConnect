@@ -63,7 +63,7 @@ class CLIPLoss(torch.nn.Module):
         output_t = output_t.requires_grad_(True)
         output_v = self.encode_image(output_image)
         
-        # import pdb; pdb.set_trace();
+        import pdb; pdb.set_trace();
         # print(input_text, output_text)
         # import torchvision
         # cat = torch.cat([input_image, output_image], dim=2)
