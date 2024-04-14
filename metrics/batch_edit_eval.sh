@@ -19,6 +19,7 @@ eval_modes=(
 eval_method='clip'
 for eval_mode in ${eval_modes[@]}
 do
+    echo 'eval_mode: '$eval_mode
     for root_dir in ${log_dirs[@]}
     do
         python  metrics/edit_eval.py --eval_method ${eval_method} --eval_mode ${eval_mode} --root_dir ${root_dir}
