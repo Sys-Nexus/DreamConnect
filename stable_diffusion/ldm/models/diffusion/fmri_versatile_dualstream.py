@@ -489,6 +489,7 @@ class DualLDM(LatentDiffusion):
             # loss_cosine, loss_l1 = self.get_clip_loss(pred_image_x0, gt_image_x0)
             loss_simple_ori = self.get_loss(model_output, target, mean=False).mean([1, 2, 3])
             if self.use_styleclip_loss is True:
+                import pdb; pdb.set_trace()
                 import clip
                 output_ids = torch.cat([clip.tokenize(output_text)]).to(pred_image_x0.device)
                 loss_styleclip = self.styleclip_loss(pred_image_x0, output_ids) * 0.1
