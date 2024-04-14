@@ -3,7 +3,7 @@
 
 import torch
 import clip
-
+import torch.nn.functional as F
 
 # class CLIPLoss(torch.nn.Module):
 
@@ -59,5 +59,8 @@ class CLIPLoss(torch.nn.Module):
         output_v = self.encode_image(output_image)
         
         import pdb; pdb.set_trace();
+        print(input_text, output_text)
+        import torchvision
+        # torchvision.utils.save_image(input_v, "input_v.png")
         similarity = 1 - F.cosine_similarity(output_v-input_v, output_t-input_t)/100.
         return similarity
