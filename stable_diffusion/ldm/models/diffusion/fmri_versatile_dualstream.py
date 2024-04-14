@@ -408,8 +408,8 @@ class DualLDM(LatentDiffusion):
         return cosine_loss, l1_loss
 
     ### TODO: what we should give to noise_edit
-    def p_losses(self, x_start_gen, x_start_edit, cond, t, output_text, edit_text, noise=None, noise_edit=None, t_edit=None, is_return_x0=True):
-        # import pdb; pdb.set_trace();
+    def p_losses(self, x_start_gen, x_start_edit, cond, t, input_text, output_text, edit_text, noise=None, noise_edit=None, t_edit=None, is_return_x0=True):
+
         noise_gen = default(noise, lambda: torch.randn_like(x_start_gen))
         x_noisy_gen = self.q_sample(x_start=x_start_gen, t=t, noise=noise_gen)
 
@@ -572,9 +572,10 @@ class DualLDM(LatentDiffusion):
                     tc = self.cond_ids[t]
                     c = self.q_sample(x_start=c, t=tc, noise=torch.randn_like(c.float()))
             # import pdb; pdb.set_trace();
+            input_text = batch['cap']
             output_text = batch['fmri_edit']['output']
             edit_text = batch['fmri_edit']['c_crossattn']
-            loss, loss_dict = self.p_losses(c['c_concat'][0]*0.18215, x, c, t, output_text, edit_text, t_edit=t.clone()+self.coarse_spatial_steps*ratio, *args, **kwargs)
+            loss, loss_dict = self.p_losses(c['c_concat'][0]*0.18215, x, c, t, input_text, output_text, edit_text, t_edit=t.clone()+self.coarse_spatial_steps*ratio, *args, **kwargs)
 
         return loss, loss_dict
     
