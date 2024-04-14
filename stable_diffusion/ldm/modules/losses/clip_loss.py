@@ -1,9 +1,13 @@
 #  copied from styleclip codebase: https://github.com/orpatashnik/StyleCLIP/blob/main/criteria/clip_loss.py#L6
 
 
-import torch
+
 import clip
+import torch
+import torch.nn as nn
 import torch.nn.functional as F
+from einops import rearrange
+
 
 # class CLIPLoss(torch.nn.Module):
 
@@ -61,6 +65,7 @@ class CLIPLoss(torch.nn.Module):
         import pdb; pdb.set_trace();
         print(input_text, output_text)
         import torchvision
-        # torchvision.utils.save_image(input_v, "input_v.png")
+        cat = torch.cat([input_image, output_image], dim=2)
+        torchvision.utils.save_image(cat, "cat.png")
         similarity = 1 - F.cosine_similarity(output_v-input_v, output_t-input_t)/100.
         return similarity
