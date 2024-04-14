@@ -492,7 +492,7 @@ class DualLDM(LatentDiffusion):
             # loss_simple = loss_l1 + loss_simple_ori
             loss_simple = loss_simple_ori
             if self.use_styleclip_loss is True:
-                print(t, t_edit)
+                # print(t, t_edit)
                 image_start_gen = self.decode_first_stage(x_start_gen).detach()
                 loss_styleclip = self.styleclip_loss(image_start_gen, pred_image_x0, input_text, output_text) #* 0.1
                 loss_simple = loss_simple + loss_styleclip
