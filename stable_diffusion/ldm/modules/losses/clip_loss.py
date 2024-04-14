@@ -75,4 +75,4 @@ class CLIPLoss(torch.nn.Module):
             similarity = 1 - F.cosine_similarity(delta_v[mask], delta_t[mask])#/100.
         else:
             similarity = 1 - torch.sum(delta_v[mask])*0.0
-        return similarity
+        return torch.mean(similarity)
