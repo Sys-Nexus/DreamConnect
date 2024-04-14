@@ -51,6 +51,8 @@ class CLIPLoss(torch.nn.Module):
         return image_features
 
     def forward(self, input_image, output_image, input_text, output_text):
+        input_image = input_image*0.5+0.5
+        output_image = output_image*0.5+0.5
         with torch.no_grad():
             input_v = self.encode_image(input_image)
             input_t = self.encode_text(input_text)
@@ -59,7 +61,6 @@ class CLIPLoss(torch.nn.Module):
         input_v = input_v.requires_grad_(True)
         input_t = input_t.requires_grad_(True)
         output_t = output_t.requires_grad_(True)
-
         output_v = self.encode_image(output_image)
         
         import pdb; pdb.set_trace();
@@ -67,5 +68,5 @@ class CLIPLoss(torch.nn.Module):
         import torchvision
         cat = torch.cat([input_image, output_image], dim=2)
         torchvision.utils.save_image(cat, "cat.png")
-        similarity = 1 - F.cosine_similarity(output_v-input_v, output_t-input_t)/100.
+        similarity = 1 - F.cosine_similarity(output_v-input_v, output_t-input_t)#/100.
         return similarity
