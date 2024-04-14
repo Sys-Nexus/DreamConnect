@@ -63,10 +63,16 @@ class CLIPLoss(torch.nn.Module):
         output_t = output_t.requires_grad_(True)
         output_v = self.encode_image(output_image)
         
-        import pdb; pdb.set_trace();
+        # import pdb; pdb.set_trace();
         # print(input_text, output_text)
         # import torchvision
         # cat = torch.cat([input_image, output_image], dim=2)
         # torchvision.utils.save_image(cat, "cat.png")
-        similarity = 1 - F.cosine_similarity(output_v-input_v, output_t-input_t)#/100.
+        delta_t = output_t - input_t
+        delta_v = output_v-input_v
+        mask = (torch.sum(delta_t.abs(),dim=-1)!=0)
+        if mask.sum().item() > 0:
+            similarity = 1 - F.cosine_similarity(delta_v[mask], delta_t[mask])#/100.
+        else:
+            similarity = 1 - torch.sum(delta_v[mask])*0.0
         return similarity
