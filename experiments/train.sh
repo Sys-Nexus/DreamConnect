@@ -1,5 +1,6 @@
 
-jobname=${1:-'train_conv_adaptor'}
+jobname=${1:-'train_conv_adaptor_idback'}
+# jobname=${1:-'train_conv_adaptor_mgback'}
 filter_mode=${2:-'tune_controlunet'} #no_filter
 
 gpus=${3:-'1,'}
