@@ -28,42 +28,42 @@ export LD_LIBRARY_PATH=/usr/local/cuda-11.3/lib64:$LD_LIBRARY_PATH
 current_date=$(date +"%Y-%m-%d")
 
 prospect_ckpt_paths=(
-  /data/yashengsun/Proj/MMEdit/ProSpect/logs/starryNew2024-03-04T23-34-17_starryNew/checkpoints/embeddings.pt
-  /data/yashengsun/Proj/MMEdit/ProSpect/logs/window_grille2024-03-04T23-28-37_window_grille/checkpoints/embeddings.pt
-  /data/yashengsun/Proj/MMEdit/ProSpect/logs/circuit2024-03-04T23-23-03_circuit/checkpoints/embeddings.pt
-  /data/yashengsun/Proj/MMEdit/ProSpect/logs/blackstrokes2024-03-04T23-17-24_blackstrokes/checkpoints/embeddings.pt
-  /data/yashengsun/Proj/MMEdit/ProSpect/logs/udnie2024-03-04T23-11-50_udnie/checkpoints/embeddings.pt
-  /data/yashengsun/Proj/MMEdit/ProSpect/logs/cloud2024-03-04T23-06-12_cloud/checkpoints/embeddings.pt
-  /data/yashengsun/Proj/MMEdit/ProSpect/logs/stars2024-03-04T23-00-36_stars/checkpoints/embeddings.pt
-  /data/yashengsun/Proj/MMEdit/ProSpect/logs/leaves2024-03-04T22-54-59_leaves/checkpoints/embeddings.pt
-  /data/yashengsun/Proj/MMEdit/ProSpect/logs/yellow_square2024-03-04T22-49-23_yellow_square/checkpoints/embeddings.pt
-  /data/yashengsun/Proj/MMEdit/ProSpect/logs/occean2024-03-04T22-43-46_occean/checkpoints/embeddings.pt
-  /data/yashengsun/Proj/MMEdit/ProSpect/logs/rain_princess2024-03-04T22-38-07_rain_princess/checkpoints/embeddings.pt
-  /data/yashengsun/Proj/MMEdit/ProSpect/logs/wave2024-03-04T22-32-31_wave/checkpoints/embeddings.pt
-  /data/yashengsun/Proj/MMEdit/ProSpect/logs/202004282208292024-03-04T22-26-58_20200428220829/checkpoints/embeddings.pt
-  /data/yashengsun/Proj/MMEdit/ProSpect/logs/colorful_cubes2024-03-04T22-21-24_colorful_cubes/checkpoints/embeddings.pt
-  /data/yashengsun/Proj/MMEdit/ProSpect/logs/bricks2024-03-04T22-15-50_bricks/checkpoints/embeddings.pt
-  /data/yashengsun/Proj/MMEdit/ProSpect/logs/feathers2024-03-04T22-10-18_feathers/checkpoints/embeddings.pt
-  '/data/yashengsun/Proj/MMEdit/ProSpect/logs_backup0305/kanagawa2024-02-29T06-01-27_kanagawa/checkpoints/embeddings.pt'
+  # /data/yashengsun/Proj/MMEdit/ProSpect/logs/starryNew2024-03-04T23-34-17_starryNew/checkpoints/embeddings.pt
+  # /data/yashengsun/Proj/MMEdit/ProSpect/logs/window_grille2024-03-04T23-28-37_window_grille/checkpoints/embeddings.pt
+  # /data/yashengsun/Proj/MMEdit/ProSpect/logs/circuit2024-03-04T23-23-03_circuit/checkpoints/embeddings.pt
+  # /data/yashengsun/Proj/MMEdit/ProSpect/logs/blackstrokes2024-03-04T23-17-24_blackstrokes/checkpoints/embeddings.pt
+  # /data/yashengsun/Proj/MMEdit/ProSpect/logs/udnie2024-03-04T23-11-50_udnie/checkpoints/embeddings.pt
+  # /data/yashengsun/Proj/MMEdit/ProSpect/logs/cloud2024-03-04T23-06-12_cloud/checkpoints/embeddings.pt
+  # /data/yashengsun/Proj/MMEdit/ProSpect/logs/stars2024-03-04T23-00-36_stars/checkpoints/embeddings.pt
+  # /data/yashengsun/Proj/MMEdit/ProSpect/logs/leaves2024-03-04T22-54-59_leaves/checkpoints/embeddings.pt
+  # /data/yashengsun/Proj/MMEdit/ProSpect/logs/yellow_square2024-03-04T22-49-23_yellow_square/checkpoints/embeddings.pt
+  # /data/yashengsun/Proj/MMEdit/ProSpect/logs/occean2024-03-04T22-43-46_occean/checkpoints/embeddings.pt
+  # /data/yashengsun/Proj/MMEdit/ProSpect/logs/rain_princess2024-03-04T22-38-07_rain_princess/checkpoints/embeddings.pt
+  # /data/yashengsun/Proj/MMEdit/ProSpect/logs/wave2024-03-04T22-32-31_wave/checkpoints/embeddings.pt
+  # /data/yashengsun/Proj/MMEdit/ProSpect/logs/202004282208292024-03-04T22-26-58_20200428220829/checkpoints/embeddings.pt
+  # /data/yashengsun/Proj/MMEdit/ProSpect/logs/colorful_cubes2024-03-04T22-21-24_colorful_cubes/checkpoints/embeddings.pt
+  # /data/yashengsun/Proj/MMEdit/ProSpect/logs/bricks2024-03-04T22-15-50_bricks/checkpoints/embeddings.pt
+  # /data/yashengsun/Proj/MMEdit/ProSpect/logs/feathers2024-03-04T22-10-18_feathers/checkpoints/embeddings.pt
+  /data/yashengsun/Proj/MMEdit/ProSpect/logs_backup0305/kanagawa2024-02-29T06-01-27_kanagawa/checkpoints/embeddings.pt
 )
 
 style_names=(
-  'bricks'
-  'leaves'
-  'cloud'
-  'colorful_cubes'
-  'window_grille'
-  'yellow_square'
-  'wave'
-  'udnie'
-  'rain_princess'
-  'feathers'
-  'blackstrokes'
-  '20200428220829'
-  'stars'
-  'starryNew'
-  'occean'
-  'circuit'
+  # 'starryNew'
+  # 'window_grille'
+  # 'circuit'
+  # 'blackstrokes'
+  # 'udnie'
+  # 'cloud'
+  # 'stars'
+  # 'leaves'
+  # 'yellow_square'
+  # 'occean'
+  # 'rain_princess'
+  # 'wave'
+  # '20200428220829'
+  # 'colorful_cubes'
+  # 'bricks'
+  # 'feathers'
   'kanagawa'
 )
 
@@ -87,14 +87,11 @@ cfg_text_edits=(
 )
 
 
-layout_path='/data/yashengsun/Proj/MMEdit/ProSpect/images4prospect/layout_collections/baozi/baozi.jpg'
-resume_path='/data/yashengsun/Proj/MMEdit/fMRIInstructDiffusion/logs/wo_prospect_ctx_adaptor_bs4_wo_prospect_ctx_adaptor_bs4_2024-03-13/checkpoints/ckpt_epoch_5'
-
+# layout_path='/data/yashengsun/Proj/MMEdit/ProSpect/images4prospect/layout_collections/baozi/baozi.jpg'
 # prospect_ckpt_path='/data/yashengsun/Proj/MMEdit/ProSpect/logs/apple2024-02-28T22-30-10_apple/checkpoints/embeddings.pt'
 # prospect_ckpt_path='/data/yashengsun/Proj/MMEdit/ProSpect/logs/panda2024-02-29T05-29-09_panda/checkpoints/embeddings.pt'
 # prospect_ckpt_path='/data/yashengsun/Proj/MMEdit/ProSpect/logs_backup0305/panda2024-02-29T05-29-09_panda/checkpoints/embeddings.pt'
 # prospect_ckpt_path='/data/yashengsun/Proj/MMEdit/ProSpect/logs_backup0305/kanagawa2024-02-29T06-01-27_kanagawa/checkpoints/embeddings.pt'
-# resume_path='/data/yashengsun/Proj/MMEdit/fMRIInstructDiffusion/checkpoints/bohan_recon/'
 # ${HOME}/.local/bin/wandb login 56d149bd571b8312fbca5e3802d7859909ea00c1
 
 length=${#style_names[@]}
@@ -124,7 +121,6 @@ for ((i = 0; i < length; i++)); do
 done
 
 
-# --layout_path ${layout_path} #\
 ## set both is_inst_gen and is_inst_edit to True for correct inference
 ## is_inst_gen: control the generation process of versatile diffusion
 ## is_inst_edit: control the editing process of instruction diffusion
