@@ -28,7 +28,7 @@ export LD_LIBRARY_PATH=/usr/local/cuda-11.3/lib64:$LD_LIBRARY_PATH
 current_date=$(date +"%Y-%m-%d")
 
 prospect_ckpt_paths=(
-  # /data/yashengsun/Proj/MMEdit/ProSpect/logs/starryNew2024-03-04T23-34-17_starryNew/checkpoints/embeddings.pt
+  /data/yashengsun/Proj/MMEdit/ProSpect/logs/starryNew2024-03-04T23-34-17_starryNew/checkpoints/embeddings.pt
   # /data/yashengsun/Proj/MMEdit/ProSpect/logs/window_grille2024-03-04T23-28-37_window_grille/checkpoints/embeddings.pt
   # /data/yashengsun/Proj/MMEdit/ProSpect/logs/circuit2024-03-04T23-23-03_circuit/checkpoints/embeddings.pt
   # /data/yashengsun/Proj/MMEdit/ProSpect/logs/blackstrokes2024-03-04T23-17-24_blackstrokes/checkpoints/embeddings.pt
@@ -48,7 +48,7 @@ prospect_ckpt_paths=(
 )
 
 style_names=(
-  # 'starryNew'
+  'starryNew'
   # 'window_grille'
   # 'circuit'
   # 'blackstrokes'
