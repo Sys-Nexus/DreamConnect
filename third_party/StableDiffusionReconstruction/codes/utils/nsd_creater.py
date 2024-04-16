@@ -77,9 +77,9 @@ def load_img_from_string(img_path,resolution):
 
 class NIPS23NSDDataset(Dataset):
     def __init__(self, url="nsd_data_dir/test_subj01_" + "{0..1}.tar", voxels_key='nsdgeneral.npy', split='test', resolution=320,\
-            nsd_root='/data/yashengsun/Proj/MMEdit/StableDiffusionReconstruction/nsd',
-            image_clip_root='/data/yashengsun/Proj/MMEdit/fMRIInstructDiffusion/img_clip',
-            text_clip_root='/data/yashengsun/Proj/MMEdit/fMRIInstructDiffusion/text_clip',
+            nsd_root='nsd',
+            image_clip_root='img_clip',
+            text_clip_root='text_clip',
             is_reconstruct_mode=False,
             reconstruct_prob=0.1,
             use_first_instruct=False):
@@ -130,7 +130,7 @@ class NIPS23NSDDataset(Dataset):
         nsd_coco_caption_path = os.path.join(nsd_root, 'misc/nsd_coco_caption.pkl')
         self.caps, self.keys, self.cap_dict = read_pkl(nsd_coco_caption_path)
         # import pdb; pdb.set_trace()
-        self.edited_root = '/data/yashengsun/Proj/Diffusion/InstructDiffusion/nsd_coco_output'
+        self.edited_root = 'nsd_coco_output'
         self.meta_info = read_edit_json(os.path.join(nsd_root, 'misc'), self.keys)
         self.valid_do_nothing_ops = [' ']
 

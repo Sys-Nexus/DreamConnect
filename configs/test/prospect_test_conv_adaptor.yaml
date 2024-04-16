@@ -21,7 +21,7 @@ model:
     # ckpt_path: stable_diffusion/models/ldm/stable-diffusion-v1/v1-5-pruned-emaonly-adaption-task-humanalign.ckpt
     ckpt_path: stable_diffusion/models/ldm/stable-diffusion-v1/v1-5-pruned-emaonly-adaption-task-humanalign.ckpt
     # ctx_adaptor_ckpt_path: logs/wo_prospect_ctx_adaptor_bs4_wo_prospect_ctx_adaptor_bs4_2024-03-13/checkpoints/ckpt_epoch_5/mp_rank_00_model_states.pt
-    ctx_adaptor_ckpt_path: /data/yashengsun/Proj/MMEdit/fMRIInstructDiffusion/logs/train_conv_adaptor_train_conv_adaptor_2024-04-07/checkpoints/ckpt_epoch_60/mp_rank_00_model_states.pt
+    ctx_adaptor_ckpt_path: logs/train_conv_adaptor_train_conv_adaptor_2024-04-07/checkpoints/ckpt_epoch_60/mp_rank_00_model_states.pt
     linear_start: 0.00085
     linear_end: 0.0120
     num_timesteps_cond: 1
