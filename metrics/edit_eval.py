@@ -49,6 +49,7 @@ def main():
 
     img_paths = sorted(glob.glob(os.path.join(args.root_dir, 'all_iter*.png')))
     img_paths = img_paths[:6]
+    print(img_paths)
     all_id_sims = []
     for i,img_path in tqdm(enumerate(img_paths)):
         input_img = read_split_image(img_path, 3)
