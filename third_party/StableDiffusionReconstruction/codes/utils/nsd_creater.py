@@ -145,7 +145,8 @@ class NIPS23NSDDataset(Dataset):
         init_image = load_img_from_arr(img, self.resolution)
         init_image = repeat(init_image, '1 ... -> b ...', b=1)
         fmri_norm = self.voxels[index][0]
-
+        
+        import pdb; pdb.set_trace()
         nsd_dict = {'cap': random.choices(caps)[0], 'image': init_image[0], 
                     'fmri': fmri_norm, 's': s}
         
