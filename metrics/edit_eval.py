@@ -78,6 +78,7 @@ def main():
         else:
             raise ValueError
         all_id_sims.append(id_sim.item())
+        print(img_path, id_sim.item())
         # if i>5:break
     ave_id_sim = sum(all_id_sims) * 1.0 / len(all_id_sims)
     print('eval_mode: ', args.eval_mode)
