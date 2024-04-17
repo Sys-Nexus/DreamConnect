@@ -129,7 +129,7 @@ class NIPS23NSDDataset(Dataset):
         nsd_root = os.path.dirname(os.path.abspath(__file__))
         nsd_coco_caption_path = os.path.join(nsd_root, 'misc/nsd_coco_caption.pkl')
         self.caps, self.keys, self.cap_dict = read_pkl(nsd_coco_caption_path)
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
         self.edited_root = 'nsd_coco_output'
         self.meta_info = read_edit_json(os.path.join(nsd_root, 'misc'), self.keys)
         self.valid_do_nothing_ops = [' ']
@@ -146,7 +146,7 @@ class NIPS23NSDDataset(Dataset):
         init_image = repeat(init_image, '1 ... -> b ...', b=1)
         fmri_norm = self.voxels[index][0]
         
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
         nsd_dict = {'cap': random.choices(caps)[0], 'image': init_image[0], 
                     'fmri': fmri_norm, 's': s}
         
