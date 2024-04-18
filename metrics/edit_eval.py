@@ -62,22 +62,24 @@ def main():
         edit_img = read_split_image(img_path, 4)
         input_feat = sim_evaluator.encode_image(input_img)
         edit_feat = sim_evaluator.encode_image(edit_img)
+        
+        input_path = img_path.replace(args.root_dir, args.text_dir).replace('.png', '-input.txt')
+        with open(input_path, 'r') as f:
+            input_text = f.readlines()
+        output_path = img_path.replace(args.root_dir, args.text_dir).replace('.png', '-output.txt')
+        with open(output_path, 'r') as f:
+            output_text = f.readlines()
+        instruct_path = img_path.replace(args.root_dir, args.text_dir).replace('.png', '-instruct.txt')
+        with open(instruct_path, 'r') as f:
+            instruct_text = f.readlines()
+        
+        for key_word in key_words:
+            if key_word in instruct_text[0].lower():
+                this_key_word = key_word
+
         if args.eval_mode == 'id_sim':
             id_sim = F.cosine_similarity(input_feat, edit_feat)
         elif args.eval_mode == 'inst_sim':
-            input_path = img_path.replace(args.root_dir, args.text_dir).replace('.png', '-input.txt')
-            with open(input_path, 'r') as f:
-                input_text = f.readlines()
-            output_path = img_path.replace(args.root_dir, args.text_dir).replace('.png', '-output.txt')
-            with open(output_path, 'r') as f:
-                output_text = f.readlines()
-            instruct_path = img_path.replace(args.root_dir, args.text_dir).replace('.png', '-instruct.txt')
-            with open(instruct_path, 'r') as f:
-                instruct_text = f.readlines()
-
-            for key_word in key_words:
-                if key_word in instruct_text[0].lower():
-                    this_key_word = key_word
             # print('instruct: ', instruct_text[0].lower())
             # instr_text = ['']
             # import pdb; pdb.set_trace()
@@ -85,10 +87,11 @@ def main():
             instr_feat = sim_evaluator.encode_text(output_text) - sim_evaluator.encode_text(input_text)
             delta_feat = edit_feat - input_feat
             id_sim = F.cosine_similarity(delta_feat / delta_feat.norm(dim=1, keepdim=True), instr_feat)
-            id_sim_dict[this_key_word].append(id_sim.item())
 
         else:
             raise ValueError
+            
+        id_sim_dict[this_key_word].append(id_sim.item())
         all_id_sims.append(id_sim.item())
         # print(img_path, id_sim.item())
     ave_id_sim = sum(all_id_sims) * 1.0 / len(all_id_sims)
