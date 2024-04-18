@@ -51,7 +51,7 @@ def main():
     # img_paths = img_paths[:6]
     # print(img_paths)
 
-    key_words = ['make', 'replace', 'turn', 'change', 'remove']
+    key_words = ['make', 'replace', 'turn', 'change', 'remove', 'add']
     id_sim_dict = {key_word: [] for key_word in key_words}
     id_sim_dict['other'] = []
 
@@ -78,7 +78,7 @@ def main():
             for key_word in key_words:
                 if key_word in instruct_text[0].lower():
                     this_key_word = key_word
-            # print('instruct: ', instruct_text[0].lower())
+            print('instruct: ', instruct_text[0].lower())
             # instr_text = ['']
             # import pdb; pdb.set_trace()
             # instr_feat = sim_evaluator.encode_text(instr_text)
@@ -96,7 +96,7 @@ def main():
     print('root_dir: ', args.root_dir)
     print('id_sim: ', ave_id_sim)
 
-    for key_word in key_words:
+    for key_word in id_sim_dict.keys():
         print(key_word, len(id_sim_dict[key_word]), sum(id_sim_dict[key_word]) * 1.0 / len(id_sim_dict[key_word]))
     # import pdb; pdb.set_trace()
 
