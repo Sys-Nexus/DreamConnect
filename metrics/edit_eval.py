@@ -90,9 +90,10 @@ def main():
 
         else:
             raise ValueError
-            
-        id_sim_dict[this_key_word].append(id_sim.item())
-        all_id_sims.append(id_sim.item())
+
+        if instruct_text[0].lower():
+            id_sim_dict[this_key_word].append(id_sim.item())
+            all_id_sims.append(id_sim.item())
         # print(img_path, id_sim.item())
     ave_id_sim = sum(all_id_sims) * 1.0 / len(all_id_sims)
     print('eval_mode: ', args.eval_mode)
