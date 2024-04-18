@@ -48,7 +48,7 @@ def main():
         raise ValueError
 
     img_paths = sorted(glob.glob(os.path.join(args.root_dir, 'all_iter*.png')))
-    img_paths = img_paths[:6]
+    # img_paths = img_paths[:6]
     # print(img_paths)
     all_id_sims = []
     for i,img_path in tqdm(enumerate(img_paths)):
@@ -79,7 +79,6 @@ def main():
             raise ValueError
         all_id_sims.append(id_sim.item())
         # print(img_path, id_sim.item())
-        # if i>5:break
     ave_id_sim = sum(all_id_sims) * 1.0 / len(all_id_sims)
     print('eval_mode: ', args.eval_mode)
     print('root_dir: ', args.root_dir)
