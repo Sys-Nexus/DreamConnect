@@ -91,7 +91,7 @@ def main():
         else:
             raise ValueError
 
-        if instruct_text[0].lower():
+        if instruct_text[0].lower() != '':
             id_sim_dict[this_key_word].append(id_sim.item())
             all_id_sims.append(id_sim.item())
         # print(img_path, id_sim.item())
