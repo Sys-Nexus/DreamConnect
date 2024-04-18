@@ -50,6 +50,10 @@ def main():
     img_paths = sorted(glob.glob(os.path.join(args.root_dir, 'all_iter*.png')))
     # img_paths = img_paths[:6]
     # print(img_paths)
+
+    key_words = ['make', 'replace', 'turn', 'change', 'remove']
+    id_sim_dict = {key_word: [] for key_word in key_words}
+
     all_id_sims = []
     for i,img_path in tqdm(enumerate(img_paths)):
         input_img = read_split_image(img_path, 3)
@@ -68,13 +72,19 @@ def main():
             instruct_path = img_path.replace(args.root_dir, args.text_dir).replace('.png', '-instruct.txt')
             with open(instruct_path, 'r') as f:
                 instruct_text = f.readlines()
-            print('instruct: ', instruct_text[0].lower())
+
+            for key_word in key_words:
+                if key_word in instruct_text[0].lower():
+                    this_key_word = key_word
+            # print('instruct: ', instruct_text[0].lower())
             # instr_text = ['']
             # import pdb; pdb.set_trace()
             # instr_feat = sim_evaluator.encode_text(instr_text)
             instr_feat = sim_evaluator.encode_text(output_text) - sim_evaluator.encode_text(input_text)
             delta_feat = edit_feat - input_feat
             id_sim = F.cosine_similarity(delta_feat / delta_feat.norm(dim=1, keepdim=True), instr_feat)
+            id_sim_dict[this_key_word].append(id_sim.item())
+
         else:
             raise ValueError
         all_id_sims.append(id_sim.item())
@@ -84,6 +94,8 @@ def main():
     print('root_dir: ', args.root_dir)
     print('id_sim: ', ave_id_sim)
 
+    for key_word in key_words:
+        print(key_word, len(id_sim_dict[key_word]), sum(id_sim_dict[key_word]) * 1.0 / len(id_sim_dict[key_word]))
     # import pdb; pdb.set_trace()
 
 
