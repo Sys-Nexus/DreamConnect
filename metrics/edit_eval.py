@@ -92,7 +92,7 @@ def main():
             raise ValueError
 
         # print(instruct_text[0].lower())
-        if instruct_text[0].lower().replace('\n', '') != '':
+        if instruct_text[0].lower().replace('\n', '').replace('/n','') != '':
             id_sim_dict[this_key_word].append(id_sim.item())
             all_id_sims.append(id_sim.item())
         # print(img_path, id_sim.item())
