@@ -97,7 +97,8 @@ def main():
     print('id_sim: ', ave_id_sim)
 
     for key_word in id_sim_dict.keys():
-        print(key_word, len(id_sim_dict[key_word]), sum(id_sim_dict[key_word]) * 1.0 / len(id_sim_dict[key_word]))
+        if len(id_sim_dict[key_word]):
+            print(key_word, len(id_sim_dict[key_word]), sum(id_sim_dict[key_word]) * 1.0 / len(id_sim_dict[key_word]))
     # import pdb; pdb.set_trace()
 
 
