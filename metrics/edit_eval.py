@@ -68,7 +68,7 @@ def main():
             instruct_path = img_path.replace(args.root_dir, args.text_dir).replace('.png', '-instruct.txt')
             with open(instruct_path, 'r') as f:
                 instruct_text = f.readlines()
-            print('instruct: ', instruct_text.lower())
+            print('instruct: ', instruct_text[0].lower())
             # instr_text = ['']
             # import pdb; pdb.set_trace()
             # instr_feat = sim_evaluator.encode_text(instr_text)
