@@ -53,6 +53,7 @@ def main():
 
     key_words = ['make', 'replace', 'turn', 'change', 'remove']
     id_sim_dict = {key_word: [] for key_word in key_words}
+    id_sim_dict['other'] = []
 
     all_id_sims = []
     for i,img_path in tqdm(enumerate(img_paths)):
