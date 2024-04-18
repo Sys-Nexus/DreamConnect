@@ -56,6 +56,7 @@ def main():
 
     all_id_sims = []
     for i,img_path in tqdm(enumerate(img_paths)):
+        this_key_word = 'other'
         input_img = read_split_image(img_path, 3)
         edit_img = read_split_image(img_path, 4)
         input_feat = sim_evaluator.encode_image(input_img)
