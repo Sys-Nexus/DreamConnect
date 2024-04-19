@@ -71,15 +71,16 @@ def main():
 
     all_id_sims, effective_img_paths = [], []
     uneffective_img_paths = []
-    if os.path.exists('uneffective_img_paths.pkl'):
-        with open('uneffective_img_paths.pkl', 'rb') as f:
-            uneffective_img_paths = pickle.load(f)
+    # if os.path.exists('uneffective_img_paths.pkl'):
+    #     with open('uneffective_img_paths.pkl', 'rb') as f:
+    #         uneffective_img_paths = pickle.load(f)
     # import pdb; pdb.set_trace()
 
     for i,img_path in tqdm(enumerate(img_paths)):
         if os.path.basename(img_path) in uneffective_img_paths: continue
         this_key_word = 'other'
-        input_img = read_split_image(img_path, 3)
+        # input_img = read_split_image(img_path, 3)
+        input_img = read_split_image(img_path, 1)
         edit_img = read_split_image(img_path, 4)
         input_feat = sim_evaluator.encode_image(input_img)
         edit_feat = sim_evaluator.encode_image(edit_img)

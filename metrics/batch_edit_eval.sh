@@ -1,5 +1,5 @@
 log_dirs=(
-    # logs/test_conv_adaptor_idback_test_conv_adaptor_idback_2024-04-17/visualize/images/val
+    logs/test_conv_adaptor_idback_test_conv_adaptor_idback_2024-04-17/visualize/images/val
     # logs/test_conv_adaptor_test_conv_adaptor_2024-04-13/visualize/images/val 
     # logs/test_conv_adaptor_test_conv_adaptor_2024-04-08/visualize/images/val
     # logs/test_conv_adaptor_test_conv_adaptor_2024-04-08/visualize/images/val_inst_pix2pix
@@ -13,7 +13,7 @@ eval_modes=(
     'id_sim'
 )
 eval_methods=(
-    'dino'
+    # 'dino'
     'clip'
 )
 for eval_mode in ${eval_modes[@]}
