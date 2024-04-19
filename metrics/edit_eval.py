@@ -125,7 +125,8 @@ def main():
         # print(instruct_text[0].lower(), len(instruct_text[0].lower()))
         if len(instruct_text[0].lower()) > 1:
             id_sim_dict[this_key_word].append(id_sim.item())
-            all_id_sims.append(id_sim.item())
+            if args.eval_mode != 'fid':
+                all_id_sims.append(id_sim.item())
             effective_img_paths.append(img_path)
 
             input_imgs.append(input_img)
