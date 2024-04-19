@@ -70,6 +70,7 @@ def main():
     id_sim_dict['other'] = []
 
     all_id_sims, effective_img_paths = [], []
+    if os.path.exists('uneffective_img_paths.pkl'):
     with open('uneffective_img_paths.pkl', 'rb') as f:
         uneffective_img_paths = pickle.load(f)
 
