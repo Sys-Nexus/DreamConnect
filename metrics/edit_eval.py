@@ -80,7 +80,8 @@ def main():
         if os.path.basename(img_path) in uneffective_img_paths: continue
         this_key_word = 'other'
         # input_img = read_split_image(img_path, 3)
-        input_img = read_split_image(img_path, 1)
+        # input_img = read_split_image(img_path, 1)
+        input_img = read_split_image(img_path, 2)
         edit_img = read_split_image(img_path, 4)
         input_feat = sim_evaluator.encode_image(input_img)
         edit_feat = sim_evaluator.encode_image(edit_img)
