@@ -48,7 +48,7 @@ def main():
         raise ValueError
 
     img_paths = sorted(glob.glob(os.path.join(args.root_dir, 'all_iter*.png')))
-    # img_paths = img_paths[:6]
+    img_paths = img_paths[:5]
     # print(img_paths)
 
     key_words = ['make', 'replace', 'turn', 'change', 'remove', 'add', 'insert', 'swap', 'switch', 'put', 'cut']
