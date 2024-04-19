@@ -61,14 +61,14 @@ def main():
         raise ValueError
 
     img_paths = sorted(glob.glob(os.path.join(args.root_dir, 'all_iter*.png')))
-    img_paths = img_paths[:5]
+    img_paths = img_paths[:15]
     # print(img_paths)
 
     key_words = ['make', 'replace', 'turn', 'change', 'remove', 'add', 'insert', 'swap', 'switch', 'put', 'cut']
     id_sim_dict = {key_word: [] for key_word in key_words}
     id_sim_dict['other'] = []
 
-    all_id_sims = []
+    all_id_sims, effective_img_paths = [], []
     for i,img_path in tqdm(enumerate(img_paths)):
         this_key_word = 'other'
         input_img = read_split_image(img_path, 3)
@@ -108,6 +108,7 @@ def main():
         if len(instruct_text[0].lower()) > 1:
             id_sim_dict[this_key_word].append(id_sim.item())
             all_id_sims.append(id_sim.item())
+            effective_img_paths.append(img_path)
         # print(img_path, id_sim.item())
     ave_id_sim = sum(all_id_sims) * 1.0 / len(all_id_sims)
     print('eval_mode: ', args.eval_mode)
@@ -118,6 +119,11 @@ def main():
         if len(id_sim_dict[key_word]):
             print(key_word, len(id_sim_dict[key_word]), sum(id_sim_dict[key_word]) * 1.0 / len(id_sim_dict[key_word]))
     # import pdb; pdb.set_trace()
+    
+    id_w_img_paths = list(zip(all_id_sims, effective_img_paths))
+    bottom_k = bottom_k_with_indices(id_w_img_paths, k=10)
+    uneffective_img_paths = [item[1] for item in bottom_k]
+    print('uneffective_img_paths: ', uneffective_img_paths)
 
 
 if __name__ == '__main__':

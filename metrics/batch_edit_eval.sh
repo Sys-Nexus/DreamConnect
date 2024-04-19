@@ -30,22 +30,22 @@ do
 done
 
 
-eval_modes=(
-    'inst_sim'
-)
-eval_methods=(
-    'clip'
-)
+# eval_modes=(
+#     'inst_sim'
+# )
+# eval_methods=(
+#     'clip'
+# )
 
-for eval_mode in ${eval_modes[@]}
-do
-    echo 'eval_mode: '$eval_mode
-    for eval_method in ${eval_methods[@]}
-    do
-        echo 'eval_method: '$eval_method
-        for root_dir in ${log_dirs[@]}
-        do
-            python  metrics/edit_eval.py --eval_method ${eval_method} --eval_mode ${eval_mode} --root_dir ${root_dir}
-        done
-    done
-done
+# for eval_mode in ${eval_modes[@]}
+# do
+#     echo 'eval_mode: '$eval_mode
+#     for eval_method in ${eval_methods[@]}
+#     do
+#         echo 'eval_method: '$eval_method
+#         for root_dir in ${log_dirs[@]}
+#         do
+#             python  metrics/edit_eval.py --eval_method ${eval_method} --eval_mode ${eval_mode} --root_dir ${root_dir}
+#         done
+#     done
+# done
