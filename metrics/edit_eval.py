@@ -71,8 +71,8 @@ def main():
 
     all_id_sims, effective_img_paths = [], []
     if os.path.exists('uneffective_img_paths.pkl'):
-    with open('uneffective_img_paths.pkl', 'rb') as f:
-        uneffective_img_paths = pickle.load(f)
+        with open('uneffective_img_paths.pkl', 'rb') as f:
+            uneffective_img_paths = pickle.load(f)
 
     for i,img_path in tqdm(enumerate(img_paths)):
         this_key_word = 'other'
