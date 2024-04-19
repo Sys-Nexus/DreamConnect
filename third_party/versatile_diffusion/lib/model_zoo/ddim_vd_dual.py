@@ -765,7 +765,7 @@ class DDIMSampler_Dual(DDIMSampler):
                                                     t=torch.ones_like(edit_ts) * (index + coarse_spatial_steps),
                                                     use_original_steps=use_original_steps)
             # import pdb; pdb.set_trace();
-
+            print(i, step, exp_tscale[i])
             x_dec_gen, x0_dec_gen, x_dec_edit, x0_dec_edit = self.asyn_p_sample_ddim_dual_cfg(
                 x_dec_gen, 
                 x_dec_edit,
