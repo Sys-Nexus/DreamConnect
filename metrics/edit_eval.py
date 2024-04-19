@@ -51,6 +51,8 @@ def main():
         pass
     elif args.eval_mode == 'inst_sim':
         args.eval_method = 'clip'
+    elif args.eval_method == 'fid':
+        pass
     else:
         raise ValueError
 
