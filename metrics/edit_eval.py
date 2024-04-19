@@ -58,6 +58,8 @@ def main():
         sim_evaluator = ClipSimilarity().cuda()
     elif args.eval_method == 'dino':
         sim_evaluator = DINO_v2_Similarity().cuda()
+    elif args.eval_method == 'fid':
+        pass
     else:
         raise ValueError
 
