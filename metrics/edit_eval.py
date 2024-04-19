@@ -70,6 +70,9 @@ def main():
     id_sim_dict['other'] = []
 
     all_id_sims, effective_img_paths = [], []
+    with open('uneffective_img_paths.pkl', 'rb') as f:
+        uneffective_img_paths = pickle.load(f)
+
     for i,img_path in tqdm(enumerate(img_paths)):
         this_key_word = 'other'
         input_img = read_split_image(img_path, 3)
@@ -129,7 +132,7 @@ def main():
     print('uneffective_id_sims: ', uneffective_id_sims)
 
     with open('uneffective_img_paths.pkl', 'wb') as f:
-        uneffective_img_paths = pickle.load(f)
+        pickle.dump(uneffective_img_paths, f)
 
 
 if __name__ == '__main__':
