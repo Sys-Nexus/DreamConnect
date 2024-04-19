@@ -122,7 +122,7 @@ def main():
 
 if __name__ == '__main__':
     # main()
-    lst = ([7,6,5,4,3,2,1], [1,2,3,4,5,6,7])
+    lst = list(zip([7,6,5,4,3,2,1], [1,2,3,4,5,6,7]))
     k = 3
     res = bottom_k_with_indices(lst, k)
     print(res)
