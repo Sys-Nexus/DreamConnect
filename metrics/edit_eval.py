@@ -118,15 +118,15 @@ def main():
             delta_feat = edit_feat - input_feat
             id_sim = F.cosine_similarity(delta_feat / delta_feat.norm(dim=1, keepdim=True), instr_feat)
         elif args.eval_mode == 'fid':
-            pass
+            id_sim = torch.zeros(1)
         else:
             raise ValueError
 
         # print(instruct_text[0].lower(), len(instruct_text[0].lower()))
         if len(instruct_text[0].lower()) > 1:
             id_sim_dict[this_key_word].append(id_sim.item())
-            if args.eval_mode != 'fid':
-                all_id_sims.append(id_sim.item())
+            # if args.eval_mode != 'fid':
+            all_id_sims.append(id_sim.item())
             effective_img_paths.append(img_path)
 
             input_imgs.append(input_img)
