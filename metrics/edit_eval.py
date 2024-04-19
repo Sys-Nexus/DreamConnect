@@ -73,7 +73,7 @@ def main():
     if os.path.exists('uneffective_img_paths.pkl'):
         with open('uneffective_img_paths.pkl', 'rb') as f:
             uneffective_img_paths = pickle.load(f)
-
+    import pdb; pdb.set_trace()
     for i,img_path in tqdm(enumerate(img_paths)):
         # if img_path in uneffective_img_paths: continue
         this_key_word = 'other'
