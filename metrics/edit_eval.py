@@ -8,6 +8,7 @@ import torchvision
 from clip_similarity import ClipSimilarity
 from dino_similarity import DINO_v2_Similarity
 
+import torch
 from tqdm import tqdm
 import torch.nn.functional as F
 import heapq
