@@ -11,6 +11,7 @@ from dino_similarity import DINO_v2_Similarity
 from tqdm import tqdm
 import torch.nn.functional as F
 import heapq
+import pickle
 
 
 def bottom_k_with_indices(lst, k):
@@ -61,7 +62,7 @@ def main():
         raise ValueError
 
     img_paths = sorted(glob.glob(os.path.join(args.root_dir, 'all_iter*.png')))
-    img_paths = img_paths[:15]
+    # img_paths = img_paths[:15]
     # print(img_paths)
 
     key_words = ['make', 'replace', 'turn', 'change', 'remove', 'add', 'insert', 'swap', 'switch', 'put', 'cut']
@@ -121,11 +122,14 @@ def main():
     # import pdb; pdb.set_trace()
     
     id_w_img_paths = list(zip(all_id_sims, effective_img_paths))
-    bottom_k = bottom_k_with_indices(id_w_img_paths, k=5)
+    bottom_k = bottom_k_with_indices(id_w_img_paths, k=100)
     uneffective_img_paths = [item[0] for item in bottom_k]
     uneffective_id_sims = [item[1] for item in bottom_k]
     print('uneffective_img_paths: ', uneffective_img_paths)
     print('uneffective_id_sims: ', uneffective_id_sims)
+
+    with open('uneffective_img_paths.pkl', 'wb') as f:
+        uneffective_img_paths = pickle.load(f)
 
 
 if __name__ == '__main__':
