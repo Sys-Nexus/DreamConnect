@@ -10,6 +10,18 @@ from dino_similarity import DINO_v2_Similarity
 
 from tqdm import tqdm
 import torch.nn.functional as F
+import heapq
+
+
+def bottom_k_with_indices(lst, k):
+    # Create a min heap of tuples containing (value, index)
+    heap = [(value, index) for index, value in enumerate(lst)]
+    heapq.heapify(heap)
+    
+    # Extract the bottom k items
+    bottom_k = [heapq.heappop(heap) for _ in range(k)]
+
+    return bottom_k
 
 
 def read_split_image(img_path, offset):
@@ -108,4 +120,8 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    # main()
+    lst = ([7,6,5,4,3,2,1], [1,2,3,4,5,6,7])
+    k = 3
+    res = bottom_k_with_indices(lst, k)
+    return res
