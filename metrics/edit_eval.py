@@ -75,7 +75,7 @@ def main():
             uneffective_img_paths = pickle.load(f)
 
     for i,img_path in tqdm(enumerate(img_paths)):
-        if img_path in uneffective_img_paths: continue
+        # if img_path in uneffective_img_paths: continue
         this_key_word = 'other'
         input_img = read_split_image(img_path, 3)
         edit_img = read_split_image(img_path, 4)
