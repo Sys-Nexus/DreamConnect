@@ -134,13 +134,27 @@ def main():
             edit_imgs.append(edit_img)
         # print(img_path, id_sim.item())
     
-    for input_img, edit_img in zip(input_imgs, edit_imgs):
-        import pdb; pdb.set_trace()
+    base_dir = os.path.basename(args.root_dir)
+    fid_input_dir, fid_edit_dir = args.root_dir + '_fid_input', args.root_dir + '_fid_edit'
+    os.makedirs(fid_input_dir, exist_ok=True)
+    os.makedirs(fid_edit_dir, exist_ok=True)
 
-    ave_id_sim = sum(all_id_sims) * 1.0 / len(all_id_sims)
-    print('eval_mode: ', args.eval_mode)
-    print('root_dir: ', args.root_dir)
-    print('id_sim: ', ave_id_sim)
+    for jj, (input_img, edit_img) in enumerate(zip(input_imgs, edit_imgs)):
+        # import pdb; pdb.set_trace()
+        input_path = os.path.join(fid_input_dir, '{:05d}.jpg'.format(jj))
+        pred_path = os.path.join(fid_eidt_dir, '{:05d}.jpg'.format(jj))
+        torchvision.utils.save_image(input_img, input_path)
+        torchvision.utils.save_image(edit_img, pred_path)
+
+    cmd = 'python -m pytorch_fid {} {}'.format(fid_input_dir, fid_edit_dir)
+    print(cmd)
+    os.system(cmd)
+
+    if args.eval_method == 'fid':
+        ave_id_sim = sum(all_id_sims) * 1.0 / len(all_id_sims)
+        print('eval_mode: ', args.eval_mode)
+        print('root_dir: ', args.root_dir)
+        print('id_sim: ', ave_id_sim)
 
     # for key_word in id_sim_dict.keys():
     #     if len(id_sim_dict[key_word]):
