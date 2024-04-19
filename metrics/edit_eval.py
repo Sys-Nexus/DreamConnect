@@ -127,9 +127,10 @@ def main():
     print('uneffective_img_paths: ', uneffective_img_paths)
     print('uneffective_id_sims: ', uneffective_id_sims)
 
+
 if __name__ == '__main__':
-    # main()
-    lst = list(zip([7,6,5,4,3,2,1], [1,2,3,4,5,6,7]))
-    k = 3
-    res = bottom_k_with_indices(lst, k)
-    print(res)
+    main()
+    # lst = list(zip([7,6,5,4,3,2,1], [1,2,3,4,5,6,7]))
+    # k = 3
+    # res = bottom_k_with_indices(lst, k)
+    # print(res)
