@@ -121,7 +121,7 @@ def main():
     # import pdb; pdb.set_trace()
     
     id_w_img_paths = list(zip(all_id_sims, effective_img_paths))
-    bottom_k = bottom_k_with_indices(id_w_img_paths, k=10)
+    bottom_k = bottom_k_with_indices(id_w_img_paths, k=15)
     uneffective_img_paths = [item[0] for item in bottom_k]
     uneffective_id_sims = [item[1] for item in bottom_k]
     print('uneffective_img_paths: ', uneffective_img_paths)
