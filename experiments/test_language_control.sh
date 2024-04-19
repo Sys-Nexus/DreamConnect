@@ -9,7 +9,8 @@ master_port=${4:-'27699'}
 isTrain=${5:-0}
 cfg_text=${6:-7.5}
 # cfg_text_edit=${6:-20.0}
-cfg_text_edit=${6:-7.5}
+# cfg_text_edit=${6:-7.5}
+cfg_text_edit=${6:-4.5}
 mode=${7:-'single'}
 vis=${8:-1}
 
