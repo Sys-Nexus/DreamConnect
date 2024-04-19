@@ -71,6 +71,8 @@ def main():
 
     all_id_sims, effective_img_paths = [], []
     uneffective_img_paths = []
+    input_imgs, edit_imgs = [], []
+
     # if os.path.exists('uneffective_img_paths.pkl'):
     #     with open('uneffective_img_paths.pkl', 'rb') as f:
     #         uneffective_img_paths = pickle.load(f)
@@ -81,10 +83,11 @@ def main():
         this_key_word = 'other'
         # input_img = read_split_image(img_path, 3)
         # input_img = read_split_image(img_path, 1)
-        input_img = read_split_image(img_path, 2)
+        if args.eval_mode == 'fid':
+            input_img = read_split_image(img_path, 1)
+        else:
+            input_img = read_split_image(img_path, 2)
         edit_img = read_split_image(img_path, 4)
-        input_feat = sim_evaluator.encode_image(input_img)
-        edit_feat = sim_evaluator.encode_image(edit_img)
         
         input_path = img_path.replace(args.root_dir, args.text_dir).replace('.png', '-input.txt')
         with open(input_path, 'r') as f:
@@ -101,16 +104,17 @@ def main():
                 this_key_word = key_word
 
         if args.eval_mode == 'id_sim':
+            input_feat = sim_evaluator.encode_image(input_img)
+            edit_feat = sim_evaluator.encode_image(edit_img)
             id_sim = F.cosine_similarity(input_feat, edit_feat)
         elif args.eval_mode == 'inst_sim':
-            # print('instruct: ', instruct_text[0].lower())
-            # instr_text = ['']
-            # import pdb; pdb.set_trace()
-            # instr_feat = sim_evaluator.encode_text(instr_text)
+            input_feat = sim_evaluator.encode_image(input_img)
+            edit_feat = sim_evaluator.encode_image(edit_img)
             instr_feat = sim_evaluator.encode_text(output_text) - sim_evaluator.encode_text(input_text)
             delta_feat = edit_feat - input_feat
             id_sim = F.cosine_similarity(delta_feat / delta_feat.norm(dim=1, keepdim=True), instr_feat)
-
+        elif args.eval_mode == 'fid':
+            pass
         else:
             raise ValueError
 
@@ -119,7 +123,14 @@ def main():
             id_sim_dict[this_key_word].append(id_sim.item())
             all_id_sims.append(id_sim.item())
             effective_img_paths.append(img_path)
+
+            input_imgs.append(input_img)
+            edit_imgs.append(edit_img)
         # print(img_path, id_sim.item())
+    
+    for input_img, edit_img in zip(input_imgs, edit_imgs):
+        import pdb; pdb.set_trace()
+
     ave_id_sim = sum(all_id_sims) * 1.0 / len(all_id_sims)
     print('eval_mode: ', args.eval_mode)
     print('root_dir: ', args.root_dir)
