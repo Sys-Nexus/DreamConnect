@@ -124,9 +124,9 @@ def main():
     print('root_dir: ', args.root_dir)
     print('id_sim: ', ave_id_sim)
 
-    for key_word in id_sim_dict.keys():
-        if len(id_sim_dict[key_word]):
-            print(key_word, len(id_sim_dict[key_word]), sum(id_sim_dict[key_word]) * 1.0 / len(id_sim_dict[key_word]))
+    # for key_word in id_sim_dict.keys():
+    #     if len(id_sim_dict[key_word]):
+    #         print(key_word, len(id_sim_dict[key_word]), sum(id_sim_dict[key_word]) * 1.0 / len(id_sim_dict[key_word]))
     # import pdb; pdb.set_trace()
     
     # id_w_img_paths = list(zip(all_id_sims, effective_img_paths))
