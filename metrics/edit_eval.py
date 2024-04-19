@@ -16,6 +16,7 @@ import heapq
 def bottom_k_with_indices(lst, k):
     # Create a min heap of tuples containing (value, index)
     heap = [(value, index) for index, value in enumerate(lst)]
+    print(heap)
     heapq.heapify(heap)
     
     # Extract the bottom k items
