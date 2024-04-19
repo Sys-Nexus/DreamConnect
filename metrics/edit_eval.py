@@ -142,7 +142,7 @@ def main():
     for jj, (input_img, edit_img) in enumerate(zip(input_imgs, edit_imgs)):
         # import pdb; pdb.set_trace()
         input_path = os.path.join(fid_input_dir, '{:05d}.jpg'.format(jj))
-        pred_path = os.path.join(fid_eidt_dir, '{:05d}.jpg'.format(jj))
+        pred_path = os.path.join(fid_edit_dir, '{:05d}.jpg'.format(jj))
         torchvision.utils.save_image(input_img, input_path)
         torchvision.utils.save_image(edit_img, pred_path)
 
