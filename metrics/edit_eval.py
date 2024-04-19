@@ -141,7 +141,7 @@ def main():
 
     for jj, (input_img, edit_img) in enumerate(zip(input_imgs, edit_imgs)):
         # import pdb; pdb.set_trace()
-        for ratio in range(1,5):
+        for ratio in range(1,6):
             input_path = os.path.join(fid_input_dir, '{:05d}.jpg'.format(jj*ratio))
             pred_path = os.path.join(fid_edit_dir, '{:05d}.jpg'.format(jj*ratio))
             torchvision.utils.save_image(input_img, input_path)
