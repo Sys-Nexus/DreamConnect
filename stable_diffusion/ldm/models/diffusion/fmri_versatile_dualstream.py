@@ -1054,6 +1054,8 @@ class DualLDM(LatentDiffusion):
             c1 = torch.cat(new_cond["c_crossattn_1"]["text_emb"], 1)
             fmri_vae = torch.cat(new_cond["c_crossattn_1"]["fmri_vae"],1)
 
+            print(x_noisy_gen.shape, t, a_t, sqrt_one_minus_at)
+            import pdb; pdb.set_trace();
             x_recon_gen, control_res, control_ctx, control_attn_qkv = self.control_model.forward_dc(x=torch.cat([x_noisy_gen], dim=1), 
                                                         timesteps=t,
                                                         c0=c0, c1=c1,
