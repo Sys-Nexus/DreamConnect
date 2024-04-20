@@ -883,6 +883,7 @@ class DualLDM(LatentDiffusion):
                 unconditional_guidance_scale_image_edit=None,
                 mixed_ratio=(1-self.mixing), 
                 is_inst_edit=is_inst_edit,
+                coarse_spatial_steps=self.coarse_spatial_steps
             )
         else:
             z_gen, z_edit, z0_gen_info, z0_edit_info = self.sampler.decode_dual(
@@ -899,6 +900,7 @@ class DualLDM(LatentDiffusion):
                 is_save_intermediate=self.is_save_intermediate,
                 is_save_x0=self.is_save_x0,
                 is_inst_edit=is_inst_edit,
+                coarse_spatial_steps=self.coarse_spatial_steps
             )
             # import pdb; pdb.set_trace()
             x0_gen_info, x0_edit_info = [], []
