@@ -714,12 +714,32 @@ class DDIMSampler_Dual(DDIMSampler):
 
             # import pdb; pdb.set_trace()
             # print('====', index, coarse_spatial_steps, i, step, '====')
+            # x_dec_gen, x0_dec_gen, x_dec_edit, x0_dec_edit = self.p_sample_ddim_dual_cfg(
+            #     x_dec_gen, 
+            #     x_dec_edit,
+            #     ts,
+            #     cond_dict,
+            #     index, 
+            #     unconditional_guidance_scale_gen=unconditional_guidance_scale_gen,
+            #     unconditional_guidance_scale_text_edit=unconditional_guidance_scale_text_edit,#*0.2,
+            #     unconditional_guidance_scale_image_edit=unconditional_guidance_scale_image_edit,
+            #     use_original_steps=use_original_steps,
+            #     noise_dropout=0,
+            #     temperature=1,
+            #     mixed_ratio=mixed_ratio,
+            #     is_save_intermediate=is_save_intermediate,
+            #     is_save_x0=is_save_x0,
+            #     sqrt_one_minus_at=sqrt_one_minus_at, 
+            #     a_t=a_t)
+
             x_dec_gen, x0_dec_gen, x_dec_edit, x0_dec_edit = self.p_sample_ddim_dual_cfg(
                 x_dec_gen, 
                 x_dec_edit,
                 ts,
+                ts,
                 cond_dict,
                 index, 
+                offset=0,
                 unconditional_guidance_scale_gen=unconditional_guidance_scale_gen,
                 unconditional_guidance_scale_text_edit=unconditional_guidance_scale_text_edit,#*0.2,
                 unconditional_guidance_scale_image_edit=unconditional_guidance_scale_image_edit,
