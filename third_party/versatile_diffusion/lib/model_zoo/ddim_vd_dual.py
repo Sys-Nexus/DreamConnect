@@ -692,7 +692,6 @@ class DDIMSampler_Dual(DDIMSampler):
                use_original_steps=False, mixed_ratio=0.5, is_save_intermediate=True, 
                is_save_x0=True, callback=None, coarse_spatial_steps=15,
                is_inst_edit=False):
-        # coarse_spatial_steps = 25
         # import pdb; pdb.set_trace()
         timesteps = np.arange(self.ddpm_num_timesteps) if use_original_steps else self.ddim_timesteps
         timesteps = timesteps[:t_start]
@@ -711,8 +710,8 @@ class DDIMSampler_Dual(DDIMSampler):
             index = total_steps - i - 1
             ts = torch.full((x_latent_edit.shape[0],), step, device=x_latent_edit.device, dtype=torch.long)
             a_t, sqrt_one_minus_at = self.get_al(x_dec_gen, index)
-
-            # import pdb; pdb.set_trace()
+            
+            import pdb; pdb.set_trace()
             # print('====', index, coarse_spatial_steps, i, step, '====')
             # x_dec_gen, x0_dec_gen, x_dec_edit, x0_dec_edit = self.p_sample_ddim_dual_cfg(
             #     x_dec_gen, 
