@@ -678,6 +678,7 @@ if __name__ == "__main__":
     
     seed = opt.seed + dist.get_rank()
     # seed = opt.seed
+    import pdb; pdb.set_trace()
     torch.manual_seed(seed)
     np.random.seed(seed)
     cudnn.benchmark = True
