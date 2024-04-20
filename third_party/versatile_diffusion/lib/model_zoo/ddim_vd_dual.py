@@ -732,7 +732,7 @@ class DDIMSampler_Dual(DDIMSampler):
             #     sqrt_one_minus_at=sqrt_one_minus_at, 
             #     a_t=a_t)
 
-            x_dec_gen, x0_dec_gen, x_dec_edit, x0_dec_edit = self.p_sample_ddim_dual_cfg(
+            x_dec_gen, x0_dec_gen, x_dec_edit, x0_dec_edit = self.asyn_p_sample_ddim_dual_cfg(
                 x_dec_gen, 
                 x_dec_edit,
                 ts,
