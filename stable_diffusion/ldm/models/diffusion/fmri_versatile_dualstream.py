@@ -944,7 +944,7 @@ class DualLDM(LatentDiffusion):
         os.makedirs(os.path.dirname(x_gen_path), exist_ok=True)
         torchvision.utils.save_image(x_gen*0.5+0.5, x_gen_path)
         self.model.train()
-        # import pdb; pdb.set_trace()
+        import pdb; pdb.set_trace()
 
     def apply_model(self, x_noisy_gen, x_noisy_edit, t, cond=None, t_edit_in=None, is_save_intermediate=True, is_save_x0=False, 
                         is_return_x0=False, sqrt_one_minus_at=None, a_t=None, sqrt_one_minus_at_offset=None, a_t_offset=None, 
