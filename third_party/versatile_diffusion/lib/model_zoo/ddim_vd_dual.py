@@ -721,7 +721,7 @@ class DDIMSampler_Dual(DDIMSampler):
                 cond_dict,
                 index, 
                 unconditional_guidance_scale_gen=unconditional_guidance_scale_gen,
-                unconditional_guidance_scale_text_edit=unconditional_guidance_scale_text_edit*0.2,
+                unconditional_guidance_scale_text_edit=unconditional_guidance_scale_text_edit,#*0.2,
                 unconditional_guidance_scale_image_edit=unconditional_guidance_scale_image_edit,
                 use_original_steps=use_original_steps,
                 noise_dropout=0,
