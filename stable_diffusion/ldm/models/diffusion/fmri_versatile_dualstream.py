@@ -826,7 +826,7 @@ class DualLDM(LatentDiffusion):
             # print(layout_in.max(), layout_in.min())
             layout_concat = self.encode_first_stage(layout_in).mode().detach()
 
-        import pdb; pdb.set_trace();
+        # import pdb; pdb.set_trace();
         if self.use_fmri_vae and split == 'val':
             init_latent = batch['fmri_vae'][:N].to(z_gt)
         else:
