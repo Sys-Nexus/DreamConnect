@@ -794,8 +794,8 @@ class DualLDM(LatentDiffusion):
         output_basename = '{:05d}.npy'.format(s)
         output_path = os.path.join(root, output_basename)
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
-        import pdb; pdb.set_trace()
-        np.save(init_latent.cpu().numpy(), output_path)
+        # import pdb; pdb.set_trace()
+        np.save(init_latent.cpu().numpy()[0], output_path)
 
     @torch.no_grad()
     def log_images(self, batch, epoch_n, iter_n, batch_idx, model_wrap, model_wrap_cfg,
