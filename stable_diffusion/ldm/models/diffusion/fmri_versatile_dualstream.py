@@ -284,6 +284,7 @@ class DualLDM(LatentDiffusion):
         self.mutual_selfatt = kwargs.get('mutual_selfatt', None)
         self.only_align_loss = kwargs.get('only_align_loss', False)
         self.use_fmri_clip = kwargs.get('use_fmri_clip', False)
+        self.use_fmri_vae = kwargs.get('use_fmri_vae', True)
 
         self.use_styleclip_loss = kwargs['use_styleclip_loss']
         self.is_save_x0 = kwargs['is_save_x0']
