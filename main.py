@@ -424,16 +424,16 @@ def test_one_epoch(config, model, model_ema, data_loader, val_data_loader, optim
                 #                  save_dir, 'val', cfg_text=cfg_text, cfg_text_edit=cfg_text_edit, cfg_fmri=2.5,
                 #                  prospect_words=None, is_inst_edit=False, layout_in=layout_in)
                 else:
-                    # model.save_text(batch, epoch, idx, val_idx, model_wrap, model_wrap_cfg, 
-                    #              save_dir, 'val', cfg_text=cfg_text, cfg_text_edit=cfg_text_edit, cfg_fmri=2.5,
-                    #              prospect_words=None, is_inst_edit=False, is_inst_gen=False)
-                    model.save_fmri_vae(batch, epoch, idx, val_idx, model_wrap, model_wrap_cfg, 
+                    model.save_text(batch, epoch, idx, val_idx, model_wrap, model_wrap_cfg, 
                                  save_dir, 'val', cfg_text=cfg_text, cfg_text_edit=cfg_text_edit, cfg_fmri=2.5,
                                  prospect_words=None, is_inst_edit=False, is_inst_gen=False)
-                    # import pdb; pdb.set_trace()
-                    # model.log_images(batch, epoch, idx, val_idx, model_wrap, model_wrap_cfg, 
+                    # model.save_fmri_vae(batch, epoch, idx, val_idx, model_wrap, model_wrap_cfg, 
                     #              save_dir, 'val', cfg_text=cfg_text, cfg_text_edit=cfg_text_edit, cfg_fmri=2.5,
                     #              prospect_words=None, is_inst_edit=False, is_inst_gen=False)
+                    # import pdb; pdb.set_trace()
+                    model.log_images(batch, epoch, idx, val_idx, model_wrap, model_wrap_cfg, 
+                                 save_dir, 'val', cfg_text=cfg_text, cfg_text_edit=cfg_text_edit, cfg_fmri=2.5,
+                                 prospect_words=None, is_inst_edit=False, is_inst_gen=False)
     model.train()
 
 def train_one_epoch(config, model, model_ema, data_loader, val_data_loader, optimizer, epoch, 
