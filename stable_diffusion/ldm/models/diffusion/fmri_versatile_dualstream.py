@@ -777,6 +777,7 @@ class DualLDM(LatentDiffusion):
         if self.model is None: return
         self.model.eval()
         s = batch['s'][0]
+        root = os.path.join(save_dir, "images", split)
 
         N = min(batch['image'].shape[0], N)
         z_gt, c, x, xrec, xc = self.get_input(batch, self.first_stage_key, force_c_encode=True,
