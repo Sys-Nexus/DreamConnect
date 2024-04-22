@@ -136,16 +136,24 @@ class ZeroConvControlledUnetModel(UNetModel):
                     injected_attn_q, injected_attn_k, injected_attn_v = \
                             injected_attn_qkv[0][attn_cnt], injected_attn_qkv[1][attn_cnt], injected_attn_qkv[2][attn_cnt]
                     attn_cnt += 1
-                # import pdb; pdb.set_trace();
-                h = module(h, emb, context,
-                            self_attn_k_injected=None,
-                            self_attn_v_injected=None)
+
+                if injected_features is not None:
+                    import pdb; pdb.set_trace();
+                    h = module(h, emb, context,
+                                out_layers_injected=None)
+                else:
+                    h = module(h, emb, context,
+                                self_attn_k_injected=None,
+                                self_attn_v_injected=None)
+                
                 # h = module(h, emb, context,
                 #             self_attn_k_injected=injected_attn_k,
                 #             self_attn_v_injected=injected_attn_v)
                 # import pdb; pdb.set_trace();
+                
 
-                if injected_contexts is not None and context_cnt < len(self.adaptor_blocks):
+                ### injected features have higher priority
+                if injected_features is None and injected_contexts is not None and context_cnt < len(self.adaptor_blocks):
                     inject_context = injected_contexts[context_cnt]
                     inject_context = inject_context.detach().requires_grad_(True)
                     res_h = self.adaptor_blocks[i](inject_context, emb)
@@ -275,6 +283,8 @@ class PreVersatileNetAdaptor(UNetModelVD):
 class DualLDM(LatentDiffusion):
     def __init__(self, clip_cfg, fmri2clip_cfg=None, fmri2clip_pretrain_path=None,
                 fmri_vclip_cfg=None, fmri_vclip_pretrain_path=None, personalization_config=None, *args, **kwargs):
+        
+        self.use_resnet_inject = kwargs.pop('use_resnet_inject', False)
         super().__init__(*args, **kwargs)
         self.vd_clip = VDCLIP(clip_cfg)
 
@@ -285,6 +295,7 @@ class DualLDM(LatentDiffusion):
         self.only_align_loss = kwargs.get('only_align_loss', False)
         self.use_fmri_clip = kwargs.get('use_fmri_clip', False)
         self.use_fmri_vae = kwargs.get('use_fmri_vae', True)
+
 
         self.use_styleclip_loss = kwargs['use_styleclip_loss']
         self.is_save_x0 = kwargs['is_save_x0']
@@ -1128,14 +1139,15 @@ class DualLDM(LatentDiffusion):
             # import pdb; pdb.set_trace()
 
             ## this sentence will overwrite the obtained noisy_c_concat at inference time            
-            new_cond["injected_features"] = out_layers_injected
+            if self.use_resnet_inject is True:
+                new_cond["injected_features"] = out_layers_injected
+            else:
+                new_cond["injected_features"] = None
             new_cond["noisy_c_concat"] = noisy_c_concat if noisy_c_concat4train is None else noisy_c_concat4train
             
             if 'layout_concat' in new_cond.keys():
                 new_cond['noisy_c_concat'] = new_cond['layout_concat'][0]
                 new_cond.pop('layout_concat')
-            # new_cond["injected_features"] = None
-            # new_cond["noisy_c_concat"] = x_noisy_edit
 
             new_cond["is_return_x0"] = is_return_x0
             new_cond["sqrt_one_minus_at"] = sqrt_one_minus_at_offset
