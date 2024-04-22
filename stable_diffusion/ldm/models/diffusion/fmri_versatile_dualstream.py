@@ -137,10 +137,11 @@ class ZeroConvControlledUnetModel(UNetModel):
                             injected_attn_qkv[0][attn_cnt], injected_attn_qkv[1][attn_cnt], injected_attn_qkv[2][attn_cnt]
                     attn_cnt += 1
 
-                if injected_features is not None:
-                    import pdb; pdb.set_trace();
-                    h = module(h, emb, context,
-                                out_layers_injected=None)
+                out_layers_feature_key = f'output_block_{i}_out_layers_features'
+                if injected_features is not None and out_layers_feature_key in injected_features:
+                    # import pdb; pdb.set_trace();
+                    out_layers_injected = injected_features[out_layers_feature_key]
+                    h = module(h, emb, context, out_layers_injected=out_layers_injected)
                 else:
                     h = module(h, emb, context,
                                 self_attn_k_injected=None,
