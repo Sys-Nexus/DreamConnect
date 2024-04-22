@@ -148,8 +148,8 @@ model:
         use_checkpoint: True
         legacy: False
         force_type_convert: True
-        train_feat_adaptor: True
-        # train_res_inject_adaptor: True
+        train_feat_adaptor: False
+        train_res_inject_adaptor: True
 
     cond_stage_config:
       # target: ldm.modules.encoders.modules.ExFrozenCLIPEmbedder

@@ -46,7 +46,7 @@ from ldm.models.diffusion.alignblock import align_block
 
 
 class ZeroConvControlledUnetModel(UNetModel):
-    def __init__(self, train_feat_adaptor=False, conditioning_scale=1.0, *args, **kwargs):
+    def __init__(self, train_feat_adaptor=False, train_res_inject_adaptor=False, conditioning_scale=1.0, *args, **kwargs):
         super().__init__(*args, **kwargs)
         channel_mult = self.channel_mult
         num_res_blocks = self.num_res_blocks
@@ -61,7 +61,10 @@ class ZeroConvControlledUnetModel(UNetModel):
         transformer_depth = self.transformer_depth
         force_type_convert = self.force_type_convert
         self.train_feat_adaptor = train_feat_adaptor
+        self.train_res_inject_adaptor = train_res_inject_adaptor
         self.dims = 2
+
+        assert not ((train_feat_adaptor is True) and (train_res_inject_adaptor is True)), 'train_feat_adaptor and train_res_inject_adaptor could only choose one.'
 
         if train_feat_adaptor is True:
             ds = 8
@@ -72,8 +75,6 @@ class ZeroConvControlledUnetModel(UNetModel):
             for level, mult in list(enumerate(channel_mult))[::-1]:
                 for i in range(num_res_blocks + 1):
                     ch = mult * model_channels
-                    # print(i, ch, out_ch)
-
                     if ds in attention_resolutions:
                         if num_head_channels == -1:
                             dim_head = ch // num_heads
@@ -81,10 +82,8 @@ class ZeroConvControlledUnetModel(UNetModel):
                             num_heads = ch // num_head_channels
                             dim_head = num_head_channels
                         if legacy:
-                            #num_heads = 1
                             dim_head = ch // num_heads if use_spatial_transformer else num_head_channels
-                        # self.adaptor_blocks.append(
-                        #     self.make_zero_conv(channels=ch, out_channels=ch))
+
                     if level and i == num_res_blocks:
                         out_ch = ch
                         ds //= 2
@@ -93,6 +92,34 @@ class ZeroConvControlledUnetModel(UNetModel):
                         self.make_zero_conv(channels=ch, out_channels=ch))
                     cnt += 1
                     if cnt >=9: break
+        
+        if train_res_inject_adaptor is True:
+            ds = 8
+            layers = []
+            out_ch = 1280
+            cnt = 0
+            self.adaptor_blocks = nn.ModuleList([])
+            for level, mult in list(enumerate(channel_mult))[::-1]:
+                for i in range(num_res_blocks + 1):
+                    ch = mult * model_channels
+                    if ds in attention_resolutions:
+                        if num_head_channels == -1:
+                            dim_head = ch // num_heads
+                        else:
+                            num_heads = ch // num_head_channels
+                            dim_head = num_head_channels
+                        if legacy:
+                            dim_head = ch // num_heads if use_spatial_transformer else num_head_channels
+
+                    if level and i == num_res_blocks:
+                        out_ch = ch
+                        ds //= 2
+
+                    self.adaptor_blocks.append(
+                        self.make_zero_conv(channels=ch, out_channels=ch))
+                    cnt += 1
+                    if cnt >=9: break
+        
         scales = torch.logspace(0, -1, len(self.adaptor_blocks))  # 0.1 to 1.0
         scales = scales * conditioning_scale
         self.scales = scales
@@ -139,19 +166,14 @@ class ZeroConvControlledUnetModel(UNetModel):
 
                 out_layers_feature_key = f'output_block_{i}_out_layers_features'
                 if injected_features is not None and out_layers_feature_key in injected_features:
-                    # import pdb; pdb.set_trace();
+                    import pdb; pdb.set_trace();
                     out_layers_injected = injected_features[out_layers_feature_key]
-                    h = module(h, emb, context, out_layers_injected=out_layers_injected)
+                    out_layers_injected_transformed = self.adaptor_blocks[i](out_layers_injected)
+                    h = module(h, emb, context, out_layers_injected=out_layers_injected_transformed)
                 else:
                     h = module(h, emb, context,
-                                self_attn_k_injected=None,
-                                self_attn_v_injected=None)
-                
-                # h = module(h, emb, context,
-                #             self_attn_k_injected=injected_attn_k,
-                #             self_attn_v_injected=injected_attn_v)
-                # import pdb; pdb.set_trace();
-                
+                                self_attn_k_injected=None, # injected_attn_k
+                                self_attn_v_injected=None) # injected_attn_v
 
                 ### injected features have higher priority
                 if injected_features is None and injected_contexts is not None and context_cnt < len(self.adaptor_blocks):
@@ -194,13 +216,13 @@ class PreVersatileNetAdaptor(UNetModelVD):
         ch = channel_mult[-1] * model_channels
         self.middle_block_out = self.make_zero_conv(ch)
 
-        ### for post-feature extraction
-        self.zero_convs = nn.ModuleList([])
-        if self.train_feat_adaptor is True:
-            for level_idx, mult in list(enumerate(channel_mult))[::-1]:
-                for block_idx in range(self.num_noattn_blocks[level_idx] + 1):
-                    ch = mult * model_channels
-                    self.zero_convs.append(self.make_zero_conv(ch))
+        # ### for post-feature extraction
+        # self.zero_convs = nn.ModuleList([])
+        # if self.train_feat_adaptor is True:
+        #     for level_idx, mult in list(enumerate(channel_mult))[::-1]:
+        #         for block_idx in range(self.num_noattn_blocks[level_idx] + 1):
+        #             ch = mult * model_channels
+        #             self.zero_convs.append(self.make_zero_conv(ch))
 
     def make_zero_conv(self, channels, kernel_size=1, stride=1, out_channels=None):
         if out_channels is None:
@@ -239,7 +261,8 @@ class PreVersatileNetAdaptor(UNetModelVD):
         contexts = []
         attn_qs, attn_ks, attn_vs = [], [], []
         ## layer 2, 5, 8 include upsampling: (1280, 1280, 640)
-        for i, (i_module, t_module, zero_conv) in enumerate(zip(self.unet_image.output_blocks, self.unet_text.output_blocks, self.zero_convs)):
+        # for i, (i_module, t_module, zero_conv) in enumerate(zip(self.unet_image.output_blocks, self.unet_text.output_blocks, self.zero_convs)):
+        for i, (i_module, t_module) in enumerate(zip(self.unet_image.output_blocks, self.unet_text.output_blocks)):
             # print('i: ', i)
             h = th.cat([h, hs.pop()], dim=1)
             h = self.mixed_run_dc(i_module, t_module, h, emb, c0, c1, xtype, c0_type, c1_type, mixed_ratio)
@@ -250,10 +273,10 @@ class PreVersatileNetAdaptor(UNetModelVD):
                 attn_k = self.unet_image.output_blocks[block_idx][1].transformer_blocks[0].attn1.k
                 attn_v = self.unet_image.output_blocks[block_idx][1].transformer_blocks[0].attn1.v
                 # import pdb; pdb.set_trace()
-                if self.train_feat_adaptor is True:
-                    feat_i_transformed = zero_conv(feat_i, emb) + feat_i
-                else:
-                    feat_i_transformed = feat_i
+                # if self.train_feat_adaptor is True:
+                #     feat_i_transformed = zero_conv(feat_i, emb) + feat_i
+                # else:
+                feat_i_transformed = feat_i
                 
                 outs.append(feat_i_transformed)
                 attn_qs.append(attn_q)
