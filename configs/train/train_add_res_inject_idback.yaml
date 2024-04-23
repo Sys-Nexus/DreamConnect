@@ -2,32 +2,21 @@
 # See more details in LICENSE.
 
 model:
-  base_learning_rate: 1.0e-04
+  base_learning_rate: 1.0e-06
   weight_decay: 0.01
   # target: ldm.models.diffusion.control_fmri_ddpm_edit.ControlLDM
   # target: ldm.models.diffusion.fmri_versatile_edit.fMRIVersatileEdit
   target: ldm.models.diffusion.fmri_versatile_dualstream.DualLDM
   params:
-    # adaptor_ckpt_path: 
     use_styleclip_loss: False
-    use_fmri_clip: True
     fp16: True
     deepspeed: 'deepspeed_1'
+    use_resnet_inject: True
     # fp16: False
     # deepspeed: 'deepspeedfp32_1'
     only_mid_control: False
     control_key: 'fmri'
-    use_resnet_inject: True
-    # deepspeed: ''
-    # ckpt_path: stable_diffusion/models/ldm/stable-diffusion-v1/v1-5-pruned-emaonly-adaption.ckpt
-    # ckpt_path: stable_diffusion/models/ldm/stable-diffusion-v1/v1-5-pruned-emaonly-adaption-task-humanalign.ckpt
-    # ckpt_path: stable_diffusion/models/ldm/stable-diffusion-v1/v1-5-pruned-emaonly-adaption-task-humanalign.ckpt
-    # ctx_adaptor_ckpt_path: /data/yashengsun/Proj/MMEdit/fMRIInstructDiffusion/logs/train_conv_adaptor_train_conv_adaptor_2024-04-01/checkpoints/ckpt_epoch_20/mp_rank_00_model_states.pt
-    # ckpt_path: stable_diffusion/models/ldm/stable-diffusion-v1/MagicBrush-epoch-52-step-4999.ckpt
-    ctx_adaptor_ckpt_path: logs/train_res_inject_idback_train_res_inject_idback_2024-04-22/checkpoints/ckpt_epoch_50/mp_rank_00_model_states.pt
     ckpt_path: stable_diffusion/models/ldm/stable-diffusion-v1/v1-5-pruned-emaonly-adaption-task-humanalign.ckpt
-    # ckpt_path: stable_diffusion/models/ldm/stable-diffusion-v1/MagicBrush-epoch-52-step-4999.ckpt
-    # ctx_adaptor_ckpt_path: /data/yashengsun/Proj/MMEdit/fMRIInstructDiffusion/logs/train_conv_adaptor_train_conv_adaptor_2024-04-07/checkpoints/ckpt_epoch_60/mp_rank_00_model_states.pt
     linear_start: 0.00085
     linear_end: 0.0120
     num_timesteps_cond: 1
@@ -146,6 +135,7 @@ model:
       target: ldm.models.diffusion.fmri_versatile_dualstream.ZeroConvControlledUnetModel
       # target: ldm.models.diffusion.fmri_versatile_dualstream.FusionPriorUnetModel
       params:
+        resnet_inject_add: True
         image_size: 32 # unused
         in_channels: 8
         out_channels: 4
@@ -160,7 +150,8 @@ model:
         use_checkpoint: True
         legacy: False
         force_type_convert: True
-        train_feat_adaptor: True
+        train_feat_adaptor: False
+        train_res_inject_adaptor: True
 
     cond_stage_config:
       # target: ldm.modules.encoders.modules.ExFrozenCLIPEmbedder
@@ -177,14 +168,24 @@ model:
       args: {}
       name: clip_frozen
       type: clip_frozen
-    
-    # fmri2clip_pretrain_path: '/data/yashengsun/Proj/MMEdit/fMRIInstructDiffusion/checkpoints/bohan_recon/state.pth'
+        
     # fmri2clip_pretrain_path: 'logs/alignloss_alignloss_2024-03-22/checkpoints/ckpt_epoch_55/mp_rank_00_model_states.pt'
     # fmri2clip_cfg:
     #   target: ldm.models.diffusion.alignblock.align_block
     #   params:
     #     out_dim: 197376
-    #     out_dim1: 59136
+    #     out_dim1: 768
+
+    # fmri2clip_pretrain_path: '/data/yashengsun/Proj/MMEdit/fMRIInstructDiffusion/checkpoints/bohan_recon/state.pth'
+    # fmri2clip_pretrain_path: '/data/yashengsun/Proj/MMEdit/fMRIInstructDiffusion/checkpoints/bohan_recon/mp_rank_00_model_states.pt'
+    # fmri2clip_cfg:
+    #   target: ldm.models.diffusion.alignblock.align_block
+    #   params:
+    #     input_dim: 15724
+    #     out_dim1: 257
+    #     out_dim2: 77
+    #     out_channel: 768
+    
     # fmri_vclip_pretrain_path: '/data/yashengsun/Proj/MMEdit/fMRI-reconstruction-NSD/train_logs/prior_257_final_subj01_bimixco_softclip_byol/last.pth'
     # fmri_vclip_cfg:
     #   target: third_party.fMRI_reconstruction_NSD.src.models.BrainNetwork
@@ -195,8 +196,8 @@ model:
 data:
   target: main.DataModuleFromConfig
   params:
-    # batch_size: 4
-    batch_size: 1
+    batch_size: 4
+    # batch_size: 1
     num_workers: 4
     train:
       target: third_party.StableDiffusionReconstruction.codes.utils.nsd_creater.NIPS23NSDDataset
@@ -217,12 +218,11 @@ data:
         is_reconstruct_mode: False
         url: 'nsd_data_dir/test_subj01_{0..1}.tar'
         reconstruct_prob: 0.0
-        use_first_instruct: True
 
 trainer:
   initial_scale: 13
   max_epochs: 200
   save_freq: 5
-  accumulate_grad_batches: 1
+  accumulate_grad_batches: 4
   clip_grad: 0.0
   optimizer: adamw

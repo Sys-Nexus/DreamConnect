@@ -47,6 +47,7 @@ from ldm.models.diffusion.alignblock import align_block
 
 class ZeroConvControlledUnetModel(UNetModel):
     def __init__(self, train_feat_adaptor=False, train_res_inject_adaptor=False, conditioning_scale=1.0, *args, **kwargs):
+        self.resnet_inject_add = kwargs.pop('resnet_inject_add', False)
         super().__init__(*args, **kwargs)
         channel_mult = self.channel_mult
         num_res_blocks = self.num_res_blocks
@@ -311,6 +312,7 @@ class DualLDM(LatentDiffusion):
                 fmri_vclip_cfg=None, fmri_vclip_pretrain_path=None, personalization_config=None, *args, **kwargs):
         
         self.use_resnet_inject = kwargs.pop('use_resnet_inject', False)
+
         super().__init__(*args, **kwargs)
         self.vd_clip = VDCLIP(clip_cfg)
 
