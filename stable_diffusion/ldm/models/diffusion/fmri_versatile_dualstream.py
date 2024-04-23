@@ -171,6 +171,7 @@ class ZeroConvControlledUnetModel(UNetModel):
                 if injected_features is not None and out_layers_feature_key in injected_features:
                     out_layers_injected = injected_features[out_layers_feature_key]
                     out_layers_injected_transformed = self.adaptor_blocks[i](out_layers_injected, emb) + out_layers_injected
+                    print(timesteps.shape, timesteps)
                     h = module(h, emb, context, out_layers_injected=out_layers_injected_transformed)
                 else:
                     h = module(h, emb, context,
