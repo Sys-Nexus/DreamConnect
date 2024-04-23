@@ -48,6 +48,7 @@ from ldm.models.diffusion.alignblock import align_block
 class ZeroConvControlledUnetModel(UNetModel):
     def __init__(self, train_feat_adaptor=False, train_res_inject_adaptor=False, conditioning_scale=1.0, *args, **kwargs):
         self.resnet_inject_add = kwargs.pop('resnet_inject_add', False)
+        self.isTest = kwargs.pop('isTest', False)
         super().__init__(*args, **kwargs)
         channel_mult = self.channel_mult
         num_res_blocks = self.num_res_blocks
@@ -171,8 +172,12 @@ class ZeroConvControlledUnetModel(UNetModel):
                 if injected_features is not None and out_layers_feature_key in injected_features:
                     out_layers_injected = injected_features[out_layers_feature_key]
                     out_layers_injected_transformed = self.adaptor_blocks[i](out_layers_injected, emb) + out_layers_injected
-                    print(timesteps.shape, timesteps)
-                    h = module(h, emb, context, out_layers_injected=out_layers_injected_transformed)
+                    # print(timesteps.shape, timesteps)
+                    if timesteps[0].item() < 700 and self.isTest:
+                        h = module(h, emb, context)                        
+                    else:
+                        h = module(h, emb, context, out_layers_injected=out_layers_injected_transformed)
+
                 else:
                     h = module(h, emb, context,
                                 self_attn_k_injected=None, # injected_attn_k

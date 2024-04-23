@@ -161,6 +161,7 @@ model:
         legacy: False
         force_type_convert: True
         train_feat_adaptor: True
+        isTest: True
 
     cond_stage_config:
       # target: ldm.modules.encoders.modules.ExFrozenCLIPEmbedder
