@@ -134,29 +134,33 @@ def main():
             edit_imgs.append(edit_img)
         # print(img_path, id_sim.item())
     
-    base_dir = os.path.basename(args.root_dir)
-    fid_input_dir, fid_edit_dir = args.root_dir + '_fid_input', args.root_dir + '_fid_edit'
-    os.makedirs(fid_input_dir, exist_ok=True)
-    os.makedirs(fid_edit_dir, exist_ok=True)
-
-    for jj, (input_img, edit_img) in enumerate(zip(input_imgs, edit_imgs)):
-        # import pdb; pdb.set_trace()
-        for ratio in range(1,6):
-            input_path = os.path.join(fid_input_dir, '{:05d}.jpg'.format(jj*ratio))
-            pred_path = os.path.join(fid_edit_dir, '{:05d}.jpg'.format(jj*ratio))
-            torchvision.utils.save_image(input_img, input_path)
-            torchvision.utils.save_image(edit_img, pred_path)
-
-    cmd = 'python -m pytorch_fid {} {}'.format(fid_input_dir, fid_edit_dir)
-    print(cmd)
-    os.system(cmd)
-
     if args.eval_method == 'fid':
+        base_dir = os.path.basename(args.root_dir)
+        fid_input_dir, fid_edit_dir = args.root_dir + '_fid_input', args.root_dir + '_fid_edit'
+        os.makedirs(fid_input_dir, exist_ok=True)
+        os.makedirs(fid_edit_dir, exist_ok=True)
+
+        for jj, (input_img, edit_img) in enumerate(zip(input_imgs, edit_imgs)):
+            # import pdb; pdb.set_trace()
+            for ratio in range(1,6):
+                input_path = os.path.join(fid_input_dir, '{:05d}.jpg'.format(jj*ratio))
+                pred_path = os.path.join(fid_edit_dir, '{:05d}.jpg'.format(jj*ratio))
+                torchvision.utils.save_image(input_img, input_path)
+                torchvision.utils.save_image(edit_img, pred_path)
+
+        cmd = 'python -m pytorch_fid {} {}'.format(fid_input_dir, fid_edit_dir)
+        print(cmd)
+        os.system(cmd)
+
+    elif args.eval_method != 'fid':
         ave_id_sim = sum(all_id_sims) * 1.0 / len(all_id_sims)
         print('eval_mode: ', args.eval_mode)
         print('root_dir: ', args.root_dir)
         print('id_sim: ', ave_id_sim)
 
+    else:
+        pass
+    
     # for key_word in id_sim_dict.keys():
     #     if len(id_sim_dict[key_word]):
     #         print(key_word, len(id_sim_dict[key_word]), sum(id_sim_dict[key_word]) * 1.0 / len(id_sim_dict[key_word]))
