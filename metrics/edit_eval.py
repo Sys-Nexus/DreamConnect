@@ -91,8 +91,8 @@ def main():
         if args.eval_mode == 'fid':
             input_img = read_split_image(img_path, 1)
         else:
-            # input_img = read_split_image(img_path, 2)
-            input_img = read_split_image(img_path, 3)
+            input_img = read_split_image(img_path, 2)
+            # input_img = read_split_image(img_path, 3)
         edit_img = read_split_image(img_path, 4)
         
         input_path = img_path.replace(args.root_dir, args.text_dir).replace('.png', '-input.txt')
