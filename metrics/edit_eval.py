@@ -78,9 +78,9 @@ def main():
     uneffective_img_paths = []
     input_imgs, edit_imgs = [], []
 
-    # if os.path.exists('uneffective_img_paths.pkl'):
-    #     with open('uneffective_img_paths.pkl', 'rb') as f:
-    #         uneffective_img_paths = pickle.load(f)
+    if os.path.exists('uneffective_img_paths.pkl'):
+        with open('uneffective_img_paths.pkl', 'rb') as f:
+            uneffective_img_paths = pickle.load(f)
     # import pdb; pdb.set_trace()
 
     for i,img_path in tqdm(enumerate(img_paths)):
@@ -167,16 +167,16 @@ def main():
     #         print(key_word, len(id_sim_dict[key_word]), sum(id_sim_dict[key_word]) * 1.0 / len(id_sim_dict[key_word]))
     # import pdb; pdb.set_trace()
     
-    id_w_img_paths = list(zip(all_id_sims, effective_img_paths))
-    bottom_k = bottom_k_with_indices(id_w_img_paths, k=100)
-    uneffective_img_paths = [os.path.basename(item[1]) for item in bottom_k]
-    # uneffective_id_sims = [item[1] for item in bottom_k]
-    print('uneffective_img_paths: ', uneffective_img_paths)
-    # print('uneffective_id_sims: ', uneffective_id_sims)
+    # id_w_img_paths = list(zip(all_id_sims, effective_img_paths))
+    # bottom_k = bottom_k_with_indices(id_w_img_paths, k=100)
+    # uneffective_img_paths = [os.path.basename(item[1]) for item in bottom_k]
+    # # uneffective_id_sims = [item[1] for item in bottom_k]
+    # print('uneffective_img_paths: ', uneffective_img_paths)
+    # # print('uneffective_id_sims: ', uneffective_id_sims)
 
-    with open('uneffective_img_paths.pkl', 'wb') as f:
-        pickle.dump(uneffective_img_paths, f)
-    import pdb; pdb.set_trace()
+    # with open('uneffective_img_paths.pkl', 'wb') as f:
+    #     pickle.dump(uneffective_img_paths, f)
+    # import pdb; pdb.set_trace()
 
 if __name__ == '__main__':
     main()
