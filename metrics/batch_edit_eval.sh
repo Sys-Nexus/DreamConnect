@@ -36,8 +36,8 @@ eval_modes=(
     'id_sim'
 )
 eval_methods=(
-    'dino'
     'clip'
+    'dino'
 )
 for eval_mode in ${eval_modes[@]}
 do
