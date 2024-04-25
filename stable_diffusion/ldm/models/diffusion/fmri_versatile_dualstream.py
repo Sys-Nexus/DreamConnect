@@ -173,7 +173,7 @@ class ZeroConvControlledUnetModel(UNetModel):
                     out_layers_injected = injected_features[out_layers_feature_key]
                     out_layers_injected_transformed = self.adaptor_blocks[i](out_layers_injected, emb) + out_layers_injected
                     # print(timesteps.shape, timesteps)
-                    if timesteps[0].item() < 500 and self.isTest:
+                    if timesteps[0].item() < 250 and self.isTest:
                         h = module(h, emb, context)
                     else:
                         h = module(h, emb, context, out_layers_injected=out_layers_injected_transformed)
