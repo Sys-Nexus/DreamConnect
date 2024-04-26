@@ -415,7 +415,7 @@ def test_one_epoch(config, model, model_ema, data_loader, val_data_loader, optim
     model.eval()
     epoch, idx = 999999, 999999
     whitelist = None
-    if os.path.exist(whitelist_path): 
+    if os.path.exists(whitelist_path): 
         with open(whitelist_path, 'r') as f:
             whitelist = f.read().splitlines()
             import pdb; pdb.set_trace()
