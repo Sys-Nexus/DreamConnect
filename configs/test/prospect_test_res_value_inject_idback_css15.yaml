@@ -156,6 +156,7 @@ model:
         force_type_convert: True
         train_feat_adaptor: True
         isTest: True
+        inject_min_step: 900
 
     cond_stage_config:
       target: ldm.modules.encoders.modules.ExFrozenCLIPEmbedder

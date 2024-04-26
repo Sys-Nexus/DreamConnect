@@ -49,6 +49,8 @@ class ZeroConvControlledUnetModel(UNetModel):
     def __init__(self, train_feat_adaptor=False, train_res_inject_adaptor=False, conditioning_scale=1.0, *args, **kwargs):
         self.resnet_inject_add = kwargs.pop('resnet_inject_add', False)
         self.isTest = kwargs.pop('isTest', False)
+        self.inject_min_step = kwargs.get('inject_min_step', 500)
+
         super().__init__(*args, **kwargs)
         channel_mult = self.channel_mult
         num_res_blocks = self.num_res_blocks
@@ -174,7 +176,7 @@ class ZeroConvControlledUnetModel(UNetModel):
                     out_layers_injected_transformed = self.adaptor_blocks[i](out_layers_injected, emb) + out_layers_injected
                     # print(timesteps.shape, timesteps)
                     # import pdb; pdb.set_trace()
-                    if timesteps[0].item() < 500 and self.isTest:
+                    if timesteps[0].item() < self.inject_min_step and self.isTest:
                         h = module(h, emb, context)
                     else:
                         h = module(h, emb, context, out_layers_injected=out_layers_injected_transformed)
