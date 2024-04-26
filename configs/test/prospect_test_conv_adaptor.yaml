@@ -12,6 +12,7 @@ model:
     use_fmri_clip: True
     fp16: True
     deepspeed: 'deepspeed_1'
+    use_resnet_inject: True
     # fp16: False
     # deepspeed: 'deepspeedfp32_1'
     only_mid_control: False
@@ -156,6 +157,7 @@ model:
         legacy: False
         force_type_convert: True
         train_feat_adaptor: True
+        isTest: True
 
     cond_stage_config:
       target: ldm.modules.encoders.modules.ExFrozenCLIPEmbedder
