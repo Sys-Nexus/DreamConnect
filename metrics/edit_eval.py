@@ -78,9 +78,9 @@ def main():
     uneffective_img_paths = []
     input_imgs, edit_imgs = [], []
 
-    if os.path.exists('uneffective_img_paths.pkl'):
-        with open('uneffective_img_paths.pkl', 'rb') as f:
-            uneffective_img_paths = pickle.load(f)
+    # if os.path.exists('uneffective_img_paths.pkl'):
+    #     with open('uneffective_img_paths.pkl', 'rb') as f:
+    #         uneffective_img_paths = pickle.load(f)
 
     for i,img_path in tqdm(enumerate(img_paths)):
         if os.path.basename(img_path) in uneffective_img_paths: continue
