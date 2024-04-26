@@ -49,7 +49,7 @@ class ZeroConvControlledUnetModel(UNetModel):
     def __init__(self, train_feat_adaptor=False, train_res_inject_adaptor=False, conditioning_scale=1.0, *args, **kwargs):
         self.resnet_inject_add = kwargs.pop('resnet_inject_add', False)
         self.isTest = kwargs.pop('isTest', False)
-        self.inject_min_step = kwargs.get('inject_min_step', 500)
+        self.inject_min_step = kwargs.pop('inject_min_step', 500)
 
         super().__init__(*args, **kwargs)
         channel_mult = self.channel_mult
