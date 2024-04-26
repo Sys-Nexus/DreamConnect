@@ -21,7 +21,8 @@ def main():
     # image_directory = '/data/yashengsun/Proj/MMEdit/fMRIInstructDiffusion/logs/test_conv_adaptor_test_conv_adaptor_2024-04-05/visualize/images/val/'
     # image_directory = '/data/yashengsun/Proj/MMEdit/fMRIInstructDiffusion/logs/test_conv_adaptor_test_conv_adaptor_2024-04-06/visualize/images/val/'
     # image_directory = '/data/yashengsun/Proj/MMEdit/fMRIInstructDiffusion/logs/test_conv_adaptor_test_conv_adaptor_2024-04-07/visualize/images/val'
-    image_directory = '/data/yashengsun/Proj/MMEdit/fMRIInstructDiffusion/logs/test_conv_adaptor_test_conv_adaptor_2024-04-08/visualize/images/val'
+    # image_directory = '/data/yashengsun/Proj/MMEdit/fMRIInstructDiffusion/logs/test_conv_adaptor_test_conv_adaptor_2024-04-08/visualize/images/val'
+    image_directory = 'logs/test_res_value_inject_idback_css15_test_res_value_inject_idback_css15_2024-04-25/visualize/images/val'
     # List all image files in the directory
     # image_files = [f for f in os.listdir(image_directory) if f.endswith(('.jpg', '.jpeg', '.png'))]
     image_files = glob.glob(os.path.join(image_directory, 'all_iter-*.png'))
