@@ -418,7 +418,7 @@ def test_one_epoch(config, model, model_ema, data_loader, val_data_loader, optim
     if os.path.exists(whitelist_path): 
         with open(whitelist_path, 'r') as f:
             whitelist = f.read().splitlines()
-            import pdb; pdb.set_trace()
+            # import pdb; pdb.set_trace()
         
     with torch.no_grad():
         for val_idx, batch in enumerate(val_data_loader):
