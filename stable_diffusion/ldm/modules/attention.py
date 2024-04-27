@@ -179,7 +179,8 @@ class CrossAttention(nn.Module):
 
     def forward(self, x, context=None, mask=None, 
                 self_attn_k_injected=None,
-                self_attn_v_injected=None):
+                self_attn_v_injected=None
+                context_mask=None):
         is_self_attn = context is None
 
         h = self.heads
@@ -212,6 +213,15 @@ class CrossAttention(nn.Module):
             mask = repeat(mask, 'b j -> (b h) () j', h=h)
             sim.masked_fill_(~mask, max_neg_value)
 
+        if context_mask is not None:
+            mask = context_mask
+            thres = 0.5
+            mask[mask >= thres] = 1
+            mask[mask < thres] = 0
+            import pdb; pdb.set_trace()
+            sim = sim + mask.masked_fill(mask == 0, torch.finfo(sim.dtype).min)
+            # sim_bg = sim + mask.masked_fill(mask == 1, torch.finfo(sim.dtype).min)
+
         # attention, what we cannot get enough of
         # attn = sim.softmax(dim=-1)
         attn = torch.softmax(sim.float(), dim=-1).type(sim.dtype)
@@ -219,32 +229,6 @@ class CrossAttention(nn.Module):
         out = einsum('b i j, b j d -> b i d', attn, v)
         out = rearrange(out, '(b h) n d -> b n (h d)', h=h)
         return self.to_out(out)
-
-
-# class BasicTransformerBlock(nn.Module):
-#     def __init__(self, dim, n_heads, d_head, dropout=0., context_dim=None, gated_ff=True, checkpoint=True):
-#         super().__init__()
-#         self.attn1 = CrossAttention(query_dim=dim, heads=n_heads, dim_head=d_head, dropout=dropout)  # is a self-attention
-#         self.ff = FeedForward(dim, dropout=dropout, glu=gated_ff)
-#         self.attn2 = CrossAttention(query_dim=dim, context_dim=context_dim,
-#                                     heads=n_heads, dim_head=d_head, dropout=dropout)  # is self-attn if context is none
-#         self.norm1 = nn.LayerNorm(dim)
-#         self.norm2 = nn.LayerNorm(dim)
-#         self.norm3 = nn.LayerNorm(dim)
-#         self.checkpoint = checkpoint
-
-#     def forward(self, x, context=None):
-#         # return checkpoint(self._forward, (x, context), self.checkpoint)
-#         return checkpoint(self._forward, (x, context), self.parameters(), self.checkpoint)
-
-#     def _forward(self, x, context=None):
-#         x = x.type(self.norm1.weight.dtype)
-#         if context is not None:
-#             context = context.type(self.norm1.weight.dtype)
-#         x = self.attn1(self.norm1(x)) + x
-#         x = self.attn2(self.norm2(x), context=context) + x
-#         x = self.ff(self.norm3(x)) + x
-#         return x
 
 
 class BasicTransformerBlock(nn.Module):
@@ -268,8 +252,10 @@ class BasicTransformerBlock(nn.Module):
         self.norm3 = nn.LayerNorm(dim)
         self.checkpoint = checkpoint
 
-    def forward(self, x, context=None, self_attn_k_injected=None, self_attn_v_injected=None):
-        if context is not None and self_attn_k_injected is not None:
+    def forward(self, x, context=None, self_attn_k_injected=None, self_attn_v_injected=None, context_mask=None):
+        if context is not None and context_mask is not None:
+            return checkpoint(self._forward_context_mask, (x, context, context_mask), self.parameters(), self.checkpoint)
+        elif context is not None and self_attn_k_injected is not None:
             return checkpoint(self._forward_all, (x, context, self_attn_k_injected, self_attn_v_injected), self.parameters(), self.checkpoint)
         elif context is not None:
             return checkpoint(self._forward_context, (x, context), self.parameters(), self.checkpoint)
@@ -277,6 +263,15 @@ class BasicTransformerBlock(nn.Module):
             return checkpoint(self._forward_attn, (x, self_attn_k_injected, self_attn_v_injected), self.parameters(), self.checkpoint)
         else:
             return checkpoint(self._forward_self, (x,), self.parameters(), self.checkpoint)
+
+    def _forward_context_mask(self, x, context=None, context_mask=None):
+        x = x.type(self.norm1.weight.dtype)
+        if context is not None:
+            context = context.type(self.norm1.weight.dtype)
+        x = self.attn1(self.norm1(x)) + x
+        x = self.attn2(self.norm2(x), context=context, context_mask=context_mask) + x
+        x = self.ff(self.norm3(x)) + x
+        return x
 
     def _forward_all(self, x, context=None, self_attn_k_injected=None, self_attn_v_injected=None):
         x = x.type(self.norm1.weight.dtype)
@@ -308,10 +303,6 @@ class BasicTransformerBlock(nn.Module):
         x = self.attn2(self.norm2(x), context=context) + x
         x = self.ff(self.norm3(x)) + x
         return x
-        # x = self.attn1(self.norm1(x), context=context if self.disable_self_attn else None) + x
-        # x = self.attn2(self.norm2(x), context=context) + x
-        # x = self.ff(self.norm3(x)) + x
-        # return x
 
     def _forward_self(self, x):
         x = x.type(self.norm1.weight.dtype)
@@ -350,57 +341,6 @@ class SimpleBasicTransformerBlock(nn.Module):
         x = self.attn1(self.norm1(x)) + x
         return x
 
-
-
-# class SpatialTransformer(nn.Module):
-#     """
-#     Transformer block for image-like data.
-#     First, project the input (aka embedding)
-#     and reshape to b, t, d.
-#     Then apply standard transformer action.
-#     Finally, reshape to image
-#     """
-#     def __init__(self, in_channels, n_heads, d_head, default_eps, force_type_convert, 
-#                  depth=1, dropout=0., context_dim=None):
-#         super().__init__()
-#         self.in_channels = in_channels
-#         inner_dim = n_heads * d_head
-#         self.force_type_convert = force_type_convert
-#         self.norm = Normalize(in_channels, default_eps)
-
-#         self.proj_in = nn.Conv2d(in_channels,
-#                                  inner_dim,
-#                                  kernel_size=1,
-#                                  stride=1,
-#                                  padding=0)
-
-#         self.transformer_blocks = nn.ModuleList(
-#             [BasicTransformerBlock(inner_dim, n_heads, d_head, dropout=dropout, context_dim=context_dim)
-#                 for d in range(depth)]
-#         )
-
-#         self.proj_out = zero_module(nn.Conv2d(inner_dim,
-#                                               in_channels,
-#                                               kernel_size=1,
-#                                               stride=1,
-#                                               padding=0))
-
-#     def forward(self, x, context=None):
-#         # note: if no context is given, cross-attention defaults to self-attention
-#         b, c, h, w = x.shape
-#         x_in = x
-#         if self.force_type_convert:
-#             x = self.norm.float()(x.float())
-#             x = x.half()
-#         else:
-#             x = self.norm(x)
-#         x = self.proj_in(x)
-#         x = rearrange(x, 'b c h w -> b (h w) c')
-#         for block in self.transformer_blocks:
-#             x = block(x, context=context)
-#         x = rearrange(x, 'b (h w) c -> b c h w', h=h, w=w)
-#         x = self.proj_out(x)
-#         return x + x_in
 
 class SpatialTransformer(nn.Module):
     """
@@ -491,80 +431,3 @@ class SpatialTransformer(nn.Module):
             x = self.proj_out(x)
         return x + x_in
 
-
-# class SpatialTransformer(nn.Module):
-#     """
-#     Transformer block for image-like data.
-#     First, project the input (aka embedding)
-#     and reshape to b, t, d.
-#     Then apply standard transformer action.
-#     Finally, reshape to image
-#     NEW: use_linear for more efficiency instead of the 1x1 convs
-#     """
-#     def __init__(self, in_channels, n_heads, d_head, default_eps, force_type_convert,
-#                  depth=1, dropout=0., context_dim=None,
-#                  disable_self_attn=False, use_linear=False,
-#                  use_checkpoint=True, is_simple_basic=False):
-#         super().__init__()
-#         if exists(context_dim) and not isinstance(context_dim, list):
-#             context_dim = [context_dim]
-#         self.in_channels = in_channels
-#         inner_dim = n_heads * d_head
-#         self.force_type_convert = force_type_convert
-#         self.norm = Normalize(in_channels, default_eps)
-#         if not use_linear:
-#             self.proj_in = nn.Conv2d(in_channels,
-#                                      inner_dim,
-#                                      kernel_size=1,
-#                                      stride=1,
-#                                      padding=0)
-#         else:
-#             self.proj_in = nn.Linear(in_channels, inner_dim)
-
-#         if is_simple_basic is True:
-#             self.transformer_blocks = nn.ModuleList(
-#                 [SimpleBasicTransformerBlock(inner_dim, n_heads, d_head, dropout=dropout, context_dim=context_dim[d],
-#                                     disable_self_attn=disable_self_attn, checkpoint=use_checkpoint)
-#                     for d in range(depth)]
-#             )
-#         else:
-#             self.transformer_blocks = nn.ModuleList(
-#                 [BasicTransformerBlock(inner_dim, n_heads, d_head, dropout=dropout, context_dim=context_dim[d],
-#                                     disable_self_attn=disable_self_attn, checkpoint=use_checkpoint)
-#                     for d in range(depth)]
-#             )
-#         if not use_linear:
-#             self.proj_out = zero_module(nn.Conv2d(inner_dim,
-#                                                   in_channels,
-#                                                   kernel_size=1,
-#                                                   stride=1,
-#                                                   padding=0))
-#         else:
-#             self.proj_out = zero_module(nn.Linear(in_channels, inner_dim))
-#         self.use_linear = use_linear
-#         self.checkpoint = checkpoint
-    
-    # def forward(self, x, context=None):
-    #     # note: if no context is given, cross-attention defaults to self-attention
-    #     if not isinstance(context, list):
-    #         context = [context]
-    #     b, c, h, w = x.shape
-    #     x_in = x
-    #     if self.force_type_convert:
-    #         x = self.norm.float()(x.float())
-    #         x = x.half()
-    #     else:
-    #         x = self.norm(x)
-    #     if not self.use_linear:
-    #         x = self.proj_in(x)
-    #     x = rearrange(x, 'b c h w -> b (h w) c').contiguous()
-    #     if self.use_linear:
-    #         x = self.proj_in(x)
-    #     for i, block in enumerate(self.transformer_blocks):
-    #         x = block(x, context=context[i])
-    #     if self.use_linear:
-    #         x = self.proj_out(x)
-    #     x = rearrange(x, 'b (h w) c -> b c h w', h=h, w=w).contiguous()
-    #     if not self.use_linear:
-    #         x = self.proj_out(x)
-    #     return x + x_in

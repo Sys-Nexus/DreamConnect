@@ -1,6 +1,7 @@
 
 # jobname=${1:-'test_conv_adaptor'}
-jobname=${1:-'test_zero_adaptor_idback'}
+# jobname=${1:-'test_zero_adaptor_idback'} # test_res_value_inject_idback_css15
+jobname=${1:-'test_res_value_inject_idback_css15'}
 # jobname=${1:-'test_conv_adaptor_mixing1_text'}
 filter_mode=${2:-'tune_sideconv'} #do not use no_filter, which will fail the memory
 

@@ -138,8 +138,10 @@ class ZeroConvControlledUnetModel(UNetModel):
 
     def forward(self, x, timesteps=None, context=None, control=None, only_mid_control=False, 
                         num_control_layers=1000, injected_features=None, injected_contexts=None, 
-                        injected_attn_qkv=None, is_return_x0=False, sqrt_one_minus_at=None, a_t=None, **kwargs):
+                        injected_attn_qkv=None, is_return_x0=False, sqrt_one_minus_at=None, a_t=None, context_mask=None, **kwargs):
         if (control is not None and len(control)) or injected_features is not None or injected_attn_qkv is not None:
+            if not self.isTest: context_mask = None
+
             x0 = x.clone()[:,:4]
             hs = []
             with torch.no_grad():
@@ -177,14 +179,15 @@ class ZeroConvControlledUnetModel(UNetModel):
                     # print(timesteps.shape, timesteps)
                     # import pdb; pdb.set_trace()
                     if timesteps[0].item() < self.inject_min_step and self.isTest:
-                        h = module(h, emb, context)
+                        h = module(h, emb, context, context_mask=context_mask)
                     else:
-                        h = module(h, emb, context, out_layers_injected=out_layers_injected_transformed)
+                        h = module(h, emb, context, out_layers_injected=out_layers_injected_transformed, context_mask=context_mask)
 
                 else:
                     h = module(h, emb, context,
                                 self_attn_k_injected=None, # injected_attn_k
-                                self_attn_v_injected=None) # injected_attn_v
+                                self_attn_v_injected=None, # injected_attn_v
+                                context_mask=context_mask)
 
                 ### injected features have higher priority
                 if injected_features is None and injected_contexts is not None and context_cnt < len(self.adaptor_blocks):
@@ -926,6 +929,8 @@ class DualLDM(LatentDiffusion):
         unconditional_guidance_scale_edit = None
 
         # import pdb; pdb.set_trace();
+        context_mask = torch.ones((N,1,256,256)).to(c0)
+        c_w_uncond['context_mask'] = [torch.cat([context_mask, context_mask, context_mask], 0)]
         if cfg_text_edit is not None and cfg_image_edit is not None:
             c_w_uncond["c_crossattn_1"]["image_emb"] = [torch.cat([uncond_c0, c0, c0], 0)]
             if is_inst_gen is True:

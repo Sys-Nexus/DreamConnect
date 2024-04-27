@@ -1,20 +1,21 @@
-from segment_anything import SamPredictor, sam_model_registry
-from PIL import Image
-import cv2
+# from segment_anything import SamPredictor, sam_model_registry
+# from PIL import Image
+# import cv2
+import os
 
 
 def main():
-    model_type = 'vit_h'
-    ckpt_path = '/data/yashengsun/Proj/Diffusion/sam_vit_h_4b8939.pth'
-    sam = sam_model_registry[model_type](checkpoint=ckpt_path)
-    predictor = SamPredictor(sam)
-    your_image_path = '../../Diffusion/InstructDiffusion/teaser_samples/all_iter-999999_ep-999999_bidx-000234-020064.png'
-    # your_image = Image.open(your_image_path)
-    your_image = cv2.imread(your_image_path)
-    predictor.set_image(your_image)
-    # masks, _, _ = predictor.predict('cat')
-    masks, _, _ = predictor.predict()
-    import pdb; pdb.set_trace()
+
+    cd_cmd = 'cd ~/Proj/MMEdit/Grounded-Segment-Anything'
+    os.system(cd_cmd)
+
+    env_cmd = 'conda activate tformer4192'
+    os.system(env_cmd)
+
+    text_prompt = 
+    image_path = 
+    output_dir = 
+    exe_cmd = 'python grounded_sam_demo.py --config GroundingDINO/groundingdino/config/GroundingDINO_SwinT_OGC.py --grounded_checkpoint groundingdino_swint_ogc.pth   --sam_checkpoint sam_vit_h_4b8939.pth   --input_image {} --output_dir {} --box_threshold 0.3 --text_threshold 0.25 --text_prompt {} --device cuda'.format(image_path, text_prompt, output_dir)
 
 
 if __name__ == '__main__':
