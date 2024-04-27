@@ -929,7 +929,7 @@ class DualLDM(LatentDiffusion):
         unconditional_guidance_scale_edit = None
 
         # import pdb; pdb.set_trace();
-        context_mask = torch.ones((N,1,256,256)).to(c0)
+        context_mask = torch.zeros((N,1,256,256)).to(c0)
         c_w_uncond['context_mask'] = torch.cat([context_mask, context_mask, context_mask], 0)
         if cfg_text_edit is not None and cfg_image_edit is not None:
             c_w_uncond["c_crossattn_1"]["image_emb"] = [torch.cat([uncond_c0, c0, c0], 0)]
