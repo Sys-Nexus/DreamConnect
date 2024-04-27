@@ -179,7 +179,7 @@ class CrossAttention(nn.Module):
 
     def forward(self, x, context=None, mask=None, 
                 self_attn_k_injected=None,
-                self_attn_v_injected=None
+                self_attn_v_injected=None,
                 context_mask=None):
         is_self_attn = context is None
 
