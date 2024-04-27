@@ -395,16 +395,17 @@ class SpatialTransformer(nn.Module):
         self.checkpoint = checkpoint
 
 
-    def forward(self, x, context=None, self_attn_k_injected=None, self_attn_v_injected=None):
+    def forward(self, x, context=None, self_attn_k_injected=None, self_attn_v_injected=None, context_mask=None):
         # if context is not None:
         #     return checkpoint(self._forward, (x, context), self.parameters(), self.checkpoint)
         # else:
         #     return checkpoint(self._forward, (x,), self.parameters(), self.checkpoint)
         return self._forward(x, context=context, 
                     self_attn_k_injected=self_attn_k_injected,
-                    self_attn_v_injected=self_attn_v_injected)
+                    self_attn_v_injected=self_attn_v_injected,
+                    context_mask=context_mask)
 
-    def _forward(self, x, context=None, self_attn_k_injected=None, self_attn_v_injected=None):
+    def _forward(self, x, context=None, self_attn_k_injected=None, self_attn_v_injected=None, context_mask=None):
         # note: if no context is given, cross-attention defaults to self-attention
         if not isinstance(context, list):
             context = [context]
@@ -423,7 +424,8 @@ class SpatialTransformer(nn.Module):
         for i, block in enumerate(self.transformer_blocks):
             x = block(x, context=context[i], 
                         self_attn_k_injected=self_attn_k_injected,
-                        self_attn_v_injected=self_attn_v_injected)
+                        self_attn_v_injected=self_attn_v_injected,
+                        context_mask=context_mask)
         if self.use_linear:
             x = self.proj_out(x)
         x = rearrange(x, 'b (h w) c -> b c h w', h=h, w=w).contiguous()
