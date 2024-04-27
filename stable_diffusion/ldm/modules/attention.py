@@ -237,7 +237,9 @@ class CrossAttention(nn.Module):
         attn = torch.softmax(sim.float(), dim=-1).type(sim.dtype)
         out = einsum('b i j, b j d -> b i d', attn, v)
         out = rearrange(out, '(b h) n d -> b n (h d)', h=h)
-        out[:1] = out_main[:1]
+
+        if context_mask is not None:
+           out[:1] = out_main[:1]
 
         return self.to_out(out)
 
