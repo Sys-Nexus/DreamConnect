@@ -1418,7 +1418,7 @@ class DiffusionWrapper(nn.Module):
 
     def forward(self, x, t, c_concat: list = None, noisy_c_concat: list = None, c_crossattn: list = None,  c_crossattn_1: list = None, 
                 control = None, only_mid_control=False, injected_features=None, injected_contexts=None, injected_attn_qkv=None,
-                is_return_x0=False, sqrt_one_minus_at=None, a_t=None):
+                is_return_x0=False, sqrt_one_minus_at=None, a_t=None, context_mask=None):
         if self.conditioning_key is None:
             out = self.diffusion_model(x, t)
         elif self.conditioning_key == 'concat':
@@ -1446,7 +1446,7 @@ class DiffusionWrapper(nn.Module):
                                 injected_features=injected_features, injected_contexts=injected_contexts, 
                                 injected_attn_qkv=injected_attn_qkv,
                                 is_return_x0=is_return_x0, 
-                                sqrt_one_minus_at=sqrt_one_minus_at, a_t=a_t)
+                                sqrt_one_minus_at=sqrt_one_minus_at, a_t=a_t, context_mask=context_mask)
         elif self.conditioning_key == 'adm':
             cc = c_crossattn[0]
             out = self.diffusion_model(x, t, y=cc)
