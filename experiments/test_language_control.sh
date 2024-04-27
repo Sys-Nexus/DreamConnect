@@ -42,6 +42,9 @@ resume_path='/data/yashengsun/Proj/MMEdit/fMRIInstructDiffusion/logs/wo_prospect
 
 # ${HOME}/.local/bin/wandb login 56d149bd571b8312fbca5e3802d7859909ea00c1
 
+# whitelist_path for mask enhance
+whitelist_path='configs/test/mask_enhance_list.txt'  # essentially a whitelist for us to screen the key 
+
 CUDA_VISIBLE_DEVICES=${gpus} ${run_cmd} main.py --name ${exp_name} \
     --base configs/test/${jobname}.yaml \
     --train \
@@ -54,7 +57,9 @@ CUDA_VISIBLE_DEVICES=${gpus} ${run_cmd} main.py --name ${exp_name} \
     --isTrain ${isTrain} \
     --cfg_text ${cfg_text} \
     --prospect_ckpt_path ${prospect_ckpt_path} \
-    --cfg_text_edit ${cfg_text_edit} #\
+    --cfg_text_edit ${cfg_text_edit} \
+    --whitelist_path ${whitelist_path}
+    #\
     # --layout_path ${layout_path} #\
     # --is_inst_gen True
     # --is_inst_edit True \
