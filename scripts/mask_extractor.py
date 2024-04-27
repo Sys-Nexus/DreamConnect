@@ -12,7 +12,8 @@ def main():
     # your_image = Image.open(your_image_path)
     your_image = cv2.imread(your_image_path)
     predictor.set_image(your_image)
-    masks, _, _ = predictor.predict('cat')
+    # masks, _, _ = predictor.predict('cat')
+    masks, _, _ = predictor.predict()
     import pdb; pdb.set_trace()
 
 
