@@ -214,20 +214,31 @@ class CrossAttention(nn.Module):
             sim.masked_fill_(~mask, max_neg_value)
 
         if context_mask is not None:
-            mask = context_mask
+            sim_fg = sim[:sim.shape[0]//3]
+            sim_bg = sim[sim.shape[0]//3:2*sim.shape[0]//3]
+            mask = context_mask[:context_mask.shape[0]//3]
             thres = 0.5
             mask[mask >= thres] = 1
             mask[mask < thres] = 0
-            import pdb; pdb.set_trace()
-            sim = sim + mask.masked_fill(mask == 0, torch.finfo(sim.dtype).min)
-            # sim_bg = sim + mask.masked_fill(mask == 1, torch.finfo(sim.dtype).min)
+            # import pdb; pdb.set_trace()
+            mask = mask.unsqueeze(0).unsqueeze(-1)
+            sim_fg = sim_fg + mask.masked_fill(mask == 0, torch.finfo(sim.dtype).min)
+            sim_bg = sim_bg + mask.masked_fill(mask == 1, torch.finfo(sim.dtype).min)
 
-        # attention, what we cannot get enough of
-        # attn = sim.softmax(dim=-1)
+            attn_fg = torch.softmax(sim_fg.float(), dim=-1).type(sim_fg.dtype)
+            attn_bg = torch.softmax(sim_bg.float(), dim=-1).type(sim_bg.dtype)
+
+            out_fg = einsum('b i j, b j d -> b i d', attn_fg, v[:v.shape[0]//3])
+            out_bg = einsum('b i j, b j d -> b i d', attn_bg, v[:v.shape[0]//3])
+            
+            out_main = out_fg * mask + out_bg * (1 - mask)
+            out_main = rearrange(out_main, '(b h) n d -> b n (h d)', h=h)
+            
         attn = torch.softmax(sim.float(), dim=-1).type(sim.dtype)
-
         out = einsum('b i j, b j d -> b i d', attn, v)
         out = rearrange(out, '(b h) n d -> b n (h d)', h=h)
+        out[:1] = out_main[:1]
+
         return self.to_out(out)
 
 
