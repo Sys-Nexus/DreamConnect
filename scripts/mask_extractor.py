@@ -48,7 +48,9 @@ def main():
         instruct_path = img_path.replace(args.root_dir, args.text_dir).replace('.png', '-instruct.txt')
         with open(instruct_path, 'r') as f:
             instruct_text = f.readlines()[0]
+        if instruct_text not in instruction_entity_dict: continue
         entity = instruction_entity_dict[instruct_text]
+        
         import pdb; pdb.set_trace()
 
 
