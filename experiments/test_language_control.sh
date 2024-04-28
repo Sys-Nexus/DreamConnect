@@ -57,8 +57,8 @@ CUDA_VISIBLE_DEVICES=${gpus} ${run_cmd} main.py --name ${exp_name} \
     --isTrain ${isTrain} \
     --cfg_text ${cfg_text} \
     --prospect_ckpt_path ${prospect_ckpt_path} \
-    --cfg_text_edit ${cfg_text_edit} \
-    --whitelist_path ${whitelist_path}
+    --cfg_text_edit ${cfg_text_edit} #\
+    # --whitelist_path ${whitelist_path}
     #\
     # --layout_path ${layout_path} #\
     # --is_inst_gen True
