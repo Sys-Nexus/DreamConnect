@@ -5,6 +5,7 @@ import numpy as np
 def main():
 
     cd_cmd = 'cd ~/Proj/MMEdit/Grounded-Segment-Anything'
+    print(cd_cmd)
     os.system(cd_cmd)
 
     # env_cmd = 'conda activate tformer4192'
