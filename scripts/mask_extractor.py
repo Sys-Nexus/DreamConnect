@@ -37,8 +37,8 @@ def exe_sam(text_prompt, image_path):
 def main():
     parser = argparse.ArgumentParser(description='')
     parser.add_argument('--eval_method', type=str, default='clip')
-    parser.add_argument('--root_dir', type=str, default='logs/test_res_value_inject_idback_css15_test_res_value_inject_idback_css15_2024-04-25/visualize/images/val')
-    parser.add_argument('--text_dir', type=str, default='logs/test_conv_adaptor_test_conv_adaptor_2024-04-13/visualize/images/val')
+    parser.add_argument('--root_dir', type=str, default='/data/yashengsun/Proj/MMEdit/MindSculpt/logs/test_res_value_inject_idback_css15_test_res_value_inject_idback_css15_2024-04-25/visualize/images/val')
+    parser.add_argument('--text_dir', type=str, default='/data/yashengsun/Proj/MMEdit/MindSculpt/logs/test_conv_adaptor_test_conv_adaptor_2024-04-13/visualize/images/val')
     parser.add_argument('--eval_mode', type=str, default='id_sim')
     args = parser.parse_args()
 
