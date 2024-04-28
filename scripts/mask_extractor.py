@@ -1,6 +1,6 @@
 import os
 import cv2
-
+import numpy as np
 
 # def main():
 
@@ -20,4 +20,5 @@ if __name__ == '__main__':
     # main()
     mask_path = '/data/yashengsun/Proj/MMEdit/Grounded-Segment-Anything/outputs/mask.jpg'
     mask = cv2.imread(mask_path)
+    print(np.unique(mask))
     print(mask.shape)
