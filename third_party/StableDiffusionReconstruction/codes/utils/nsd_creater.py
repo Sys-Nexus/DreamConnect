@@ -162,7 +162,7 @@ class NIPS23NSDDataset(Dataset):
             nsd_dict['text_clip'] = np.load(text_clip_path)[0]
         if os.path.exists(fmri_vae_path):
             nsd_dict['fmri_vae'] = np.load(fmri_vae_path)
-        print('context_mask_path: ', context_mask_path)
+        # print('context_mask_path: ', context_mask_path)
         if os.path.exists(context_mask_path):
             nsd_dict['context_mask'] = np.array(Image.open(context_mask_path).convert('L'))
 
