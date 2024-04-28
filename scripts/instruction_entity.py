@@ -1,5 +1,4 @@
-instructions = 
-    ['Make the walls green.',
+instructions = ['Make the walls green.',
     'Remove the person.',
     'Make the windsurfer a lighthouse instead.',
     'Change it to a medieval castle.',
