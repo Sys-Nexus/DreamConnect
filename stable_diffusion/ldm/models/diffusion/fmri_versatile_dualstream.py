@@ -903,7 +903,7 @@ class DualLDM(LatentDiffusion):
             context_mask = context_mask / 255.0
             context_mask = context_mask.unsqueeze(1)
             context_mask = F.interpolate(context_mask, (16, 16)).flatten(0).unsqueeze(0).flatten()
-            import pdb; pdb.set_trace();
+            # import pdb; pdb.set_trace();
             c_w_uncond['context_mask'] = torch.cat([context_mask, context_mask, context_mask], 0)
 
         else:
