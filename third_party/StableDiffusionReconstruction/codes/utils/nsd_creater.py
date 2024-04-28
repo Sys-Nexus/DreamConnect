@@ -80,6 +80,7 @@ class NIPS23NSDDataset(Dataset):
             nsd_root='nsd',
             image_clip_root='img_clip',
             text_clip_root='text_clip',
+            context_mask_root='context_mask',
             fmri_vae_root = 'fmri_vae',
             is_reconstruct_mode=False,
             reconstruct_prob=0.1,
@@ -90,6 +91,7 @@ class NIPS23NSDDataset(Dataset):
         self.reconstruct_prob = reconstruct_prob
         self.image_clip_root = image_clip_root
         self.text_clip_root = text_clip_root
+        self.context_mask_root = context_mask_root
         self.fmri_vae_root = fmri_vae_root
         self.use_first_instruct = use_first_instruct
         self.split = split
@@ -141,6 +143,7 @@ class NIPS23NSDDataset(Dataset):
         image_clip_path = os.path.join(self.image_clip_root, '{:05d}.npy'.format(s))
         text_clip_path = os.path.join(self.text_clip_root, '{:05d}.npy'.format(s))
         fmri_vae_path = os.path.join(self.fmri_vae_root, '{:05d}.npy'.format(s))
+        context_mask_path = os.path.join(self.context_mask_root, '{:05d}.jpg'.format(s))
 
         # voxel, img_input, coco = self.data[index]
         caps = self.cap_dict[s]
@@ -159,6 +162,8 @@ class NIPS23NSDDataset(Dataset):
             nsd_dict['text_clip'] = np.load(text_clip_path)[0]
         if os.path.exists(fmri_vae_path):
             nsd_dict['fmri_vae'] = np.load(fmri_vae_path)
+        if os.path.exists(context_mask_path):
+            nsd_dict['context_mask'] = np.array(Image.open(context_mask_path).convert('L'))
 
         if os.path.exists(self.nsd_cliptext_path):
             nsd_cliptext = self.all_nsd_cliptext[index]

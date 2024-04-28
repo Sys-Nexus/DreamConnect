@@ -898,9 +898,19 @@ class DualLDM(LatentDiffusion):
         if self.use_fmri_clip and split == 'val':
             c0 = batch['img_clip'][:N].to(c["c_crossattn_1"]["image_emb"][0])
             c1 = batch['text_clip'][:N].to(c["c_crossattn_1"]["text_emb"][0])
+            ## we borrow this logic and also write context_mask here
+            context_mask = batch['context_mask'][:N].to(c["c_crossattn_1"]["image_emb"][0])
+            c_w_uncond['context_mask'] = torch.cat([context_mask, context_mask, context_mask], 0)
+
         else:
             c0 = torch.cat(c["c_crossattn_1"]["image_emb"], 1)
             c1 = torch.cat(c["c_crossattn_1"]["text_emb"], 1)
+            
+            # context_mask = torch.zeros((N,1,16,16)).to(c0) 
+            # context_mask = F.interpolate(context_mask, (16, 16)).flatten(0).unsqueeze(0)
+            # context_mask = context_mask.flatten()
+            # c_w_uncond['context_mask'] = torch.cat([context_mask, context_mask, context_mask], 0)
+            c_w_uncond['context_mask'] = None
 
         # if is_inst_gen is True:
         #     # self.mixing = 1.0 # all text
@@ -928,13 +938,7 @@ class DualLDM(LatentDiffusion):
         cfg_image_edit = 1.5 if cfg_image_edit is None else cfg_image_edit
         unconditional_guidance_scale_edit = None
 
-        # import pdb; pdb.set_trace();
-        context_mask = torch.zeros((N,1,16,16)).to(c0) 
-        context_mask = F.interpolate(context_mask, (16, 16)).flatten(0).unsqueeze(0)
-        context_mask = context_mask.flatten()
-        
         # context_mask = torch.zeros((N,1,256,256)).to(c0)
-        c_w_uncond['context_mask'] = torch.cat([context_mask, context_mask, context_mask], 0)
         if cfg_text_edit is not None and cfg_image_edit is not None:
             c_w_uncond["c_crossattn_1"]["image_emb"] = [torch.cat([uncond_c0, c0, c0], 0)]
             if is_inst_gen is True:
