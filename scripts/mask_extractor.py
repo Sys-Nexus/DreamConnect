@@ -37,7 +37,7 @@ def read_sam(text_prompt, image_path):
 def main():
     parser = argparse.ArgumentParser(description='')
     parser.add_argument('--eval_method', type=str, default='clip')
-    parser.add_argument('--root_dir', type=str, default='logs/test_conv_adaptor_test_conv_adaptor_2024-04-08/visualize/images/val_sdedit')
+    parser.add_argument('--root_dir', type=str, default='logs/test_res_value_inject_idback_css15_test_res_value_inject_idback_css15_2024-04-25/visualize/images/val')
     parser.add_argument('--text_dir', type=str, default='logs/test_conv_adaptor_test_conv_adaptor_2024-04-13/visualize/images/val')
     parser.add_argument('--eval_mode', type=str, default='id_sim')
     args = parser.parse_args()
@@ -50,8 +50,9 @@ def main():
             instruct_text = f.readlines()[0]
         if instruct_text not in instruction_entity_dict: continue
         if 'add' in instruct_text.lower() or 'put' in instruct_text.lower() or 'insert' in instruct_text.lower(): continue
-
         entity = instruction_entity_dict[instruct_text]
+        if 'entire' in entity.lower(): continue
+        
 
         import pdb; pdb.set_trace()
 
