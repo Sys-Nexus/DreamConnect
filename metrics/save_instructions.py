@@ -63,8 +63,13 @@ def main():
         with open(instruct_path, 'r') as f:
             instruct_text = f.readlines()
         instruct_texts += instruct_text
-    import pdb; pdb.set_trace()
+    # import pdb; pdb.set_trace()
 
+    instruction_out_path = 'instruction_out.txt'
+    with open(instruction_out_path, 'w') as f:
+        for i, instruction in enumerate(instruct_texts):
+            f.write(instruction+'\n')
+    
 
 if __name__ == '__main__':
     main()
