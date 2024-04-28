@@ -18,7 +18,7 @@ from instruction_entity import instruction_entity_dict
 
 
 def exe_sam(text_prompt, image_path):
-    cd_cmd = 'cd ~/Proj/MMEdit/Grounded-Segment-Anything'
+    cd_cmd = 'cd /data/yashengsun/Proj/MMEdit/Grounded-Segment-Anything'
     print(cd_cmd)
     os.system(cd_cmd)
 
@@ -29,7 +29,7 @@ def exe_sam(text_prompt, image_path):
     print(exe_cmd)
     os.system(exe_cmd)
 
-    cd_cmd = 'cd ~/Proj/MMEdit/MindSculpt'
+    cd_cmd = 'cd /data/yashengsun/Proj/MMEdit/MindSculpt'
     print(cd_cmd)
     os.system(cd_cmd)
 
