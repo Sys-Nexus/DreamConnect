@@ -165,6 +165,8 @@ class NIPS23NSDDataset(Dataset):
         # print('context_mask_path: ', context_mask_path)
         if os.path.exists(context_mask_path):
             nsd_dict['context_mask'] = np.array(Image.open(context_mask_path).convert('L'))
+        else:
+            nsd_dict['context_mask'] = np.ones((256,256))*255.0
 
         if os.path.exists(self.nsd_cliptext_path):
             nsd_cliptext = self.all_nsd_cliptext[index]
