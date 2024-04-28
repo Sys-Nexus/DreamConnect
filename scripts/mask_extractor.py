@@ -17,7 +17,7 @@ import pickle
 from instruction_entity import instruction_entity_dict
 
 
-def read_sam(text_prompt, image_path):
+def exe_sam(text_prompt, image_path):
     cd_cmd = 'cd ~/Proj/MMEdit/Grounded-Segment-Anything'
     print(cd_cmd)
     os.system(cd_cmd)
@@ -52,10 +52,9 @@ def main():
         if 'add' in instruct_text.lower() or 'put' in instruct_text.lower() or 'insert' in instruct_text.lower(): continue
         entity = instruction_entity_dict[instruct_text]
         if 'entire' in entity.lower(): continue
-        
-
-        import pdb; pdb.set_trace()
-
+        trim_img_path = img_path.replace('/val', '/val_trim')
+        exe_sam(entity, trim_img_path)
+        # import pdb; pdb.set_trace()
 
 
 if __name__ == '__main__':
