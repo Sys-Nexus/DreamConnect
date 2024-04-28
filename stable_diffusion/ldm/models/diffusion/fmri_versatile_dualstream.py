@@ -900,6 +900,7 @@ class DualLDM(LatentDiffusion):
             c1 = batch['text_clip'][:N].to(c["c_crossattn_1"]["text_emb"][0])
             ## we borrow this logic and also write context_mask here
             context_mask = batch['context_mask'][:N].to(c["c_crossattn_1"]["image_emb"][0])
+            import pdb; pdb.set_trace();
             c_w_uncond['context_mask'] = torch.cat([context_mask, context_mask, context_mask], 0)
 
         else:
