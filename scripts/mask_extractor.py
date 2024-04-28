@@ -18,20 +18,20 @@ from instruction_entity import instruction_entity_dict
 
 
 def exe_sam(text_prompt, image_path):
-    cd_cmd = 'cd /data/yashengsun/Proj/MMEdit/Grounded-Segment-Anything'
-    print(cd_cmd)
-    os.system(cd_cmd)
+    # cd_cmd = 'cd /data/yashengsun/Proj/MMEdit/Grounded-Segment-Anything'
+    # print(cd_cmd)
+    # os.system(cd_cmd)
 
     # text_prompt = 'cat'
     # image_path = '/data/yashengsun/Proj/Diffusion/InstructDiffusion/teaser_samples/all_iter-999999_ep-999999_bidx-000234-020064.png'
     output_dir = 'outputs'
-    exe_cmd = 'python grounded_sam_demo.py --config GroundingDINO/groundingdino/config/GroundingDINO_SwinT_OGC.py --grounded_checkpoint groundingdino_swint_ogc.pth   --sam_checkpoint sam_vit_h_4b8939.pth   --input_image {} --output_dir {} --box_threshold 0.3 --text_threshold 0.25 --text_prompt {} --device cuda'.format(image_path, output_dir, text_prompt)
+    exe_cmd = 'python /data/yashengsun/Proj/MMEdit/Grounded-Segment-Anything/grounded_sam_demo.py --config GroundingDINO/groundingdino/config/GroundingDINO_SwinT_OGC.py --grounded_checkpoint groundingdino_swint_ogc.pth   --sam_checkpoint sam_vit_h_4b8939.pth   --input_image {} --output_dir {} --box_threshold 0.3 --text_threshold 0.25 --text_prompt {} --device cuda'.format(image_path, output_dir, text_prompt)
     print(exe_cmd)
     os.system(exe_cmd)
 
-    cd_cmd = 'cd /data/yashengsun/Proj/MMEdit/MindSculpt'
-    print(cd_cmd)
-    os.system(cd_cmd)
+    # cd_cmd = 'cd /data/yashengsun/Proj/MMEdit/MindSculpt'
+    # print(cd_cmd)
+    # os.system(cd_cmd)
 
 
 def main():
