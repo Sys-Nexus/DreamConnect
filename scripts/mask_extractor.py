@@ -7,8 +7,8 @@ def main():
     cd_cmd = 'cd ~/Proj/MMEdit/Grounded-Segment-Anything'
     os.system(cd_cmd)
 
-    env_cmd = 'conda activate tformer4192'
-    os.system(env_cmd)
+    # env_cmd = 'conda activate tformer4192'
+    # os.system(env_cmd)
 
     text_prompt = 'cat'
     image_path = '/data/yashengsun/Proj/Diffusion/InstructDiffusion/teaser_samples/all_iter-999999_ep-999999_bidx-000234-020064.png'
