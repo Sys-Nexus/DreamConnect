@@ -52,7 +52,7 @@ def main():
         if 'add' in instruct_text.lower() or 'put' in instruct_text.lower() or 'insert' in instruct_text.lower(): continue
         entity = instruction_entity_dict[instruct_text]
         if 'entire' in entity.lower(): continue
-        trim_img_path = img_path.replace('/val', '/val_trim')
+        trim_img_path = img_path.replace('/val', '/val_trimmed')
         exe_sam(entity, trim_img_path)
         # import pdb; pdb.set_trace()
 
