@@ -49,8 +49,10 @@ def main():
         with open(instruct_path, 'r') as f:
             instruct_text = f.readlines()[0]
         if instruct_text not in instruction_entity_dict: continue
+        if 'add' in instruct_text.lower() or 'put' in instruct_text.lower() or 'insert' in instruct_text.lower(): continue
+
         entity = instruction_entity_dict[instruct_text]
-        
+
         import pdb; pdb.set_trace()
 
 
