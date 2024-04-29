@@ -215,7 +215,7 @@ class CrossAttention(nn.Module):
 
         if context_mask is not None:
             hh = ww = int(sim.shape[1]**0.5)
-            context_mask = F.interpolate(context_mask, (hh,ww)).flatten(0).unsqueeze(0).flatten()
+            context_mask = F.interpolate(context_mask, (hh,ww), mode='nearest').flatten(0).unsqueeze(0).flatten()
             sim_fg = sim[:sim.shape[0]//3]
             sim_bg = sim[sim.shape[0]//3:2*sim.shape[0]//3]
             mask = context_mask[:context_mask.shape[0]//3]
