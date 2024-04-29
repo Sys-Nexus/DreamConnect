@@ -224,8 +224,10 @@ class CrossAttention(nn.Module):
             mask[mask < thres] = 0
             # import pdb; pdb.set_trace()
             mask = mask.unsqueeze(0).unsqueeze(-1)
-            print(sim_fg.shape, sim_bg.shape, mask.shape, mask.mean(), mask.std())
-            sim[:sim.shape[0]//3] = sim_fg * mask + sim_bg * (1 - mask)
+            # print(sim_fg.shape, sim_bg.shape, mask.shape, mask.mean(), mask.std())
+            sim_mix = sim_fg * mask + sim_bg * (1 - mask)
+            sim_mix = sim_mix + mask.masked_fill(mask == 0, torch.finfo(sim.dtype).min)
+            sim[:sim.shape[0]//3] = sim_mix
             # sim_fg = sim_fg + mask.masked_fill(mask == 0, torch.finfo(sim.dtype).min)
             # sim_bg = sim_bg + mask.masked_fill(mask == 1, torch.finfo(sim.dtype).min)
 
