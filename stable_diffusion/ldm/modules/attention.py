@@ -226,7 +226,7 @@ class CrossAttention(nn.Module):
             # print(sim_fg.shape, sim_bg.shape, mask.shape, mask.mean(), mask.std())
             # sim_mix = sim_fg * mask + sim_bg * (1 - mask)
             # import pdb; pdb.set_trace()
-            delta_magic = 5.0
+            delta_magic = 10.0
             sim_mix = (sim_fg + delta_magic) * mask + sim_bg * (1 - mask)
             # sim_mix = sim_mix + mask.masked_fill(mask == 0, torch.finfo(sim.dtype).min)
             sim[sim.shape[0]//3:sim.shape[0]*2//3] = sim_mix
