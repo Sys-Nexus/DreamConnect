@@ -216,8 +216,8 @@ class CrossAttention(nn.Module):
         if context_mask is not None:
             hh = ww = int(sim.shape[1]**0.5)
             context_mask = F.interpolate(context_mask, (hh,ww), mode='nearest').flatten(0).unsqueeze(0).flatten()
-            sim_fg = sim[:sim.shape[0]//3]
-            sim_bg = sim[sim.shape[0]//3:2*sim.shape[0]//3]
+            sim_fg = sim[sim.shape[0]//3:2*sim.shape[0]//3]
+            sim_bg = sim[:sim.shape[0]//3]
             mask = context_mask[:context_mask.shape[0]//3]
             thres = 0.5
             mask[mask >= thres] = 1
@@ -228,7 +228,8 @@ class CrossAttention(nn.Module):
             sim_mix = sim_fg * mask + sim_bg * (1 - mask)
             # sim_mix = sim_fg * mask * 1.2 + sim_bg * (1 - mask) * 0.8
             # sim_mix = sim_mix + mask.masked_fill(mask == 0, torch.finfo(sim.dtype).min)
-            sim[:sim.shape[0]//3] = sim_mix
+            sim[sim.shape[0]//3:sim.shape[0]*2//3] = sim_mix
+            sim[sim.shape[0]*2//3:] = sim_mix
             # sim_fg = sim_fg + mask.masked_fill(mask == 0, torch.finfo(sim.dtype).min)
             # sim_bg = sim_bg + mask.masked_fill(mask == 1, torch.finfo(sim.dtype).min)
 
