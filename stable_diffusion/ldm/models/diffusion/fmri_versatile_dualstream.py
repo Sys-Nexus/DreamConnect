@@ -140,7 +140,8 @@ class ZeroConvControlledUnetModel(UNetModel):
                         num_control_layers=1000, injected_features=None, injected_contexts=None, 
                         injected_attn_qkv=None, is_return_x0=False, sqrt_one_minus_at=None, a_t=None, context_mask=None, **kwargs):
         if (control is not None and len(control)) or injected_features is not None or injected_attn_qkv is not None:
-            if not self.isTest: context_mask = None
+            # if not self.isTest: context_mask = None
+            context_mask = None
 
             x0 = x.clone()[:,:4]
             hs = []
@@ -944,7 +945,7 @@ class DualLDM(LatentDiffusion):
         uncond_c1 = torch.cat(c["c_crossattn_1"]["null_text_emb"], 1)
         null_prompt_emb = torch.cat(c["null_prompt_emb"], 1)
         prompt_emb = null_prompt_emb
-        
+
         # cfg_text_edit, cfg_image_edit = 4.5, 1.5
         cfg_text_edit = 4.5 if cfg_text_edit is None else cfg_text_edit
         cfg_image_edit = 1.5 if cfg_image_edit is None else cfg_image_edit
