@@ -149,9 +149,16 @@ class ZeroConvControlledUnetModel(UNetModel):
                 emb = self.time_embed(t_emb.type(self.time_embed[0].weight.dtype))
                 h = x.type(self.dtype)
                 for i, module in enumerate(self.input_blocks):
-                    h = module(h, emb, context)
+                    if context_mask is not None:
+                        h = module(h, emb, context=context, context_mask=context_mask)
+                    else:
+                        h = module(h, emb, context)
                     hs.append(h)
-                h = self.middle_block(h, emb, context)
+
+                if context_mask is not None:
+                    h = self.middle_block(h, emb, context=context, context_mask=context_mask)
+                else:
+                    h = self.middle_block(h, emb, context=context)
 
             if control is not None:
                 h += control.pop(0)
@@ -902,7 +909,7 @@ class DualLDM(LatentDiffusion):
             context_mask = batch['context_mask'][:N].to(c["c_crossattn_1"]["image_emb"][0])
             context_mask = context_mask / 255.0
             context_mask = context_mask.unsqueeze(1)
-            context_mask = F.interpolate(context_mask, (16, 16)).flatten(0).unsqueeze(0).flatten()
+            context_mask = F.interpolate(context_mask, (256, 256))#.flatten(0).unsqueeze(0).flatten()
             # import pdb; pdb.set_trace();
             c_w_uncond['context_mask'] = torch.cat([context_mask, context_mask, context_mask], 0)
 

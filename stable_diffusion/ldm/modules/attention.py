@@ -213,7 +213,9 @@ class CrossAttention(nn.Module):
             mask = repeat(mask, 'b j -> (b h) () j', h=h)
             sim.masked_fill_(~mask, max_neg_value)
 
-        if context_mask is not None and sim.shape[1] == 256:
+        if context_mask is not None:
+            h = w = int(sim.shape[1]**0.5)
+            context_mask = F.interpolate(context_mask, (h,w)).flatten(0).unsqueeze(0).flatten()
             sim_fg = sim[:sim.shape[0]//3]
             sim_bg = sim[sim.shape[0]//3:2*sim.shape[0]//3]
             mask = context_mask[:context_mask.shape[0]//3]
@@ -238,7 +240,7 @@ class CrossAttention(nn.Module):
         out = einsum('b i j, b j d -> b i d', attn, v)
         out = rearrange(out, '(b h) n d -> b n (h d)', h=h)
 
-        if context_mask is not None and sim.shape[1] == 256:
+        if context_mask is not None:
            out[:1] = out_main[:1]
 
         return self.to_out(out)
