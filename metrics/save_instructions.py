@@ -79,6 +79,7 @@ def main():
     with open(input_instruction_out_path, 'w') as f:
         for i, (input_text, instruction) in enumerate(zip(input_texts, instruct_texts)):
             print(instruction)
+            import pdb; pdb.set_trace()
             f.write(input_text + '  ' + instruction+'\n')
     
 
