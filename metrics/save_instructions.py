@@ -57,18 +57,28 @@ def main():
     #     with open('uneffective_img_paths.pkl', 'rb') as f:
     #         uneffective_img_paths = pickle.load(f)
 
-    instruct_texts = []
+    instruct_texts, input_texts = [], []
     for i,img_path in tqdm(enumerate(img_paths)):
         instruct_path = img_path.replace(args.root_dir, args.text_dir).replace('.png', '-instruct.txt')
         with open(instruct_path, 'r') as f:
             instruct_text = f.readlines()
         instruct_texts += instruct_text
+        
+        input_path = img_path.replace(args.root_dir, args.text_dir).replace('.png', '-input.txt')
+        with open(input_path, 'r') as f:
+            input_text = f.readlines()
+        input_texts += input_text
     # import pdb; pdb.set_trace()
 
-    instruction_out_path = 'instruction_out.txt'
-    with open(instruction_out_path, 'w') as f:
-        for i, instruction in enumerate(instruct_texts):
-            f.write(instruction+'\n')
+    # instruction_out_path = 'instruction_out.txt'
+    # with open(instruction_out_path, 'w') as f:
+    #     for i, instruction in enumerate(instruct_texts):
+    #         f.write(instruction+'\n')
+    
+    input_instruction_out_path = 'input_instruction_out.txt'
+    with open(input_instruction_out_path, 'w') as f:
+        for i, (input_text, instruction) in enumerate(zip(input_texts, instruct_texts)):
+            f.write(input_text + '  ' + instruction+'\n')
     
 
 if __name__ == '__main__':
