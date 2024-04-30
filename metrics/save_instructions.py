@@ -80,7 +80,7 @@ def main():
         for i, (input_text, instruction) in enumerate(zip(input_texts, instruct_texts)):
             # print(instruction)
             # import pdb; pdb.set_trace()
-            f.write(input_text + '.   ' + instruction+'\n')
+            f.write(input_text + '   ' + instruction+'\n')
     
 
 if __name__ == '__main__':
