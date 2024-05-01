@@ -3,13 +3,18 @@ log_dirs=(
     # logs/test_conv_adaptor_test_conv_adaptor_2024-04-13/visualize/images/val 
     # logs/test_conv_adaptor_test_conv_adaptor_2024-04-08/visualize/images/val
     # logs/test_zero_adaptor_idback_test_zero_adaptor_idback_2024-04-25/visualize/images/val
-    logs/test_res_value_inject_idback_css15_test_res_value_inject_idback_css15_2024-04-25/visualize/images/val
     # logs/test_res_inject_idback_css15_test_res_inject_idback_css15_2024-04-22/visualize/images/val
     # logs/test_res_inject_idback_css15_test_res_inject_idback_css15_2024-04-23/visualize/images/val
-    logs/test_conv_adaptor_test_conv_adaptor_2024-04-08/visualize/images/val_inst_pix2pix
-    logs/test_conv_adaptor_test_conv_adaptor_2024-04-08/visualize/images/val_inst_dif
-    logs/test_conv_adaptor_test_conv_adaptor_2024-04-08/visualize/images/val_magic_brush
-    logs/test_conv_adaptor_test_conv_adaptor_2024-04-08/visualize/images/val_sdedit
+
+    ######## used for test #########
+    # logs/test_res_value_inject_idback_css15_test_res_value_inject_idback_css15_2024-04-25/visualize/images/val
+    # logs/test_conv_adaptor_test_conv_adaptor_2024-04-08/visualize/images/val_inst_pix2pix
+    # logs/test_conv_adaptor_test_conv_adaptor_2024-04-08/visualize/images/val_inst_dif
+    # logs/test_conv_adaptor_test_conv_adaptor_2024-04-08/visualize/images/val_magic_brush
+    # logs/test_conv_adaptor_test_conv_adaptor_2024-04-08/visualize/images/val_sdedit
+
+    # mask enhance version
+    logs/test_res_value_inject_idback_css15_test_res_value_inject_idback_css15_2024-05-01/visualize/images/val
 )
 
 
