@@ -298,7 +298,6 @@ racket
 television
 countryside
 girl
-cat
 entire scene
 polar bear
 entire scene
