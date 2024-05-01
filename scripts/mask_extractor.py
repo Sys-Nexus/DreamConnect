@@ -60,7 +60,7 @@ def main():
         if 'entire' in obtained_entity.lower() or 'specified' in obtained_entity.lower(): continue
         trim_img_path = img_path.replace('/val', '/val_trimmed')
         if i > 600:
-            print(img_path, obtained_entity)
+            print(instruct_text, obtained_entity)
         # exe_sam(entity, trim_img_path)
         # import pdb; pdb.set_trace()
 
