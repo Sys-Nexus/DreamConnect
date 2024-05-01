@@ -517,7 +517,6 @@ foreground
 zebras
 foreground
 foreground
-foreground
 Polaroid
 toilet
 foreground
