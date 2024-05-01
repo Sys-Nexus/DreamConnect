@@ -14,7 +14,7 @@ from tqdm import tqdm
 import torch.nn.functional as F
 import heapq
 import pickle
-from instruction_entity import instruction_entity_dict
+# from instruction_entity import instruction_entity_dict
 
 
 def exe_sam(text_prompt, image_path):
@@ -43,17 +43,24 @@ def main():
     args = parser.parse_args()
 
     img_paths = sorted(glob.glob(os.path.join(args.root_dir, 'all_iter*.png')))
-    
-    for i,img_path in tqdm(enumerate(img_paths)):
+    obtained_entitites = []
+    with open('./obtained_areas.txt', 'r') as f:
+        obtained_entitites = f.readlines()
+        obtained_entitites = [x.strip() for x in obtained_entitites]
+    num_entitites = len(obtained_entitites)
+    img_paths = img_paths[:num_entitites]
+
+    for i,(img_path, obtained_entity) in tqdm(enumerate(zip(img_paths, obtained_entitites))):
         instruct_path = img_path.replace(args.root_dir, args.text_dir).replace('.png', '-instruct.txt')
         with open(instruct_path, 'r') as f:
             instruct_text = f.readlines()[0]
-        if instruct_text not in instruction_entity_dict: continue
+        # if instruct_text not in instruction_entity_dict: continue
         if 'add' in instruct_text.lower() or 'put' in instruct_text.lower() or 'insert' in instruct_text.lower(): continue
         entity = instruction_entity_dict[instruct_text]
         if 'entire' in entity.lower(): continue
         trim_img_path = img_path.replace('/val', '/val_trimmed')
-        exe_sam(entity, trim_img_path)
+        print(img_path, obtained_entity)
+        # exe_sam(entity, trim_img_path)
         # import pdb; pdb.set_trace()
 
 
