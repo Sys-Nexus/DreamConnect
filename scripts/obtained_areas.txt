@@ -567,7 +567,6 @@ skirt
 foreground
 horse
 foreground
-lady
 foreground
 meal
 pen, scissors
