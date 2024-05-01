@@ -59,8 +59,8 @@ def main():
         if 'add' in instruct_text.lower() or 'put' in instruct_text.lower() or 'insert' in instruct_text.lower(): continue
         if 'entire' in obtained_entity.lower() or 'specified' in obtained_entity.lower(): continue
         trim_img_path = img_path.replace('/val', '/val_trimmed')
-        if i > 600:
-            print(instruct_text, obtained_entity)
+        if i % 100 == 0:
+            print(i, instruct_text, obtained_entity)
         # exe_sam(entity, trim_img_path)
         # import pdb; pdb.set_trace()
 
