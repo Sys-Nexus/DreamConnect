@@ -52,12 +52,14 @@ def main():
 
     for i,(img_path, obtained_entity) in tqdm(enumerate(zip(img_paths, obtained_entitites))):
         instruct_path = img_path.replace(args.root_dir, args.text_dir).replace('.png', '-instruct.txt')
+        obtained_entity = obtained_entity.replace('.','')
         with open(instruct_path, 'r') as f:
             instruct_text = f.readlines()[0]
         # if instruct_text not in instruction_entity_dict: continue
         if 'add' in instruct_text.lower() or 'put' in instruct_text.lower() or 'insert' in instruct_text.lower(): continue
-        if 'entire' in obtained_entity.lower(): continue
+        if 'entire' in obtained_entity.lower() or 'specified' in obtained_entity.lower(): continue
         trim_img_path = img_path.replace('/val', '/val_trimmed')
+        if i > 600:
         print(img_path, obtained_entity)
         # exe_sam(entity, trim_img_path)
         # import pdb; pdb.set_trace()
