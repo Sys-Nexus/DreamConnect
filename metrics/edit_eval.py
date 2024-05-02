@@ -85,7 +85,7 @@ def main():
         with open('uneffective_img_paths.pkl', 'rb') as f:
             uneffective_img_paths = pickle.load(f)
 
-    if os.path.exists('unused_img_paths.pkl'):
+    if os.path.exists('unuse_img_paths.pkl'):
         with open('unuse_img_paths.pkl', 'rb') as f:
             unused_img_paths = pickle.load(f)
     import pdb; pdb.set_trace()
