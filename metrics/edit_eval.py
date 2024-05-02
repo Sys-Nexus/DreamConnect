@@ -169,8 +169,8 @@ def main():
     else:
         pass
     
-    # with open('res_dict_{}.pkl'.format(args.eval_mode), 'wb') as f:
-    #     pickle.dump(res_dict, f)
+    with open('res_dict_{}.pkl'.format(args.eval_mode), 'wb') as f:
+        pickle.dump(res_dict, f)
 
     # id_sim_dict = {}
     # for key_word in key_words:
