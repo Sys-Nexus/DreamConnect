@@ -69,9 +69,9 @@ def main():
     else:
         res_dict_path = 'res_dict_{}.pkl'.format(args.eval_mode)
 
-    # if args.is_mask_enhance:
-    #     with open(res_dict_path, 'rb') as f:
-    #         baseline_eval_res = pickle.load(f)
+    if args.is_mask_enhance:
+        with open(res_dict_path, 'rb') as f:
+            baseline_eval_res = pickle.load(f)
 
     img_paths = sorted(glob.glob(os.path.join(args.root_dir, 'all_iter*.png')))
     key_words = ['make', 'replace', 'turn', 'change', 'remove', 'add', 'insert', 'swap', 'switch', 'put', 'cut']
@@ -143,12 +143,12 @@ def main():
             id_sim_dict[this_key_word].append(id_sim.item())
             # if args.eval_mode != 'fid':
 
-            # if args.is_mask_enhance:
-            #     baseline_id_sim = baseline_eval_res[args.eval_mode][os.path.basename(img_path)]
-            #     diff = id_sim.item() - baseline_id_sim
-            #     all_diffs.append(diff)
-            #     if os.path.basename(img_path) in unused_img_paths:# and args.eval_mode == 'inst_sim':
-            #         id_sim = torch.ones(1) * baseline_id_sim
+            if args.is_mask_enhance:
+                baseline_id_sim = baseline_eval_res[args.eval_mode][os.path.basename(img_path)]
+                diff = id_sim.item() - baseline_id_sim
+                all_diffs.append(diff)
+                if os.path.basename(img_path) in unused_img_paths:# and args.eval_mode == 'inst_sim':
+                    id_sim = torch.ones(1) * baseline_id_sim
                     # continue
             all_id_sims.append(id_sim.item())
             effective_img_paths.append(img_path)
