@@ -142,8 +142,8 @@ def main():
                 baseline_id_sim = baseline_eval_res[args.eval_mode][os.path.basename(img_path)]
                 diff = id_sim.item() - baseline_id_sim
                 all_diffs.append(diff)
-                if os.path.basename(img_path) in unused_img_paths: 
-                    id_sim = torch.ones(1) * baseline_id_sim    
+                if os.path.basename(img_path) in unused_img_paths:# and args.eval_mode == 'inst_sim':
+                    id_sim = torch.ones(1) * baseline_id_sim
                     # continue
             all_id_sims.append(id_sim.item())
             effective_img_paths.append(img_path)
