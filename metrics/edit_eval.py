@@ -43,7 +43,7 @@ def main():
     parser.add_argument('--root_dir', type=str, default='logs/test_conv_adaptor_test_conv_adaptor_2024-04-08/visualize/images/val_sdedit')
     parser.add_argument('--text_dir', type=str, default='logs/test_conv_adaptor_test_conv_adaptor_2024-04-13/visualize/images/val')
     parser.add_argument('--eval_mode', type=str, default='id_sim')
-    parser.add_argument('--is_mask_enhance', type=int, default=1)
+    parser.add_argument('--is_mask_enhance', type=int, default=0)
     args = parser.parse_args()
 
     if args.eval_mode == 'id_sim':
@@ -121,7 +121,7 @@ def main():
             delta_feat = edit_feat - input_feat
             id_sim = F.cosine_similarity(delta_feat / delta_feat.norm(dim=1, keepdim=True), instr_feat)
             if args.is_mask_enhance:
-                baseline_id_sim = baseline_eval_res['inst_sim']
+                baseline_id_sim = baseline_eval_res[self.eval_mode][img_path]
                 import pdb; pdb.set_trace()
 
         elif args.eval_mode == 'fid':
@@ -139,7 +139,7 @@ def main():
             input_imgs.append(input_img)
             edit_imgs.append(edit_img)
 
-            res_dict[args.eval_mode][img_path] = id_sim.item()
+            res_dict[args.eval_mode][os.path.basename(img_path)] = id_sim.item()
         # print(img_path, id_sim.item())
 
     if args.eval_method == 'fid':
