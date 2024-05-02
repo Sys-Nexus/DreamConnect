@@ -139,7 +139,7 @@ def main():
             # if args.eval_mode != 'fid':
 
             if args.is_mask_enhance:
-                baseline_id_sim = baseline_eval_res[args.eval_mode][os.path.basename(img_path)]
+                baseline_id_sim = baseline_eval_res['inst_sim'][os.path.basename(img_path)]
                 diff = id_sim.item() - baseline_id_sim
                 all_diffs.append(diff)
                 if os.path.basename(img_path) in unused_img_paths:# and args.eval_mode == 'inst_sim':
