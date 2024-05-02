@@ -65,7 +65,7 @@ def main():
         raise ValueError
 
     if args.is_mask_enhance:
-        with open('res_dict_inst_sim.pkl', 'rb') as f:
+        with open('res_dict_{}.pkl'.format(args.eval_mode), 'rb') as f:
             baseline_eval_res = pickle.load(f)
 
     img_paths = sorted(glob.glob(os.path.join(args.root_dir, 'all_iter*.png')))
@@ -78,8 +78,8 @@ def main():
     unused_img_paths, all_diffs = [], []
     input_imgs, edit_imgs = [], []
 
-    # res_dict = {}
-    # res_dict[args.eval_mode] = {}
+    res_dict = {}
+    res_dict[args.eval_mode] = {}
 
     if os.path.exists('uneffective_img_paths.pkl'):
         with open('uneffective_img_paths.pkl', 'rb') as f:
@@ -139,11 +139,11 @@ def main():
             # if args.eval_mode != 'fid':
 
             if args.is_mask_enhance:
-                baseline_id_sim = baseline_eval_res['inst_sim'][os.path.basename(img_path)]
+                baseline_id_sim = baseline_eval_res[args.eval_mode][os.path.basename(img_path)]
                 diff = id_sim.item() - baseline_id_sim
                 all_diffs.append(diff)
-                if os.path.basename(img_path) in unused_img_paths:# and args.eval_mode == 'inst_sim':
-                    id_sim = torch.ones(1) * baseline_id_sim
+                # if os.path.basename(img_path) in unused_img_paths:# and args.eval_mode == 'inst_sim':
+                #     id_sim = torch.ones(1) * baseline_id_sim
                     # continue
             all_id_sims.append(id_sim.item())
             effective_img_paths.append(img_path)
@@ -151,7 +151,7 @@ def main():
             input_imgs.append(input_img)
             edit_imgs.append(edit_img)
 
-            # res_dict[args.eval_mode][os.path.basename(img_path)] = id_sim.item()
+            res_dict[args.eval_mode][os.path.basename(img_path)] = id_sim.item()
         # print(img_path, id_sim.item())
 
     if args.eval_method == 'fid':
@@ -181,8 +181,8 @@ def main():
     else:
         pass
     
-    # with open('res_dict_{}.pkl'.format(args.eval_mode), 'wb') as f:
-    #     pickle.dump(res_dict, f)
+    with open('res_dict_{}.pkl'.format(args.eval_mode), 'wb') as f:
+        pickle.dump(res_dict, f)
 
     # id_sim_dict = {}
     # for key_word in key_words:
