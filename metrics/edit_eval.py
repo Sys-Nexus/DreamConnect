@@ -124,7 +124,7 @@ def main():
             if args.is_mask_enhance:
                 baseline_id_sim = baseline_eval_res[args.eval_mode][os.path.basename(img_path)]
                 diff = id_sim.item() - baseline_id_sim
-                import pdb; pdb.set_trace()
+                # import pdb; pdb.set_trace()
 
         elif args.eval_mode == 'fid':
             id_sim = torch.zeros(1)
