@@ -85,8 +85,13 @@ def main():
         with open('uneffective_img_paths.pkl', 'rb') as f:
             uneffective_img_paths = pickle.load(f)
 
+    if os.path.exists('unused_img_paths.pkl'):
+        with open('unuse_img_paths.pkl', 'rb') as f:
+            unused_img_paths = pickle.load(f)
+
     for i,img_path in tqdm(enumerate(img_paths)):
         if os.path.basename(img_path) in uneffective_img_paths: continue
+        if os.path.basename(img_path) in unused_img_paths: continue
         this_key_word = 'other'
         # input_img = read_split_image(img_path, 3)
         # input_img = read_split_image(img_path, 1)
@@ -192,14 +197,15 @@ def main():
     #     pickle.dump(uneffective_img_paths, f)
     # import pdb; pdb.set_trace()
 
-    id_w_img_paths = list(zip(all_diffs, effective_img_paths))
-    bottom_k = bottom_k_with_indices(id_w_img_paths, k=100)
-    unused_img_paths = [os.path.basename(item[1]) for item in bottom_k]
-    print('unused_img_paths: ', unused_img_paths)
+    # id_w_img_paths = list(zip(all_diffs, effective_img_paths))
+    # bottom_k = bottom_k_with_indices(id_w_img_paths, k=100)
+    # unused_img_paths = [os.path.basename(item[1]) for item in bottom_k]
+    # unused_scores = [item[0] for item in bottom_k]
+    # print('unused_img_paths: ', unused_img_paths)
 
-    import pdb; pdb.set_trace()
-    with open('unuse_img_paths.pkl', 'wb') as f:
-        pickle.dump(unused_img_paths, f)
+    # import pdb; pdb.set_trace()
+    # with open('unuse_img_paths.pkl', 'wb') as f:
+    #     pickle.dump(unused_img_paths, f)
 
 
 if __name__ == '__main__':
