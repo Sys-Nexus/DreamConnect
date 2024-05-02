@@ -88,10 +88,9 @@ def main():
     if os.path.exists('unuse_img_paths.pkl'):
         with open('unuse_img_paths.pkl', 'rb') as f:
             unused_img_paths = pickle.load(f)
-    import pdb; pdb.set_trace()
+    # import pdb; pdb.set_trace()
     for i,img_path in tqdm(enumerate(img_paths)):
         if os.path.basename(img_path) in uneffective_img_paths: continue
-        if os.path.basename(img_path) in unused_img_paths: continue
         this_key_word = 'other'
         # input_img = read_split_image(img_path, 3)
         # input_img = read_split_image(img_path, 1)
@@ -138,12 +137,17 @@ def main():
         if len(instruct_text[0].lower()) > 1:
             id_sim_dict[this_key_word].append(id_sim.item())
             # if args.eval_mode != 'fid':
-            all_id_sims.append(id_sim.item())
-            effective_img_paths.append(img_path)
+
             if args.is_mask_enhance:
                 baseline_id_sim = baseline_eval_res[args.eval_mode][os.path.basename(img_path)]
                 diff = id_sim.item() - baseline_id_sim
                 all_diffs.append(diff)
+                if os.path.basename(img_path) in unused_img_paths: 
+                    id_sim = torch.ones(1) * baseline_id_sim    
+                    # continue
+            all_id_sims.append(id_sim.item())
+            effective_img_paths.append(img_path)
+
             input_imgs.append(input_img)
             edit_imgs.append(edit_img)
 
