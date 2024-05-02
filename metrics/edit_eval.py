@@ -186,8 +186,8 @@ def main():
     else:
         pass
     
-    with open(res_dict_path, 'wb') as f:
-        pickle.dump(res_dict, f)
+    # with open(res_dict_path, 'wb') as f:
+    #     pickle.dump(res_dict, f)
 
     # id_sim_dict = {}
     # for key_word in key_words:
