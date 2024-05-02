@@ -43,7 +43,7 @@ def main():
     parser.add_argument('--root_dir', type=str, default='logs/test_conv_adaptor_test_conv_adaptor_2024-04-08/visualize/images/val_sdedit')
     parser.add_argument('--text_dir', type=str, default='logs/test_conv_adaptor_test_conv_adaptor_2024-04-13/visualize/images/val')
     parser.add_argument('--eval_mode', type=str, default='id_sim')
-    parser.add_argument('--is_mask_enhance', type=int, default=0)
+    parser.add_argument('--is_mask_enhance', type=int, default=1)
     args = parser.parse_args()
 
     if args.eval_mode == 'id_sim':
