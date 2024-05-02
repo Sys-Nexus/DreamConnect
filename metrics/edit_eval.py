@@ -75,6 +75,7 @@ def main():
 
     all_id_sims, effective_img_paths = [], []
     uneffective_img_paths = []
+    unused_img_paths, all_diffs = [], []
     input_imgs, edit_imgs = [], []
 
     res_dict = {}
@@ -122,6 +123,7 @@ def main():
             id_sim = F.cosine_similarity(delta_feat / delta_feat.norm(dim=1, keepdim=True), instr_feat)
             if args.is_mask_enhance:
                 baseline_id_sim = baseline_eval_res[args.eval_mode][os.path.basename(img_path)]
+                diff = id_sim.item() - baseline_id_sim
                 import pdb; pdb.set_trace()
 
         elif args.eval_mode == 'fid':
@@ -135,7 +137,8 @@ def main():
             # if args.eval_mode != 'fid':
             all_id_sims.append(id_sim.item())
             effective_img_paths.append(img_path)
-
+            if args.is_mask_enhance:
+                all_diffs.append(diff)
             input_imgs.append(input_img)
             edit_imgs.append(edit_img)
 
@@ -188,6 +191,16 @@ def main():
     # with open('uneffective_img_paths.pkl', 'wb') as f:
     #     pickle.dump(uneffective_img_paths, f)
     # import pdb; pdb.set_trace()
+
+    id_w_img_paths = list(zip(all_diffs, effective_img_paths))
+    bottom_k = bottom_k_with_indices(id_w_img_paths, k=100)
+    unused_img_paths = [os.path.basename(item[1]) for item in bottom_k]
+    print('unused_img_paths: ', unused_img_paths)
+
+    import pdb; pdb.set_trace()
+    with open('unuse_img_paths.pkl', 'wb') as f:
+        pickle.dump(unused_img_paths, f)
+
 
 if __name__ == '__main__':
     main()
