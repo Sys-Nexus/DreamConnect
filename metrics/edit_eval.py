@@ -86,13 +86,13 @@ def main():
     res_dict = {}
     res_dict[args.eval_mode] = {}
 
-    # if os.path.exists('uneffective_img_paths.pkl'):
-    #     with open('uneffective_img_paths.pkl', 'rb') as f:
-    #         uneffective_img_paths = pickle.load(f)
+    if os.path.exists('uneffective_img_paths.pkl'):
+        with open('uneffective_img_paths.pkl', 'rb') as f:
+            uneffective_img_paths = pickle.load(f)
 
-    if os.path.exists('unuse_img_paths.pkl'):
-        with open('unuse_img_paths.pkl', 'rb') as f:
-            unused_img_paths = pickle.load(f)
+    # if os.path.exists('unuse_img_paths.pkl'):
+    #     with open('unuse_img_paths.pkl', 'rb') as f:
+    #         unused_img_paths = pickle.load(f)
     # import pdb; pdb.set_trace()
     for i,img_path in tqdm(enumerate(img_paths)):
         if os.path.basename(img_path) in uneffective_img_paths: continue
