@@ -78,8 +78,8 @@ def main():
     unused_img_paths, all_diffs = [], []
     input_imgs, edit_imgs = [], []
 
-    res_dict = {}
-    res_dict[args.eval_mode] = {}
+    # res_dict = {}
+    # res_dict[args.eval_mode] = {}
 
     if os.path.exists('uneffective_img_paths.pkl'):
         with open('uneffective_img_paths.pkl', 'rb') as f:
@@ -121,9 +121,7 @@ def main():
             instr_feat = sim_evaluator.encode_text(output_text) - sim_evaluator.encode_text(input_text)
             delta_feat = edit_feat - input_feat
             id_sim = F.cosine_similarity(delta_feat / delta_feat.norm(dim=1, keepdim=True), instr_feat)
-            if args.is_mask_enhance:
-                baseline_id_sim = baseline_eval_res[args.eval_mode][os.path.basename(img_path)]
-                diff = id_sim.item() - baseline_id_sim
+            # if args.is_mask_enhance:
                 # import pdb; pdb.set_trace()
 
         elif args.eval_mode == 'fid':
@@ -138,11 +136,13 @@ def main():
             all_id_sims.append(id_sim.item())
             effective_img_paths.append(img_path)
             if args.is_mask_enhance:
+                baseline_id_sim = baseline_eval_res[args.eval_mode][os.path.basename(img_path)]
+                diff = id_sim.item() - baseline_id_sim
                 all_diffs.append(diff)
             input_imgs.append(input_img)
             edit_imgs.append(edit_img)
 
-            res_dict[args.eval_mode][os.path.basename(img_path)] = id_sim.item()
+            # res_dict[args.eval_mode][os.path.basename(img_path)] = id_sim.item()
         # print(img_path, id_sim.item())
 
     if args.eval_method == 'fid':
