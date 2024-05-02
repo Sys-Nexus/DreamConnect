@@ -64,9 +64,9 @@ def main():
     else:
         raise ValueError
 
-    # if args.is_mask_enhance:
-    #     with open('res_dict_{}.pkl'.format(args.eval_mode), 'rb') as f:
-    #         baseline_eval_res = pickle.load(f)
+    if args.is_mask_enhance:
+        with open('res_dict_{}.pkl'.format(args.eval_mode), 'rb') as f:
+            baseline_eval_res = pickle.load(f)
 
     img_paths = sorted(glob.glob(os.path.join(args.root_dir, 'all_iter*.png')))
     key_words = ['make', 'replace', 'turn', 'change', 'remove', 'add', 'insert', 'swap', 'switch', 'put', 'cut']
