@@ -40,12 +40,9 @@ def read_split_image(img_path, offset):
 def main():
     parser = argparse.ArgumentParser(description='')
     parser.add_argument('--eval_method', type=str, default='clip')
-    # parser.add_argument('--root_dir', type=str, default='logs/test_conv_adaptor_test_conv_adaptor_2024-04-08/visualize/images/val_inst_pix2pix')
-    # parser.add_argument('--root_dir', type=str, default='logs/test_conv_adaptor_test_conv_adaptor_2024-04-08/visualize/images/val_inst_dif')
     parser.add_argument('--root_dir', type=str, default='logs/test_conv_adaptor_test_conv_adaptor_2024-04-08/visualize/images/val_sdedit')
     parser.add_argument('--text_dir', type=str, default='logs/test_conv_adaptor_test_conv_adaptor_2024-04-13/visualize/images/val')
     parser.add_argument('--eval_mode', type=str, default='id_sim')
-    # parser.add_argument('--root_dir', type=str, default='logs/test_conv_adaptor_test_conv_adaptor_2024-04-08/visualize/images/val_magic_brush')
     args = parser.parse_args()
 
     if args.eval_mode == 'id_sim':
@@ -67,9 +64,6 @@ def main():
         raise ValueError
 
     img_paths = sorted(glob.glob(os.path.join(args.root_dir, 'all_iter*.png')))
-    # img_paths = img_paths[:15]
-    # print(img_paths)
-
     key_words = ['make', 'replace', 'turn', 'change', 'remove', 'add', 'insert', 'swap', 'switch', 'put', 'cut']
     id_sim_dict = {key_word: [] for key_word in key_words}
     id_sim_dict['other'] = []
@@ -77,6 +71,9 @@ def main():
     all_id_sims, effective_img_paths = [], []
     uneffective_img_paths = []
     input_imgs, edit_imgs = [], []
+
+    res_dict = {}
+    res_dict[args.eval_mode] = {}
 
     if os.path.exists('uneffective_img_paths.pkl'):
         with open('uneffective_img_paths.pkl', 'rb') as f:
@@ -132,8 +129,10 @@ def main():
 
             input_imgs.append(input_img)
             edit_imgs.append(edit_img)
+
+            res_dict[args.eval_mode][img_path] = id_sim.item()
         # print(img_path, id_sim.item())
-    
+
     if args.eval_method == 'fid':
         base_dir = os.path.basename(args.root_dir)
         fid_input_dir, fid_edit_dir = args.root_dir + '_fid_input', args.root_dir + '_fid_edit'
@@ -161,6 +160,12 @@ def main():
     else:
         pass
     
+    with open('res_dict_{}.pkl'.format(args.eval_mode), 'wb') as f:
+        pickle.dump(res_dict, f)
+
+    # id_sim_dict = {}
+    # for key_word in key_words:
+    #     id_sim_dict[key_word] = []
     # for key_word in id_sim_dict.keys():
     #     if len(id_sim_dict[key_word]):
     #         print(key_word, len(id_sim_dict[key_word]), sum(id_sim_dict[key_word]) * 1.0 / len(id_sim_dict[key_word]))

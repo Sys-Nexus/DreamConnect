@@ -7,14 +7,14 @@ log_dirs=(
     # logs/test_res_inject_idback_css15_test_res_inject_idback_css15_2024-04-23/visualize/images/val
 
     ######## used for test #########
-    # logs/test_res_value_inject_idback_css15_test_res_value_inject_idback_css15_2024-04-25/visualize/images/val
+    logs/test_res_value_inject_idback_css15_test_res_value_inject_idback_css15_2024-04-25/visualize/images/val
     # logs/test_conv_adaptor_test_conv_adaptor_2024-04-08/visualize/images/val_inst_pix2pix
     # logs/test_conv_adaptor_test_conv_adaptor_2024-04-08/visualize/images/val_inst_dif
     # logs/test_conv_adaptor_test_conv_adaptor_2024-04-08/visualize/images/val_magic_brush
     # logs/test_conv_adaptor_test_conv_adaptor_2024-04-08/visualize/images/val_sdedit
 
     # mask enhance version
-    logs/test_res_value_inject_idback_css15_test_res_value_inject_idback_css15_2024-05-01/visualize/images/val
+    # logs/test_res_value_inject_idback_css15_test_res_value_inject_idback_css15_2024-05-01/visualize/images/val
 )
 
 
@@ -38,25 +38,25 @@ log_dirs=(
 # done
 
 
-eval_modes=(
-    'id_sim'
-)
-eval_methods=(
-    'clip'
-    'dino'
-)
-for eval_mode in ${eval_modes[@]}
-do
-    echo 'eval_mode: '$eval_mode
-    for eval_method in ${eval_methods[@]}
-    do
-        echo 'eval_method: '$eval_method
-        for root_dir in ${log_dirs[@]}
-        do
-            python  metrics/edit_eval.py --eval_method ${eval_method} --eval_mode ${eval_mode} --root_dir ${root_dir}
-        done
-    done
-done
+# eval_modes=(
+#     'id_sim'
+# )
+# eval_methods=(
+#     'clip'
+#     'dino'
+# )
+# for eval_mode in ${eval_modes[@]}
+# do
+#     echo 'eval_mode: '$eval_mode
+#     for eval_method in ${eval_methods[@]}
+#     do
+#         echo 'eval_method: '$eval_method
+#         for root_dir in ${log_dirs[@]}
+#         do
+#             python  metrics/edit_eval.py --eval_method ${eval_method} --eval_mode ${eval_mode} --root_dir ${root_dir}
+#         done
+#     done
+# done
 
 
 eval_modes=(
