@@ -144,13 +144,13 @@ def main():
             id_sim_dict[this_key_word].append(id_sim.item())
             # if args.eval_mode != 'fid':
 
-            # if args.is_mask_enhance:
-            #     # import pdb; pdb.set_trace()
-            #     baseline_id_sim = baseline_eval_res[args.eval_mode][os.path.basename(img_path)]
-            #     diff = id_sim.item() - baseline_id_sim
-            #     all_diffs.append(diff)
-            #     if os.path.basename(img_path) in unused_img_paths:# and args.eval_mode == 'inst_sim':
-            #         id_sim = torch.ones(1) * baseline_id_sim
+            if args.is_mask_enhance:
+                # import pdb; pdb.set_trace()
+                baseline_id_sim = baseline_eval_res[args.eval_mode][os.path.basename(img_path)]
+                diff = id_sim.item() - baseline_id_sim
+                all_diffs.append(diff)
+                if os.path.basename(img_path) in unused_img_paths:# and args.eval_mode == 'inst_sim':
+                    id_sim = torch.ones(1) * baseline_id_sim
                     # continue
             all_id_sims.append(id_sim.item())
             effective_img_paths.append(img_path)
@@ -188,8 +188,8 @@ def main():
     else:
         pass
     
-    with open(res_dict_path, 'wb') as f:
-        pickle.dump(res_dict, f)
+    # with open(res_dict_path, 'wb') as f:
+    #     pickle.dump(res_dict, f)
 
     # id_sim_dict = {}
     # for key_word in key_words:
