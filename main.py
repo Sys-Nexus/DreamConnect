@@ -441,6 +441,11 @@ def test_one_epoch(config, model, model_ema, data_loader, val_data_loader, optim
                     if whitelist is not None and '{:06d}'.format(batch['s'][0]) not in whitelist: continue
                     # print('{:06d}'.format(batch['s'][0]))
                     # import pdb; pdb.set_trace()
+
+                    random_seed = 8866 + val_idx
+                    torch.manual_seed(random_seed)
+                    torch.cuda.manual_seed_all(random_seed)  # If you're using CUDA
+
                     model.save_text(batch, epoch, idx, val_idx, model_wrap, model_wrap_cfg, 
                                  save_dir, 'val', cfg_text=cfg_text, cfg_text_edit=cfg_text_edit, cfg_fmri=2.5,
                                  prospect_words=None, is_inst_edit=False, is_inst_gen=False)
