@@ -1198,13 +1198,14 @@ class DualLDM(LatentDiffusion):
                 injected_contexts.append(ctx_feature)
             new_cond['injected_contexts'] = injected_contexts
             new_cond['injected_attn_qkv'] = control_attn_qkv if self.mutual_selfatt else None
-            # import pdb; pdb.set_trace()
 
             ## this sentence will overwrite the obtained noisy_c_concat at inference time            
             if self.use_resnet_inject is True:
                 new_cond["injected_features"] = out_layers_injected
             else:
                 new_cond["injected_features"] = None
+
+            import pdb; pdb.set_trace()
             new_cond["noisy_c_concat"] = noisy_c_concat if noisy_c_concat4train is None else noisy_c_concat4train
             
             if 'layout_concat' in new_cond.keys():
