@@ -333,6 +333,7 @@ class DualLDM(LatentDiffusion):
         
         self.use_resnet_inject = kwargs.pop('use_resnet_inject', False)
         self.is_no_inject = kwargs.pop('is_no_inject', False)
+        self.is_no_concat = kwargs.pop('is_no_concat', False)
 
         super().__init__(*args, **kwargs)
         self.vd_clip = VDCLIP(clip_cfg)
@@ -1220,7 +1221,10 @@ class DualLDM(LatentDiffusion):
             new_cond["is_return_x0"] = is_return_x0
             new_cond["sqrt_one_minus_at"] = sqrt_one_minus_at_offset
             new_cond["a_t"] = a_t_offset
-            # new_cond["noisy_c_concat"] = new_cond['c_concat'][0]
+
+            if self.is_no_concat is True:
+                new_cond["noisy_c_concat"] = None
+
             edit_t = t_edit_in if t_edit_in is not None else t
             if is_return_x0 is False:
                 x_recon_edit = self.model(x_noisy_edit, edit_t, **new_cond)
