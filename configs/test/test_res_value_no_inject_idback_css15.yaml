@@ -18,6 +18,7 @@ model:
     only_mid_control: False
     control_key: 'fmri'
     use_resnet_inject: True
+    is_no_inject: True
     # deepspeed: ''
     # ckpt_path: stable_diffusion/models/ldm/stable-diffusion-v1/v1-5-pruned-emaonly-adaption.ckpt
     # ckpt_path: stable_diffusion/models/ldm/stable-diffusion-v1/v1-5-pruned-emaonly-adaption-task-humanalign.ckpt

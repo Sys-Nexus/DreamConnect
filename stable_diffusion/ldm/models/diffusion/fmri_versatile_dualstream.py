@@ -332,6 +332,7 @@ class DualLDM(LatentDiffusion):
                 fmri_vclip_cfg=None, fmri_vclip_pretrain_path=None, personalization_config=None, *args, **kwargs):
         
         self.use_resnet_inject = kwargs.pop('use_resnet_inject', False)
+        self.is_no_inject = kwargs.pop('is_no_inject', False)
 
         super().__init__(*args, **kwargs)
         self.vd_clip = VDCLIP(clip_cfg)
@@ -1205,7 +1206,11 @@ class DualLDM(LatentDiffusion):
             else:
                 new_cond["injected_features"] = None
 
-            import pdb; pdb.set_trace()
+            # import pdb; pdb.set_trace()
+            if self.is_no_inject is True:
+                new_cond["injected_contexts"] = None
+                new_cond["injected_features"] = None
+
             new_cond["noisy_c_concat"] = noisy_c_concat if noisy_c_concat4train is None else noisy_c_concat4train
             
             if 'layout_concat' in new_cond.keys():
