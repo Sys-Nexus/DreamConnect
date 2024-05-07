@@ -443,9 +443,9 @@ def test_one_epoch(config, model, model_ema, data_loader, val_data_loader, optim
                     # print('{:06d}'.format(batch['s'][0]))
                     # import pdb; pdb.set_trace()
 
-                    random_seed = 8866 + val_idx
-                    torch.manual_seed(random_seed)
-                    torch.cuda.manual_seed_all(random_seed)  # If you're using CUDA
+                    # random_seed = 8866 + val_idx
+                    # torch.manual_seed(random_seed)
+                    # torch.cuda.manual_seed_all(random_seed)  # If you're using CUDA
 
                     model.save_text(batch, epoch, idx, val_idx, model_wrap, model_wrap_cfg, 
                                  save_dir, 'val', cfg_text=cfg_text, cfg_text_edit=cfg_text_edit, cfg_fmri=2.5,
