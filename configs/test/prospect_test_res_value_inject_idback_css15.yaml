@@ -13,6 +13,7 @@ model:
     fp16: True
     deepspeed: 'deepspeed_1'
     use_resnet_inject: True
+    is_no_inject: True
     # fp16: False
     # deepspeed: 'deepspeedfp32_1'
     only_mid_control: False
