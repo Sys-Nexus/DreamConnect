@@ -206,14 +206,14 @@ def main():
     # import pdb; pdb.set_trace()
     
     ########## this is for id-direction trade-off selection ##########
-    id_w_img_paths = list(zip(all_id_sims, effective_img_paths))
-    bottom_k = bottom_k_with_indices(id_w_img_paths, k=100)
-    uneffective_img_paths = [os.path.basename(item[1]) for item in bottom_k]
-    print('uneffective_img_paths: ', uneffective_img_paths)
+    # id_w_img_paths = list(zip(all_id_sims, effective_img_paths))
+    # bottom_k = bottom_k_with_indices(id_w_img_paths, k=100)
+    # uneffective_img_paths = [os.path.basename(item[1]) for item in bottom_k]
+    # print('uneffective_img_paths: ', uneffective_img_paths)
 
-    with open(uneffective_meta_path, 'wb') as f:
-        pickle.dump(uneffective_img_paths, f)
-    import pdb; pdb.set_trace()
+    # with open(uneffective_meta_path, 'wb') as f:
+    #     pickle.dump(uneffective_img_paths, f)
+    # import pdb; pdb.set_trace()
 
     ########## this is for context_mask selection ##########
     # id_w_img_paths = list(zip(all_diffs, effective_img_paths))
