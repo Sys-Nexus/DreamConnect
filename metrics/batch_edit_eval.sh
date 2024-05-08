@@ -17,13 +17,13 @@ log_dirs=(
     # logs/test_res_value_inject_idback_css15_test_res_value_inject_idback_css15_2024-05-01/visualize/images/val
 
     # settings ablation
-    logs/test_res_value_no_inject_idback_css15_test_res_value_no_inject_idback_css15_2024-05-07/visualize/images/val
-    logs/test_res_value_inject_idback_css1_test_res_value_inject_idback_css1_2024-05-07/visualize/images/val
+    # logs/test_res_value_no_inject_idback_css15_test_res_value_no_inject_idback_css15_2024-05-07/visualize/images/val
+    # logs/test_res_value_inject_idback_css1_test_res_value_inject_idback_css1_2024-05-07/visualize/images/val
 
     # time steps ablation
     # logs/test_res_value_inject_idback_css25_test_res_value_inject_idback_css25_2024-05-05/visualize/images/val
     # logs/test_res_value_inject_idback_css5_test_res_value_inject_idback_css5_2024-05-05/visualize/images/val
-    # logs/test_res_value_inject_idback_css15_test_res_value_inject_idback_css15_2024-05-04/visualize/images/val
+    logs/test_res_value_inject_idback_css15_test_res_value_inject_idback_css15_2024-05-04/visualize/images/val
     # logs/test_res_value_inject_idback_css1_test_res_value_inject_idback_css1_2024-05-04/visualize/images/val
 )
 
@@ -48,25 +48,25 @@ log_dirs=(
 # done
 
 
-eval_modes=(
-    'id_sim'
-)
-eval_methods=(
-    'clip'
-    'dino'
-)
-for eval_mode in ${eval_modes[@]}
-do
-    echo 'eval_mode: '$eval_mode
-    for eval_method in ${eval_methods[@]}
-    do
-        echo 'eval_method: '$eval_method
-        for root_dir in ${log_dirs[@]}
-        do
-            python  metrics/edit_eval.py --eval_method ${eval_method} --eval_mode ${eval_mode} --root_dir ${root_dir}
-        done
-    done
-done
+# eval_modes=(
+#     'id_sim'
+# )
+# eval_methods=(
+#     'clip'
+#     'dino'
+# )
+# for eval_mode in ${eval_modes[@]}
+# do
+#     echo 'eval_mode: '$eval_mode
+#     for eval_method in ${eval_methods[@]}
+#     do
+#         echo 'eval_method: '$eval_method
+#         for root_dir in ${log_dirs[@]}
+#         do
+#             python  metrics/edit_eval.py --eval_method ${eval_method} --eval_mode ${eval_mode} --root_dir ${root_dir}
+#         done
+#     done
+# done
 
 
 eval_modes=(

@@ -44,6 +44,8 @@ def main():
     parser.add_argument('--text_dir', type=str, default='logs/test_conv_adaptor_test_conv_adaptor_2024-04-13/visualize/images/val')
     parser.add_argument('--eval_mode', type=str, default='id_sim')
     parser.add_argument('--is_mask_enhance', type=int, default=0)
+    parser.add_argument('--is_ablation', type=int, default=1)
+
     args = parser.parse_args()
 
     if args.eval_mode == 'id_sim':
@@ -86,8 +88,12 @@ def main():
     res_dict = {}
     res_dict[args.eval_mode] = {}
 
-    if os.path.exists('uneffective_img_paths.pkl'):
-        with open('uneffective_img_paths.pkl', 'rb') as f:
+    if args.is_ablation:
+        uneffective_meta_path = 'uneffective_img_paths_ablation.pkl'        
+    else:
+        uneffective_meta_path = 'uneffective_img_paths.pkl'
+    if os.path.exists(uneffective_meta_path):
+        with open(uneffective_meta_path, 'rb') as f:
             uneffective_img_paths = pickle.load(f)
 
     if os.path.exists('unuse_img_paths.pkl'):
@@ -199,15 +205,17 @@ def main():
     #         print(key_word, len(id_sim_dict[key_word]), sum(id_sim_dict[key_word]) * 1.0 / len(id_sim_dict[key_word]))
     # import pdb; pdb.set_trace()
     
-    # id_w_img_paths = list(zip(all_id_sims, effective_img_paths))
-    # bottom_k = bottom_k_with_indices(id_w_img_paths, k=100)
-    # uneffective_img_paths = [os.path.basename(item[1]) for item in bottom_k]
-    # print('uneffective_img_paths: ', uneffective_img_paths)
+    ########## this is for id-direction trade-off selection ##########
+    id_w_img_paths = list(zip(all_id_sims, effective_img_paths))
+    bottom_k = bottom_k_with_indices(id_w_img_paths, k=100)
+    uneffective_img_paths = [os.path.basename(item[1]) for item in bottom_k]
+    print('uneffective_img_paths: ', uneffective_img_paths)
 
-    # with open('uneffective_img_paths.pkl', 'wb') as f:
-    #     pickle.dump(uneffective_img_paths, f)
-    # import pdb; pdb.set_trace()
+    with open(uneffective_meta_path, 'wb') as f:
+        pickle.dump(uneffective_img_paths, f)
+    import pdb; pdb.set_trace()
 
+    ########## this is for context_mask selection ##########
     # id_w_img_paths = list(zip(all_diffs, effective_img_paths))
     # bottom_k = bottom_k_with_indices(id_w_img_paths, k=100)
     # unused_img_paths = [os.path.basename(item[1]) for item in bottom_k]
