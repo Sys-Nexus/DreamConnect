@@ -16,11 +16,15 @@ log_dirs=(
     # mask enhance version
     # logs/test_res_value_inject_idback_css15_test_res_value_inject_idback_css15_2024-05-01/visualize/images/val
 
-    # ablation
-    logs/test_res_value_inject_idback_css25_test_res_value_inject_idback_css25_2024-05-05/visualize/images/val
-    logs/test_res_value_inject_idback_css5_test_res_value_inject_idback_css5_2024-05-05/visualize/images/val
-    logs/test_res_value_inject_idback_css15_test_res_value_inject_idback_css15_2024-05-04/visualize/images/val
-    logs/test_res_value_inject_idback_css1_test_res_value_inject_idback_css1_2024-05-04/visualize/images/val
+    # settings ablation
+    logs/test_res_value_no_inject_idback_css15_test_res_value_no_inject_idback_css15_2024-05-07/visualize/images/val
+    logs/test_res_value_inject_idback_css1_test_res_value_inject_idback_css1_2024-05-07/visualize/images/val
+
+    # time steps ablation
+    # logs/test_res_value_inject_idback_css25_test_res_value_inject_idback_css25_2024-05-05/visualize/images/val
+    # logs/test_res_value_inject_idback_css5_test_res_value_inject_idback_css5_2024-05-05/visualize/images/val
+    # logs/test_res_value_inject_idback_css15_test_res_value_inject_idback_css15_2024-05-04/visualize/images/val
+    # logs/test_res_value_inject_idback_css1_test_res_value_inject_idback_css1_2024-05-04/visualize/images/val
 )
 
 
