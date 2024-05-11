@@ -139,6 +139,7 @@ class ZeroConvControlledUnetModel(UNetModel):
     def forward(self, x, timesteps=None, context=None, control=None, only_mid_control=False, 
                         num_control_layers=1000, injected_features=None, injected_contexts=None, 
                         injected_attn_qkv=None, is_return_x0=False, sqrt_one_minus_at=None, a_t=None, context_mask=None, **kwargs):
+        import pdb; pdb.set_trace();
         if (control is not None and len(control)) or injected_features is not None or injected_attn_qkv is not None:
             if not self.isTest: context_mask = None
             # context_mask = None
