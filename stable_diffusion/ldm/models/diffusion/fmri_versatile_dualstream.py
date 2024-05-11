@@ -164,7 +164,7 @@ class ZeroConvControlledUnetModel(UNetModel):
             if control is not None:
                 h += control.pop(0)
 
-            # import pdb; pdb.set_trace();
+            import pdb; pdb.set_trace();
 
             # module_i = 0
             context_cnt, attn_cnt = 0, 0
@@ -181,11 +181,11 @@ class ZeroConvControlledUnetModel(UNetModel):
                     attn_cnt += 1
 
                 out_layers_feature_key = f'output_block_{i}_out_layers_features'
+
                 if injected_features is not None and out_layers_feature_key in injected_features:
                     out_layers_injected = injected_features[out_layers_feature_key]
                     out_layers_injected_transformed = self.adaptor_blocks[i](out_layers_injected, emb) + out_layers_injected
                     # print(timesteps.shape, timesteps)
-                    import pdb; pdb.set_trace()
                     if timesteps[0].item() < self.inject_min_step and self.isTest:
                         h = module(h, emb, context, context_mask=context_mask)
                     else:
