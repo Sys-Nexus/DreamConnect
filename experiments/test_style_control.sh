@@ -1,5 +1,5 @@
 
-jobname=${1:-'prospect_test_res_value_inject_idback_css15'}
+jobname=${1:-'prospect_test_res_value_inject_idback_css15_min_step0'}
 filter_mode=${2:-'tune_sideconv'} #do not use no_filter, which will fail the memory
 
 gpus=${3:-'0,'}
