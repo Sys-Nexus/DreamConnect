@@ -426,11 +426,12 @@ def test_one_epoch(config, model, model_ema, data_loader, val_data_loader, optim
             if model_wrap is not None:
                 if is_inst_edit is True or is_inst_gen is True:
                     if whitelist is not None and '{:06d}'.format(batch['s'][0]) not in whitelist: continue
-
+                    if val_idx < 100: continue
+                    if val_idx > 150: continue
                     model.log_images(batch, epoch, idx, val_idx, model_wrap, model_wrap_cfg, 
                                  save_dir, 'val', cfg_text=cfg_text, cfg_text_edit=cfg_text_edit, cfg_fmri=2.5,
                                  prospect_words=prospect_words, is_inst_edit=is_inst_edit, is_inst_gen=is_inst_gen)
-                    if val_idx > 50: break
+                    # if val_idx > 50: break
 
                     ## only run 100 iterations for quick selection of images
                     
