@@ -156,7 +156,7 @@ model:
         legacy: False
         force_type_convert: True
         train_feat_adaptor: True
-        isTest: True
+        isTest: False ##### we need to eliminate context_mask for style manipulation
         # inject_min_step: 900
         inject_min_step: 0
 
