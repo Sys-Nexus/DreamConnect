@@ -1,14 +1,6 @@
-
-# jobname=${1:-'test_conv_adaptor'}
-# jobname=${1:-'test_zero_adaptor_idback'} # test_res_value_inject_idback_css15
-# jobname=${1:-'test_conv_adaptor_mixing1_text'}
-
 jobname=${1:-'test_res_value_inject_idback_css15'}
 filter_mode=${2:-'tune_sideconv'} #do not use no_filter, which will fail the memory
 
-
-# cfg_text_edit=${6:-20.0}
-# cfg_text_edit=${6:-1.5}
 
 gpus=${3:-'0,'}
 master_port=${4:-'27699'}
@@ -17,6 +9,7 @@ cfg_text=${6:-7.5}
 cfg_text_edit=${6:-7.5}
 mode=${7:-'single'}
 vis=${8:-1}
+
 
 num_nodes=1
 if [[ ${mode} == 'single' ]]; then
@@ -29,8 +22,10 @@ if [[ ${mode} == 'single' ]]; then
   run_cmd='torchrun --master_port '${master_port}
 fi
 
+
 export PATH=/usr/local/cuda-11.3/bin:$PATH
 export LD_LIBRARY_PATH=/usr/local/cuda-11.3/lib64:$LD_LIBRARY_PATH
+
 
 current_date=$(date +"%Y-%m-%d")
 exp_name=${jobname}"_"${current_date}
@@ -59,7 +54,7 @@ CUDA_VISIBLE_DEVICES=${gpus} ${run_cmd} main.py --name ${exp_name} \
     --vis ${vis} \
     --isTrain ${isTrain} \
     --cfg_text ${cfg_text} \
-    --cfg_text_edit ${cfg_text_edit} #\
+    --cfg_text_edit ${cfg_text_edit}
     # --prospect_ckpt_path ${prospect_ckpt_path} \
     # --whitelist_path ${whitelist_path}
     # --layout_path ${layout_path} #\
