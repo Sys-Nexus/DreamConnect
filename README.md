@@ -66,7 +66,7 @@ Many thanks to these excellent open source projects:
 - [InstructDiffusion] (https://github.com/cientgu/InstructDiffusion)
 
 
-## Citation
+# Citation
 If you find our paper and code useful for your research, please consider citing:
 ```bibtex
 @misc{sun2024connectingdreamsvisualbrainstorming,
