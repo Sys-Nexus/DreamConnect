@@ -882,7 +882,7 @@ class DualLDM(LatentDiffusion):
                                                bs=N, uncond=0, return_original_cond=True, 
                                                return_first_stage_outputs=True,
                                                prospect_words=prospect_words)
-        
+        import pdb; pdb.set_trace();
         if layout_in is not None:
             sz = 512
             layout_in = F.interpolate(layout_in, (sz,sz))
