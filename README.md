@@ -35,9 +35,9 @@ conda install pytorch==1.10.0 torchvision==0.8.2 -c pytorch -c conda-forge
 **c. Install other dependencies.**
 We simply freeze our environments. Other environments might also works. Here we provide requirements.txt file for reference.
 ```shell
-pip -r requirements.txt
+pip install -r requirements.txt
 ```
-
+Note that the transformers==1.19.2 is strictly required.
 
 # Prepare Data
 - Agree to the Natural Scenes Dataset's [Terms and Conditions](https://cvnlab.slite.page/p/IB6BSeW_7o/Terms-and-Conditions) and fill out the NSD Data [Access form](https://docs.google.com/forms/d/e/1FAIpQLSduTPeZo54uEMKD-ihXmRhx0hBDdLHNsVyeo_kCb8qbyAkXuQ/viewform).
