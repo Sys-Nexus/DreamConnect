@@ -137,7 +137,7 @@ class NIPS23NSDDataset(Dataset):
         self.edited_root = 'nsd_coco_output'
         self.meta_info = read_edit_json(os.path.join(nsd_root, 'misc'), self.keys)
         self.valid_do_nothing_ops = [' ']
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
 
     def __getitem__(self, index):
         s = self.cocos[index]
@@ -153,7 +153,7 @@ class NIPS23NSDDataset(Dataset):
         init_image = repeat(init_image, '1 ... -> b ...', b=1)
         fmri_norm = self.voxels[index][0]
         
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
         nsd_dict = {'cap': random.choices(caps)[0], 'image': init_image[0], 
                     'fmri': fmri_norm, 's': s}
         
