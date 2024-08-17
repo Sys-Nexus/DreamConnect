@@ -175,8 +175,8 @@ class NIPS23NSDDataset(Dataset):
             nsd_dict['nsd_cliptext'] = nsd_cliptext
             nsd_dict['nsd_clipvision'] = nsd_clipvision
 
-        print(self.is_reconstruct_mode)
-        print(random.uniform(0,1.)<self.reconstruct_prob)
+        # print(self.is_reconstruct_mode)
+        # print(random.uniform(0,1.)<self.reconstruct_prob)
 
         if self.is_reconstruct_mode or random.uniform(0,1.)<self.reconstruct_prob:
             instruction_text = random.choice(self.valid_do_nothing_ops)
@@ -202,8 +202,8 @@ class NIPS23NSDDataset(Dataset):
                 nsd_dict['fmri_edit'] = {'c_concat': init_image[0], 'output': nsd_dict['cap'], 'c_crossattn': instruction_text, 'c_crossattn_1': fmri_norm}
                 nsd_dict['edited'] = init_image[0]
             
-            print('chosen pool: ', chosen_pool)
-            print('instruction: ', instruction_text)
+            # print('chosen pool: ', chosen_pool)
+            # print('instruction: ', instruction_text)
 
         # print(nsd_dict['cap'], nsd_dict['fmri_edit']['c_crossattn'])
         return nsd_dict
