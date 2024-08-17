@@ -52,7 +52,7 @@ pip -r requirements.txt
 bash experiments/test_language_control.sh 
 ```
 - Please check the checkpoint path in configs/test/test_res_value_inject_idback_css15.yaml and replace it with the downloaded paths accordingly.
-- Note that here we directly provides the aligned fMRI feature in fmri_vae, img_clip and text_clip directory for convenience. The overall procedure follows [fMRI-reconstruction-NSD] (https://github.com/MedARC-AI/fMRI-reconstruction-NSD). You could also infer them by 
+- Note that here we directly provides the aligned fMRI feature in fmri_vae, img_clip and text_clip directory for convenience. The overall procedure follows [fMRI-reconstruction-NSD](https://github.com/MedARC-AI/fMRI-reconstruction-NSD). You could also infer them by 
 ```
 bash experiments/diffusion_test.sh
 ```
