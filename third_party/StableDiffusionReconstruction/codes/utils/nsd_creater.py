@@ -175,7 +175,7 @@ class NIPS23NSDDataset(Dataset):
             nsd_dict['nsd_cliptext'] = nsd_cliptext
             nsd_dict['nsd_clipvision'] = nsd_clipvision
 
-        # import pdb; pdb.set_trace()
+        import pdb; pdb.set_trace()
         if self.is_reconstruct_mode or random.uniform(0,1.)<self.reconstruct_prob:
             instruction_text = random.choice(self.valid_do_nothing_ops)
             nsd_dict['fmri_edit'] = {'c_concat': init_image[0], 'c_crossattn': instruction_text, 'c_crossattn_1': fmri_norm}
