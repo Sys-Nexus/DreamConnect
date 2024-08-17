@@ -137,6 +137,7 @@ class NIPS23NSDDataset(Dataset):
         self.edited_root = 'nsd_coco_output'
         self.meta_info = read_edit_json(os.path.join(nsd_root, 'misc'), self.keys)
         self.valid_do_nothing_ops = [' ']
+        import pdb; pdb.set_trace()
 
     def __getitem__(self, index):
         s = self.cocos[index]
