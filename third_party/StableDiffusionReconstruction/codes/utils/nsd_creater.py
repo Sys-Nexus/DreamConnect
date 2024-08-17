@@ -175,13 +175,15 @@ class NIPS23NSDDataset(Dataset):
             nsd_dict['nsd_cliptext'] = nsd_cliptext
             nsd_dict['nsd_clipvision'] = nsd_clipvision
 
-        import pdb; pdb.set_trace()
+        print(self.is_reconstruct_mode)
+        print(random.uniform(0,1.)<self.reconstruct_prob)
+
         if self.is_reconstruct_mode or random.uniform(0,1.)<self.reconstruct_prob:
             instruction_text = random.choice(self.valid_do_nothing_ops)
             nsd_dict['fmri_edit'] = {'c_concat': init_image[0], 'c_crossattn': instruction_text, 'c_crossattn_1': fmri_norm}
             nsd_dict['edited'] = init_image[0]
         else:
-            # try:
+            
             chosen_pool = []
             for chosen_i in [0,1]:
                 edited_path = os.path.join(self.edited_root, '{:06d}'.format(s), 'output_{:06d}_seed93151_id{}.jpg'.format(s,chosen_i))
@@ -199,6 +201,10 @@ class NIPS23NSDDataset(Dataset):
                 instruction_text = random.choice(self.valid_do_nothing_ops)
                 nsd_dict['fmri_edit'] = {'c_concat': init_image[0], 'output': nsd_dict['cap'], 'c_crossattn': instruction_text, 'c_crossattn_1': fmri_norm}
                 nsd_dict['edited'] = init_image[0]
+            
+            print('chosen pool: ', chosen_pool)
+            print('instruction: ', instruction_text)
+
         # print(nsd_dict['cap'], nsd_dict['fmri_edit']['c_crossattn'])
         return nsd_dict
 
