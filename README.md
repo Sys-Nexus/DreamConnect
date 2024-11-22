@@ -53,9 +53,8 @@ The obtained images after instruction can be downloaded from [nsd_coco_output.ta
 ```
 bash experiments/test_language_control.sh 
 ```
-- Please check the checkpoint path in configs/test/test_res_value_inject_idback_css15.yaml and replace it with the downloaded paths accordingly.
-- Specificially, download the pre-trained language based instruction [model](https://mailustceducn-my.sharepoint.com/:u:/g/personal/aa397601_mail_ustc_edu_cn/EWlNmyeS9P1BkRg_IlXbPbwBeNMQXQTcIA0pCokyd61UWg?e=iKfRdk) from [InstructDiffusion](https://github.com/cientgu/InstructDiffusion).
-- Note that [here](https://1drv.ms/f/c/7c0cd8158f160d40/EojCbdnGLhBPky_DLW0DYsYBPdaAxIKPbxYzdnLEY7jWbg?e=f7UezW) we directly provides the fMRI-aligned VAE features (fmri_vae.zip).zip, aligned image features (img_clip.zip) and aligned text features (text_clip.zip) for convenience. 
+- Please check the checkpoint path in configs/test/test_res_value_inject_idback_css15.yaml and replace it with the downloaded paths accordingly. Specificially, download the pre-trained language based instruction [model](https://mailustceducn-my.sharepoint.com/:u:/g/personal/aa397601_mail_ustc_edu_cn/EWlNmyeS9P1BkRg_IlXbPbwBeNMQXQTcIA0pCokyd61UWg?e=iKfRdk) from [InstructDiffusion](https://github.com/cientgu/InstructDiffusion).
+- Note that [here](https://1drv.ms/f/c/7c0cd8158f160d40/EojCbdnGLhBPky_DLW0DYsYBPdaAxIKPbxYzdnLEY7jWbg?e=f7UezW) we directly provides the fMRI-aligned VAE features (fmri_vae.zip), aligned image features (img_clip.zip) and aligned text features (text_clip.zip) for convenience. 
 
 
 If you are interested in training a alignment module by yourself, please 
