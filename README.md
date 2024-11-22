@@ -42,9 +42,11 @@ Note that the transformers==1.19.2 is strictly required.
 # Prepare Data
 - Agree to the Natural Scenes Dataset's [Terms and Conditions](https://cvnlab.slite.page/p/IB6BSeW_7o/Terms-and-Conditions) and fill out the NSD Data [Access form](https://docs.google.com/forms/d/e/1FAIpQLSduTPeZo54uEMKD-ihXmRhx0hBDdLHNsVyeo_kCb8qbyAkXuQ/viewform).
 
+- Crafted Dataset. The editing instructions are located in third_party/StableDiffusionReconstruction/codes/utils/misc directory.
+The obtained images after instruction can be downloaded from [nsd_coco_output.tar](https://1drv.ms/f/c/7c0cd8158f160d40/EojCbdnGLhBPky_DLW0DYsYBPdaAxIKPbxYzdnLEY7jWbg?e=f7UezW).
 
 # Pretrained Model
-- Download [Pretrained model].
+- Download [Pretrained model](https://1drv.ms/f/c/7c0cd8158f160d40/EojCbdnGLhBPky_DLW0DYsYBPdaAxIKPbxYzdnLEY7jWbg?e=f7UezW) and put it to logs/train_res_inject_idback_train_res_inject_idback_2024-04-22/checkpoints/ckpt_epoch_50/mp_rank_00_model_states.pt accordingly.
 
 
 # Testing
@@ -52,10 +54,18 @@ Note that the transformers==1.19.2 is strictly required.
 bash experiments/test_language_control.sh 
 ```
 - Please check the checkpoint path in configs/test/test_res_value_inject_idback_css15.yaml and replace it with the downloaded paths accordingly.
-- Note that here we directly provides the aligned fMRI feature in fmri_vae, img_clip and text_clip directory for convenience. The overall procedure follows [fMRI-reconstruction-NSD](https://github.com/MedARC-AI/fMRI-reconstruction-NSD). You could also infer them by 
+- Specificially, download the pre-trained language based instruction [model] (https://mailustceducn-my.sharepoint.com/:u:/g/personal/aa397601_mail_ustc_edu_cn/EWlNmyeS9P1BkRg_IlXbPbwBeNMQXQTcIA0pCokyd61UWg?e=iKfRdk) from [InstructDiffusion] (https://github.com/cientgu/InstructDiffusion).
+- Note that [here] (https://1drv.ms/f/c/7c0cd8158f160d40/EojCbdnGLhBPky_DLW0DYsYBPdaAxIKPbxYzdnLEY7jWbg?e=f7UezW) we directly provides the fMRI-aligned VAE features (fmri_vae.zip).zip, aligned image features (img_clip.zip) and aligned text features (text_clip.zip) for convenience. 
+
+
+If you are interested in training a alignment module by yourself, please 
+follow the overall procedure [fMRI-reconstruction-NSD](https://github.com/MedARC-AI/fMRI-reconstruction-NSD). Here we also directly provide our trained alignment module for img_clip and text_clip. You can download them and put them to train_logs/latent_diffusion_image_fp32_resume/ and train_logs/latent_diffusion_text_fp32_resume2/ accordingly. 
+Then, you can run below commands to obtain the above provided img_clip and text_clip files.
 ```
-bash experiments/diffusion_test.sh
+bash experiments/diffusion_test.sh image
+bash experiments/diffusion_test.sh text
 ```
+
 
 # Acknowledgements
 Many thanks to these excellent open source projects: 
