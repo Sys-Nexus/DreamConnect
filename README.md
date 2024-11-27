@@ -1,4 +1,4 @@
-# Connecting Dreams with Visual Brainstorming Instruction (Visual Intelligence, Under-Review)
+# Connecting Dreams with Visual Brainstorming Instruction (Visual Intelligence)
 [Yasheng Sun](https://scholar.google.com/citations?user=Vrq1yOEAAAAJ&hl=en), [Bohan Li](https://arlo0o.github.io/libohan.github.io/), [Mingchen Zhuge](https://scholar.google.com/citations?user=Qnj6XlMAAAAJ&hl=en&oi=ao), [Deng-Ping Fan](https://scholar.google.com/citations?user=kakwJ5QAAAAJ&hl=en&oi=ao), [Salman Khan](https://scholar.google.com/citations?user=M59O9lkAAAAJ&hl=en&oi=ao), [Fahad Shahbaz Khan](https://scholar.google.com/citations?user=zvaeYnUAAAAJ&hl=en&oi=ao),
 [Hideki Koike](https://scholar.google.com/citations?user=Ih8cJXQAAAAJ&hl=en)
 <!-- # Code and Project Coming Soon! Please Stay Tuned! -->
@@ -42,7 +42,7 @@ Note that the transformers==1.19.2 is strictly required.
 # Prepare Data
 - Agree to the Natural Scenes Dataset's [Terms and Conditions](https://cvnlab.slite.page/p/IB6BSeW_7o/Terms-and-Conditions) and fill out the NSD Data [Access form](https://docs.google.com/forms/d/e/1FAIpQLSduTPeZo54uEMKD-ihXmRhx0hBDdLHNsVyeo_kCb8qbyAkXuQ/viewform).
 
-- Crafted Dataset. The editing instructions are located in third_party/StableDiffusionReconstruction/codes/utils/misc directory.
+- Our Customized Dataset. The editing instructions are located `in third_party/StableDiffusionReconstruction/codes/utils/misc` directory.
 The obtained images after instruction can be downloaded from [nsd_coco_output.tar](https://1drv.ms/f/c/7c0cd8158f160d40/EojCbdnGLhBPky_DLW0DYsYBPdaAxIKPbxYzdnLEY7jWbg?e=f7UezW).
 
 # Pretrained Model
@@ -58,7 +58,7 @@ bash experiments/test_language_control.sh
 
 
 If you are interested in training a alignment module by yourself, please 
-follow the overall procedure [fMRI-reconstruction-NSD](https://github.com/MedARC-AI/fMRI-reconstruction-NSD). Here we also directly provide our trained alignment module for img_clip and text_clip. You can download them and put them to `train_logs/latent_diffusion_image_fp32_resume/ and train_logs/latent_diffusion_text_fp32_resume2/` accordingly. 
+follow the overall procedure [fMRI-reconstruction-NSD](https://github.com/MedARC-AI/fMRI-reconstruction-NSD). Here we also directly provide our trained alignment module for img_clip and text_clip. You can download them and put them to `train_logs/latent_diffusion_image_fp32_resume/` and `train_logs/latent_diffusion_text_fp32_resume2/` accordingly. 
 Then, you can run below commands to obtain the above provided img_clip and text_clip files.
 ```
 bash experiments/diffusion_test.sh image
