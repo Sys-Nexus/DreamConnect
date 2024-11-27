@@ -55,10 +55,7 @@ bash experiments/test_language_control.sh
 ```
 - Please check the checkpoint path in `configs/test/test_res_value_inject_idback_css15.yaml` and replace it with the downloaded paths accordingly. Specificially, download the pre-trained language based instruction [model](https://mailustceducn-my.sharepoint.com/:u:/g/personal/aa397601_mail_ustc_edu_cn/EWlNmyeS9P1BkRg_IlXbPbwBeNMQXQTcIA0pCokyd61UWg?e=iKfRdk) from [InstructDiffusion](https://github.com/cientgu/InstructDiffusion).
 - Note that [here](https://1drv.ms/f/c/7c0cd8158f160d40/EojCbdnGLhBPky_DLW0DYsYBPdaAxIKPbxYzdnLEY7jWbg?e=f7UezW) we directly provides the fMRI-aligned VAE features (fmri_vae.zip), aligned image features (img_clip.zip) and aligned text features (text_clip.zip) for convenience. 
-
-
-If you are interested in training a alignment module by yourself, please 
-follow the overall procedure [fMRI-reconstruction-NSD](https://github.com/MedARC-AI/fMRI-reconstruction-NSD). Here we also directly provide our trained alignment module for img_clip and text_clip. You can download them and put them to `train_logs/latent_diffusion_image_fp32_resume/` and `train_logs/latent_diffusion_text_fp32_resume2/` accordingly. 
+- If you are interested in training a alignment module by yourself, please follow the overall procedure [fMRI-reconstruction-NSD](https://github.com/MedARC-AI/fMRI-reconstruction-NSD). Here we also directly provide our trained alignment module for img_clip and text_clip. You can download them and put them to `train_logs/latent_diffusion_image_fp32_resume/` and `train_logs/latent_diffusion_text_fp32_resume2/` accordingly. 
 Then, you can run below commands to obtain the above provided img_clip and text_clip files.
 ```
 bash experiments/diffusion_test.sh image
