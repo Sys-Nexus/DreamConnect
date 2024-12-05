@@ -73,9 +73,9 @@ For ease of use, we provide the following pre-aligned features:
 - [Aligned text features (text_clip.zip)](https://1drv.ms/f/c/7c0cd8158f160d40/EojCbdnGLhBPky_DLW0DYsYBPdaAxIKPbxYzdnLEY7jWbg?e=f7UezW)
 
 
-If you are interested in training a alignment [model](https://1drv.ms/f/c/7c0cd8158f160d40/EojCbdnGLhBPky_DLW0DYsYBPdaAxIKPbxYzdnLEY7jWbg?e=f7UezW) by yourself, please follow the overall procedure [fMRI-reconstruction-NSD](https://github.com/MedARC-AI/fMRI-reconstruction-NSD).
+If you are interested in training a alignment model by yourself, please follow the overall procedure [fMRI-reconstruction-NSD](https://github.com/MedARC-AI/fMRI-reconstruction-NSD).
 
-We provide the our trained alignment module for img_clip and text_clip. Download them and place to the directory of `train_logs/latent_diffusion_image_fp32_resume/` and `train_logs/latent_diffusion_text_fp32_resume2/` accordingly. 
+We provide the our trained alignment [model](https://1drv.ms/f/c/7c0cd8158f160d40/EojCbdnGLhBPky_DLW0DYsYBPdaAxIKPbxYzdnLEY7jWbg?e=f7UezW) for img_clip and text_clip. Download them and place to the directory of `train_logs/latent_diffusion_image_fp32_resume/` and `train_logs/latent_diffusion_text_fp32_resume2/` accordingly. 
 
 Then, you can run below commands to obtain the above provided img_clip and text_clip files.
 ```
