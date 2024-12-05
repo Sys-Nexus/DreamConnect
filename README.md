@@ -3,6 +3,12 @@
 [Hideki Koike](https://scholar.google.com/citations?user=Ih8cJXQAAAAJ&hl=en)
 <!-- # Code and Project Coming Soon! Please Stay Tuned! -->
 
+<img src='./misc/teaser.png' width=800>
+
+We aim to develop a straightforward framework that uses other modalities, such as natural language, to translate the original “dreamland”. We present DreamConnect, employing a dual-stream diffusion framework to manipulate visually stimulated brain signals. By integrating an asynchronous diffusion strategy, our framework establishes an effective interface with human “dreams”, progressively refining their final imagery synthesis.
+
+<img src='./misc/method.png' width=800>
+
 
 # Table of Content
 - [News](#news)
