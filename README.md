@@ -57,8 +57,6 @@ The obtained images after instruction can be downloaded from [nsd_coco_output.ta
 - Download [Pretrained model](https://1drv.ms/f/c/7c0cd8158f160d40/EojCbdnGLhBPky_DLW0DYsYBPdaAxIKPbxYzdnLEY7jWbg?e=f7UezW) and put it to `logs/train_res_inject_idback_train_res_inject_idback_2024-04-22/checkpoints/ckpt_epoch_50/mp_rank_00_model_states.pt` accordingly.
 
 
-# Testing
-
 # Instructions for Testing the Model
 
 ## Step 1: Update the Checkpoint Path
