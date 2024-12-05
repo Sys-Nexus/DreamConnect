@@ -59,7 +59,7 @@ The obtained images after instruction can be downloaded from [nsd_coco_output.ta
 
 # Testing
 
-# Instructions for Testing and Training the Model
+# Instructions for Testing the Model
 
 ## Step 1: Update the Checkpoint Path
 Open the configuration file located at `configs/test/test_res_value_inject_idback_css15.yaml` and update the checkpoint path to match the paths of the downloaded models.
@@ -74,10 +74,9 @@ For ease of use, we provide the following pre-aligned features:
 
 
 If you are interested in training a alignment model by yourself, please follow the overall procedure [fMRI-reconstruction-NSD](https://github.com/MedARC-AI/fMRI-reconstruction-NSD).
-
 We provide the our trained alignment [model](https://1drv.ms/f/c/7c0cd8158f160d40/EojCbdnGLhBPky_DLW0DYsYBPdaAxIKPbxYzdnLEY7jWbg?e=f7UezW) for img_clip and text_clip. Download them and place to the directory of `train_logs/latent_diffusion_image_fp32_resume/` and `train_logs/latent_diffusion_text_fp32_resume2/` accordingly. 
-
 Then, you can run below commands to obtain the above provided img_clip and text_clip files.
+
 ```
 bash experiments/diffusion_test.sh image
 bash experiments/diffusion_test.sh text
