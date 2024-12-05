@@ -24,7 +24,7 @@ We aim to develop a straightforward framework that uses other modalities, such a
 
 # News
 - [2024/08]: Paper is on [Arxiv](http://arxiv.org/abs/2408.07317).
-
+- [2024/12]: Paper is accepted by [Visual Intelligence](https://link.springer.com/journal/44267).
 
 # Step-by-step Installation Instructions
 
