@@ -1,4 +1,4 @@
-# Connecting Dreams with Visual Brainstorming Instruction (Visual Intelligence)
+# Connecting Dreams with Visual Brainstorming Instruction
 [Yasheng Sun](https://scholar.google.com/citations?user=Vrq1yOEAAAAJ&hl=en), [Bohan Li](https://arlo0o.github.io/libohan.github.io/), [Mingchen Zhuge](https://scholar.google.com/citations?user=Qnj6XlMAAAAJ&hl=en&oi=ao), [Deng-Ping Fan](https://scholar.google.com/citations?user=kakwJ5QAAAAJ&hl=en&oi=ao), [Salman Khan](https://scholar.google.com/citations?user=M59O9lkAAAAJ&hl=en&oi=ao), [Fahad Shahbaz Khan](https://scholar.google.com/citations?user=zvaeYnUAAAAJ&hl=en&oi=ao),
 [Hideki Koike](https://scholar.google.com/citations?user=Ih8cJXQAAAAJ&hl=en)
 <!-- # Code and Project Coming Soon! Please Stay Tuned! -->
@@ -87,8 +87,6 @@ Once the paths are updated, you can test the model by running the following comm
 bash experiments/test_language_control.sh
 ```
 
-
-
 <!-- 
 - Please check the checkpoint path in `configs/test/test_res_value_inject_idback_css15.yaml` and replace it with the downloaded paths accordingly. Specificially, download the pre-trained language based instruction [model](https://mailustceducn-my.sharepoint.com/:u:/g/personal/aa397601_mail_ustc_edu_cn/EWlNmyeS9P1BkRg_IlXbPbwBeNMQXQTcIA0pCokyd61UWg?e=iKfRdk) from [InstructDiffusion](https://github.com/cientgu/InstructDiffusion).
 - Note that [here](https://1drv.ms/f/c/7c0cd8158f160d40/EojCbdnGLhBPky_DLW0DYsYBPdaAxIKPbxYzdnLEY7jWbg?e=f7UezW) we directly provides the fMRI-aligned VAE features (fmri_vae.zip), aligned image features (img_clip.zip) and aligned text features (text_clip.zip) for convenience. 
@@ -119,10 +117,7 @@ If you find our paper and code useful for your research, please consider citing:
 @misc{sun2024connectingdreamsvisualbrainstorming,
       title={Connecting Dreams with Visual Brainstorming Instruction}, 
       author={Yasheng Sun and Bohan Li and Mingchen Zhuge and Deng-Ping Fan and Salman Khan and Fahad Shahbaz Khan and Hideki Koike},
-      year={2024},
-      eprint={2408.07317},
-      archivePrefix={arXiv},
-      primaryClass={cs.HC},
-      url={https://arxiv.org/abs/2408.07317}, 
+      year={2025},
+      journal={Viusal Intelligence}
 }
 ```
