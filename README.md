@@ -3,9 +3,14 @@
 [Hideki Koike](https://scholar.google.com/citations?user=Ih8cJXQAAAAJ&hl=en)
 <!-- # Code and Project Coming Soon! Please Stay Tuned! -->
 
-<img src='./misc/teaser.png' width=800>
+<p>
+  <a href="https://arxiv.org/abs/2408.07317"><img src="https://img.shields.io/badge/arXiv-2408.07317-b31b1b?logo=arxiv&amp;logoColor=white" alt="arXiv 2408.07317"></a>
+  <a href="https://sunyasheng.github.io/projects/DreamConnect"><img src="https://img.shields.io/badge/Project-Page-1f6feb?logo=googlechrome&amp;logoColor=white" alt="Project page"></a>
+  <a href="https://link.springer.com/article/10.1007/s44267-025-00081-2"><img src="https://img.shields.io/badge/Visual%20Intelligence-2025-5c3d8f" alt="Visual Intelligence 2025"></a>
+  <a href="https://huggingface.co/papers/2408.07317"><img src="https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Paper-ffd21e" alt="Hugging Face paper"></a>
+</p>
 
-### [Paper](https://arxiv.org/pdf/2408.07317)
+<img src='./misc/teaser.png' width=800>
 
 We aim to develop a straightforward framework that uses other modalities, such as natural language, to translate the original “dreamland”. We present DreamConnect, employing a dual-stream diffusion framework to manipulate visually stimulated brain signals. By integrating an asynchronous diffusion strategy, our framework establishes an effective interface with human “dreams”, progressively refining their final imagery synthesis.
 
@@ -17,9 +22,9 @@ We aim to develop a straightforward framework that uses other modalities, such a
 - [Installation](#step-by-step-installation-instructions)
 - [Prepare Data](#prepare-data)
 - [Pretrained Model](#pretrained-model)
-- [Testing](#testing)
-- [License](#license)
+- [Testing](#instructions-for-testing-the-model)
 - [Acknowledgements](#acknowledgements)
+- [Citation](#citation)
 
 
 # News
@@ -104,20 +109,24 @@ bash experiments/diffusion_test.sh text
 
 # Acknowledgements
 Many thanks to these excellent open source projects: 
-- [InstructPix2Pix] (https://github.com/timothybrooks/instruct-pix2pix)
-- [fMRI-reconstruction-NSD] (https://github.com/MedARC-AI/fMRI-reconstruction-NSD)
-- [Versatile-Diffusion] (https://github.com/SHI-Labs/Versatile-Diffusion)
-- [Stable-Diffusion] (https://github.com/CompVis/stable-diffusion)
-- [InstructDiffusion] (https://github.com/cientgu/InstructDiffusion)
+- [InstructPix2Pix](https://github.com/timothybrooks/instruct-pix2pix)
+- [fMRI-reconstruction-NSD](https://github.com/MedARC-AI/fMRI-reconstruction-NSD)
+- [Versatile-Diffusion](https://github.com/SHI-Labs/Versatile-Diffusion)
+- [Stable-Diffusion](https://github.com/CompVis/stable-diffusion)
+- [InstructDiffusion](https://github.com/cientgu/InstructDiffusion)
 
 
 # Citation
 If you find our paper and code useful for your research, please consider citing:
 ```bibtex
-@misc{sun2024connectingdreamsvisualbrainstorming,
-      title={Connecting Dreams with Visual Brainstorming Instruction}, 
-      author={Yasheng Sun and Bohan Li and Mingchen Zhuge and Deng-Ping Fan and Salman Khan and Fahad Shahbaz Khan and Hideki Koike},
-      year={2025},
-      journal={Viusal Intelligence}
+@article{sun2025dreamconnect,
+  title   = {Connecting Dreams with Visual Brainstorming Instruction},
+  author  = {Sun, Yasheng and Li, Bohan and Zhuge, Mingchen and Fan, Deng-Ping
+             and Khan, Salman and Khan, Fahad Shahbaz and Koike, Hideki},
+  journal = {Visual Intelligence},
+  volume  = {3},
+  pages   = {12},
+  year    = {2025},
+  doi     = {10.1007/s44267-025-00081-2}
 }
 ```
